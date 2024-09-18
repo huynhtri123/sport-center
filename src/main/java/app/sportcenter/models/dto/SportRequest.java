@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @AllArgsConstructor
-public class SportRequestDTO extends BaseRequestDTO{
+public class SportRequest extends BaseRequestDTO {
     @NotBlank(message = "Bạn chưa nhập tên cho môn thể thao!")
     private String sportName;
     @NotBlank(message = "Bạn chưa nhập mô tả cho môn thể thao!")

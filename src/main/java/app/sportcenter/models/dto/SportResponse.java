@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SportResponseDTO extends BaseResponseDTO{
+public class SportResponse extends BaseResponseDTO {
     private String sportName;
     private String description;
     private String imageUrl;

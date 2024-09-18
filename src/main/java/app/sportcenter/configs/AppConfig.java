@@ -11,4 +11,10 @@ public class AppConfig {
     private String uri;
     @Value("${spring.data.mongodb.database}")
     private String database;
+    @Value("${jwt.secret-key}")
+    private String jwtSecretKey;
+    @Value("${admin.email}")
+    private String adminEmail;
+    @Value("${admin.password}")
+    private String adminPassword;
 }
