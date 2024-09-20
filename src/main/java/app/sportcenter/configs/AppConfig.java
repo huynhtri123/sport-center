@@ -17,4 +17,9 @@ public class AppConfig {
     private String adminEmail;
     @Value("${admin.password}")
     private String adminPassword;
+
+    @Value("5")
+    private Integer verifyExpireTime;
+    @Value("10")
+    private Integer logRounds;
 }

@@ -30,11 +30,13 @@ public class User extends BaseEntity implements UserDetails {
     private String phoneNumber;
     private String address;
     private ZonedDateTime dateOfBirth;
-    private String avatarUrl;               // link ảnh đại diện
+    private String avatarUrl;                   // link ảnh đại diện
     private Role role;
-    private List<LineItem> cart;            // giỏ hàng
+    private List<LineItem> cart;                // giỏ hàng
     @DBRef(lazy = true)
-    private List<PaymentInfo> paymentInfos; // danh sách thông tin thanh toán
+    private List<PaymentInfo> paymentInfos;     // danh sách thông tin thanh toán
+    private Verify verify;                      // gửi qua mail khi đăng ký tài khoản
+    private Boolean isEmailVerified = false;            // trạng thái tài khoản đã được xác thực chưa
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

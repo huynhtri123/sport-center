@@ -1,5 +1,7 @@
 package app.sportcenter.configs;
 
+import app.sportcenter.exceptions.CustomException;
+import app.sportcenter.models.entities.User;
 import app.sportcenter.services.JWTService;
 import app.sportcenter.services.UserService;
 import io.micrometer.common.util.StringUtils;
@@ -8,6 +10,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -43,6 +46,12 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         if (StringUtils.isNotEmpty(userEmail) && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userService.userDetailsService().loadUserByUsername(userEmail);
             if (jwtService.isValidToken(jwt, userDetails)) {
+                // kiểm tra tài khoản đã được xác thực chưa
+                User user = userService.getUserByEmail(userEmail);
+                if (!user.getIsEmailVerified()) {
+                    throw new CustomException("Tài khoản này chưa được xác thực.", HttpStatus.UNAUTHORIZED.value());
+                }
+
                 SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
 
                 UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(

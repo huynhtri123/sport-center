@@ -22,7 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@EnableMethodSecurity
+@EnableMethodSecurity   // cho phép dùng @PreAuthorize
 public class SecurityConfiguration {
     private final JWTAuthenticationFilter jwtAuthenticationFilter;
     private final UserService userService;
