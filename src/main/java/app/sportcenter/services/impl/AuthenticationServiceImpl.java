@@ -48,6 +48,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (!userRepository.existsByRole(Role.ADMIN)) {
             User admin = new User();
             admin.setFullName("ADMIN");
+            admin.setIsEmailVerified(true);
             admin.setEmail(appConfig.getAdminEmail());
             admin.setPassword(passwordEncoder.encode(appConfig.getAdminPassword()));
             admin.setRole(Role.ADMIN);
@@ -76,7 +77,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return verifyCode.toString();
     }
 
-    @Transactional
+    // Đăng ký bước 1
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public VerifyResponse signup(SignupRequest signupRequest) {
         // kiểm tra xem email đã tồn tại chưa
@@ -98,12 +100,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String verifyCode = getVerifyCode();
         Verify verify = new Verify(BCrypt.hashpw(verifyCode, BCrypt.gensalt(appConfig.getLogRounds())),
                 ZonedDateTime.now().plus(appConfig.getVerifyExpireTime(), ChronoUnit.MINUTES));
+
+        // gửi otp qua mail:
+        try {
+            mailService.sendMailVerify(user.getEmail(), user.getFullName(), verifyCode);
+        } catch (Exception e) {
+            log.error("Lỗi khi gửi email xác thực cho người dùng: " + user.getEmail(), e);
+            throw new RuntimeException("Lỗi khi gửi email xác thực. Vui lòng thử lại sau.", e);
+        }
+
         user.setVerify(verify);
         userRepository.save(user);
-        // gửi otp qua mail:
-        mailService.sendMailVerify(user.getEmail(), user.getFullName(), verifyCode);
 
-        log.warn(user.toString());
+        log.info("Create new User succesfully! UserId: " + user.getId());
 
         return VerifyResponse.builder()
                 .id(user.getId())
@@ -111,6 +120,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
     }
 
+    // Đăng ký bước 2 (Kiểm tra OTP)
     @Override
     public UserResponse verifyUser(String userId, VerifyRequest verifyRequest) {
         User user = userRepository.findById(userId)
@@ -119,6 +129,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         // kiểm tra xem có mã xác thực không
         if (user.getVerify() == null) {
             throw new NotFoundException("Mã xác thực không tồn tại");
+        }
+
+        // kiểm tra xem tài khoản đã đươc xác thực trước đó chưa
+        if (user.getIsEmailVerified()) {
+            throw new CustomException("Tài khoản này đã được xác thực trước đó rồi.", HttpStatus.BAD_REQUEST.value());
         }
 
         // kiểm tra mã xác thực hết hạn chưa
@@ -139,6 +154,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setIsEmailVerified(true);
         user.setVerify(null);
         userRepository.save(user);
+
+        log.info("Verify User succesfully! UserId: " + user.getId());
 
         return userMapper.convertToDTO(user);
     }
@@ -169,6 +186,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         jwtAuthResponse.setToken(jwt);
         jwtAuthResponse.setRefreshToken(refreshToken);
 
+        log.info("Login successfully! UserId: " + user.getId());
+
         return ResponseEntity.status(HttpStatus.OK).body(
                 new BaseResponse("Đăng nhập thành công",
                         HttpStatus.OK.value(),
@@ -197,6 +216,97 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                 new BaseResponse("Invalid refresh token", HttpStatus.UNAUTHORIZED.value(), null)
         );
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public ResponseEntity<BaseResponse> sendVerifyRequest(ForgotPasswordRequest forgotPasswordRequest) {
+        User user = userService.getUserByEmail(forgotPasswordRequest.getEmail());
+        if (user == null) {
+            throw new CustomException("Không tìm thấy người dùng có email này!", HttpStatus.NOT_FOUND.value());
+        }
+
+        // kiểm tra xem user này được xác thực chưa
+        boolean isVerified = user.getIsEmailVerified();
+        String message = "";
+        // nếu được xác thực rồi thì đây là yêu cầu lấy lại mật khẩu
+        if (isVerified) {
+            message = "Mã khôi phục mật khẩu đã được gửi đến email:" + user.getEmail();
+        } else {
+            message = "Mã xác thực đã được gửi đến email:" + user.getEmail();
+        }
+
+        // gửi OTP
+        String verifyCode = getVerifyCode();
+        Verify verify = new Verify(BCrypt.hashpw(verifyCode, BCrypt.gensalt(appConfig.getLogRounds())),
+                ZonedDateTime.now().plus(appConfig.getVerifyExpireTime(), ChronoUnit.MINUTES));
+
+        // gửi otp qua mail:
+        try {
+            mailService.sendMailVerify(user.getEmail(), user.getFullName(), verifyCode);
+        } catch (Exception e) {
+            log.error("Lỗi khi gửi email xác thực cho người dùng: " + user.getEmail(), e);
+            throw new RuntimeException("Lỗi khi gửi email xác thực. Vui lòng thử lại sau.", e);
+        }
+
+        user.setVerify(verify);
+        userRepository.save(user);
+
+        VerifyResponse verifyResponse = VerifyResponse.builder()
+                .id(user.getId())
+                .expiredAt(verify.getExpireAt())
+                .build();
+
+        log.info("Send verify request succesfully! UserId: " + user.getId());
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new BaseResponse(message, HttpStatus.OK.value(), verifyResponse)
+        );
+    }
+
+    @Override
+    public UserResponse renewPassword(String userId, RenewPasswordRequest renewPasswordRequest) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng này"));
+
+        // kiểm tra xem có mã xác thực không
+        if (user.getVerify() == null) {
+            throw new NotFoundException("Mã xác thực không tồn tại");
+        }
+
+        // kiểm tra xem tài khoản này đã được xác thực chưa
+        if (!user.getIsEmailVerified()) {
+            throw new CustomException("Tài khoản này chưa được xác thực. Vui lòng xác thực bằng cách gọi api đăng ký bước 2",
+                    HttpStatus.BAD_REQUEST.value());
+        }
+
+        // kiểm tra mã xác thực hết hạn chưa
+        if (user.getVerify().getExpireAt().isBefore(ZonedDateTime.now())) {
+            log.error("Verify code is expired: " + user.getEmail());
+            user.setVerify(null); // Xóa mã xác thực đã hết hạn
+            userRepository.save(user);
+            throw new CustomException("Verify code đã hết hạn!", HttpStatus.UNAUTHORIZED.value());
+        }
+
+        // check mã khôi phục
+        if (!BCrypt.checkpw(renewPasswordRequest.getResetPasswordCode(), user.getVerify().getCode())) {
+            log.error("Verify code is incorrect: " + user.getEmail());
+            throw new CustomException("Mã xác thực không chính xác", HttpStatus.UNAUTHORIZED.value());
+        }
+
+        // check mật khẩu và xác nhận mật khẩu
+        if (!checkMatchPassword(renewPasswordRequest.getPassword(), renewPasswordRequest.getComfirmPassword())) {
+            throw new IllegalArgumentException("Mật khẩu và xác nhận mật khẩu không khớp");
+        }
+
+        // pass, tạo mật khẩu mới
+        user.setPassword(passwordEncoder.encode(renewPasswordRequest.getPassword()));
+        user.setVerify(null);
+        userRepository.save(user);
+
+        log.info("Change password succesfully! UserId: " + user.getId());
+
+        return userMapper.convertToDTO(user);
     }
 
 

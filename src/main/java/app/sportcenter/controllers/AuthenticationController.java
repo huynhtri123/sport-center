@@ -1,10 +1,7 @@
 package app.sportcenter.controllers;
 
 import app.sportcenter.commons.BaseResponse;
-import app.sportcenter.models.dto.RefreshTokenRequest;
-import app.sportcenter.models.dto.SigninRequest;
-import app.sportcenter.models.dto.SignupRequest;
-import app.sportcenter.models.dto.VerifyRequest;
+import app.sportcenter.models.dto.*;
 import app.sportcenter.services.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +25,7 @@ public class AuthenticationController {
     }
     @PostMapping("/auth/signup/{userId}")
     public ResponseEntity<BaseResponse> signupStep2(@PathVariable("userId") String userId,
-                                                    @RequestBody VerifyRequest verifyRequest) {
+                                                    @Valid @RequestBody VerifyRequest verifyRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(
                 new BaseResponse("Đăng ký tài khoản thành công!",
                         HttpStatus.OK.value(), authenticationService.verifyUser(userId, verifyRequest))
@@ -43,5 +40,19 @@ public class AuthenticationController {
     @PostMapping("/auth/refreshToken")
     public ResponseEntity<BaseResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
         return authenticationService.refreshToken((refreshTokenRequest));
+    }
+
+    @PostMapping("/auth/getVerify")
+    public ResponseEntity<BaseResponse> sendVerifyRequest(@Valid @RequestBody ForgotPasswordRequest forgotPasswordRequest) {
+        return authenticationService.sendVerifyRequest(forgotPasswordRequest);
+    }
+
+    @PatchMapping("/auth/renewPassword/{userId}")
+    public ResponseEntity<BaseResponse> renewPassword(@PathVariable("userId") String userId,
+                                                      @Valid @RequestBody RenewPasswordRequest renewPasswordRequest) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new BaseResponse("Đổi mật khẩu thành công", HttpStatus.OK.value(),
+                        authenticationService.renewPassword(userId, renewPasswordRequest))
+        );
     }
 }

@@ -10,4 +10,6 @@ public interface AuthenticationService {
     public UserResponse verifyUser(String userId, VerifyRequest verifyRequest);
     public ResponseEntity<BaseResponse> signin(SigninRequest signinRequest);
     public ResponseEntity<BaseResponse> refreshToken(RefreshTokenRequest refreshTokenRequest);
+    public ResponseEntity<BaseResponse> sendVerifyRequest(ForgotPasswordRequest forgotPasswordRequest);
+    public UserResponse renewPassword(String userId, RenewPasswordRequest renewPasswordRequest);
 }

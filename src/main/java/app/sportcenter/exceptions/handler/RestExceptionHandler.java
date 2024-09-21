@@ -1,7 +1,10 @@
 package app.sportcenter.exceptions.handler;
 
 import app.sportcenter.commons.BaseResponse;
+import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
+import io.jsonwebtoken.JwtException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +21,7 @@ import java.util.Map;
 
 @RestController
 @ControllerAdvice
+@Slf4j
 public class RestExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -53,10 +57,11 @@ public class RestExceptionHandler {
         );
     }
 
-    @ExceptionHandler(AuthenticationException.class)
+    @ExceptionHandler({ AuthenticationException.class, JwtException.class })
     public ResponseEntity<BaseResponse> handleAuthenticationException(AuthenticationException exception) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                new BaseResponse(exception.getMessage(), HttpStatus.UNAUTHORIZED.value(), null)
+                new BaseResponse("Thông tin xác thực không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập và thử lại.",
+                        HttpStatus.UNAUTHORIZED.value(), null)
         );
     }
 
@@ -66,6 +71,15 @@ public class RestExceptionHandler {
                 new BaseResponse("Thông tin đăng nhập không chính xác. Vui lòng kiểm tra lại email và mật khẩu của bạn.",
                         HttpStatus.UNAUTHORIZED.value(), null)
         );
+    }
+
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<BaseResponse> handleCustomException(CustomException e) {
+        log.warn("Custom Exception: " + e.getMessage());
+        BaseResponse response = new BaseResponse();
+        response.setStatus(e.getStatusCode());
+        response.setMessage(e.getMessage());
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 
 }
