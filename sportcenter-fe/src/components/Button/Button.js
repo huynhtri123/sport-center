@@ -1,11 +1,13 @@
 import clsx from "clsx";
-import styles from '../../assets/css/Button/button.module.scss';
+import styles from '../../assets/css/Components/button.module.scss';
 
-function Button({active, onClick, children}) {
-    const classes = clsx(styles.btn, 
+function Button({active, type, onClick, className, children}) {
+    const classes = clsx(styles.btn,
         {
-            [styles.active]: active
-        }
+            [styles.active]: active,
+            [styles.typeSubmit]: type === 'submit'
+        }, 
+        className
     );
     return (
         <>

@@ -1,0 +1,44 @@
+.loginContainer {
+    background-color: #f0f1f3;
+    display: flex;
+    justify-content: center; /* Căn giữa theo chiều ngang */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    height: 92vh; 
+    margin: 0; 
+}
+
+.signinBox {
+    width: 500px;
+    height: 540px;
+    background-color: white;
+    justify-content: center;
+    text-align: center;
+    margin: 16px;
+    padding: 32px;
+    border-radius: 5px;
+}
+.signupBox {
+    width: 500px;
+    height: 680px;
+    background-color: white;
+    justify-content: center;
+    text-align: center;
+    margin: 16px;
+    padding: 32px;
+    border-radius: 5px;
+}
+
+.inputGroup {
+    justify-content: center;
+    align-items: center;
+
+    .inputBox {
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+
+        label {
+            font-family: 'Cera Round Pro Bold';
+        }
+    }
+}

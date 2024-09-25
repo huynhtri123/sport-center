@@ -1,0 +1,24 @@
+@import '../variables';
+
+.input {
+    width: 380px;
+    height: 52px;
+    margin: 8px;
+    padding: 16px;
+    border-radius: 5px;
+    font-family: inherit;
+    font-weight: 500;
+    font-size: 16px;
+    color: $blue-prime;
+
+    &:focus {
+        outline: none; /* Remove the default outline */
+        box-shadow: 0 0 0 3px $cool-blue; /* Add your cool blue border */
+    }
+}
+
+.labelForInput {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}

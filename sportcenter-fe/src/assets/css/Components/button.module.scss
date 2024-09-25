@@ -1,0 +1,27 @@
+@import '../variables';
+
+.btn {
+    padding: 5px;
+    margin: 5px;
+    border-radius: 5px;
+    background-color: $yellow-prime;
+    color: $blue-prime;
+    font-family: 'Cera Round Pro Bold', "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+    transition: box-shadow 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+    &:hover {
+        background-color: $yellow-hover;
+        cursor: pointer;
+    }
+
+    &:active {
+        background-color: $blue-prime;
+        color: $yellow-hover;
+    }
+}
+
+.typeSubmit {
+    width: 380px;
+    height: 52px;
+}

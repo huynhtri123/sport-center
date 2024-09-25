@@ -1,3 +1,77 @@
-.d-flex {
-    display: flex;
+@import '../../assets/css/variables';
+
+@font-face {
+    font-family: 'Cera Round Pro Black';
+    src: url('../../assets/font/befonts/Fontspring-DEMO-ceraroundpro-black.otf') format('opentype');
 }
+.font-cera-round-pro-black {
+    font-family: 'Cera Round Pro Bold', "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+}
+.font-cera-round-pro-yellow {
+    font-family: 'Cera Round Pro Bold', "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+    color: $yellow-hover;
+}
+
+@font-face {
+    font-family: 'Cera Round Pro Bold';
+    src: url('../../assets/font/befonts/Fontspring-DEMO-ceraroundpro-bold.otf') format('opentype');
+}
+.font-cera-round-pro-bold {
+    font-family: 'Cera Round Pro Bold', "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+}
+
+@font-face {
+    font-family: 'Cera Round Pro Thin';
+    src: url('../../assets/font/befonts/Fontspring-DEMO-ceraroundpro-thin.otf') format('opentype'); 
+}
+.font-cera-round-pro-thin {
+    font-family: 'Cera Round Pro Thin', "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+}
+
+@font-face {
+    font-family: 'Cera Round Pro Light';
+    src: url('../../assets/font/befonts/Fontspring-DEMO-ceraroundpro-light.otf') format('opentype'); 
+}
+.font-cera-round-pro-light {
+    font-family: 'Cera Round Pro Light', "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+}
+
+@font-face {
+    font-family: 'Cera Round Pro Regular';
+    src: url('../../assets/font/befonts/Fontspring-DEMO-ceraroundpro-regular.otf') format('opentype'); 
+}
+.font-cera-round-pro-regular {
+    font-family: 'Cera Round Pro Regular', "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+}
+
+@font-face {
+    font-family: 'Cera Round Pro Medium';
+    src: url('../../assets/font/befonts/Fontspring-DEMO-ceraroundpro-medium.otf') format('opentype'); 
+}
+.font-cera-round-pro-medium {
+    font-family: 'Cera Round Pro Medium', "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+}
+
+
+.font-size-32px {
+    font-size: 32px;
+}
+.font-size-28px {
+    font-size: 28px;
+}
+.font-size-26px {
+    font-size: 26px;
+}
+.font-size-24px {
+    font-size: 24px;
+}
+.font-size-20px {
+    font-size: 20px;
+}
+
+.text-underline {
+    text-decoration: underline;
+    text-decoration-style:solid;
+}
+
+
