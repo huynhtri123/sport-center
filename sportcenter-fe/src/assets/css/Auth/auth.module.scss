@@ -1,44 +1,52 @@
+@import "../variables";
+
 .loginContainer {
     background-color: #f0f1f3;
     display: flex;
-    justify-content: center; /* Căn giữa theo chiều ngang */
-    align-items: center; /* Căn giữa theo chiều dọc */
-    height: 92vh; 
-    margin: 0; 
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    min-width: 350px;
+    height: 100vh;
+    margin: 0;
+    padding: 16px;
+}
+
+.signupBox {
+    width: 500px;
+    max-width: 80%;
+    height: 660px;
+    background-color: white;
+    text-align: center;
+    margin: 16px;
+    border-radius: 5px;
+    padding: 24px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .signinBox {
     width: 500px;
-    height: 540px;
+    max-width: 80%;
+    height: 560px;
     background-color: white;
-    justify-content: center;
     text-align: center;
-    margin: 16px;
-    padding: 32px;
     border-radius: 5px;
-}
-.signupBox {
-    width: 500px;
-    height: 680px;
-    background-color: white;
-    justify-content: center;
-    text-align: center;
-    margin: 16px;
-    padding: 32px;
-    border-radius: 5px;
+    padding: 24px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .inputGroup {
-    justify-content: center;
+    display: flex;
+    flex-direction: column;
     align-items: center;
+}
 
-    .inputBox {
-        display: flex;
-        flex-direction: column;
-        align-items: start;
+.inputGroup .inputBox {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+}
 
-        label {
-            font-family: 'Cera Round Pro Bold';
-        }
-    }
+.inputGroup .inputBox label {
+    font-family: "Cera Round Pro Bold";
 }

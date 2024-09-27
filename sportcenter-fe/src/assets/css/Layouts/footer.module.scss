@@ -1,0 +1,18 @@
+@import "../variables";
+
+.footerStyle {
+    height: 70px;
+    background-color: $blue-prime;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-top: 1px solid #dee2e6;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+.footerContentStyle {
+    text-align: center;
+    color: white;
+}
