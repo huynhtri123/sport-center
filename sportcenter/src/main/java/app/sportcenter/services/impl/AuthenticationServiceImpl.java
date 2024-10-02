@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -163,10 +164,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public ResponseEntity<BaseResponse> signin(SigninRequest signinRequest) {
-        // xác thực email và password
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(signinRequest.getEmail(), signinRequest.getPassword())
-        );
+        try {
+            // xác thực email và password
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(signinRequest.getEmail(), signinRequest.getPassword())
+            );
+        } catch (BadCredentialsException e) {
+            throw new BadCredentialsException("Thông tin đăng nhập không chính xác.");
+        } catch (IllegalArgumentException e) {
+            throw new CustomException("Invalid email or password!", HttpStatus.UNAUTHORIZED.value());
+        } catch (Exception e) {
+            log.error("Error during authentication: " + e.getMessage(), e);
+            throw new CustomException("Lỗi không xác định xảy ra. Vui lòng thử lại.", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
 
         // lấy thông tin người dùng từ db
         var user = userRepository.getUserByEmail(signinRequest.getEmail())
@@ -174,7 +184,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         // kiểm tra tài khoản đã được xác thực chưa
         if (!user.getIsEmailVerified()) {
-            throw new CustomException("Tài khoản này chưa được xác thực.", HttpStatus.UNAUTHORIZED.value());
+            throw new BadCredentialsException("Tài khoản này chưa được xác thực.");
         }
 
         var jwt = jwtService.generateToken(user);

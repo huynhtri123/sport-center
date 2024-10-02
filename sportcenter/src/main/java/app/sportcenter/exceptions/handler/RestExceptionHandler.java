@@ -1,11 +1,11 @@
 package app.sportcenter.exceptions.handler;
 
 import app.sportcenter.commons.BaseResponse;
+import app.sportcenter.commons.ErrorCode;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
 import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.naming.AuthenticationException;
+import org.springframework.security.access.AccessDeniedException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,15 +62,15 @@ public class RestExceptionHandler {
     public ResponseEntity<BaseResponse> handleAuthenticationException(AuthenticationException exception) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                 new BaseResponse("Thông tin xác thực không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập và thử lại.",
-                        HttpStatus.UNAUTHORIZED.value(), null)
+                        HttpStatus.UNAUTHORIZED.value(), ErrorCode.TOKEN_EXPIRED.name())
         );
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<BaseResponse> handleBadCredentialsException(BadCredentialsException exception) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                new BaseResponse("Thông tin đăng nhập không chính xác. Vui lòng kiểm tra lại email và mật khẩu của bạn.",
-                        HttpStatus.UNAUTHORIZED.value(), null)
+                new BaseResponse(exception.getMessage(),
+                        HttpStatus.UNAUTHORIZED.value(), ErrorCode.INVALID_CREDENTIALS.name())
         );
     }
 
@@ -81,5 +82,13 @@ public class RestExceptionHandler {
         response.setMessage(e.getMessage());
         return ResponseEntity.status(response.getStatus()).body(response);
     }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<BaseResponse> handleAccessDeniedException(AccessDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new BaseResponse("(tự custom): " + ex.getMessage(),
+                        HttpStatus.FORBIDDEN.value(), null));
+    }
+
 
 }

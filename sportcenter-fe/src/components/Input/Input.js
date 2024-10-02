@@ -1,16 +1,16 @@
-import clsx from 'clsx';
-import styles from '../../assets/css/Components/input.module.scss';
+import clsx from "clsx";
+import styles from "../../assets/css/Components/input.module.scss";
 
-function Input({ type, placeHolder, className }) {
+function Input({ className, ...props }) {
     const classes = clsx(styles.input, className);
     return (
-        <input 
-            className={ classes } 
-            type={type} 
-            placeholder={placeHolder}
-            required
-            />
-    )
+        <input
+            className={classes}
+            type="text"
+            placeholder="Enter value..."
+            {...props}
+        />
+    );
 }
 
 export default Input;

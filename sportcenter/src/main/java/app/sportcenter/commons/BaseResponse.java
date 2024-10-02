@@ -1,10 +1,13 @@
 package app.sportcenter.commons;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.io.IOException;
 
 @Data
 @NoArgsConstructor
@@ -17,4 +20,9 @@ public class BaseResponse {
     private int status;
     @JsonProperty("Data")
     private Object data;
+
+    public String toJson() throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.writeValueAsString(this);
+    }
 }

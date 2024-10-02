@@ -22,4 +22,7 @@ public class AppConfig {
     private Integer verifyExpireTime;
     @Value("10")
     private Integer logRounds;
+
+    @Value(("http://localhost:3001"))
+    private String clientUrl;
 }
