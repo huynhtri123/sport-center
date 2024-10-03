@@ -1,8 +1,8 @@
-import axiosClient from "./axiosClient";
+import axiosClient from './axiosClient';
 
 const sportApi = {
     create(sportRequest) {
-        const url = "/sport/create";
+        const url = '/sport/create';
         return axiosClient.post(url, sportRequest);
     },
 };
