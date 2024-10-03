@@ -20,4 +20,33 @@ public class SportController {
     public ResponseEntity<BaseResponse> create(@Valid @RequestBody SportRequest sportRequest) {
         return sportService.create(sportRequest);
     }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @GetMapping("/getById/{sportId}")
+    public ResponseEntity<BaseResponse> getById(@PathVariable String sportId) {
+        return sportService.getById(sportId);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PutMapping("/update/{sportId}")
+    public ResponseEntity<BaseResponse> update(@PathVariable String sportId,@Valid @RequestBody SportRequest sportRequest) {
+        return sportService.update(sportId, sportRequest);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PatchMapping("/softDelete/{sportId}")
+    public ResponseEntity<BaseResponse> softDelete(@PathVariable String sportId) {
+        return sportService.delete(sportId);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @GetMapping("/getAll")
+    public ResponseEntity<BaseResponse> getAll() {
+        return sportService.getAll();
+    }
+
+    @PatchMapping("/restore/{sportId}")
+    public ResponseEntity<BaseResponse> restore(@PathVariable String sportId) {
+        return sportService.restore(sportId);
+    }
 }
