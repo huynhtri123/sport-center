@@ -18,7 +18,7 @@ public class AppConfig {
     @Value("${admin.password}")
     private String adminPassword;
 
-    @Value("5")
+    @Value("5")     // 5 phút
     private Integer verifyExpireTime;
     @Value("10")
     private Integer logRounds;

@@ -14,8 +14,6 @@ import java.time.ZonedDateTime;
 @AllArgsConstructor
 @Builder
 public class VerifyResponse {
-    @JsonProperty("User Id")
     private String id;
-    @JsonProperty("ExpiredAt")
     private ZonedDateTime expiredAt;
 }

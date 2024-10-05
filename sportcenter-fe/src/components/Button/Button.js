@@ -1,20 +1,19 @@
 import clsx from 'clsx';
 import styles from '../../assets/css/Components/button.module.scss';
 
-function Button({ className, ...props }) {
+function Button({ active, type, onClick, className, children }) {
     const classes = clsx(
         styles.btn,
         {
-            [styles.active]: props.active,
-            [styles.typeSubmit]: props.type === 'submit',
+            [styles.active]: active,
+            [styles.typeSubmit]: type === 'submit',
         },
         className
     );
-
     return (
         <>
-            <button className={classes} onClick={props.onClick}>
-                {props.children}
+            <button className={classes} onClick={onClick}>
+                {children}
             </button>
         </>
     );

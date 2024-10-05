@@ -25,7 +25,7 @@ public class JWTServiceImpl implements JWTService {
         return Jwts.builder()
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000L * 60 * 30)) // hết hạn sau 30 phút
+                .expiration(new Date(System.currentTimeMillis() + 1000L * 30)) // hết hạn sau 30 phút
                 .signWith(getSigninKey(), Jwts.SIG.HS256)
                 .compact();
     }

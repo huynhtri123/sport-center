@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { toast } from 'react-toastify';
+
 import authApi from './authApi';
 import { handleLocalStorage } from '../../utils/handleLocalStorage';
 
@@ -75,9 +77,7 @@ axiosClient.interceptors.response.use(
                         try {
                             localStorage.removeItem('token');
                             const response = await execRefreshToken(refreshToken);
-                            // console.log(response);
                             const newToken = response.data.token;
-                            // console.log(newToken);
 
                             // Lưu token mới vào localStorage
                             localStorage.setItem('token', newToken);
@@ -93,7 +93,7 @@ axiosClient.interceptors.response.use(
                         } catch (refreshError) {
                             // Nếu làm mới token thất bại, xóa token và yêu cầu đăng nhập lại
                             console.error('Refresh token failed: ', refreshError);
-                            alert('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+                            toast.error('Refresh token failed: ', refreshError);
                             handleLocalStorage.clearToken();
                             return Promise.reject(refreshError);
                         }
@@ -108,27 +108,28 @@ axiosClient.interceptors.response.use(
                     });
                 } else {
                     // Không có refresh token => yêu cầu đăng nhập lại
-                    alert('Thông tin đăng nhập không chính xác. Vui lòng đăng nhập lại.');
+                    // toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
                     handleLocalStorage.clearToken();
                 }
             }
 
+            // Sử dụng error.response.status để xử lý các lỗi khác
             switch (status) {
                 case 403: // Forbidden
                     console.warn('Access Denied: ', data.message);
-                    alert('Bạn không có quyền truy cập tài nguyên này.');
+                    toast.error('Bạn không có quyền truy cập tài nguyên này.');
                     break;
 
-                default:
-                    console.error('Error from server: ', data.message || data);
-                    alert(data.message || 'Đã xảy ra lỗi, vui lòng thử lại sau.');
+                default: // các lỗi khác
+                    toast.error(data.message || 'Đã xảy ra lỗi, vui lòng thử lại sau.');
             }
         } else if (error.request) {
             // Xử lý lỗi mạng hoặc không phản hồi từ server
             console.error('No response received from server: ', error.request);
-            alert('Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng!');
+            toast.error('Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng!');
         } else {
             console.error('Error setting up request: ', error.message);
+            toast.error('Error setting up request: ', error.message);
         }
 
         return Promise.reject(error);

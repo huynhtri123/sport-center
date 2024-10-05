@@ -5,8 +5,9 @@
 }
 
 .appContent {
-    flex: 1; /* Phần này sẽ chiếm hết không gian còn lại giữa navbar và footer */
+    flex: 1;
     display: flex;
     justify-content: center;
-    align-items: center; /* Nếu muốn nội dung nằm giữa theo cả chiều ngang và dọc */
+    align-items: center;
+    overflow: auto; /* Đảm bảo nội dung bên trong có thể cuộn nếu cần */
 }

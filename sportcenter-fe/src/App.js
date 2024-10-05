@@ -1,6 +1,8 @@
 import { Routes, Route } from 'react-router-dom';
 import clsx from 'clsx';
 import styles from './assets/css/app.module.scss';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import Signup from './pages/Auth/Signup';
 import Signin from './pages/Auth/Signin';
@@ -22,6 +24,21 @@ function App() {
                     </Routes>
                 </div>
                 <Footer />
+
+                <ToastContainer
+                    position='top-right'
+                    autoClose={3000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                    theme='light'
+                />
+                {/* Same as */}
+                <ToastContainer />
             </div>
         </GlobalStyle>
     );

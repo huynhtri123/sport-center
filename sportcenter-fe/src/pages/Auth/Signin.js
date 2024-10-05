@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 
 import Button from '../../components/Button/Button';
 import styles from '../../assets/css/Auth/auth.module.scss';
@@ -26,12 +27,14 @@ function Signin() {
 
     const navigate = useNavigate();
 
+    // khi đăng nhập sai thông tin thì dùng cái này để css
+    const [failed, setFailed] = useState(false);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // Gửi yêu cầu đăng nhập đến API
             const siginResponse = await authApi.signin(signinRequest);
-            // Xóa thông tin cũ trước khi lưu thông tin mới (việc này làm trong đăng xuất)
+            // Xóa thông tin cũ trước khi lưu thông tin mới (việc này sẽ cho làm trong đăng xuất)
             handleLocalStorage.clearToken();
 
             // Lưu thông tin mới vào localStorage
@@ -39,15 +42,18 @@ function Signin() {
             handleLocalStorage.setToken(email, tokenType, token, refreshToken);
 
             console.log('Logged in successfully:', siginResponse.data);
+            toast.success('Login successfully!');
+            setFailed(false);
             navigate('/');
         } catch (error) {
+            // Thông báo đã được cài trong axiosClient rồi nên ở đây khỏi
             console.error('Login failed:', error);
-            alert('Đăng nhập không thành công, vui lòng thử lại!');
+            setFailed(true);
         }
     };
 
     return (
-        <div className={clsx(styles.loginContainer)}>
+        <div className={clsx(styles.authContainer)}>
             <form onSubmit={handleSubmit} className={clsx(styles.signinBox, 'flex-column')}>
                 <div className='font-size-24px mb-5 d-flex flex-column'>
                     <span className='font-cera-round-pro-yellow'>
@@ -63,12 +69,13 @@ function Signin() {
                             Email Address
                         </label>
                         <Input
-                            className='mb-3'
+                            className={clsx('mb-3', { [styles.failed]: failed })}
                             type={'email'}
                             placeholder={'e.g. user001@gmail.com'}
                             name='email'
                             value={signinRequest.email}
                             onChange={(e) => handleChangeInput(e)}
+                            required
                         />
                     </div>
 
@@ -77,12 +84,13 @@ function Signin() {
                             Password
                         </label>
                         <Input
-                            className='mb-3'
+                            className={clsx('mb-3', { [styles.failed]: failed })}
                             type={'password'}
                             placeholder={'Enter your password...'}
                             name='password'
                             value={signinRequest.password}
                             onChange={(e) => handleChangeInput(e)}
+                            required
                         />
                     </div>
 
