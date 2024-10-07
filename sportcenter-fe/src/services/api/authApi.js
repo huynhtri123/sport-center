@@ -17,6 +17,10 @@ const authApi = {
         const url = `/auth/signup/${userId}`;
         return axiosClient.post(url, verifyRequest);
     },
+    getVerify(getVerifyRequest) {
+        const url = '/auth/getVerify';
+        return axiosClient.post(url, getVerifyRequest);
+    },
 };
 
 export default authApi;

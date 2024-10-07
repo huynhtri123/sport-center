@@ -1,0 +1,28 @@
+// sign up loading
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); // Tạo lớp mờ
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999; // Hiển thị ở trên cùng
+}
+
+.loadingLogo {
+    width: 100px;
+    height: auto;
+    animation: spin 3s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg); // Bắt đầu tại 0 độ
+    }
+    100% {
+        transform: rotate(360deg); // Xoay hoàn toàn 360 độ
+    }
+}

@@ -10,6 +10,7 @@ import Input from '../../components/Input/Input';
 import Signup2Modal from '../../components/Modal/Signup2Modal';
 import { SignupSchema } from '../../utils/Rules/SignupSchema';
 import authApi from '../../services/api/authApi';
+import { Loading } from '../../components/Loading/Loading';
 
 function Signup() {
     const [formData, setFormData] = useState({
@@ -33,6 +34,9 @@ function Signup() {
     const toggleModal = () => {
         setIsModalOpen(!isModalOpen);
     };
+
+    // hiệu ứng loading khi chờ xử lý đăng ký bước 1
+    const [isLoading, setIsLoading] = useState(false);
 
     const navigate = useNavigate();
 
@@ -68,6 +72,7 @@ function Signup() {
         e.preventDefault();
         // reset lỗi input về rỗng
         setErrors({});
+        setIsLoading(true); // bắt đầu hiệu ứng loading
 
         // Validate dữ liệu bằng Yup
         try {
@@ -83,6 +88,7 @@ function Signup() {
             } else {
                 console.error('Validation error structure is not as expected', validationErrors);
             }
+            setIsLoading(false);
             return;
         }
 
@@ -93,20 +99,25 @@ function Signup() {
             toggleModal();
         } catch (apiError) {
             console.error('API error:', apiError);
-            toast.error('API error (đăng ký bước 1 thất bại):', apiError);
+        } finally {
+            setIsLoading(false); // tắt hiệu ứng loading
         }
     };
 
+    // nếu đk bước 2 lỗi thì thông báo cho Modal
+    const [isError, setIsError] = useState(false);
     // đăng ký bước 2
     const signupStep2 = async (code) => {
         try {
             const response = await authApi.signupStep2(verifyResponse.id, { code });
             console.log(response.data);
             toast.success(response.message);
+            setIsError(false);
 
             return response;
         } catch (error) {
             console.error('Lỗi trong quá trình xác minh:', error);
+            setIsError(true);
             if (error.response) {
                 return null; // Trả về null nếu có lỗi, toast thi được xử lý bên axiosClient rồi
             }
@@ -125,6 +136,8 @@ function Signup() {
 
     return (
         <div className={clsx(styles.authContainer)}>
+            {isLoading && <Loading></Loading>}
+
             <form onSubmit={handleSubmit} className={clsx(styles.signupBox, 'flex-column')}>
                 <div className='font-size-24px mb-3 d-flex flex-column'>
                     <span className='font-cera-round-pro-yellow'>
@@ -200,19 +213,33 @@ function Signup() {
                     </div>
                 </div>
 
-                <Button className='font-size-20px mt-3' type='submit'>
-                    Sign up
-                    <i className='fas fa-sign-in-alt ms-2'></i>
+                <Button className={clsx('font-size-20px mt-3')} type='submit'>
+                    {isLoading ? (
+                        'Signing up...'
+                    ) : (
+                        <span>
+                            Sign up
+                            <i className='fas fa-sign-in-alt ms-2'></i>
+                        </span>
+                    )}
                 </Button>
 
                 <div className='font-cera-round-pro-regular mt-2'>
                     Already have an account?
-                    <Link className='text-underline ms-2'>Log in here</Link>
+                    <Link to={'/sign-in'} className='text-underline ms-2'>
+                        Log in here
+                    </Link>
                 </div>
             </form>
 
             {/* Modal cho đăng ký bước 2 (nhập otp) */}
-            <Signup2Modal isOpen={isModalOpen} onClose={toggleModal} onSubmit={handleVerifyCode} />
+            <Signup2Modal
+                isOpen={isModalOpen}
+                onClose={toggleModal}
+                onSubmit={handleVerifyCode}
+                signupEmail={formData.email}
+                isError={isError}
+            />
         </div>
     );
 }

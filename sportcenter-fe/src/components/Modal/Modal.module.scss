@@ -1,3 +1,5 @@
+@import '../../assets/css/variables';
+
 .modalOverlay {
     position: fixed;
     top: 0;
@@ -18,4 +20,14 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     width: 400px;
     max-width: 100%;
+}
+
+.sendAgainBtn {
+    color: $dark-teal;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.error {
+    border: red solid 1px;
 }

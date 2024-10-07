@@ -106,7 +106,9 @@ function Signin() {
 
                 <div className='font-cera-round-pro-regular mt-2'>
                     New here?
-                    <Link className='text-underline ms-2'>Create your account now</Link>
+                    <Link to={'/sign-up'} className='text-underline ms-2'>
+                        Create your account now
+                    </Link>
                 </div>
             </form>
         </div>
