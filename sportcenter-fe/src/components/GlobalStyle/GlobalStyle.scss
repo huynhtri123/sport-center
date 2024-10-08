@@ -75,3 +75,19 @@
     text-decoration: underline;
     text-decoration-style: solid;
 }
+
+.errors-input {
+    color: red;
+    font-size: 10px;
+    max-width: 380px;
+    max-height: 32px;
+    margin-top: -10px;
+    margin-bottom: 3px;
+    width: 100%;
+}
+
+.error-box {
+    border: red solid 1px;
+    outline: none;
+    box-shadow: 0 0 0 3px $cool-blue;
+}

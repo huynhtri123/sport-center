@@ -21,6 +21,10 @@ const authApi = {
         const url = '/auth/getVerify';
         return axiosClient.post(url, getVerifyRequest);
     },
+    renewPassword(userId, renewPasswordRequest) {
+        const url = `/auth/renewPassword/${userId}`;
+        return axiosClient.patch(url, renewPasswordRequest);
+    },
 };
 
 export default authApi;

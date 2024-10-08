@@ -95,7 +95,7 @@ function Signin() {
                     </div>
 
                     <div className='mb-2'>
-                        <Link>Forgot your password?</Link>
+                        <Link to={'/forgot-password'}>Forgot your password?</Link>
                     </div>
                 </div>
 

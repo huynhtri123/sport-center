@@ -12,6 +12,7 @@
     padding: 16px;
 }
 
+// sign up
 .signupBox {
     width: 500px;
     max-width: 80%;
@@ -24,10 +25,23 @@
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+// sign in
 .signinBox {
     width: 500px;
     max-width: 80%;
     height: 560px;
+    background-color: white;
+    text-align: center;
+    border-radius: 5px;
+    padding: 24px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+// fotgot-password
+.forgotPasswordBox {
+    width: 500px;
+    max-width: 80%;
+    height: 400px;
     background-color: white;
     text-align: center;
     border-radius: 5px;
@@ -49,16 +63,6 @@
 
 .inputGroup .inputBox label {
     font-family: 'Cera Round Pro Bold';
-}
-
-.errorsInput {
-    color: red;
-    font-size: 10px;
-    max-width: 380px;
-    max-height: 32px;
-    margin-top: -10px;
-    margin-bottom: 3px;
-    width: 100%;
 }
 
 // login failed

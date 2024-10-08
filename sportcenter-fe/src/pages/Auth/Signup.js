@@ -161,7 +161,7 @@ function Signup() {
                             onChange={(e) => handleChangeInput(e)}
                             required
                         />
-                        {errors.fullName && <div className={styles.errorsInput}>{errors.fullName}</div>}
+                        {errors.fullName && <div className={'errors-input'}>{errors.fullName}</div>}
                     </div>
 
                     <div className={styles.inputBox}>

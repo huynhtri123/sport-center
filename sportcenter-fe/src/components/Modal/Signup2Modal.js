@@ -34,12 +34,11 @@ function Signup2Modal({ isOpen, onClose, onSubmit, signupEmail, isError }) {
         try {
             setIsLoading(true);
             const response = await authApi.getVerify({ email: signupEmail });
-            console.log(response);
+            toast.success(response.message);
         } catch (err) {
             console.error(err);
         } finally {
             setIsLoading(false);
-            toast.success('Mã xác thực đã được gửi đến email: ', signupEmail);
         }
     };
 

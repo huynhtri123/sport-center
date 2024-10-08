@@ -10,6 +10,7 @@ import GlobalStyle from './components/GlobalStyle/GlobalStyle';
 import NavBar from './layouts/NavBar';
 import Footer from './layouts/Footer';
 import Home from './pages/Home/Home';
+import ForgotPassword from './pages/Auth/ForgotPassword';
 
 function App() {
     return (
@@ -21,6 +22,7 @@ function App() {
                         <Route path='/' element={<Home />} />
                         <Route path='/sign-up' element={<Signup />} />
                         <Route path='/sign-in' element={<Signin />} />
+                        <Route path='/forgot-password' element={<ForgotPassword />} />
                     </Routes>
                 </div>
                 <Footer />
