@@ -16,7 +16,6 @@ function RenewPasswordModal({ isModalOpen, onClose, email, getVerifyResponse }) 
         resetPasswordCode: '',
     });
     const [isLoading, setIsLoading] = useState(false);
-
     const [errors, setErrors] = useState({});
 
     const navigate = useNavigate();
@@ -43,7 +42,7 @@ function RenewPasswordModal({ isModalOpen, onClose, email, getVerifyResponse }) 
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(formData);
+        // console.log(formData);
 
         try {
             await RenewPasswordSchema.validate(formData, { abortEarly: false });
@@ -62,7 +61,7 @@ function RenewPasswordModal({ isModalOpen, onClose, email, getVerifyResponse }) 
         }
 
         const userId = getVerifyResponse.data.id;
-        console.log(userId);
+        // console.log(userId);
         try {
             const renewPasswordResponse = await authApi.renewPassword(userId, {
                 password: formData.password,

@@ -184,7 +184,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         // kiểm tra tài khoản đã được xác thực chưa
         if (!user.getIsEmailVerified()) {
-            throw new BadCredentialsException("Tài khoản này chưa được xác thực.");
+            throw new BadCredentialsException("Tài khoản này chưa được xác thực. Vui lòng bấm quên mật khẩu để xác thực.");
         }
 
         var jwt = jwtService.generateToken(user);
@@ -284,11 +284,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new NotFoundException("Mã xác thực không tồn tại");
         }
 
-        // kiểm tra xem tài khoản này đã được xác thực chưa
-        if (!user.getIsEmailVerified()) {
-            throw new CustomException("Tài khoản này chưa được xác thực. Vui lòng xác thực bằng cách gọi api đăng ký bước 2",
-                    HttpStatus.BAD_REQUEST.value());
-        }
+        // kiểm tra xem tài khoản này đã được xác thực chưa (không cần thiết)
+//        if (!user.getIsEmailVerified()) {
+//            throw new CustomException("Tài khoản này chưa được xác thực. Vui lòng xác thực bằng cách gọi api đăng ký bước 2",
+//                    HttpStatus.BAD_REQUEST.value());
+//        }
 
         // kiểm tra mã xác thực hết hạn chưa
         if (user.getVerify().getExpireAt().isBefore(ZonedDateTime.now())) {
@@ -312,12 +312,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         // pass, tạo mật khẩu mới
         user.setPassword(passwordEncoder.encode(renewPasswordRequest.getPassword()));
         user.setVerify(null);
+        user.setIsEmailVerified(true);
         userRepository.save(user);
 
         log.info("Change password succesfully! UserId: " + user.getId());
 
         return userMapper.convertToDTO(user);
     }
-
 
 }
