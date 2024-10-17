@@ -177,7 +177,7 @@ function Signup() {
                             onChange={(e) => handleChangeInput(e)}
                             required
                         />
-                        {errors.email && <div className={styles.errorsInput}>{errors.email}</div>}
+                        {errors.email && <div className={'errors-input'}>{errors.email}</div>}
                     </div>
 
                     <div className={styles.inputBox}>
@@ -193,7 +193,7 @@ function Signup() {
                             onChange={(e) => handleChangeInput(e)}
                             required
                         />
-                        {errors.password && <div className={styles.errorsInput}>{errors.password}</div>}
+                        {errors.password && <div className={'errors-input'}>{errors.password}</div>}
                     </div>
 
                     <div className={styles.inputBox}>
@@ -209,7 +209,7 @@ function Signup() {
                             onChange={(e) => handleChangeInput(e)}
                             required
                         />
-                        {errors.passwordConfirm && <div className={styles.errorsInput}>{errors.passwordConfirm}</div>}
+                        {errors.passwordConfirm && <div className={'errors-input'}>{errors.passwordConfirm}</div>}
                     </div>
                 </div>
 

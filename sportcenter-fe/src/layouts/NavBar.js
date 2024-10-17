@@ -48,11 +48,7 @@ function NavBar() {
                         </li>
 
                         <li className='nav-item'>
-                            <Link
-                                className={`nav-link ${location.pathname === '/' ? styles.active : ''}`}
-                                onClick={handleSignoutSubmit}
-                                to='/'
-                            >
+                            <Link className={'nav-link'} onClick={handleSignoutSubmit} to='/'>
                                 Sign out
                             </Link>
                         </li>
