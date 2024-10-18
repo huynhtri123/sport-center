@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TeamResponse extends BaseResponse {
+public class TeamResponse extends BaseResponseDTO {
     private String teamName;                       // tên đội
     private List<Player> players;                  // danh sách Player trong đội
     private Player captain;                        // đội trưởng
