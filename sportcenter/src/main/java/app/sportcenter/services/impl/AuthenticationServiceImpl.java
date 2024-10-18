@@ -196,7 +196,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         jwtAuthResponse.setToken(jwt);
         jwtAuthResponse.setRefreshToken(refreshToken);
 
-        log.info("Login successfully! UserId: " + user.getId());
+        log.info("Login successfully! UserId: " + user.getId() + " Role: " + user.getRole());
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 new BaseResponse("Đăng nhập thành công",

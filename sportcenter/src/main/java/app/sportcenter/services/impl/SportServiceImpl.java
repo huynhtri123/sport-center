@@ -1,6 +1,7 @@
 package app.sportcenter.services.impl;
 
 import app.sportcenter.commons.BaseResponse;
+import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.models.dto.SportRequest;
 import app.sportcenter.models.dto.SportResponse;
 import app.sportcenter.models.entities.Sport;
@@ -23,6 +24,10 @@ public class SportServiceImpl implements SportService {
     @Override
     public ResponseEntity<BaseResponse> create(SportRequest sportRequest) {
         Sport sport = sportMapper.convetToEntity(sportRequest);
+        if (sport == null) {
+            throw new CustomException("Inputs are null!", HttpStatus.BAD_REQUEST.value());
+
+        }
         SportResponse responseSport = sportMapper.convertToDTO(sportRepository.save(sport));
 
         return ResponseEntity.status(HttpStatus.OK).body(
