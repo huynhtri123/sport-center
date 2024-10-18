@@ -11,48 +11,45 @@ function NavBar() {
     };
 
     return (
-        <nav className={`navbar navbar-expand-lg bg-body-tertiary`}>
-            <div className='container-fluid'>
-                <Link className={`navbar-brand ${location.pathname === '/' ? styles.active : ''}`} to='/'>
-                    Home
-                </Link>
-                <button
-                    className='navbar-toggler'
-                    type='button'
-                    data-bs-toggle='collapse'
-                    data-bs-target='#navbarSupportedContent'
-                    aria-controls='navbarSupportedContent'
-                    aria-expanded='false'
-                    aria-label='Toggle navigation'
-                >
-                    <span className='navbar-toggler-icon'></span>
-                </button>
-                <div className='collapse navbar-collapse' id='navbarSupportedContent'>
-                    <ul className='navbar-nav me-auto mb-2 mb-lg-0'>
-                        <li className='nav-item'>
-                            <Link
-                                className={`nav-link ${location.pathname === '/sign-up' ? styles.active : ''}`}
-                                to='/sign-up'
-                            >
-                                Sign up
-                            </Link>
-                        </li>
+        <nav className={`navbar navbar-expand-lg bg-body-tertiary ${styles.navbarContainer}`}>
+            <div className='container-fluid d-flex justify-content-between align-items-center'>
+                {/* Left - Brand Logo and Icons */}
+                <div className='d-flex align-items-center'>
+                    <Link className={`navbar-brand ${styles.brand} font-cera-round-pro-medium`} to='/'>
+                        <img className='logo-icon' src='/logo.png' alt='logo' />
+                        <span className={styles.appName}>Sport Center</span>
+                    </Link>
+                    <div className={`d-flex align-items-center ${styles.leftIcons}`}>
+                        <span>chuc nang 1</span>
+                        <span>chuc nang 2</span>
+                        <span>chuc nang 3</span>
+                    </div>
+                </div>
 
-                        <li className='nav-item'>
-                            <Link
-                                className={`nav-link ${location.pathname === '/sign-in' ? styles.active : ''}`}
-                                to='/sign-in'
-                            >
-                                Sign in
-                            </Link>
-                        </li>
+                {/* Spacer to center-align */}
+                <div className={styles.spacer}></div>
 
-                        <li className='nav-item'>
-                            <Link className={'nav-link'} onClick={handleSignoutSubmit} to='/'>
-                                Sign out
-                            </Link>
-                        </li>
-                    </ul>
+                {/* Right - Sign In, Sign Up, Sign Out */}
+                <div className={`d-flex align-items-center ${styles.iconContainer}`}>
+                    <Link
+                        className={`nav-link font-cera-round-pro-medium ${
+                            location.pathname === '/sign-up' ? styles.active : ''
+                        }`}
+                        to='/sign-up'
+                    >
+                        Sign up
+                    </Link>
+                    <Link
+                        className={`nav-link font-cera-round-pro-medium ${
+                            location.pathname === '/sign-in' ? styles.active : ''
+                        }`}
+                        to='/sign-in'
+                    >
+                        Sign in
+                    </Link>
+                    <Link className={'nav-link font-cera-round-pro-medium'} onClick={handleSignoutSubmit} to='/'>
+                        Sign out
+                    </Link>
                 </div>
             </div>
         </nav>
