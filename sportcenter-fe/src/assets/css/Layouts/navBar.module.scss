@@ -1,11 +1,5 @@
 @import '../variables';
 
-.appName {
-    font-size: 20px;
-    margin: 8px;
-    color: $blue-prime;
-}
-
 .navbarContainer {
     display: flex;
     justify-content: space-between;
@@ -13,30 +7,90 @@
     padding: 0 20px;
 }
 
-.brand {
+// logo & app name
+.appNameBox {
+    margin: 4px 8px;
+}
+
+.appName {
+    font-size: 24px;
+    margin: 8px;
+    color: $blue-prime;
+    font-weight: 700;
+}
+
+// left items
+.leftItemsBox {
     font-size: 1.5em;
-    font-weight: bold;
     display: flex;
     align-items: center;
     gap: 5px;
+    text-decoration: none;
+    color: $blue-prime;
+    margin: 0px 14px;
 }
 
-.leftIcons {
+.leftBox {
     gap: 15px;
     margin-left: 20px;
     font-size: 16px;
     cursor: pointer;
 }
 
-.spacer {
-    flex-grow: 1;
+.leftNavBarItems {
+    font-size: 18px;
+}
+.leftNavBarItems:hover {
+    color: $blue-prime-hover;
 }
 
+// center navbar
+.comboBox {
+    background-image: none;
+}
+
+.middleInput {
+    width: 300px;
+}
+
+.searchIcon {
+    cursor: pointer;
+}
+.searchIcon:hover {
+    background-color: #f0f0f0;
+}
+
+// right navbar
 .iconContainer {
     gap: 20px;
     font-size: 1.25em;
 }
 
+.signupButton {
+    border: 0.5px solid $blue-prime;
+    font-size: 16px;
+    border-radius: 10px;
+    padding: 2px 8px;
+    color: white;
+    background-color: $blue-prime;
+}
+.signupButton:hover {
+    background-color: $blue-prime;
+    color: $yellow-prime;
+}
+
+.iconLogin {
+    font-size: 28px;
+    padding: 2px 0px;
+}
+.iconLogin:hover {
+    font-weight: 700;
+    color: $blue-prime;
+}
+
 .active {
     font-weight: 700;
+    font-weight: 700;
+    color: $blue-prime;
+    text-decoration: underline;
 }

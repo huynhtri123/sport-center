@@ -8,12 +8,16 @@ import styles from '../../assets/css/Auth/auth.module.scss';
 import Input from '../../components/Input/Input';
 import authApi from '../../services/api/authApi';
 import { handleLocalStorage } from '../../utils/handleLocalStorage';
+import { useCheckSignedIn } from '../../customs/hooks';
 
 function Signin() {
     const [signinRequest, setSigninRequest] = useState({
         email: '',
         password: '',
     });
+
+    const [isSignedIn, setIsSignedIn] = useCheckSignedIn();
+    console.log(isSignedIn);
 
     const handleChangeInput = (e) => {
         setSigninRequest((prevState) => {
@@ -40,6 +44,8 @@ function Signin() {
             // Lưu thông tin mới vào localStorage
             const { email, tokenType, token, refreshToken } = siginResponse.data;
             handleLocalStorage.setToken(email, tokenType, token, refreshToken);
+
+            setIsSignedIn(true);
 
             console.log('Logged in successfully:', siginResponse.data);
             toast.success('Login successfully!');
