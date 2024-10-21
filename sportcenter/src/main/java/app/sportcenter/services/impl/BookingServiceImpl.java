@@ -18,15 +18,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -40,8 +37,6 @@ public class BookingServiceImpl implements BookingService {
     @Autowired
     private FieldRepository fieldRepository;
     @Autowired
-    private ScheduledExecutorService scheduledExecutorService;
-    @Autowired
     private MailService mailService;
 
     @Transactional
@@ -49,17 +44,15 @@ public class BookingServiceImpl implements BookingService {
     public ResponseEntity<BaseResponse> createBooking(BookingRequest bookingRequest) {
         User user = userRepository.findById(bookingRequest.getUserId())
                 .orElseThrow(() -> new CustomException("Không tìm thấy user có id này", HttpStatus.NOT_FOUND.value()));
-
         Field field = fieldRepository.findById(bookingRequest.getFieldId())
                 .orElseThrow(() -> new CustomException("Không tìm thấy field có id này", HttpStatus.NOT_FOUND.value()));
-
         log.info("Booking user: " + user.getFullName());
         log.info("Booking field: " + field.getFieldName());
 
         // Kiểm tra xem sân có trống hay không
         if (!field.getFieldStatus().equals(FieldStatus.AVAILABLE)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Sân không có sẵn (trạng thái khác AVAILABLE)!",
+                    new BaseResponse("Sân không còn trống (not AVAILABLE)!",
                             HttpStatus.NOT_FOUND.value(), null)
             );
         }
@@ -72,10 +65,6 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingMapper.convertToEntity(bookingRequest, field);
         Booking savedBooking = bookingRepository.save(booking);
 
-        // hẹn giờ (hết giờ đặt sân thì chuyển sân về trạng thái có sẵn)
-        // * ứng dụng chạy nó mới thực hiện (vậy khi deploy lên mới dùng được)
-        scheduleFieldStatusUpdate(savedBooking.getField(), bookingRequest.getNumberOfHours());
-
         BookingResponse response = bookingMapper.convertToResponse(savedBooking);
         // gửi mail thông báo
         sendMailBooking(user, response);
@@ -85,29 +74,10 @@ public class BookingServiceImpl implements BookingService {
         );
     }
 
-    // Hàm để hẹn giờ cập nhật trạng thái sân
-    @Async
-    public void scheduleFieldStatusUpdate(Field field, long numberOfHours) {
-//        long delay = numberOfHours; // số giờ
-//        // Chuyển đổi giờ thành giây
-//        scheduledExecutorService.schedule(() -> updateFieldStatus(field), delay, TimeUnit.HOURS);
-
-        // test (20 giây thử)
-        long delay = 20; // số giờ
-        // Chuyển đổi giờ thành giây
-        scheduledExecutorService.schedule(() -> updateFieldStatus(field), delay, TimeUnit.SECONDS);
-    }
-
-    private void updateFieldStatus(Field field) {
-        field.setFieldStatus(FieldStatus.AVAILABLE);
-        fieldRepository.save(field);
-        log.warn("Đã cập nhật trạng thái sân về AVAILABLE cho field: " + field.getId());
-    }
-
     private void sendMailBooking(User user, BookingResponse bookingResponse) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z");
         try {
-            // Chuyển đổi các thời gian sang múi giờ Việt Nam
+            // chuyển đổi các thời gian sang múi giờ Việt Nam
             ZonedDateTime bookingDateInVietnam = bookingResponse.getBookingDate().withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"));
             ZonedDateTime startTimeInVietnam = bookingResponse.getStartTime().withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"));
             ZonedDateTime endTimeInVietnam = bookingResponse.getEndTime().withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"));
