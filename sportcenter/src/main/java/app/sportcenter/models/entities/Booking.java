@@ -1,10 +1,7 @@
 package app.sportcenter.models.entities;
 
 import app.sportcenter.commons.PricedItem;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -14,6 +11,7 @@ import java.time.ZonedDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @EqualsAndHashCode(callSuper = false)
 public class Booking extends BaseEntity implements PricedItem {
     @Id
@@ -28,5 +26,10 @@ public class Booking extends BaseEntity implements PricedItem {
     @Override
     public Double getPrice() {
         return this.field.getPrice() * numberOfHours;
+    }
+
+    // tính thời gian kết thúc dựa trên số giờ đặt
+    public void calculateEndTime() {
+        this.endTime = startTime.plusHours(numberOfHours);
     }
 }

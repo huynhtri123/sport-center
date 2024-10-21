@@ -4,6 +4,7 @@ import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.commons.FieldStatus;
 import app.sportcenter.commons.FieldType;
 import app.sportcenter.models.dto.FieldRequest;
+import app.sportcenter.models.dto.FieldResponse;
 import org.springframework.http.ResponseEntity;
 
 public interface FieldService {
@@ -15,7 +16,7 @@ public interface FieldService {
 
     public ResponseEntity<BaseResponse> updateById(String fieldId, FieldRequest newField);
     public ResponseEntity<BaseResponse> toggleActiveStatus(String fieldId);
-    public ResponseEntity<BaseResponse> changeFieldStatus(String fieldId, FieldStatus newStatus);
+    public FieldResponse changeFieldStatus(String fieldId, FieldStatus newStatus);
 
     public ResponseEntity<BaseResponse> softDeleted(String fieldId);
     public ResponseEntity<BaseResponse> restore(String fieldId);

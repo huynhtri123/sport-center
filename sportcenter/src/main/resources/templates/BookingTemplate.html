@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            padding: 30px;
+            color: #343a40;
+        }
+        .container {
+            max-width: 650px;
+            background-color: #ffffff;
+            padding: 25px;
+            margin: 0 auto;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-top: 8px solid #007bff;
+        }
+        h2 {
+            color: #007bff;
+            font-size: 24px;
+            margin-top: 0;
+        }
+        .details {
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+        .details p {
+            font-size: 15px;
+            margin: 5px 0;
+        }
+        .details strong {
+            display: inline-block;
+            width: 160px;
+            color: #495057;
+        }
+        .details span {
+            color: #212529;
+        }
+        .footer {
+            margin-top: 40px;
+            font-size: 0.85em;
+            text-align: center;
+            color: #6c757d;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Booking Confirmation</h2>
+    <p>Dear <strong th:text="${fullName}">[User's Name]</strong>,</p>
+    <p>Thank you for booking with Sport Center! Here are the details of your reservation:</p>
+
+    <div class="details">
+        <p><strong>Email:</strong> <span th:text="${toEmail}">[User's Email]</span></p>
+        <p><strong>Booking Date:</strong> <span th:text="${bookingDate}">[Booking Date]</span></p>
+        <p><strong>Number of Hours:</strong> <span th:text="${numberOfHours}">[Number of Hours]</span></p>
+        <p><strong>Start Time:</strong> <span th:text="${startTime}">[Start Time]</span></p>
+        <p><strong>End Time:</strong> <span th:text="${endTime}">[End Time]</span></p>
+        <p><strong>Total Price:</strong> <span th:text="${totalPrice}">[Total Price]</span></p>
+    </div>
+
+    <p>If you have any questions or need to make changes to your booking, please contact us.</p>
+
+    <div class="footer">
+        <p>Sport Center<br>123 Sport Avenue, City, Country</p>
+        <p>Phone: +123 456 7890 | Email: support@sportcenter.com</p>
+    </div>
+</div>
+</body>
+</html>

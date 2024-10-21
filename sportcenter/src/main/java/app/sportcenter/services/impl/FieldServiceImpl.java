@@ -113,7 +113,7 @@ public class FieldServiceImpl implements FieldService {
     }
 
     @Override
-    public ResponseEntity<BaseResponse> changeFieldStatus(String fieldId, FieldStatus newStatus) {
+    public FieldResponse changeFieldStatus(String fieldId, FieldStatus newStatus) {
         Field field = fieldRepository.findById(fieldId).orElseThrow(() ->
                 new NotFoundException("Không tìm thấy Field!"));
 
@@ -121,11 +121,7 @@ public class FieldServiceImpl implements FieldService {
         field.setFieldStatus(newStatus);
 
         Field updatedField = fieldRepository.save(field);
-        FieldResponse responseField = fieldMapper.convertToDTO(updatedField);
-
-        return ResponseEntity.ok(
-                new BaseResponse("Thay đổi trạng thái sân thành công.", HttpStatus.OK.value(), responseField)
-        );
+        return fieldMapper.convertToDTO(updatedField);
     }
 
     @Override
