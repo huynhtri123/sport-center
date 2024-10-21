@@ -18,12 +18,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -71,6 +74,127 @@ public class BookingServiceImpl implements BookingService {
 
         return ResponseEntity.ok(
                 new BaseResponse("Tạo mới Booking thành công!", HttpStatus.OK.value(), response)
+        );
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse> getBookingById(String id) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new CustomException("Không tìm thấy booking!", HttpStatus.NOT_FOUND.value()));
+
+        BookingResponse response = bookingMapper.convertToResponse(booking);
+
+        return ResponseEntity.ok(
+                new BaseResponse("Tìm thấy Booking.", HttpStatus.OK.value(), response)
+        );
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse> getBookingByUserId(String userId) {
+        List<Booking> bookingList = bookingRepository.findBookingByUserId(userId);
+        if (bookingList.isEmpty()) {
+            throw new CustomException("Không tìm thấy Booking nào của user này!", HttpStatus.NOT_FOUND.value());
+        }
+
+        List<BookingResponse> responseList = bookingList.stream().map(bookingMapper::convertToResponse).toList();
+        return ResponseEntity.ok(
+                new BaseResponse("Tìm thấy danh sách Booking của user này.", HttpStatus.OK.value(), responseList)
+        );
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse> getCurrentBookingsOfCurrentUser(String userId) {
+        // Lấy thông tin người dùng hiện tại từ SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+        String currentUserId = currentUser.getId();
+        log.info(currentUserId);
+
+        // Kiểm tra xem userId truyền vào có trùng với userId trong JWT hay không
+        if (!currentUserId.equals(userId)) {
+            throw new CustomException("Bạn không có quyền truy cập bookings của người khác.", HttpStatus.FORBIDDEN.value());
+        }
+
+        ZonedDateTime now = ZonedDateTime.now();
+        // lấy danh sách booking của user hiện tại, còn hiệu lực
+        List<Booking> bookingList = bookingRepository.getCurrentBookingsOfCurrentUser(userId, now, FieldStatus.IN_USE.name());
+        if (bookingList.isEmpty()) {
+            throw new CustomException("Không tìm thấy Booking nào của user này!", HttpStatus.NOT_FOUND.value());
+        }
+
+        List<BookingResponse> responseList = bookingList.stream().map(bookingMapper::convertToResponse).toList();
+        return ResponseEntity.ok(
+                new BaseResponse("Tìm thấy danh sách Booking của user này.", HttpStatus.OK.value(), responseList)
+        );
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse> getBookingByFieldId(String fieldId) {
+        List<Booking> bookingList = bookingRepository.getBookingByFieldId(fieldId);
+        if (bookingList.isEmpty()) {
+            throw new CustomException("Không tìm thấy Booking nào của sân này!", HttpStatus.NOT_FOUND.value());
+        }
+
+        List<BookingResponse> responseList = bookingList.stream().map(bookingMapper::convertToResponse).toList();
+        return ResponseEntity.ok(
+                new BaseResponse("Tìm thấy danh sách Booking của sân này.", HttpStatus.OK.value(), responseList)
+        );
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse> getBookingsByStartTime(ZonedDateTime startTime) {
+        List<Booking> bookingList = bookingRepository.getBookingByStartTime(startTime);
+        if (bookingList.isEmpty()) {
+            throw new CustomException("Không tìm thấy Booking nào của sân này!", HttpStatus.NOT_FOUND.value());
+        }
+
+        List<BookingResponse> responseList = bookingList.stream().map(bookingMapper::convertToResponse).toList();
+        return ResponseEntity.ok(
+                new BaseResponse("Tìm thấy danh sách Booking của sân này.", HttpStatus.OK.value(), responseList)
+        );
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse> getAllBookings() {
+        List<Booking> bookingList = bookingRepository.getAllActive();
+        if (bookingList.isEmpty()) {
+            throw new CustomException("Không tìm thấy Booking nào đang hoạt động!", HttpStatus.NOT_FOUND.value());
+        }
+
+        List<BookingResponse> responseList = bookingList.stream().map(bookingMapper::convertToResponse).toList();
+        return ResponseEntity.ok(
+                new BaseResponse("Tìm thấy danh sách Booking đang hoạt động.", HttpStatus.OK.value(), responseList)
+        );
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse> changeIsDeleted(String bookingId, boolean flag) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new CustomException("Không tìm thấy booking!", HttpStatus.NOT_FOUND.value()));
+        booking.setIsDeleted(flag);
+        Booking savedBooking = bookingRepository.save(booking);
+
+        BookingResponse response = bookingMapper.convertToResponse(savedBooking);
+        String message = "Thành công. Trạng thái hiện tại: isDeleted=" + booking.getIsDeleted();
+
+        return ResponseEntity.ok(
+                new BaseResponse(message, HttpStatus.OK.value(), response)
+        );
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse> forceDelete(String bookingId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new CustomException("Không tìm thấy booking!", HttpStatus.NOT_FOUND.value()));
+//        boolean isExpired = booking.getEndTime().isBefore(ZonedDateTime.now());
+//        if (!isExpired) {
+//            throw new CustomException("Booking này chưa hết hạn!", HttpStatus.BAD_REQUEST.value());
+//        }
+        BookingResponse response = bookingMapper.convertToResponse(booking);
+
+        bookingRepository.deleteById(bookingId);
+        return ResponseEntity.ok(
+                new BaseResponse("Xoá cứng thành công.", HttpStatus.OK.value(), response)
         );
     }
 
