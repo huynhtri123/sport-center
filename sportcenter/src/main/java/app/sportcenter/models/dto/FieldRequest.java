@@ -19,9 +19,6 @@ public class FieldRequest extends BaseRequestDTO {
     @NotNull(message = "Bạn chưa nhập loại sân!")
     private FieldType fieldType;
 
-    @NotNull(message = "Bạn chưa nhập trạng thái cho sân!")
-    private FieldStatus fieldStatus;
-
     @NotBlank(message = "Bạn chưa nhập tên cho sân!")
     private String fieldName;
 

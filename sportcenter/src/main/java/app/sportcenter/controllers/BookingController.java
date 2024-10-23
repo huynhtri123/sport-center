@@ -2,10 +2,12 @@ package app.sportcenter.controllers;
 
 import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.models.dto.BookingRequest;
+import app.sportcenter.models.dto.OnDayScheduleRequest;
 import app.sportcenter.services.BookingService;
 import jakarta.servlet.ServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -79,6 +81,16 @@ public class BookingController {
     @DeleteMapping("/forceDelete/{bookingId}")
     public ResponseEntity<BaseResponse> forceDelete(@PathVariable String bookingId) {
         return bookingService.forceDelete(bookingId);
+    }
+
+    // lấy tất cả booking theo khoảng thời gian cụ thể. Ví dụ theo ngày (7:00 ngày 1/1/2024 - 22:00 ngày 1/1/2024)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
+    @PutMapping("/updateAndGetSchedule")
+    public ResponseEntity<BaseResponse> getFieldSchedule(@Valid @RequestBody OnDayScheduleRequest onDayScheduleRequest) {
+        String fieldId = onDayScheduleRequest.getFieldId();
+        ZonedDateTime startOfDay = onDayScheduleRequest.getStartOfDay();
+        ZonedDateTime endOfDay = onDayScheduleRequest.getEndOfDay();
+        return bookingService.getFieldSchedule(fieldId, startOfDay, endOfDay);
     }
 
 }

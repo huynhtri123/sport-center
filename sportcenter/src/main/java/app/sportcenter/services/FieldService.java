@@ -16,7 +16,6 @@ public interface FieldService {
 
     public ResponseEntity<BaseResponse> updateById(String fieldId, FieldRequest newField);
     public ResponseEntity<BaseResponse> toggleActiveStatus(String fieldId);
-    public FieldResponse changeFieldStatus(String fieldId, FieldStatus newStatus);
 
     public ResponseEntity<BaseResponse> softDeleted(String fieldId);
     public ResponseEntity<BaseResponse> restore(String fieldId);
@@ -24,5 +23,4 @@ public interface FieldService {
 
     public ResponseEntity<BaseResponse> searchByNameContainingIgnoreCase(String fieldName);
     public ResponseEntity<BaseResponse> findByFieldType(FieldType fieldType);
-    public ResponseEntity<BaseResponse> findByFieldStatus(FieldStatus fieldStatus);
 }

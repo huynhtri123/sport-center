@@ -32,7 +32,6 @@ public class FieldMapper {
         }
 
         oldField.setFieldName(newField.getFieldName());
-        oldField.setFieldStatus(newField.getFieldStatus());
         oldField.setFieldType(newField.getFieldType());
         oldField.setDescription(newField.getDescription());
         oldField.setPrice(newField.getPrice());

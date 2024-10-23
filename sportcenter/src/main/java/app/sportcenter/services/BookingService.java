@@ -14,7 +14,10 @@ public interface BookingService {
     public ResponseEntity<BaseResponse> getBookingByFieldId(String fieldId);
     public ResponseEntity<BaseResponse> getBookingsByStartTime(ZonedDateTime startTime);
     public ResponseEntity<BaseResponse> getAllBookings();
+    // lấy tất cả booking theo khoảng thời gian cụ thể. Ví dụ theo ngày (7:00 ngày 1/1/2024 - 22:00 ngày 1/1/2024)
+    public ResponseEntity<BaseResponse> getFieldSchedule(String fieldId, ZonedDateTime startOfDay, ZonedDateTime endOfDay);
 
+    // softDelete & restore
     public ResponseEntity<BaseResponse> changeIsDeleted(String bookingId, boolean flag);
     public ResponseEntity<BaseResponse> forceDelete(String bookingId);
 }

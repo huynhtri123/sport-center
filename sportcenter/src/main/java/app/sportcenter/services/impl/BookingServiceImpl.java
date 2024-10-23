@@ -5,8 +5,10 @@ import app.sportcenter.commons.FieldStatus;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.models.dto.BookingRequest;
 import app.sportcenter.models.dto.BookingResponse;
+import app.sportcenter.models.dto.FieldResponse;
 import app.sportcenter.models.entities.Booking;
 import app.sportcenter.models.entities.Field;
+import app.sportcenter.models.entities.TimeSlot;
 import app.sportcenter.models.entities.User;
 import app.sportcenter.repositories.BookingRepository;
 import app.sportcenter.repositories.FieldRepository;
@@ -14,6 +16,7 @@ import app.sportcenter.repositories.UserRepository;
 import app.sportcenter.services.BookingService;
 import app.sportcenter.services.MailService;
 import app.sportcenter.utils.mappers.BookingMapper;
+import app.sportcenter.utils.mappers.FieldMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -41,10 +44,13 @@ public class BookingServiceImpl implements BookingService {
     private FieldRepository fieldRepository;
     @Autowired
     private MailService mailService;
+    @Autowired
+    private FieldMapper fieldMapper;
 
     @Transactional
     @Override
     public ResponseEntity<BaseResponse> createBooking(BookingRequest bookingRequest) {
+        // 1. Lấy thông tin người dùng và sân từ cơ sở dữ liệu
         User user = userRepository.findById(bookingRequest.getUserId())
                 .orElseThrow(() -> new CustomException("Không tìm thấy user có id này", HttpStatus.NOT_FOUND.value()));
         Field field = fieldRepository.findById(bookingRequest.getFieldId())
@@ -52,28 +58,51 @@ public class BookingServiceImpl implements BookingService {
         log.info("Booking user: " + user.getFullName());
         log.info("Booking field: " + field.getFieldName());
 
-        // Kiểm tra xem sân có trống hay không
-        if (!field.getFieldStatus().equals(FieldStatus.AVAILABLE)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Sân không còn trống (not AVAILABLE)!",
-                            HttpStatus.NOT_FOUND.value(), null)
+        // 2. Tính toán thời gian kết thúc dựa trên số giờ đặt
+        ZonedDateTime startTime = bookingRequest.getStartTime();
+        ZonedDateTime endTime = startTime.plusHours(bookingRequest.getNumberOfHours());
+
+        // 3. Lấy tất cả các booking của sân trong khoảng thời gian cụ thể
+        List<Booking> bookings = bookingRepository.findBookingsByFieldAndTimeRange(
+                bookingRequest.getFieldId(), startTime, endTime
+        );
+
+        // tìm danh sách booking có timeSlots có trạng thái IN_USE trong khoảng thời gian này
+        List<Booking> inUseBookingList = bookingRepository.findInUseTimeSlotsByFieldAndTimeRange(field.getId(),
+                startTime, endTime);
+        // nếu có nghĩa là kẹt lịch, out
+        if (inUseBookingList.isEmpty()) {
+            // 4. Tạo các timeSlot từ thời gian đặt sân (*không phải nguyên ngày)
+            field.createTimeSlots(startTime, endTime);
+            // 5. Cập nhật trạng thái các TimeSlot theo các bookings hiện có
+            // kiểm tra coi số lượng nhỏ timeSlot vừa tạo có cái nào còn hạn
+            field.updateTimeSlotsStatus(bookings);
+
+            // 6. Đổi trạng thái của các TimeSlot liên quan đến booking thành IN_USE
+            for (TimeSlot slot : field.getTimeSlots()) {
+                if (slot.getStartTime().isBefore(endTime) &&
+                        slot.getEndTime().isAfter(startTime)) {
+                    slot.setStatus(FieldStatus.IN_USE);
+                }
+            }
+
+            fieldRepository.save(field);
+
+            // 7. Tạo booking mới với trạng thái sân đã được cập nhật
+            Booking booking = bookingMapper.convertToEntity(bookingRequest, field);
+            Booking savedBooking = bookingRepository.save(booking);
+
+            BookingResponse response = bookingMapper.convertToResponse(savedBooking);
+            // Gửi mail thông báo
+            sendMailBooking(user, response);
+
+            return ResponseEntity.ok(
+                    new BaseResponse("Tạo mới Booking thành công!", HttpStatus.OK.value(), response)
             );
         }
 
-        // ok -> Đổi trạng thái sân sang không còn có sẵn
-        field.setFieldStatus(FieldStatus.IN_USE);
-        fieldRepository.save(field);
-
-        // booking mới với trạng thái field đã được cập nhật
-        Booking booking = bookingMapper.convertToEntity(bookingRequest, field);
-        Booking savedBooking = bookingRepository.save(booking);
-
-        BookingResponse response = bookingMapper.convertToResponse(savedBooking);
-        // gửi mail thông báo
-        sendMailBooking(user, response);
-
-        return ResponseEntity.ok(
-                new BaseResponse("Tạo mới Booking thành công!", HttpStatus.OK.value(), response)
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                new BaseResponse("Sân không trống trong thời gian này!", HttpStatus.CONFLICT.value(), null)
         );
     }
 
@@ -154,6 +183,7 @@ public class BookingServiceImpl implements BookingService {
         );
     }
 
+    @Transactional
     @Override
     public ResponseEntity<BaseResponse> getAllBookings() {
         List<Booking> bookingList = bookingRepository.getAllActive();
@@ -168,6 +198,29 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    public ResponseEntity<BaseResponse> getFieldSchedule(String fieldId, ZonedDateTime startOfDay, ZonedDateTime endOfDay) {
+        // 1. Lấy tất cả các booking của sân trong khoảng thời gian
+        List<Booking> bookings = bookingRepository.findBookingsByFieldAndTimeRange(fieldId, startOfDay, endOfDay);
+
+        // 2. Lấy thông tin của sân
+        Field field = fieldRepository.findById(fieldId)
+                .orElseThrow(() -> new CustomException("Field not found", HttpStatus.NOT_FOUND.value()));
+
+        // tạo list timeSlots trải dài suốt khoảng thời gian này
+        field.createTimeSlots(startOfDay, endOfDay);
+        // cập nhật trạng thái timeSlots của sân theo các booking đã lấy
+        field.updateTimeSlotsStatus(bookings);
+        Field updatedField = fieldRepository.save(field);
+
+        FieldResponse fieldResponse = fieldMapper.convertToDTO(updatedField);
+
+        return ResponseEntity.ok(
+                new BaseResponse("Lấy lịch sân thành công.", HttpStatus.OK.value(), fieldResponse));
+    }
+
+
+    @Transactional
+    @Override
     public ResponseEntity<BaseResponse> changeIsDeleted(String bookingId, boolean flag) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new CustomException("Không tìm thấy booking!", HttpStatus.NOT_FOUND.value()));
@@ -181,15 +234,11 @@ public class BookingServiceImpl implements BookingService {
                 new BaseResponse(message, HttpStatus.OK.value(), response)
         );
     }
-
+    @Transactional
     @Override
     public ResponseEntity<BaseResponse> forceDelete(String bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new CustomException("Không tìm thấy booking!", HttpStatus.NOT_FOUND.value()));
-//        boolean isExpired = booking.getEndTime().isBefore(ZonedDateTime.now());
-//        if (!isExpired) {
-//            throw new CustomException("Booking này chưa hết hạn!", HttpStatus.BAD_REQUEST.value());
-//        }
         BookingResponse response = bookingMapper.convertToResponse(booking);
 
         bookingRepository.deleteById(bookingId);
