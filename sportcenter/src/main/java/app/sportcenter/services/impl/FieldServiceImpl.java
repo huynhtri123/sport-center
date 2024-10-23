@@ -1,7 +1,6 @@
 package app.sportcenter.services.impl;
 
 import app.sportcenter.commons.BaseResponse;
-import app.sportcenter.commons.FieldStatus;
 import app.sportcenter.commons.FieldType;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
@@ -113,18 +112,6 @@ public class FieldServiceImpl implements FieldService {
     }
 
     @Override
-    public FieldResponse changeFieldStatus(String fieldId, FieldStatus newStatus) {
-        Field field = fieldRepository.findById(fieldId).orElseThrow(() ->
-                new NotFoundException("Không tìm thấy Field!"));
-
-        // Đổi trạng thái của Field sang trạng thái mới
-        field.setFieldStatus(newStatus);
-
-        Field updatedField = fieldRepository.save(field);
-        return fieldMapper.convertToDTO(updatedField);
-    }
-
-    @Override
     public ResponseEntity<BaseResponse> softDeleted(String fieldId) {
         Field field = fieldRepository.findById(fieldId).orElseThrow(() ->
                 new NotFoundException("Không tìm thấy Field!"));
@@ -200,19 +187,4 @@ public class FieldServiceImpl implements FieldService {
         );
     }
 
-    @Override
-    public ResponseEntity<BaseResponse> findByFieldStatus(FieldStatus fieldStatus) {
-        List<Field> fieldList = fieldRepository.findByFieldStatus(fieldStatus);
-
-        if (fieldList.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Không tìm thấy sân có trạng thái " + fieldStatus.name() + ".", HttpStatus.NOT_FOUND.value(), null)
-            );
-        }
-
-        List<FieldResponse> responseFields = fieldList.stream().map(fieldMapper::convertToDTO).toList();
-        return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy danh sách sân có trạng thái " + fieldStatus.name() + ".", HttpStatus.OK.value(), responseFields)
-        );
-    }
 }

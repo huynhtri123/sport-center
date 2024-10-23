@@ -4,11 +4,9 @@ import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.commons.FieldStatus;
 import app.sportcenter.commons.FieldType;
 import app.sportcenter.models.dto.FieldRequest;
-import app.sportcenter.models.dto.FieldResponse;
 import app.sportcenter.services.FieldService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -58,16 +56,6 @@ public class FieldController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PatchMapping("/changeStatus/{fieldId}")
-    public ResponseEntity<BaseResponse> changeFieldStatus(@PathVariable("fieldId") String fieldId,
-                                                          @RequestParam("status") FieldStatus newStatus) {
-        FieldResponse fieldResponse = fieldService.changeFieldStatus(fieldId, newStatus);
-        return ResponseEntity.ok(
-                new BaseResponse("Thay đổi trạng thái sân thành công.", HttpStatus.OK.value(), fieldResponse)
-        );
-    }
-
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PatchMapping("/softDelete/{fieldId}")
     public ResponseEntity<BaseResponse> softDelete(@PathVariable("fieldId") String fieldId) {
         return fieldService.softDeleted(fieldId);
@@ -96,12 +84,6 @@ public class FieldController {
     @GetMapping("/findByType")
     public ResponseEntity<BaseResponse> findByFieldType(@RequestParam("type") FieldType fieldType) {
         return fieldService.findByFieldType(fieldType);
-    }
-
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @GetMapping("/findByStatus")
-    public ResponseEntity<BaseResponse> findByFieldStatus(@RequestParam("status") FieldStatus fieldStatus) {
-        return fieldService.findByFieldStatus(fieldStatus);
     }
 
 }

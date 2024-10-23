@@ -3,6 +3,7 @@ package app.sportcenter.configs;
 import app.sportcenter.commons.FieldStatus;
 import app.sportcenter.models.entities.Booking;
 import app.sportcenter.models.entities.Field;
+import app.sportcenter.models.entities.TimeSlot;
 import app.sportcenter.repositories.BookingRepository;
 import app.sportcenter.repositories.FieldRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -33,20 +34,46 @@ public class SchedulerConfig {
     }
 
     @Transactional
-    @Scheduled(fixedRate = 60000)       // chạy mỗi 1 phut
-    public void checkFieldStatus() {
+    @Scheduled(fixedRate = 60000) // chạy mỗi 1 phut
+    public void checkFieldTimeSlotsStatus() {
         ZonedDateTime now = ZonedDateTime.now();
-        List<Booking> expiredBookings = bookingRepository.findExpiredBookings(now, FieldStatus.IN_USE.name());
+
+        // 1. Lấy tất cả các booking đã hết hạn (thời gian kết thúc trước hiện tại)
+        List<Booking> expiredBookings = bookingRepository.findExpiredBookings(now);
+
         for (Booking booking : expiredBookings) {
             Field field = booking.getField();
-            if (field.getFieldStatus().equals(FieldStatus.IN_USE)) {
-                field.setFieldStatus(FieldStatus.AVAILABLE);        // đổi trạng thái sân về trống
+            ZonedDateTime bookingStartTime = booking.getStartTime();
+            ZonedDateTime bookingEndTime = booking.getEndTime();
+
+            if (field.getTimeSlots() == null || field.getTimeSlots().isEmpty()) {
+                continue;
+            }
+
+            boolean isUpdated = false;
+
+            // 2. Cập nhật các TimeSlot của Field tương ứng với booking đã hết hạn
+            for (TimeSlot slot : field.getTimeSlots()) {
+                // Chỉ cập nhật trạng thái nếu `TimeSlot` nằm trong thời gian của `Booking` đã hết hạn và hiện đang `IN_USE`
+                if (slot.getStatus() == FieldStatus.IN_USE &&
+                        slot.getEndTime().isBefore(now) &&
+                        slot.getStartTime().isBefore(bookingEndTime) &&
+                        slot.getEndTime().isAfter(bookingStartTime)) {
+
+                    slot.setStatus(FieldStatus.AVAILABLE);
+                    isUpdated = true; // Đánh dấu là có cập nhật
+                }
+            }
+
+            // 3. Chỉ lưu nếu có thay đổi trạng thái của `TimeSlot`
+            if (isUpdated) {
+                booking.setField(field);
                 fieldRepository.save(field);
-                booking.setField(field);                            // cập nhật booking với sân mới
                 bookingRepository.save(booking);
-                log.info("Đặt sân hết hạn. Đã đổi trạng thái sân về AVAILABLE, ID sân: {}, ID booking: {}",
+                log.info("Đặt sân hết hạn. Đã cập nhật trạng thái TimeSlots về AVAILABLE, ID sân: {}, ID booking: {}",
                         field.getId(), booking.getId());
             }
         }
     }
+
 }
