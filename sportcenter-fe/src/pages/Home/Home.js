@@ -2,7 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styles from '../../assets/css/home.module.scss';
 
-const bannerImages = ['/yoga-banner.png', '/football-banner.png', '/tennis-banner.png', '/badminton-banner.png'];
+const bannerImages = [
+    'https://res.cloudinary.com/dftznqjsj/image/upload/v1729679449/yoga-banner_otpmcq.png',
+    'https://res.cloudinary.com/dftznqjsj/image/upload/v1729679893/Dark_Purple_and_Green_Illustration_Sport_Presentation_hbl0ij.jpg',
+    'https://res.cloudinary.com/dftznqjsj/image/upload/v1729679721/Pr%C3%A9sentation_sport_tennis_moderne_orange_vert_q9ajks.jpg',
+    'https://res.cloudinary.com/dftznqjsj/image/upload/v1729677944/Blue_and_Red_Modern_Badminton_Sports_YouTube_Thumbnail_dpqv79.png',
+    'https://res.cloudinary.com/dftznqjsj/image/upload/v1729677714/Blue_and_Green_Modern_Soccer_Match_Banner_dsxh7h.jpg',
+];
 
 function Home() {
     const extendedImages = [bannerImages[bannerImages.length - 1], ...bannerImages, bannerImages[0]];
@@ -82,12 +88,32 @@ function Home() {
 
             {/* Why Choose Us */}
             <section className={styles.whyChooseUs}>
-                <h2>Tại sao chọn chúng tôi?</h2>
+                <h2>Why choose us?</h2>
                 <ul>
-                    <li>Cơ sở vật chất hiện đại</li>
-                    <li>Huấn luyện viên chuyên nghiệp</li>
-                    <li>Lịch trình linh hoạt</li>
-                    <li>Vị trí thuận tiện</li>
+                    <li>
+                        Modern Facilities: Our top-notch, well-maintained facilities ensure the best sports experience
+                        for you.
+                    </li>
+                    <li>
+                        Professional Coaches: Skilled and experienced coaches provide personalized guidance to help you
+                        improve.
+                    </li>
+                    <li>
+                        Flexible Scheduling: We offer flexible time slots to fit your busy schedule and make training
+                        easy.
+                    </li>
+                    <li>
+                        Convenient Location: Centrally located, making it quick and easy for you to join us from
+                        anywhere in the city.
+                    </li>
+                    <li>
+                        Dedicated Customer Service: Our friendly staff is always ready to assist and ensure you have a
+                        great experience.
+                    </li>
+                    <li>
+                        Vibrant Sports Community: Join a dynamic community of sports enthusiasts and make new
+                        connections.
+                    </li>
                 </ul>
             </section>
 
@@ -95,11 +121,26 @@ function Home() {
             <section className={styles.gallerySection}>
                 <h2>Hình ảnh nổi bật</h2>
                 <div className={styles.galleryContainer}>
-                    <img src='/football.jpg' alt='Gallery 1' />
-                    <img src='/jump.jpg' alt='Gallery 2' />
-                    <img src='/badminton-old.jpg' alt='Gallery 3' />
-                    <img src='/yoga.jpg' alt='Gallery 4' />
-                    <img src='/football-train.jpg' alt='Gallery 5' />
+                    <img
+                        src='https://images.pexels.com/photos/264312/pexels-photo-264312.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+                        alt='Gallery 1'
+                    />
+                    <img
+                        src='https://res.cloudinary.com/dftznqjsj/image/upload/v1729671863/jump_y31cwb.jpg'
+                        alt='Gallery 2'
+                    />
+                    <img
+                        src='https://images.pexels.com/photos/6292463/pexels-photo-6292463.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+                        alt='Gallery 3'
+                    />
+                    <img
+                        src='https://images.pexels.com/photos/9519530/pexels-photo-9519530.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+                        alt='Gallery 4'
+                    />
+                    <img
+                        src='https://images.pexels.com/photos/7188095/pexels-photo-7188095.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+                        alt='Gallery 5'
+                    />
                 </div>
             </section>
 

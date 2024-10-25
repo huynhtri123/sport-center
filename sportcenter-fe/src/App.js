@@ -12,7 +12,13 @@ import Footer from './layouts/Footer';
 import Home from './pages/Home/Home';
 import ForgotPassword from './pages/Auth/ForgotPassword';
 import AuthProvider from './contexts/Auth/AuthProvider';
-import CreateSport from './pages/Sport/CreateSport';
+import FootballHome from './pages/ForCustomer/Sport/SportHome/FootballHome';
+import BadmintonHome from './pages/ForCustomer/Sport/SportHome/BadmintonHome';
+import TennisHome from './pages/ForCustomer/Sport/SportHome/TennisHome';
+import YogaHome from './pages/ForCustomer/Sport/SportHome/YogaHome';
+import Booking from './pages/ForCustomer/Booking/Booking';
+import FieldList from './pages/ForCustomer/Field/FieldList';
+import GetFieldsProvider from './contexts/Field/GetFieldsProvider';
 
 function App() {
     return (
@@ -21,14 +27,24 @@ function App() {
                 <div className={clsx(styles.app)}>
                     <NavBar />
                     <div className={clsx(styles.appContent)}>
-                        <Routes>
-                            <Route path='/' element={<Home />} />
-                            <Route path='/sign-up' element={<Signup />} />
-                            <Route path='/sign-in' element={<Signin />} />
-                            <Route path='/forgot-password' element={<ForgotPassword />} />
-                            <Route path='/sport' element={<CreateSport />} />
-                        </Routes>
+                        <GetFieldsProvider>
+                            <Routes>
+                                <Route path='/' element={<Home />} />
+                                <Route path='/sign-up' element={<Signup />} />
+                                <Route path='/sign-in' element={<Signin />} />
+                                <Route path='/forgot-password' element={<ForgotPassword />} />
+
+                                <Route path='/sport/football' element={<FootballHome />} />
+                                <Route path='/sport/badminton' element={<BadmintonHome />} />
+                                <Route path='/sport/tennis' element={<TennisHome />} />
+                                <Route path='/sport/yoga' element={<YogaHome />} />
+                                <Route path='/sport/fields' element={<FieldList />} />
+
+                                <Route path='/booking' element={<Booking />} />
+                            </Routes>
+                        </GetFieldsProvider>
                     </div>
+
                     <Footer />
 
                     <ToastContainer

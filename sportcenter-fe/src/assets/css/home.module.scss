@@ -81,6 +81,7 @@
         .serviceCard {
             background: white;
             border-radius: 10px;
+
             padding: 20px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
             text-align: center;
@@ -101,26 +102,52 @@
 
 .whyChooseUs {
     padding: 40px 20px;
-    background-color: #e9ecef;
+    background-color: #ccc;
     text-align: center;
 
     h2 {
         margin-bottom: 20px;
+        color: white;
     }
 
     ul {
         list-style-type: none;
         padding: 0;
+        display: flex; // Change to flex layout
+        flex-wrap: wrap; // Allow items to wrap into the next line if needed
+        gap: 20px; // Add spacing between each reason
+        justify-content: center; // Center items horizontally
+        max-width: 1200px; // Set a wider maximum width for the section
+        margin: 0 auto; // Center the section horizontally
+    }
 
-        li {
+    li {
+        font-size: 1.1em;
+        width: 45%; // Adjust the width to make each reason take up more horizontal space
+        text-align: left; // Align text to the left
+        background-color: #fff; // White background for better readability
+        padding: 15px 20px; // Add padding for spacing
+        border-radius: 10px; // Rounded corners for the reasons
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); // Subtle shadow for a lifted effect
+        position: relative; // For pseudo-element positioning
+
+        &:before {
+            content: '✔'; // Add a checkmark icon
+            position: absolute;
+            left: 10px; // Adjusted positioning for the checkmark
+            color: #004085;
             font-size: 1.2em;
-            margin: 10px 0;
+            top: 50%; // Vertically center the checkmark
+            transform: translateY(-50%); // Adjust for centering
         }
+
+        padding-left: 35px; // Extra padding to make space for the checkmark
     }
 }
 
 .gallerySection {
     padding: 40px 20px;
+    text-align: center;
 
     h2 {
         margin-bottom: 24px;
@@ -141,12 +168,12 @@
 
 .testimonials {
     padding: 40px 20px;
-    background-color: #2c4c3b;
-    color: white;
+    background-color: #ccc;
+    color: $blue-prime;
     text-align: center;
 
     .testimonialCard {
-        background: $blue-prime;
+        background: white;
         padding: 20px;
         border-radius: 10px;
         max-width: 500px;
