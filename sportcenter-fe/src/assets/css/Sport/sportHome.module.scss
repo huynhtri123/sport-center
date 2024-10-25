@@ -1,0 +1,134 @@
+@import '../variables';
+
+.sportHomeContainer {
+    margin: 24px;
+}
+.football {
+    background: $dark-blue-light; // Background color of the hero section
+}
+.badminton {
+    background: $dark-teal;
+}
+
+.yoga {
+    background-color: $dark-pink;
+}
+
+.tennis {
+    background-color: $dark-min;
+}
+
+.bannerSection {
+    display: flex;
+    align-items: center;
+    justify-content: center; // Center the content
+    padding: 60px;
+    color: white;
+    overflow: hidden; // Hide overflowing images
+
+    .bannerSectionContent {
+        max-width: 600px;
+        z-index: 1; // Ensure content is above images
+        margin: 24px;
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+
+        .heroButton {
+            background-color: #ffc107;
+            color: $blue-prime;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    }
+
+    // Slider Container
+    .bannerSectionImage {
+        position: relative;
+        width: 60%;
+        height: 400px; // Fixed height for the slider
+        overflow: hidden; // Hide overflow
+        border: 5px solid white; // Add a border around the slider
+        border-radius: 15px; // Rounded corners for the border
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); // Optional shadow for depth
+        background-color: rgba(
+            255,
+            255,
+            255,
+            0.8
+        ); // Slightly transparent white background to blend with the background
+
+        img {
+            flex-shrink: 0; // Prevent shrinking of the images
+            width: 100%; // Set each image to fill the width of the container
+            height: 100%; // Set each image to fill the height of the container
+            object-fit: cover; // Ensure images maintain aspect ratio while covering
+            border-radius: 15px; // Match border radius of slider container
+        }
+    }
+}
+
+.featuresSection {
+    padding: 40px 20px;
+    background-color: #f8f9fa;
+    text-align: center;
+
+    h2 {
+        font-size: 2em;
+        color: $dark-green;
+        margin-bottom: 40px;
+    }
+
+    .featuresContainer {
+        display: flex;
+        flex-wrap: wrap; // các ptu con nếu k đủ chỗ thì xuống dòng
+        justify-content: space-around;
+        gap: 20px;
+    }
+
+    .featureCard {
+        background-color: white;
+
+        border-radius: 15px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        max-width: 300px;
+        text-align: center;
+        padding: 20px;
+        transition: transform 0.3s, box-shadow 0.3s;
+        cursor: pointer;
+
+        &:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+
+        img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            font-size: 1.5em;
+            color: $blue-prime;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 1em;
+            color: #666;
+        }
+    }
+}

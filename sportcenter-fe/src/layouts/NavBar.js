@@ -1,18 +1,34 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styles from '../assets/css/Layouts/navBar.module.scss';
 import { handleLocalStorage } from '../utils/handleLocalStorage';
 import { toast } from 'react-toastify';
 import { useCheckSignedIn } from '../customs/hooks';
+import { useState } from 'react';
 
 function NavBar() {
+    const [selectedSport, setSelectedSport] = useState('');
     const location = useLocation();
     const [isSignedIn, setIsSignedIn] = useCheckSignedIn();
+
+    const handleChangeSelect = (e) => {
+        setSelectedSport(e.target.value);
+    };
+
+    const navigate = useNavigate();
+
+    const handleSearch = () => {
+        if (selectedSport) {
+            navigate(`sport/${selectedSport}`);
+        }
+    };
 
     const handleSignoutSubmit = () => {
         handleLocalStorage.clearToken();
         setIsSignedIn(false);
         toast.success('Log out successfully!');
     };
+
+    // console.log(selectedSport);
 
     return (
         <nav className={`navbar navbar-expand-lg bg-body-tertiary ${styles.navbarContainer}`}>
@@ -52,23 +68,27 @@ function NavBar() {
                 </div>
 
                 {/* Middle - Search Combo Box */}
-                <div className={`d-flex align-items-center ${styles.middleInput}`}>
+                <form className={`d-flex align-items-center ${styles.middleInput}`}>
                     <div className={`input-group ${styles.inputGroup}`}>
-                        <select className={`form-select ${styles.comboBox}`} aria-label='Select a sport'>
-                            <option value='' disabled selected>
+                        <select
+                            className={`form-select ${styles.comboBox}`}
+                            aria-label='Select a sport'
+                            value={selectedSport}
+                            onChange={handleChangeSelect}
+                        >
+                            <option value='' disabled>
                                 Select a sport...
                             </option>
                             <option value='football'>Football</option>
-                            <option value='basketball'>Basketball</option>
+                            <option value='badminton'>Badminton</option>
                             <option value='tennis'>Tennis</option>
-                            <option value='cricket'>Yoga</option>
-                            <option value='all'>All sports</option>
+                            <option value='yoga'>Yoga</option>
                         </select>
-                        <div className={`input-group-text ${styles.searchIcon}`}>
+                        <div className={`input-group-text ${styles.searchIcon}`} onClick={handleSearch}>
                             <i className='fa-regular fa-calendar' title='Check'></i>
                         </div>
                     </div>
-                </div>
+                </form>
 
                 {/* Right - Sign In, Sign Up, Sign Out */}
                 <div className={`d-flex align-items-center ${styles.iconContainer}`}>
