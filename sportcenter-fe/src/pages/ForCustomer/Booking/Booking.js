@@ -8,7 +8,6 @@ import Button from '../../../components/Button/Button';
 import { useGetField } from '../../../customs/hooks';
 
 function Booking() {
-    // eslint-disable-next-line no-unused-vars
     const [field, setField] = useGetField(); // field lấy từ context (được set ở FieldList)
     const [selectedDate, setSelectedDate] = useState(''); // ngày
     const [timeSlots, setTimeSlots] = useState([]); // Danh sách timeSlots
@@ -25,6 +24,11 @@ function Booking() {
     const fetchTimeSlots = useCallback(
         async (date) => {
             if (!field || !field.id) {
+                // khi load lại trang thì lấy lại dữ liệu field từ localStorage
+                const savedField = localStorage.getItem('selectedField');
+                if (savedField) {
+                    setField(JSON.parse(savedField));
+                }
                 console.warn('Sân chưa được nạp (chỉ là chưa kịp nạp thôi, ko sao)');
                 return;
             }
@@ -43,7 +47,7 @@ function Booking() {
                 console.error('Error fetching time slots:', error);
             }
         },
-        [field]
+        [field, setField]
     );
 
     // hàm xử lý khi chọn ngày -> nạp lại danh sách timeSlot
@@ -65,7 +69,6 @@ function Booking() {
             // console.log(startDateTimeString);
 
             const bookingRequest = {
-                userId: '6706908b94ce964f364eb4e9', // *sửa BE lấy sẵn từ SecurityContext, ko cần truyền
                 fieldId: field.id,
                 startTime: startDateTimeString, // Sử dụng định dạng startTime đã chỉnh sửa
                 numberOfHours: numberOfHours,
