@@ -8,6 +8,7 @@ const bannerImages = [
     'https://res.cloudinary.com/dftznqjsj/image/upload/v1729679721/Pr%C3%A9sentation_sport_tennis_moderne_orange_vert_q9ajks.jpg',
     'https://res.cloudinary.com/dftznqjsj/image/upload/v1729677944/Blue_and_Red_Modern_Badminton_Sports_YouTube_Thumbnail_dpqv79.png',
     'https://res.cloudinary.com/dftznqjsj/image/upload/v1729677714/Blue_and_Green_Modern_Soccer_Match_Banner_dsxh7h.jpg',
+    'https://img.freepik.com/free-vector/badminton-tournament-flat-horizontal-poster-with-male-player-motion-hitting-shuttlecock-with-racquet-across-net-vector-illustration_1284-71470.jpg?t=st=1729916075~exp=1729919675~hmac=613415fe1222e7ffa6c94178d403df4b0c3a2e44907bd4ea7c90761a839d4814&w=996',
 ];
 
 function Home() {

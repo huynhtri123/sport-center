@@ -88,7 +88,7 @@ public class SportServiceImpl implements SportService {
 
     @Override
     public ResponseEntity<BaseResponse> getAll() {
-        List<Sport> sportList = sportRepository.getByIsDeletedFalse();
+        List<Sport> sportList = sportRepository.getSportByIsActiveTrueAndIsDeletedFalse();
         if(sportList.isEmpty()) {
             return ResponseEntity.status(HttpStatus.OK).body(
                     new BaseResponse("Khong tim thay sport", HttpStatus.OK.value(),null)

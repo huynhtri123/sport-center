@@ -11,5 +11,6 @@ public interface SportRepository extends MongoRepository<Sport, String> {
     public Sport getSportById(String id);
     public List<Sport> getByIsDeletedTrue();
     public List<Sport> getByIsDeletedFalse();
+    public List<Sport> getSportByIsActiveTrueAndIsDeletedFalse();
 
 }

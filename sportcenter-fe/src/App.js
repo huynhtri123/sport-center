@@ -11,15 +11,14 @@ import NavBar from './layouts/NavBar';
 import Footer from './layouts/Footer';
 import Home from './pages/Home/Home';
 import ForgotPassword from './pages/Auth/ForgotPassword';
-import AuthProvider from './contexts/Auth/AuthProvider';
-import FootballHome from './pages/ForCustomer/Sport/SportHome/FootballHome';
-import BadmintonHome from './pages/ForCustomer/Sport/SportHome/BadmintonHome';
-import TennisHome from './pages/ForCustomer/Sport/SportHome/TennisHome';
-import YogaHome from './pages/ForCustomer/Sport/SportHome/YogaHome';
 import Booking from './pages/ForCustomer/Booking/Booking';
 import FieldList from './pages/ForCustomer/Field/FieldList';
+import SportList from './pages/ForCustomer/Sport/SportList';
+import DynamicSportHome from './pages/ForCustomer/Sport/SportHome/DynamicSportHome';
 
+import AuthProvider from './contexts/Auth/AuthProvider';
 import GetFieldsProvider from './contexts/Field/GetFieldsProvider';
+import SportProvider from './contexts/Sport/SportProvider';
 import { useCleanupStorage } from './customs/hooks';
 
 function App() {
@@ -28,42 +27,42 @@ function App() {
     return (
         <GlobalStyle>
             <AuthProvider>
-                <div className={clsx(styles.app)}>
-                    <NavBar />
-                    <div className={clsx(styles.appContent)}>
-                        <GetFieldsProvider>
-                            <Routes>
-                                <Route path='/' element={<Home />} />
-                                <Route path='/sign-up' element={<Signup />} />
-                                <Route path='/sign-in' element={<Signin />} />
-                                <Route path='/forgot-password' element={<ForgotPassword />} />
+                <SportProvider>
+                    <div className={clsx(styles.app)}>
+                        <NavBar />
+                        <div className={clsx(styles.appContent)}>
+                            <GetFieldsProvider>
+                                <Routes>
+                                    <Route path='/' element={<Home />} />
+                                    <Route path='/sign-up' element={<Signup />} />
+                                    <Route path='/sign-in' element={<Signin />} />
+                                    <Route path='/forgot-password' element={<ForgotPassword />} />
 
-                                <Route path='/sport/football' element={<FootballHome />} />
-                                <Route path='/sport/badminton' element={<BadmintonHome />} />
-                                <Route path='/sport/tennis' element={<TennisHome />} />
-                                <Route path='/sport/yoga' element={<YogaHome />} />
-                                <Route path='/sport/fields' element={<FieldList />} />
+                                    <Route path='/sport/:sportName' element={<DynamicSportHome />} />
+                                    <Route path='/sport/fields' element={<FieldList />} />
+                                    <Route path='/sports' element={<SportList />} />
 
-                                <Route path='/booking' element={<Booking />} />
-                            </Routes>
-                        </GetFieldsProvider>
+                                    <Route path='/booking' element={<Booking />} />
+                                </Routes>
+                            </GetFieldsProvider>
+                        </div>
+
+                        <Footer />
+
+                        <ToastContainer
+                            position='top-right'
+                            autoClose={3000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                            theme='light'
+                        />
                     </div>
-
-                    <Footer />
-
-                    <ToastContainer
-                        position='top-right'
-                        autoClose={3000}
-                        hideProgressBar={false}
-                        newestOnTop={false}
-                        closeOnClick
-                        rtl={false}
-                        pauseOnFocusLoss
-                        draggable
-                        pauseOnHover
-                        theme='light'
-                    />
-                </div>
+                </SportProvider>
             </AuthProvider>
         </GlobalStyle>
     );

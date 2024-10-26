@@ -1,11 +1,15 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
+
 import styles from '../assets/css/Layouts/navBar.module.scss';
 import { handleLocalStorage } from '../utils/handleLocalStorage';
-import { toast } from 'react-toastify';
 import { useCheckSignedIn } from '../customs/hooks';
-import { useState } from 'react';
+import { useGetSports } from '../customs/hooks';
+import sportApi from '../services/api/sportApi';
 
 function NavBar() {
+    const [sports, setSports] = useGetSports();
     const [selectedSport, setSelectedSport] = useState('');
     const location = useLocation();
     const [isSignedIn, setIsSignedIn] = useCheckSignedIn();
@@ -18,7 +22,7 @@ function NavBar() {
 
     const handleSearch = () => {
         if (selectedSport) {
-            navigate(`sport/${selectedSport}`);
+            navigate(`/sport/${selectedSport.toLowerCase()}`);
         }
     };
 
@@ -26,6 +30,21 @@ function NavBar() {
         handleLocalStorage.clearToken();
         setIsSignedIn(false);
         toast.success('Log out successfully!');
+    };
+
+    useEffect(() => {
+        getSports();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // lấy danh sách sports lưu vào context
+    const getSports = async () => {
+        try {
+            const sportsResponse = await sportApi.getAllActive();
+            setSports(sportsResponse.data);
+        } catch (err) {
+            console.error(err);
+        }
     };
 
     // console.log(selectedSport);
@@ -42,25 +61,25 @@ function NavBar() {
                     <div className={`d-flex align-items-center ${styles.leftBox}`}>
                         <Link
                             className={`${styles.leftItemsBox} font-cera-round-pro-regular ${
-                                location.pathname === '/course' ? styles.active : ''
+                                location.pathname === '/courses' ? styles.active : ''
                             }`}
-                            to='/course'
+                            to='/courses'
                         >
                             <span className={styles.leftNavBarItems}>Courses</span>
                         </Link>
                         <Link
                             className={`${styles.leftItemsBox} font-cera-round-pro-regular ${
-                                location.pathname === '/sport' ? styles.active : ''
+                                location.pathname === '/sports' ? styles.active : ''
                             }`}
-                            to='/sport'
+                            to='/sports'
                         >
                             <span className={styles.leftNavBarItems}>Sports</span>
                         </Link>
                         <Link
                             className={`${styles.leftItemsBox} font-cera-round-pro-regular ${
-                                location.pathname === '/tournament' ? styles.active : ''
+                                location.pathname === '/tournaments' ? styles.active : ''
                             }`}
-                            to='/tournament'
+                            to='/tournaments'
                         >
                             <span className={styles.leftNavBarItems}>Tournaments</span>
                         </Link>
@@ -79,10 +98,9 @@ function NavBar() {
                             <option value='' disabled>
                                 Select a sport...
                             </option>
-                            <option value='football'>Football</option>
-                            <option value='badminton'>Badminton</option>
-                            <option value='tennis'>Tennis</option>
-                            <option value='yoga'>Yoga</option>
+                            {sports.map((sport) => (
+                                <option value={sport.sportName}>{sport.sportName}</option>
+                            ))}
                         </select>
                         <div className={`input-group-text ${styles.searchIcon}`} onClick={handleSearch}>
                             <i className='fa-regular fa-calendar' title='Check'></i>

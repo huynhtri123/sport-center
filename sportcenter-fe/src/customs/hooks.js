@@ -2,6 +2,7 @@ import { useContext, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import AuthContext from '../contexts/Auth/AuthContext';
 import GetFieldsContext from '../contexts/Field/GetFieldsContext';
+import SportContext from '../contexts/Sport/SportContext';
 
 export const useCheckSignedIn = () => {
     const [isSignedIn, setIsSignedIn] = useContext(AuthContext);
@@ -16,6 +17,11 @@ export const useGetFields = () => {
 export const useGetField = () => {
     const [, , field, setField] = useContext(GetFieldsContext); // Chỉ lấy `field` và `setField`
     return [field, setField];
+};
+
+export const useGetSports = () => {
+    const [sports, setSports] = useContext(SportContext);
+    return [sports, setSports];
 };
 
 export const useCleanupStorage = () => {

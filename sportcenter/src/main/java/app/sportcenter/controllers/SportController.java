@@ -39,8 +39,8 @@ public class SportController {
         return sportService.delete(sportId);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/getAll")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
+    @GetMapping("/getAllActive")
     public ResponseEntity<BaseResponse> getAll() {
         return sportService.getAll();
     }

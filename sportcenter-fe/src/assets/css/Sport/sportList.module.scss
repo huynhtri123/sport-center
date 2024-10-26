@@ -1,0 +1,47 @@
+@import '../variables';
+
+.listSportContainer {
+    margin: 24px;
+    text-align: center;
+}
+
+.sportList {
+    list-style: none;
+    padding: 0;
+}
+
+.sportItem {
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    background-color: white; // Ensure the background is set to white
+    color: $blue-prime;
+    margin: 20px 0;
+    border-radius: 8px;
+    padding: 15px;
+    transition: transform 0.2s, box-shadow 0.2s; // Add transition for box-shadow
+
+    // Add a subtle shadow effect
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); // Add shadow
+
+    &:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 20px $blue-prime; // Enhance shadow on hover
+    }
+}
+
+.sportImage {
+    width: 500px;
+    height: 300px;
+    border-radius: 8px;
+    margin-right: 30px;
+}
+
+.sportInfo {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    justify-content: center;
+    height: 300px;
+    padding: 0 10px;
+}
