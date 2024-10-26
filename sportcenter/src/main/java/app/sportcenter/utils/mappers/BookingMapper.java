@@ -12,6 +12,8 @@ import app.sportcenter.repositories.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.time.ZonedDateTime;
@@ -23,9 +25,7 @@ public class BookingMapper {
     @Autowired
     private UserRepository userRepository;
 
-    public Booking convertToEntity(BookingRequest bookingRequest, Field updatedField) {
-        User user = userRepository.findById(bookingRequest.getUserId())
-                .orElseThrow(() -> new CustomException("Không tìm thấy user có id này", HttpStatus.NOT_FOUND.value()));
+    public Booking convertToEntity(BookingRequest bookingRequest, Field updatedField, User user) {
 
         Booking booking = Booking.builder()
                 .user(user)

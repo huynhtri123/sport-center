@@ -18,9 +18,13 @@ import TennisHome from './pages/ForCustomer/Sport/SportHome/TennisHome';
 import YogaHome from './pages/ForCustomer/Sport/SportHome/YogaHome';
 import Booking from './pages/ForCustomer/Booking/Booking';
 import FieldList from './pages/ForCustomer/Field/FieldList';
+
 import GetFieldsProvider from './contexts/Field/GetFieldsProvider';
+import { useCleanupStorage } from './customs/hooks';
 
 function App() {
+    useCleanupStorage();
+
     return (
         <GlobalStyle>
             <AuthProvider>
@@ -59,8 +63,6 @@ function App() {
                         pauseOnHover
                         theme='light'
                     />
-                    {/* Same as */}
-                    <ToastContainer />
                 </div>
             </AuthProvider>
         </GlobalStyle>

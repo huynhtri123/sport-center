@@ -1,4 +1,5 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import AuthContext from '../contexts/Auth/AuthContext';
 import GetFieldsContext from '../contexts/Field/GetFieldsContext';
 
@@ -15,4 +16,15 @@ export const useGetFields = () => {
 export const useGetField = () => {
     const [, , field, setField] = useContext(GetFieldsContext); // Chỉ lấy `field` và `setField`
     return [field, setField];
+};
+
+export const useCleanupStorage = () => {
+    const location = useLocation();
+    useEffect(() => {
+        // xóa 'selectedField' khi người dùng điều hướng khỏi '/booking'
+        if (location.pathname !== '/booking' && location.pathname !== '/sport/fields') {
+            localStorage.removeItem('selectedField');
+            localStorage.removeItem('selectedFields');
+        }
+    }, [location.pathname]);
 };

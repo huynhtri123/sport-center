@@ -1,4 +1,4 @@
-import React from 'react';
+import { React, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -8,10 +8,19 @@ import { useGetFields, useGetField } from '../../../customs/hooks';
 import bookingApi from '../../../services/api/booking/bookingApi';
 
 const FieldList = () => {
-    // eslint-disable-next-line no-unused-vars
     const [fields, setFields] = useGetFields(); // danh sách field, lấy từ context (set ở trang SportHome)
     // eslint-disable-next-line no-unused-vars
     const [field, setField] = useGetField();
+
+    // Lấy danh sách `fields` từ `localStorage` nếu `fields` bị null hoặc rỗng
+    useEffect(() => {
+        if (!fields || fields.length === 0) {
+            const storedFields = localStorage.getItem('selectedFields');
+            if (storedFields) {
+                setFields(JSON.parse(storedFields));
+            }
+        }
+    }, [fields, setFields]);
 
     if (!fields || fields.length === 0) {
         return (
@@ -40,6 +49,8 @@ const FieldList = () => {
             if (fieldResponse.data) {
                 toast.success(fieldResponse.message);
                 setField(fieldResponse.data);
+                // Lưu thông tin sân vào localStorage
+                localStorage.setItem('selectedField', JSON.stringify(fieldResponse.data));
             } else {
                 toast.error('Không tìm thấy thông tin sân.');
                 setField(null);
@@ -61,7 +72,7 @@ const FieldList = () => {
                     if (new Date().getMinutes() > 0) {
                         nowInHour += 1;
                     }
-                    console.log(nowInHour);
+
                     let availableSlots = countAvailableTimeSlots - nowInHour;
 
                     return (

@@ -50,12 +50,13 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     @Override
     public ResponseEntity<BaseResponse> createBooking(BookingRequest bookingRequest) {
-        // 1. Lấy thông tin người dùng và sân từ cơ sở dữ liệu
-        User user = userRepository.findById(bookingRequest.getUserId())
-                .orElseThrow(() -> new CustomException("Không tìm thấy user có id này", HttpStatus.NOT_FOUND.value()));
+        // Lấy thông tin người dùng hiện tại từ SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
         Field field = fieldRepository.findById(bookingRequest.getFieldId())
                 .orElseThrow(() -> new CustomException("Không tìm thấy field có id này", HttpStatus.NOT_FOUND.value()));
-        log.info("Booking user: " + user.getFullName());
+        log.info("Booking user: " + currentUser.getFullName());
         log.info("Booking field: " + field.getFieldName());
 
         // 2. Tính toán thời gian kết thúc dựa trên số giờ đặt
@@ -89,12 +90,12 @@ public class BookingServiceImpl implements BookingService {
             fieldRepository.save(field);
 
             // 7. Tạo booking mới với trạng thái sân đã được cập nhật
-            Booking booking = bookingMapper.convertToEntity(bookingRequest, field);
+            Booking booking = bookingMapper.convertToEntity(bookingRequest, field, currentUser);
             Booking savedBooking = bookingRepository.save(booking);
 
             BookingResponse response = bookingMapper.convertToResponse(savedBooking);
             // Gửi mail thông báo
-            sendMailBooking(user, response);
+            sendMailBooking(currentUser, response);
 
             return ResponseEntity.ok(
                     new BaseResponse("Tạo mới Booking thành công!", HttpStatus.OK.value(), response)

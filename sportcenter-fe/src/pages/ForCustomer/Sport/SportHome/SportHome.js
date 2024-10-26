@@ -10,11 +10,16 @@ function SportHome({ title, description, linkTo, fieldType, bannerImage, feature
     const [fields, setFields] = useGetFields();
     const navigate = useNavigate();
 
-    const handleGetField = async () => {
+    const handleGetFields = async () => {
         try {
             const fieldsResponse = await fieldApi.findByType(fieldType);
+            if (fieldsResponse.status === 404) {
+                toast.warn(fieldsResponse.message);
+            } else {
+                toast.success(fieldsResponse.message);
+            }
             setFields(fieldsResponse.data);
-            toast.success(fieldsResponse.message);
+            localStorage.setItem('selectedFields', JSON.stringify(fieldsResponse.data));
             navigate(linkTo); // Chuyển hướng tới linkTo sau khi lấy dữ liệu thành công
         } catch (err) {
             setFields([]);
@@ -28,7 +33,7 @@ function SportHome({ title, description, linkTo, fieldType, bannerImage, feature
                 <div className={styles.bannerSectionContent}>
                     <h1>{title}</h1>
                     <p>{description}</p>
-                    <Link onClick={handleGetField} to='#' className={`btn ${styles.heroButton}`}>
+                    <Link onClick={handleGetFields} to='#' className={`btn ${styles.heroButton}`}>
                         Chọn sân ngay
                     </Link>
                 </div>
