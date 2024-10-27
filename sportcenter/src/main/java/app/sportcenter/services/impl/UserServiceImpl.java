@@ -53,6 +53,7 @@ public class UserServiceImpl implements UserService {
         if (userRequest == null) {
             throw new CustomException("User input is null", HttpStatus.BAD_REQUEST.value());
         }
+        currentUser.setFullName(userRequest.getFullName());
         currentUser.setPhoneNumber(userRequest.getPhoneNumber());
         currentUser.setAddress(userRequest.getAddress());
         currentUser.setDateOfBirth(userRequest.getDateOfBirth());

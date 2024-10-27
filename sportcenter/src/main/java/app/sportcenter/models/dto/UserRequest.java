@@ -15,6 +15,9 @@ import java.time.ZonedDateTime;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class UserRequest extends BaseRequestDTO {
+    @NotBlank(message = "Họ tên không được bỏ trống!")
+    private String fullName;
+
     @NotBlank(message = "Số điện thoại không được bỏ trống!")
     private String phoneNumber;
 

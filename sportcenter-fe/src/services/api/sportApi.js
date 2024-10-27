@@ -6,7 +6,7 @@ const sportApi = {
         return axiosClient.post(url, sportRequest);
     },
     getAllActive() {
-        const url = '/sport/getAllActive';
+        const url = '/auth/sport/getAllActive';
         return axiosClient.get(url);
     },
 };
