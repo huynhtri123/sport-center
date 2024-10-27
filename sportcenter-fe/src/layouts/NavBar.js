@@ -48,6 +48,7 @@ function NavBar() {
     };
 
     // console.log(selectedSport);
+    // console.log(isSignedIn);
 
     return (
         <nav className={`navbar navbar-expand-lg bg-body-tertiary ${styles.navbarContainer}`}>
@@ -98,8 +99,10 @@ function NavBar() {
                             <option value='' disabled>
                                 Select a sport...
                             </option>
-                            {sports.map((sport) => (
-                                <option value={sport.sportName}>{sport.sportName}</option>
+                            {sports.map((sport, index) => (
+                                <option key={index} value={sport.sportName}>
+                                    {sport.sportName}
+                                </option>
                             ))}
                         </select>
                         <div className={`input-group-text ${styles.searchIcon}`} onClick={handleSearch}>
@@ -116,12 +119,12 @@ function NavBar() {
                         </Link>
                     </div>
                     {isSignedIn ? (
-                        <Link className={'nav-link font-cera-round-pro-medium'} onClick={handleSignoutSubmit} to='/'>
-                            <i className='fas fa-arrow-right-from-bracket' style={{ fontSize: '20px' }}></i>
+                        <Link className={'nav-link font-cera-round-pro-medium'} to='/profile'>
+                            <i className='fa-solid fa-circle-user' style={{ fontSize: '32px' }}></i>
                         </Link>
                     ) : (
                         <Link className={`nav-link font-cera-round-pro-medium`} to='/sign-in'>
-                            <i className={`far fa-circle-user ${styles.iconLogin}`}></i>
+                            <i className={`fa-regular fa-circle-user ${styles.iconLogin}`}></i>
                         </Link>
                     )}
                 </div>

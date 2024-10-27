@@ -15,6 +15,7 @@ import Booking from './pages/ForCustomer/Booking/Booking';
 import FieldList from './pages/ForCustomer/Field/FieldList';
 import SportList from './pages/ForCustomer/Sport/SportList';
 import DynamicSportHome from './pages/ForCustomer/Sport/SportHome/DynamicSportHome';
+import Profile from './pages/ForCustomer/Profile/Profile';
 
 import AuthProvider from './contexts/Auth/AuthProvider';
 import GetFieldsProvider from './contexts/Field/GetFieldsProvider';
@@ -34,6 +35,7 @@ function App() {
                             <GetFieldsProvider>
                                 <Routes>
                                     <Route path='/' element={<Home />} />
+                                    <Route path='/profile' element={<Profile />} />
                                     <Route path='/sign-up' element={<Signup />} />
                                     <Route path='/sign-in' element={<Signin />} />
                                     <Route path='/forgot-password' element={<ForgotPassword />} />

@@ -1,13 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import AuthContext from './AuthContext';
 
 function AuthProvider({ children }) {
-    const [isSignedIn, setIsSignedIn] = useState(false);
-
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        setIsSignedIn(!!token);
-    }, []);
+    const token = localStorage.getItem('token');
+    const check = token ? true : false;
+    const [isSignedIn, setIsSignedIn] = useState(check);
 
     return <AuthContext.Provider value={[isSignedIn, setIsSignedIn]}>{children}</AuthContext.Provider>;
 }

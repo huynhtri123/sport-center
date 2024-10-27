@@ -16,8 +16,9 @@ function Signin() {
         password: '',
     });
 
+    // eslint-disable-next-line no-unused-vars
     const [isSignedIn, setIsSignedIn] = useCheckSignedIn();
-    console.log(isSignedIn);
+    // console.log(isSignedIn);
 
     const handleChangeInput = (e) => {
         setSigninRequest((prevState) => {
@@ -45,11 +46,10 @@ function Signin() {
             const { email, tokenType, token, refreshToken } = siginResponse.data;
             handleLocalStorage.setToken(email, tokenType, token, refreshToken);
 
-            setIsSignedIn(true);
-
             console.log('Logged in successfully:', siginResponse.data);
             toast.success('Login successfully!');
             setFailed(false);
+            setIsSignedIn(true);
             navigate('/');
         } catch (error) {
             // Thông báo đã được cài trong axiosClient rồi nên ở đây khỏi

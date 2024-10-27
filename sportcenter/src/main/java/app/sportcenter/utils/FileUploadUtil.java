@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 @UtilityClass
 public class FileUploadUtil {
     public static final long MAX_FILE_SIZE = 2 * 1024 * 1024;   // 2MB
-    public static final String IMAGE_PATTERN = "([^\\s]+(\\.(?i)(jpg|png|gif|bmp))$)";
+    public static final String IMAGE_PATTERN = "([^\\s]+(\\.(?i)(jpg|png|jpeg|gif|bmp))$)";
     public static final String DATE_FORMAT = "yyyyMMddHHmmss";
     public static final String FILE_NAME_FORMAT = "%s_%s";
 
@@ -31,7 +31,7 @@ public class FileUploadUtil {
         final String fileName = file.getOriginalFilename();
         final String extension = FilenameUtils.getExtension(fileName);
         if (!isAllowedExtension(fileName, pattern)) {
-            throw new CustomException("Only jpg, png, gif, bmp files are allowed", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("Only jpg, png, jpeg, gif, bmp files are allowed", HttpStatus.BAD_REQUEST.value());
         }
     }
 
