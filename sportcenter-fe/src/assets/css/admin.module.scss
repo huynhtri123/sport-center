@@ -1,0 +1,110 @@
+@import './variables';
+.adminContainer {
+    display: flex;
+    width: 100vw;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+.sidebar {
+    width: 250px; /* Độ rộng của sidebar */
+    background-color: $blue-prime; /* Màu nền của sidebar */
+    color: white;
+    padding: 20px;
+    box-sizing: border-box;
+    position: fixed; /* Cố định sidebar */
+    height: 100vh; /* Chiều cao 100% viewport */
+    left: 0; /* Cố định bên trái */
+    top: 0; /* Cố định ở đầu */
+    margin: 0; /* Không có margin */
+    z-index: 1; /* Đảm bảo sidebar ở dưới navbar */
+}
+
+.navbarContainer {
+    z-index: 2; /* Đảm bảo navbar ở trên sidebar */
+    position: relative; /* Thay đổi để tạo ra ngữ cảnh cho z-index */
+}
+
+.navList {
+    list-style: none; /* Xóa dấu chấm đầu dòng của ul */
+    padding: 0; /* Xóa khoảng trống giữa các mục */
+    margin: 0; /* Xóa margin mặc định của ul */
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    margin-bottom: 10px; /* Tạo khoảng cách giữa các mục theo chiều dọc */
+    cursor: pointer;
+    border-radius: 4px; /* Làm tròn góc cho các mục */
+    transition: background-color 0.3s ease; /* Hiệu ứng chuyển màu mượt */
+}
+
+.navItem i {
+    margin-right: 10px; /* Tạo khoảng cách giữa icon và text */
+}
+
+.navItem:hover {
+    background-color: #555; /* Đổi màu khi hover */
+}
+
+.navItem.active {
+    background-color: #007bff; /* Màu nền khi mục được chọn (clicked) */
+}
+
+.navItem span {
+    color: white;
+}
+
+.content {
+    margin-left: 250px; /* Đẩy nội dung chính sang phải để không bị chồng lên sidebar */
+    flex-grow: 1; /* Cho phép nội dung chính mở rộng */
+    padding: 20px; /* Thêm padding cho nội dung chính */
+    box-sizing: border-box; /* Đảm bảo tính toán kích thước đúng */
+    background-color: #f8f9fa; /* Màu nền của nội dung chính */
+}
+
+.header {
+    display: flex; /* Sử dụng flexbox để căn chỉnh các phần tử */
+    justify-content: space-between; /* Căn chỉnh khoảng cách giữa các phần tử */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    margin-bottom: 20px; /* Khoảng cách dưới header */
+}
+
+.logoutButton {
+    background-color: #dc3545; /* Màu nền của nút logout */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.mainContent {
+    background-color: white; /* Màu nền của nội dung chính */
+    padding: 20px; /* Padding cho nội dung chính */
+    border-radius: 8px; /* Bo góc cho nội dung chính */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Bóng cho nội dung chính */
+    width: 100%; /* Đảm bảo độ rộng 100% */
+    box-sizing: border-box; /* Đảm bảo tính toán kích thước đúng */
+}
+
+.dashboardContainer {
+    padding-top: 80px; /* Đảm bảo nội dung Dashboard không chồng lên NavBar */
+    /* 80px là chiều cao của NavBar, có thể điều chỉnh theo kích thước thực tế */
+}.chartContainer {
+    display: flex; /* Use flexbox for layout */
+    justify-content: space-between; /* Space out the charts */
+    align-items: flex-start; /* Align charts at the top */
+    margin-top: 20px; /* Add some margin above the charts */
+}
+
+.chartWrapper {
+    flex: 1; /* Allow each chart to take equal space */
+    margin: 0 10px; /* Add some horizontal margin between charts */
+    min-width: 200px;
+    max-width: 500px; /* Ensure a minimum width for responsiveness */
+}

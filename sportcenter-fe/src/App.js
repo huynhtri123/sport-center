@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import clsx from 'clsx';
 import styles from './assets/css/app.module.scss';
 import { ToastContainer } from 'react-toastify';
@@ -18,6 +18,8 @@ import DynamicSportHome from './pages/ForCustomer/Sport/SportHome/DynamicSportHo
 import Profile from './pages/ForCustomer/Profile/Profile';
 
 import AuthProvider from './contexts/Auth/AuthProvider';
+import AdminDashBoard from './pages/Admin/AdminDashBoard';
+import ManageFields from './pages/Admin/ManageFields';
 import GetFieldsProvider from './contexts/Field/GetFieldsProvider';
 import SportProvider from './contexts/Sport/SportProvider';
 import { useCleanupStorage } from './customs/hooks';
@@ -30,7 +32,8 @@ function App() {
             <AuthProvider>
                 <SportProvider>
                     <div className={clsx(styles.app)}>
-                        <NavBar />
+                        {/* Chỉ hiển thị NavBar nếu đường dẫn không phải là /admin */}
+                        {location.pathname !== '/admin' && <NavBar />}
                         <div className={clsx(styles.appContent)}>
                             <GetFieldsProvider>
                                 <Routes>
@@ -39,6 +42,9 @@ function App() {
                                     <Route path='/sign-up' element={<Signup />} />
                                     <Route path='/sign-in' element={<Signin />} />
                                     <Route path='/forgot-password' element={<ForgotPassword />} />
+                                      
+                                    <Route path='/admin' element={<AdminDashBoard />} />
+                                    <Route path='/admin/managefields' element={<ManageFields />} />
 
                                     <Route path='/sport/:sportName' element={<DynamicSportHome />} />
                                     <Route path='/sport/fields' element={<FieldList />} />
