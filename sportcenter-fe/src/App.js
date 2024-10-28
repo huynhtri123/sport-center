@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import clsx from 'clsx';
 import styles from './assets/css/app.module.scss';
 import { ToastContainer } from 'react-toastify';
@@ -13,13 +13,18 @@ import Home from './pages/Home/Home';
 import ForgotPassword from './pages/Auth/ForgotPassword';
 import AuthProvider from './contexts/Auth/AuthProvider';
 import CreateSport from './pages/Sport/CreateSport';
+import AdminDashBoard from './pages/Admin/AdminDashBoard';
+import ManageFields from './pages/Admin/ManageFields';
 
 function App() {
+    const location = useLocation(); // Lấy đường dẫn hiện tại
+
     return (
         <GlobalStyle>
             <AuthProvider>
                 <div className={clsx(styles.app)}>
-                    <NavBar />
+                    {/* Chỉ hiển thị NavBar nếu đường dẫn không phải là /admin */}
+                    {location.pathname !== '/admin' && <NavBar />}
                     <div className={clsx(styles.appContent)}>
                         <Routes>
                             <Route path='/' element={<Home />} />
@@ -27,10 +32,11 @@ function App() {
                             <Route path='/sign-in' element={<Signin />} />
                             <Route path='/forgot-password' element={<ForgotPassword />} />
                             <Route path='/sport' element={<CreateSport />} />
+                            <Route path='/admin' element={<AdminDashBoard />} />
+                            <Route path='/admin/managefields' element={<ManageFields />} />
                         </Routes>
                     </div>
                     <Footer />
-
                     <ToastContainer
                         position='top-right'
                         autoClose={3000}
@@ -43,7 +49,6 @@ function App() {
                         pauseOnHover
                         theme='light'
                     />
-                    {/* Same as */}
                     <ToastContainer />
                 </div>
             </AuthProvider>
