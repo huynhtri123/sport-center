@@ -29,17 +29,16 @@ const sportApi = {
         return axiosClient.delete(url);
     },
 
-    // Lấy danh sách tất cả các môn thể thao
-    getAll() {
-        const url = '/sport/getAll';
-        return axiosClient.get(url);
-    },
-
     // Khôi phục môn thể thao đã bị xóa mềm theo ID
     restore(sportId) {
         const url = `/sport/restore/${sportId}`;
         return axiosClient.patch(url);
     }
+
+    getAllActive() {
+        const url = '/auth/sport/getAllActive';
+        return axiosClient.get(url);
+    },
 };
 
 export default sportApi;

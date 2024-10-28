@@ -15,8 +15,6 @@ import java.time.ZonedDateTime;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class BookingRequest extends BaseRequestDTO {
-    @NotBlank(message = "Bạn chưa nhập id người đặt sân!")
-    private String userId;
 
     @NotBlank(message = "Bạn chưa nhập id sân!")
     private String fieldId;

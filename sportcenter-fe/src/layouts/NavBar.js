@@ -1,18 +1,54 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
+
 import styles from '../assets/css/Layouts/navBar.module.scss';
 import { handleLocalStorage } from '../utils/handleLocalStorage';
-import { toast } from 'react-toastify';
 import { useCheckSignedIn } from '../customs/hooks';
+import { useGetSports } from '../customs/hooks';
+import sportApi from '../services/api/sportApi';
 
 function NavBar() {
+    const [sports, setSports] = useGetSports();
+    const [selectedSport, setSelectedSport] = useState('');
     const location = useLocation();
     const [isSignedIn, setIsSignedIn] = useCheckSignedIn();
+
+    const handleChangeSelect = (e) => {
+        setSelectedSport(e.target.value);
+    };
+
+    const navigate = useNavigate();
+
+    const handleSearch = () => {
+        if (selectedSport) {
+            navigate(`/sport/${selectedSport.toLowerCase()}`);
+        }
+    };
 
     const handleSignoutSubmit = () => {
         handleLocalStorage.clearToken();
         setIsSignedIn(false);
         toast.success('Log out successfully!');
     };
+
+    useEffect(() => {
+        getSports();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // lấy danh sách sports lưu vào context
+    const getSports = async () => {
+        try {
+            const sportsResponse = await sportApi.getAllActive();
+            setSports(sportsResponse.data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    // console.log(selectedSport);
+    // console.log(isSignedIn);
 
     return (
         <nav className={`navbar navbar-expand-lg bg-body-tertiary ${styles.navbarContainer}`}>
@@ -26,25 +62,25 @@ function NavBar() {
                     <div className={`d-flex align-items-center ${styles.leftBox}`}>
                         <Link
                             className={`${styles.leftItemsBox} font-cera-round-pro-regular ${
-                                location.pathname === '/course' ? styles.active : ''
+                                location.pathname === '/courses' ? styles.active : ''
                             }`}
-                            to='/course'
+                            to='/courses'
                         >
                             <span className={styles.leftNavBarItems}>Courses</span>
                         </Link>
                         <Link
                             className={`${styles.leftItemsBox} font-cera-round-pro-regular ${
-                                location.pathname === '/sport' ? styles.active : ''
+                                location.pathname === '/sports' ? styles.active : ''
                             }`}
-                            to='/sport'
+                            to='/sports'
                         >
                             <span className={styles.leftNavBarItems}>Sports</span>
                         </Link>
                         <Link
                             className={`${styles.leftItemsBox} font-cera-round-pro-regular ${
-                                location.pathname === '/tournament' ? styles.active : ''
+                                location.pathname === '/tournaments' ? styles.active : ''
                             }`}
-                            to='/tournament'
+                            to='/tournaments'
                         >
                             <span className={styles.leftNavBarItems}>Tournaments</span>
                         </Link>
@@ -52,23 +88,28 @@ function NavBar() {
                 </div>
 
                 {/* Middle - Search Combo Box */}
-                <div className={`d-flex align-items-center ${styles.middleInput}`}>
+                <form className={`d-flex align-items-center ${styles.middleInput}`}>
                     <div className={`input-group ${styles.inputGroup}`}>
-                        <select className={`form-select ${styles.comboBox}`} aria-label='Select a sport'>
-                            <option value='' disabled selected>
+                        <select
+                            className={`form-select ${styles.comboBox}`}
+                            aria-label='Select a sport'
+                            value={selectedSport}
+                            onChange={handleChangeSelect}
+                        >
+                            <option value='' disabled>
                                 Select a sport...
                             </option>
-                            <option value='football'>Football</option>
-                            <option value='basketball'>Basketball</option>
-                            <option value='tennis'>Tennis</option>
-                            <option value='cricket'>Yoga</option>
-                            <option value='all'>All sports</option>
+                            {sports.map((sport, index) => (
+                                <option key={index} value={sport.sportName}>
+                                    {sport.sportName}
+                                </option>
+                            ))}
                         </select>
-                        <div className={`input-group-text ${styles.searchIcon}`}>
+                        <div className={`input-group-text ${styles.searchIcon}`} onClick={handleSearch}>
                             <i className='fa-regular fa-calendar' title='Check'></i>
                         </div>
                     </div>
-                </div>
+                </form>
 
                 {/* Right - Sign In, Sign Up, Sign Out */}
                 <div className={`d-flex align-items-center ${styles.iconContainer}`}>
@@ -78,12 +119,12 @@ function NavBar() {
                         </Link>
                     </div>
                     {isSignedIn ? (
-                        <Link className={'nav-link font-cera-round-pro-medium'} onClick={handleSignoutSubmit} to='/'>
-                            <i className='fas fa-arrow-right-from-bracket' style={{ fontSize: '20px' }}></i>
+                        <Link className={'nav-link font-cera-round-pro-medium'} to='/profile'>
+                            <i className='fa-solid fa-circle-user' style={{ fontSize: '32px' }}></i>
                         </Link>
                     ) : (
                         <Link className={`nav-link font-cera-round-pro-medium`} to='/sign-in'>
-                            <i className={`far fa-circle-user ${styles.iconLogin}`}></i>
+                            <i className={`fa-regular fa-circle-user ${styles.iconLogin}`}></i>
                         </Link>
                     )}
                 </div>

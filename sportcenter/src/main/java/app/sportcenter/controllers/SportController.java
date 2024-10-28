@@ -10,42 +10,42 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/sport")
+@RequestMapping("/api")
 public class SportController {
     @Autowired
     private SportService sportService;
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping("/create")
+    @PostMapping("/sport/create")
     public ResponseEntity<BaseResponse> create(@Valid @RequestBody SportRequest sportRequest) {
         return sportService.create(sportRequest);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/getById/{sportId}")
+    @GetMapping("/sport/getById/{sportId}")
     public ResponseEntity<BaseResponse> getById(@PathVariable String sportId) {
         return sportService.getById(sportId);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PutMapping("/update/{sportId}")
+    @PutMapping("/sport/update/{sportId}")
     public ResponseEntity<BaseResponse> update(@PathVariable String sportId,@Valid @RequestBody SportRequest sportRequest) {
         return sportService.update(sportId, sportRequest);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PatchMapping("/softDelete/{sportId}")
+    @PatchMapping("/sport/softDelete/{sportId}")
     public ResponseEntity<BaseResponse> softDelete(@PathVariable String sportId) {
         return sportService.delete(sportId);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/getAll")
+    // api này public được nên ko cần xác thực
+    @GetMapping("/auth/sport/getAllActive")
     public ResponseEntity<BaseResponse> getAll() {
         return sportService.getAll();
     }
 
-    @PatchMapping("/restore/{sportId}")
+    @PatchMapping("/sport/restore/{sportId}")
     public ResponseEntity<BaseResponse> restore(@PathVariable String sportId) {
         return sportService.restore(sportId);
     }
