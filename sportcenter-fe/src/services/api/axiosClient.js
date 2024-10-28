@@ -14,15 +14,17 @@ const axiosClient = axios.create({
 // Interceptors
 // Add a request interceptor
 axiosClient.interceptors.request.use(
-    (config) => {
-        // Hardcoded admin token
-        const adminToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3Mjk4NTQyNDIsImV4cCI6MTcyOTg1NjA0Mn0.ApJhYHYIlLb18gi5Xeo80Y2vRQ7Y_fe2ImEFdyu5mGw';
-        
-        // Attach token to Authorization header
-        config.headers.Authorization = `Bearer ${adminToken}`;
+    function (config) {
+        // Do something before request is sent
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;
+        }
+
         return config;
     },
-    (error) => {
+    function (error) {
+        // Do something with request error
         return Promise.reject(error);
     }
 );

@@ -15,7 +15,7 @@ function ManageSports() {
 
     async function fetchSports() {
         try {
-            const response = await sportApi.getAll();
+            const response = await sportApi.getAllActive();
             setSports(response.data);
         } catch (error) {
             console.error("Failed to fetch sports:", error);

@@ -24,8 +24,10 @@ import GetFieldsProvider from './contexts/Field/GetFieldsProvider';
 import SportProvider from './contexts/Sport/SportProvider';
 import { useCleanupStorage } from './customs/hooks';
 
+
 function App() {
     useCleanupStorage();
+    const location = useLocation();
 
     return (
         <GlobalStyle>

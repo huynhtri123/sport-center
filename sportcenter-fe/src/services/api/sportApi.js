@@ -34,7 +34,7 @@ const sportApi = {
         const url = `/sport/restore/${sportId}`;
         return axiosClient.patch(url);
     }
-
+,
     getAllActive() {
         const url = '/auth/sport/getAllActive';
         return axiosClient.get(url);
