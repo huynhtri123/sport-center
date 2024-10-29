@@ -2,12 +2,17 @@ package app.sportcenter.controllers;
 
 
 import app.sportcenter.commons.BaseResponse;
+import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.models.dto.TeamRequest;
+import app.sportcenter.models.entities.User;
 import app.sportcenter.services.TeamService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,29 +21,18 @@ public class TeamController {
     @Autowired
     private TeamService teamService;
 
-
-    @PreAuthorize("hasAuthority('ADMIN')")
+    // chỉ có người đang đăng nhập mới có thể tự tạo team cho mình
+    @PreAuthorize("hasAnyAuthority('CUSTOMER')")
     @PostMapping("/create")
     public ResponseEntity<BaseResponse> create(@Valid @RequestBody TeamRequest teamRequest) {
         return teamService.create(teamRequest);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    // public
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
     @GetMapping("/getById/{teamId}")
     public ResponseEntity<BaseResponse> getById(@PathVariable String teamId) {
         return teamService.getById(teamId);
-    }
-
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PutMapping("/update/{teamId}")
-    public ResponseEntity<BaseResponse> update(@PathVariable String teamId,@Valid @RequestBody TeamRequest teamRequest) {
-        return teamService.update(teamId, teamRequest);
-    }
-
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PatchMapping("/softDelete/{teamId}")
-    public ResponseEntity<BaseResponse> softDelete(@PathVariable String teamId) {
-        return teamService.delete(teamId);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
@@ -47,8 +41,46 @@ public class TeamController {
         return teamService.getAll();
     }
 
+    // chỉ có chủ sở hữu team được dùng
+    @PreAuthorize("hasAnyAuthority('CUSTOMER')")
+    @GetMapping("/myTeams")
+    public ResponseEntity<BaseResponse> myTeams() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+        if (currentUser == null) {
+            throw new CustomException("Không tìm thấy thông tin đăng nhập!", HttpStatus.BAD_REQUEST.value());
+        }
+        String userId = currentUser.getId();
+
+        return teamService.myTeams(userId);
+    }
+
+    // chỉ có chủ sở hữu team và admin được dùng
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
+    @PutMapping("/update/{teamId}")
+    public ResponseEntity<BaseResponse> update(@PathVariable String teamId,@Valid @RequestBody TeamRequest teamRequest) {
+        return teamService.update(teamId, teamRequest);
+    }
+
+    // chỉ có chủ sở hữu team và admin được dùng
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
+    @PatchMapping("/softDelete/{teamId}")
+    public ResponseEntity<BaseResponse> softDelete(@PathVariable String teamId) {
+        return teamService.softDelete(teamId);
+    }
+
+    // chỉ có chủ sở hữu team và admin được dùng
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
     @PatchMapping("/restore/{teamId}")
     public ResponseEntity<BaseResponse> restore(@PathVariable String teamId) {
         return teamService.restore(teamId);
     }
+
+    // chỉ có chủ sở hữu team và admin được dùng
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
+    @DeleteMapping("/forceDelete/{teamId}")
+    public ResponseEntity<BaseResponse> forceDelete(@PathVariable String teamId) {
+        return teamService.forceDelete(teamId);
+    }
+
 }

@@ -15,7 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Scoreboard extends BaseEntity {
     @Id
     private String id;
-    private Tounament tounament;
+    private Tournament tournament;
     private Team team;
     private Integer points;             // số điểm đang có
     private Integer playedMatchs;       // số trận đã chơi
