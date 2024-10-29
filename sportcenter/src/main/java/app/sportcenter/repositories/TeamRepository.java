@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface TeamRepository extends MongoRepository<Team, String> {
-//    public Team findByName(String name);
     public Team getTeamById(String id);
-    public List<Team> getByIsDeletedFalse();
+    public List<Team> getByIsDeletedFalseAndIsActiveTrue();
+    public List<Team> getTeamByUserIdAndIsActiveTrueAndIsDeletedFalse(String userId);
 }

@@ -1,15 +1,21 @@
 package app.sportcenter.services.impl;
 
 import app.sportcenter.commons.BaseResponse;
+import app.sportcenter.commons.Role;
+import app.sportcenter.exceptions.CustomException;
+import app.sportcenter.exceptions.NotFoundException;
 import app.sportcenter.models.dto.TeamRequest;
 import app.sportcenter.models.dto.TeamResponse;
 import app.sportcenter.models.entities.Team;
+import app.sportcenter.models.entities.User;
 import app.sportcenter.repositories.TeamRepository;
 import app.sportcenter.services.TeamService;
 import app.sportcenter.utils.mappers.TeamMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,7 +31,18 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public ResponseEntity<BaseResponse> create(TeamRequest teamRequest) {
-        Team team = teamMapper.convertToEntity(teamRequest);
+        // lấy thông tin người đang đăng nhập làm chủ sở hữu team
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+        if (currentUser == null) {
+            throw new CustomException("Không tìm thấy thông tin đăng nhập!", HttpStatus.BAD_REQUEST.value());
+        }
+        String userId = currentUser.getId();
+
+        if (teamRequest.getTeamLogoUrl() == null || teamRequest.getTeamLogoUrl().isEmpty()) {
+            teamRequest.setTeamLogoUrl("https://cdn-icons-png.flaticon.com/512/5065/5065337.png");
+        }
+        Team team = teamMapper.convertToEntity(teamRequest, userId);
         TeamResponse responseTeam = teamMapper.convertToDTO(teamRepository.save(team));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
@@ -50,47 +67,8 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public ResponseEntity<BaseResponse> update(String id, TeamRequest teamRequest) {
-        Team team = teamRepository.getTeamById(id);
-        if (team == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Không tìm thấy đội để cập nhật", HttpStatus.NOT_FOUND.value(), null)
-            );
-        }
-
-        team.setTeamName(teamRequest.getTeamName());
-        team.setCaptain(teamRequest.getCaptain());
-        team.setPlayers(teamRequest.getPlayers());
-        team.setTeamLogoUrl(teamRequest.getTeamLogoUrl());
-        team.setEnrolledTounaments(teamRequest.getEnrolledTournaments());
-        team.setWonPrizes(teamRequest.getWonPrizeIds());
-
-        teamRepository.save(team);
-        TeamResponse responseTeam = teamMapper.convertToDTO(team);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("Cập nhật đội thành công", HttpStatus.OK.value(), responseTeam)
-        );
-    }
-
-    @Override
-    public ResponseEntity<BaseResponse> delete(String id) {
-        Team team = teamRepository.getTeamById(id);
-        if (team == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Không tìm thấy đội để xóa", HttpStatus.NOT_FOUND.value(), null)
-            );
-        }
-        team.setIsDeleted(true);
-        teamRepository.save(team);
-        TeamResponse responseTeam = teamMapper.convertToDTO(team);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("Xóa đội thành công", HttpStatus.OK.value(), responseTeam)
-        );
-    }
-
-    @Override
     public ResponseEntity<BaseResponse> getAll() {
-        List<Team> teamList = teamRepository.getByIsDeletedFalse(); // Assuming there's a method to get non-deleted teams
+        List<Team> teamList = teamRepository.getByIsDeletedFalseAndIsActiveTrue();
         if (teamList.isEmpty()) {
             return ResponseEntity.status(HttpStatus.OK).body(
                     new BaseResponse("Không tìm thấy đội", HttpStatus.OK.value(), null)
@@ -103,6 +81,81 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    public ResponseEntity<BaseResponse> myTeams(String userId) {
+        List<Team> myTeams = teamRepository.getTeamByUserIdAndIsActiveTrueAndIsDeletedFalse(userId);
+        if (myTeams.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    new BaseResponse("Không tìm thấy Teams của bạn!", HttpStatus.NOT_FOUND.value(), null)
+            );
+        }
+        List<TeamResponse> responseList = myTeams.stream().map(teamMapper::convertToDTO).toList();
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new BaseResponse("Tìm thấy Teams của bạn!", HttpStatus.OK.value(), responseList)
+        );
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse> update(String id, TeamRequest teamRequest) {
+        Team team = teamRepository.getTeamById(id);
+        if (team == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    new BaseResponse("Không tìm thấy đội để cập nhật", HttpStatus.NOT_FOUND.value(), null)
+            );
+        }
+
+        // kiểm tra xem người đăng nhập hiện tại có đúng là chủ tạo team không
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+        if (currentUser == null) {
+            throw new CustomException("Không tìm thấy thông tin đăng nhập!", HttpStatus.BAD_REQUEST.value());
+        }
+        String userId = currentUser.getId();
+
+        // nếu đăng nhập đúng, hoặc là admin thì đươc cập nhật
+        if (userId.equals(team.getUserId()) || currentUser.getRole().equals(Role.ADMIN)) {
+            Team updatedTeam = teamMapper.updateEntityFromRequest(teamRequest, team);
+            teamRepository.save(updatedTeam);
+
+            TeamResponse responseTeam = teamMapper.convertToDTO(updatedTeam);
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new BaseResponse("Cập nhật đội thành công", HttpStatus.OK.value(), responseTeam)
+            );
+        } else {
+            throw new CustomException("Bạn không có quyền cập nhật Team của người khác!", HttpStatus.BAD_REQUEST.value());
+        }
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse> softDelete(String id) {
+        Team team = teamRepository.getTeamById(id);
+        if (team == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    new BaseResponse("Không tìm thấy đội để xóa", HttpStatus.NOT_FOUND.value(), null)
+            );
+        }
+
+        // kiểm tra xem người đăng nhập hiện tại có đúng là chủ tạo team không
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+        if (currentUser == null) {
+            throw new CustomException("Không tìm thấy thông tin đăng nhập!", HttpStatus.BAD_REQUEST.value());
+        }
+        String userId = currentUser.getId();
+
+        // nếu đăng nhập đúng, hoặc là admin thì đươc cập nhật
+        if (userId.equals(team.getUserId()) || currentUser.getRole().equals(Role.ADMIN)) {
+            team.setIsDeleted(true);
+            teamRepository.save(team);
+            TeamResponse responseTeam = teamMapper.convertToDTO(team);
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new BaseResponse("Xóa đội thành công", HttpStatus.OK.value(), responseTeam)
+            );
+        } else {
+            throw new CustomException("Bạn không có quyền xoá Team của người khác!", HttpStatus.BAD_REQUEST.value());
+        }
+    }
+
+    @Override
     public ResponseEntity<BaseResponse> restore(String id) {
         Team team = teamRepository.getTeamById(id);
         if (team == null) {
@@ -110,11 +163,54 @@ public class TeamServiceImpl implements TeamService {
                     new BaseResponse("Không tìm thấy đội để khôi phục", HttpStatus.NOT_FOUND.value(), null)
             );
         }
-        team.setIsDeleted(false);
-        teamRepository.save(team);
-        TeamResponse responseTeam = teamMapper.convertToDTO(team);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("Khôi phục đội thành công", HttpStatus.OK.value(), responseTeam)
-        );
+
+        // kiểm tra xem người đăng nhập hiện tại có đúng là chủ tạo team không
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+        if (currentUser == null) {
+            throw new CustomException("Không tìm thấy thông tin đăng nhập!", HttpStatus.BAD_REQUEST.value());
+        }
+        String userId = currentUser.getId();
+
+        // nếu đăng nhập đúng, hoặc là admin thì đươc cập nhật
+        if (userId.equals(team.getUserId()) || currentUser.getRole().equals(Role.ADMIN)) {
+            team.setIsDeleted(true);
+            teamRepository.save(team);
+            TeamResponse responseTeam = teamMapper.convertToDTO(team);
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new BaseResponse("Khôi phục đội thành công", HttpStatus.OK.value(), responseTeam)
+            );
+        } else {
+            throw new CustomException("Bạn không có quyền khôi phục Team của người khác!", HttpStatus.BAD_REQUEST.value());
+        }
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse> forceDelete(String id) {
+        Team team = teamRepository.getTeamById(id);
+        if (team == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    new BaseResponse("Không tìm thấy đội để xoá cứng", HttpStatus.NOT_FOUND.value(), null)
+            );
+        }
+
+        // kiểm tra xem người đăng nhập hiện tại có đúng là chủ tạo team không
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+        if (currentUser == null) {
+            throw new CustomException("Không tìm thấy thông tin đăng nhập!", HttpStatus.BAD_REQUEST.value());
+        }
+        String userId = currentUser.getId();
+
+        // nếu đăng nhập đúng, hoặc là admin thì đươc cập nhật
+        if (userId.equals(team.getUserId()) || currentUser.getRole().equals(Role.ADMIN)) {
+            teamRepository.deleteById(id);
+            TeamResponse responseTeam = teamMapper.convertToDTO(team);
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new BaseResponse("Xoá cứng đội thành công", HttpStatus.OK.value(), responseTeam)
+            );
+        } else {
+            throw new CustomException("Bạn không có quyền xoá cứng Team của người khác!", HttpStatus.BAD_REQUEST.value());
+        }
     }
 }

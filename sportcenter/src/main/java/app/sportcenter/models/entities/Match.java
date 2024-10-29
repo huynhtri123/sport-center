@@ -17,7 +17,7 @@ import java.time.ZonedDateTime;
 public class Match extends BaseEntity {
     @Id
     private String id;
-    private Tounament tounament;
+    private Tournament tournament;
     private Team teamA;
     private Team teamB;
     private ZonedDateTime matchDate;

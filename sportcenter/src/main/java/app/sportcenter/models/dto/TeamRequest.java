@@ -2,7 +2,7 @@ package app.sportcenter.models.dto;
 
 import app.sportcenter.models.entities.Player;
 import app.sportcenter.models.entities.Prize;
-import app.sportcenter.models.entities.Tounament;
+import app.sportcenter.models.entities.Tournament;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,15 +11,19 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 public class TeamRequest extends BaseRequestDTO {
+
     @NotBlank(message = "Bạn chưa nhập tên cho đội!")
     private String teamName;
-    private List<Player> players;               // danh sách Player ID
-    private Player captain;                     // Player đội trưởng
-    private String teamLogoUrl;                   // link logo đội
-    private List<Tounament> enrolledTournaments; // danh sách giải đấu trực tiếp
-    private List<Prize> wonPrizeIds;             // danh sách Prize ID
+
+    private List<Player> players;              // nếu có 1 mình mình thì FE chọn gì đó, xong lấy thông tin tạo Player
+
+    private String teamLogoUrl;
+
+    private List<String> enrolledTournamentIds;
+
+    private List<Prize> wonPrizes;
 }
