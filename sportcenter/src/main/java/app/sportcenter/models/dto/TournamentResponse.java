@@ -22,7 +22,7 @@ public class TournamentResponse extends BaseResponseDTO {
     private ZonedDateTime startDate;
     private ZonedDateTime endDate;
     private Integer maxTeams;
-    private List<Team> teams;
+    private List<String> registeredTeamIds;
     private ZonedDateTime registrationDeadline;
     private List<Prize> prizes;
 }

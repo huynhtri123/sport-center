@@ -198,6 +198,7 @@ public class BookingServiceImpl implements BookingService {
         );
     }
 
+    @Transactional
     @Override
     public ResponseEntity<BaseResponse> getFieldSchedule(String fieldId, ZonedDateTime startOfDay, ZonedDateTime endOfDay) {
         // 1. Lấy tất cả các booking của sân trong khoảng thời gian

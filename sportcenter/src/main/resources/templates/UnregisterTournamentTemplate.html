@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hủy Đăng Ký Giải Đấu Thành Công</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6;">
+<h2>Xin chào <span th:text="${teamName}">Tên đội</span>!</h2>
+
+<p>Chúng tôi xin thông báo rằng đội của bạn đã hủy đăng ký tham gia giải đấu <strong th:text="${tournamentName}">Tên giải đấu</strong>.</p>
+
+<h3>Thông tin giải đấu:</h3>
+<ul>
+    <li><strong>Giải đấu:</strong> <span th:text="${tournamentName}">Tên giải đấu</span></li>
+    <li><strong>Ngày bắt đầu:</strong> <span th:text="${startDate}">Ngày bắt đầu</span></li>
+    <li><strong>Ngày kết thúc:</strong> <span th:text="${endDate}">Ngày kết thúc</span></li>
+</ul>
+
+<p>Chúng tôi rất tiếc khi đội của bạn không thể tham gia. Nếu bạn có bất kỳ câu hỏi nào, đừng ngần ngại liên hệ với chúng tôi.</p>
+
+<p>Trân trọng,<br>
+    Đội ngũ Sport Center</p>
+</body>
+</html>
