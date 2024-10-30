@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký giải đấu thành công</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+            padding: 20px;
+            color: #333;
+        }
+        h2 {
+            color: #4CAF50;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background: #fff;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        strong {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+<h2>Xin chào <span th:text="${teamName}">Tên đội</span>!</h2>
+
+<p>Chúng tôi rất vui mừng thông báo rằng đội của bạn đã đăng ký thành công tham gia giải đấu <strong th:text="${tournamentName}">Tên giải đấu</strong>.</p>
+
+<h3>Thông tin giải đấu:</h3>
+<ul>
+    <li><strong>Tên giải đấu:</strong> <span th:text="${tournamentName}">Tên giải đấu</span></li>
+    <li><strong>Ngày bắt đầu:</strong> <span th:text="${startDate}">Ngày bắt đầu</span></li>
+    <li><strong>Ngày kết thúc:</strong> <span th:text="${endDate}">Ngày kết thúc</span></li>
+</ul>
+
+<h3>Danh sách thành viên trong đội:</h3>
+<ul>
+    <li th:each="player : ${players}">
+        <strong th:text="${player.name}">Tên cầu thủ</strong> -
+        <span th:text="${player.number}">Số áo</span> -
+        <span th:text="${player.position}">Vị trí</span>
+    </li>
+</ul>
+
+<p>Chúc đội của bạn thành công trong giải đấu này. Đừng ngần ngại liên hệ chúng tôi nếu bạn có bất kỳ thắc mắc nào.</p>
+
+<p>Trân trọng,<br>
+    Đội ngũ Sport Center</p>
+</body>
+</html>

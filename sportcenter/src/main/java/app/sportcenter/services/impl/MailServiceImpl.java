@@ -2,6 +2,7 @@ package app.sportcenter.services.impl;
 
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.models.dto.BookingResponse;
+import app.sportcenter.models.entities.Team;
 import app.sportcenter.services.MailService;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,8 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+
+import java.time.ZonedDateTime;
 
 @Service
 public class MailServiceImpl implements MailService {
@@ -69,5 +72,58 @@ public class MailServiceImpl implements MailService {
                     HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
+
+    @Override
+    public void sendMailRegisterTournament(String toEmail, String tournamentName, ZonedDateTime startDate, ZonedDateTime endDate, Team team) {
+        MimeMessagePreparator preparator = new MimeMessagePreparator() {
+            public void prepare(MimeMessage mimeMessage) throws Exception {
+                MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+                messageHelper.setTo(toEmail);
+                messageHelper.setSubject("Sport Center - Đăng ký tham gia giải đấu thành công");
+
+                Context context = new Context();
+                context.setVariable("teamName", team.getTeamName());
+                context.setVariable("tournamentName", tournamentName);
+                context.setVariable("startDate", startDate.toString());
+                context.setVariable("endDate", endDate.toString());
+                context.setVariable("players", team.getPlayers());
+
+                String content = templateEngine.process("RegisterTournamentTemplate", context);
+                messageHelper.setText(content, true);
+            }
+        };
+        try {
+            mailSender.send(preparator);
+        } catch (Exception e) {
+            throw new CustomException("Lỗi khi gửi mail đăng ký giải đấu: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+    }
+
+    @Override
+    public void sendMailUnregisterTournament(String toEmail, String tournamentName, ZonedDateTime startDate, ZonedDateTime endDate, Team team) {
+        // Gửi email thông báo hủy đăng ký
+        MimeMessagePreparator preparator = new MimeMessagePreparator() {
+            public void prepare(MimeMessage mimeMessage) throws Exception {
+                MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+                messageHelper.setTo(toEmail);
+                messageHelper.setSubject("Sport Center - Hủy đăng ký giải đấu thành công");
+
+                Context context = new Context();
+                context.setVariable("teamName", team.getTeamName());
+                context.setVariable("tournamentName", tournamentName);
+                context.setVariable("startDate", startDate.toString());
+                context.setVariable("endDate", endDate.toString());
+
+                String content = templateEngine.process("UnregisterTournamentTemplate", context);
+                messageHelper.setText(content, true);
+            }
+        };
+        try {
+            mailSender.send(preparator);
+        } catch (Exception e) {
+            throw new CustomException("Lỗi khi gửi mail hủy đăng ký giải đấu: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+    }
+
 
 }
