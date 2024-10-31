@@ -2,6 +2,7 @@ package app.sportcenter.services.impl;
 
 import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.commons.Role;
+import app.sportcenter.configs.AppConfig;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
 import app.sportcenter.models.dto.*;
@@ -28,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,11 +48,16 @@ public class TournamentServiceImpl implements TournamentService {
     @Autowired
     private MailService mailService;
     @Autowired
+    private AppConfig appConfig;
+    @Autowired
     private TeamMapper teamMapper;
 
     @Transactional
     @Override
     public ResponseEntity<BaseResponse> create(TournamentRequest tournamentRequest) {
+        if (tournamentRequest.getThumUrl() == null || tournamentRequest.getThumUrl().isEmpty()) {
+            tournamentRequest.setThumUrl(appConfig.getDefaultIcon());
+        }
         Tournament tournament = tournamentMapper.convertToEntity(tournamentRequest);
         if (tournament == null) {
             throw new CustomException("Inputs are null!", HttpStatus.BAD_REQUEST.value());
@@ -113,8 +120,8 @@ public class TournamentServiceImpl implements TournamentService {
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy Tournament này!"));
         List<String> listTeamId = tournament.getRegisteredTeamIds();
         if (listTeamId.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Không tìm thấy đội nào tham gia", HttpStatus.NOT_FOUND.value(), null)
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new BaseResponse("Không tìm thấy đội nào tham gia", HttpStatus.OK.value(), null)
             );
         }
         List<Team> teams = listTeamId.stream()
@@ -182,62 +189,91 @@ public class TournamentServiceImpl implements TournamentService {
         );
     }
 
-
     // for customer:
     @Transactional
     @Override
     public ResponseEntity<BaseResponse> register(TournamentRegisterRequest request) {
-        // kiểm tra xem người đang đăng nhập có khớp với chủ sở hữu Team không
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
+
         if (currentUser == null) {
             throw new CustomException("Không tìm thấy thông tin đăng nhập!", HttpStatus.BAD_REQUEST.value());
         }
-        String currentUserId = currentUser.getId();
 
-        Team team = teamRepository.findById(request.getTeamId())
+        // Kiểm tra điều kiện đăng ký
+        checkRegistrationEligibility(request.getTournamentId(), request.getTeamId(), currentUser);
+
+        Tournament tournament = tournamentRepository.findById(request.getTournamentId())
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy giải đấu với ID này"));
+
+        tournament.getRegisteredTeamIds().add(request.getTeamId());
+        TournamentResponse response = tournamentMapper.convertToDTO(tournamentRepository.save(tournament));
+
+        // Gửi email thông báo
+        Team team = teamRepository.findById(request.getTeamId()).orElseThrow(
+                () -> new NotFoundException("Không tìm thấy Team để gửi mail")
+        );
+        sendRegistrationEmail(tournament, team);
+
+        return ResponseEntity.ok(new BaseResponse(
+                "Đăng ký tham gia giải đấu thành công.", HttpStatus.OK.value(), response)
+        );
+    }
+
+    @Override
+    public void checkRegistrationEligibility(String tournamentId, String teamId, User currentUser) {
+        Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy Team này"));
 
-        // chỉ có chủ sỡ hữu Team hoặc admin mới có thể đăng kí
-        if (team.getUserId().equals(currentUserId) || currentUser.getRole().equals(Role.ADMIN)) {
-            Tournament tournament = tournamentRepository.findById(request.getTournamentId())
-                    .orElseThrow(() -> new NotFoundException("Không tìm thấy giải đấu với ID này"));
-
-            if (ZonedDateTime.now().isAfter(tournament.getRegistrationDeadline())) {
-                throw new CustomException("Thời hạn đăng ký tham gia giải đấu đã hết", HttpStatus.BAD_REQUEST.value());
-            }
-
-            if (tournament.getRegisteredTeamIds() == null) {
-                tournament.setRegisteredTeamIds(new ArrayList<>());
-            }
-
-            if (tournament.getRegisteredTeamIds().contains(request.getTeamId())) {
-                throw new CustomException("Đội này đã đăng ký tham gia giải đấu trước đó rồi", HttpStatus.BAD_REQUEST.value());
-            }
-
-            tournament.getRegisteredTeamIds().add(request.getTeamId());
-
-            TournamentResponse response = tournamentMapper.convertToDTO(tournamentRepository.save(tournament));
-
-            // gửi mail thông báo
-            User user = userRepository.findById(team.getUserId())
-                    .orElseThrow(() -> new NotFoundException("Không tìm thấy người sở hữu team này để lấy email"));
-            String toEmail = user.getEmail();
-            sendMailRegisterTournament(toEmail, tournament.getTournamentName(), tournament.getStartDate(), tournament.getEndDate(), team);
-
-            return ResponseEntity.ok(new BaseResponse(
-                    "Đăng ký tham gia giải đấu thành công.", HttpStatus.OK.value(), response)
-            );
-
-        } else {
+        // 1. kiểm tra người đang đăng nhập có phải chủ sở hữu Team hoặc role admin
+        if (!team.getUserId().equals(currentUser.getId()) && !currentUser.getRole().equals(Role.ADMIN)) {
             throw new CustomException("Bạn không phải chủ sở hữu Team này!", HttpStatus.BAD_REQUEST.value());
         }
 
+        Tournament tournament = tournamentRepository.findById(tournamentId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy giải đấu với ID này"));
+
+        // 2. kiểm tra thời hạn đăng ký
+        if (ZonedDateTime.now().isAfter(tournament.getRegistrationDeadline())) {
+            throw new CustomException("Thời hạn đăng ký tham gia giải đấu đã hết", HttpStatus.BAD_REQUEST.value());
+        }
+
+        // 3. kiểm tra xem có đội nào của currentUser đã đăng ký cho giải đấu này
+        // nếu chưa có đội nào đki -> tạo mới list tránh lỗi
+        if (tournament.getRegisteredTeamIds() == null) {
+            tournament.setRegisteredTeamIds(new ArrayList<>());
+        }
+        for (String registeredTeamId : tournament.getRegisteredTeamIds()) {
+            Optional<Team> registeredTeam = teamRepository.findById(registeredTeamId);
+            if (registeredTeam.isPresent()) {
+                if (registeredTeam.get().getUserId().equals(currentUser.getId())) {
+                    throw new CustomException("Bạn đã đăng kí tham gia giải này trước đó rồi", HttpStatus.BAD_REQUEST.value());
+                }
+            }
+        }
+
+        // 4. kiểm tra giới hạn số đội đăng ký
+        if (tournament.getRegisteredTeamIds().size() >= tournament.getMaxTeams()) {
+            throw new CustomException("Số lượng đội tham gia đã đạt giới hạn tối đa!", HttpStatus.BAD_REQUEST.value());
+        }
+
+        // 5. kiểm tra xem đội đã đăng ký giải đấu chưa
+        if (tournament.getRegisteredTeamIds().contains(teamId)) {
+            throw new CustomException("Đội này đã đăng ký tham gia giải đấu trước đó rồi", HttpStatus.BAD_REQUEST.value());
+        }
     }
 
-    public void sendMailRegisterTournament(String toEmail,String tournamentName,
-                                           ZonedDateTime startDate, ZonedDateTime endDate,Team team) {
-        mailService.sendMailRegisterTournament(toEmail, tournamentName, startDate, endDate, team);
+    public void sendRegistrationEmail(Tournament tournament, Team team) {
+        User user = userRepository.findById(team.getUserId())
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy người sở hữu team này để lấy email"));
+        String toEmail = user.getEmail();
+        mailService.sendMailRegisterTournament(
+                toEmail,
+                tournament.getTournamentName(),
+                tournament.getStartDate(),
+                tournament.getEndDate(),
+                team
+        );
     }
 
     @Transactional
@@ -259,13 +295,13 @@ public class TournamentServiceImpl implements TournamentService {
             Tournament tournament = tournamentRepository.findById(request.getTournamentId())
                     .orElseThrow(() -> new NotFoundException("Không tìm thấy giải đấu với ID này"));
 
-            // Kiểm tra xem đội có trong danh sách đã đăng ký không
+            // kiểm tra xem đội có trong danh sách đã đăng ký không
             if (tournament.getRegisteredTeamIds() == null ||
                     !tournament.getRegisteredTeamIds().contains(request.getTeamId())) {
                 throw new CustomException("Đội này chưa đăng ký tham gia giải đấu", HttpStatus.BAD_REQUEST.value());
             }
 
-            // Xóa đội khỏi danh sách đăng ký
+            // xóa đội khỏi danh sách đăng ký
             tournament.getRegisteredTeamIds().remove(request.getTeamId());
 
             TournamentResponse response = tournamentMapper.convertToDTO(tournamentRepository.save(tournament));

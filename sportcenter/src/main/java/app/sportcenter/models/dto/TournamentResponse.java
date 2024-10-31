@@ -25,4 +25,5 @@ public class TournamentResponse extends BaseResponseDTO {
     private List<String> registeredTeamIds;
     private ZonedDateTime registrationDeadline;
     private List<Prize> prizes;
+    private String thumUrl;
 }

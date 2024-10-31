@@ -38,6 +38,7 @@ public class TournamentMapper {
         response.setRegisteredTeamIds(tournament.getRegisteredTeamIds());
         response.setRegistrationDeadline(tournament.getRegistrationDeadline());
         response.setPrizes(tournament.getPrizes());
+        response.setThumUrl(tournament.getThumUrl());
 
         response.setCreatedAt(tournament.getCreatedAt());
         response.setUpdatedAt(tournament.getUpdatedAt());

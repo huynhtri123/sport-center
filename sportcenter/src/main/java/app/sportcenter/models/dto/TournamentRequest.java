@@ -42,5 +42,7 @@ public class TournamentRequest extends BaseRequestDTO {
     private ZonedDateTime registrationDeadline;
 
     private List<Prize> prizes;
+
+    private String thumUrl;
 }
 

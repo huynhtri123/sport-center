@@ -11,4 +11,8 @@ public interface TournamentRepository extends MongoRepository<Tournament, String
 
     @Query("{ 'sportId': ?0, 'isDeleted': false, 'isActive': true }")
     public List<Tournament> getBySportId(String sportId);
+
+    // tìm các giải đấu mà một đội tham gia
+    @Query("{ 'registeredTeamIds': { $in: [?0] }, 'isDeleted': false }")
+    List<Tournament> findByRegisteredTeamId(String teamId);
 }

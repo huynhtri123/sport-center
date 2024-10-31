@@ -2,15 +2,20 @@ package app.sportcenter.services.impl;
 
 import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.commons.Role;
+import app.sportcenter.configs.AppConfig;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
 import app.sportcenter.models.dto.TeamRequest;
 import app.sportcenter.models.dto.TeamResponse;
 import app.sportcenter.models.entities.Team;
+import app.sportcenter.models.entities.Tournament;
 import app.sportcenter.models.entities.User;
 import app.sportcenter.repositories.TeamRepository;
+import app.sportcenter.repositories.TournamentRepository;
+import app.sportcenter.services.CloudinaryService;
 import app.sportcenter.services.TeamService;
 import app.sportcenter.utils.mappers.TeamMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,13 +23,20 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 
-
+@Slf4j
 @Service
 public class TeamServiceImpl implements TeamService {
     @Autowired
     private TeamRepository teamRepository;
+    @Autowired
+    private TournamentRepository tournamentRepository;
+    @Autowired
+    private CloudinaryService cloudinaryService;
+    @Autowired
+    private AppConfig appConfig;
 
     @Autowired
     private TeamMapper teamMapper;
@@ -39,9 +51,11 @@ public class TeamServiceImpl implements TeamService {
         }
         String userId = currentUser.getId();
 
+        // nếu image input trống thì tạo bằng ảnh mặc định
         if (teamRequest.getTeamLogoUrl() == null || teamRequest.getTeamLogoUrl().isEmpty()) {
-            teamRequest.setTeamLogoUrl("https://cdn-icons-png.flaticon.com/512/5065/5065337.png");
+            teamRequest.setTeamLogoUrl(appConfig.getDefaultIcon());
         }
+
         Team team = teamMapper.convertToEntity(teamRequest, userId);
         TeamResponse responseTeam = teamMapper.convertToDTO(teamRepository.save(team));
 
@@ -146,10 +160,20 @@ public class TeamServiceImpl implements TeamService {
         if (userId.equals(team.getUserId()) || currentUser.getRole().equals(Role.ADMIN)) {
             team.setIsDeleted(true);
             teamRepository.save(team);
+
+            // xoá Team ra khỏi các giải đấu Team này hiện tham gia
+            List<Tournament> tournamentsWithTeam = tournamentRepository.findByRegisteredTeamId(team.getId());
+            for (Tournament t : tournamentsWithTeam) {
+                t.getRegisteredTeamIds().remove(team.getId());
+                tournamentRepository.save(t);
+                log.warn("Xoá mềm Team {} -> xoá Team ra khỏi giải {}", team.getId(), t.getTournamentName());
+            }
+
             TeamResponse responseTeam = teamMapper.convertToDTO(team);
             return ResponseEntity.status(HttpStatus.OK).body(
                     new BaseResponse("Xóa đội thành công", HttpStatus.OK.value(), responseTeam)
             );
+
         } else {
             throw new CustomException("Bạn không có quyền xoá Team của người khác!", HttpStatus.BAD_REQUEST.value());
         }
@@ -204,6 +228,16 @@ public class TeamServiceImpl implements TeamService {
 
         // nếu đăng nhập đúng, hoặc là admin thì đươc cập nhật
         if (userId.equals(team.getUserId()) || currentUser.getRole().equals(Role.ADMIN)) {
+            // Xóa ảnh từ Cloudinary (chỉ xoá ảnh không phải ảnh mặc định)
+            try {
+                if (team.getTeamLogoUrl() != null && !team.getTeamLogoUrl().equals(appConfig.getDefaultIcon())) {
+                    cloudinaryService.deleteByUrl(team.getTeamLogoUrl());
+                    log.info("Đã xóa ảnh logo của đội với ID: {}", id);
+                }
+            } catch (IOException e) {
+                log.error("Lỗi khi xóa ảnh trên Cloudinary: {}", e.getMessage());
+            }
+            // xoá Team
             teamRepository.deleteById(id);
             TeamResponse responseTeam = teamMapper.convertToDTO(team);
             return ResponseEntity.status(HttpStatus.OK).body(
