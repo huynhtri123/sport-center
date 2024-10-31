@@ -3,6 +3,7 @@ package app.sportcenter.services;
 import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.models.dto.TournamentRegisterRequest;
 import app.sportcenter.models.dto.TournamentRequest;
+import app.sportcenter.models.entities.User;
 import org.springframework.http.ResponseEntity;
 
 public interface TournamentService {
@@ -21,6 +22,6 @@ public interface TournamentService {
     // for customer
     public ResponseEntity<BaseResponse> register(TournamentRegisterRequest request);
     public ResponseEntity<BaseResponse> unregister(TournamentRegisterRequest request);
-
+    public void checkRegistrationEligibility(String tournamentId, String teamId, User currentUser);
 
 }

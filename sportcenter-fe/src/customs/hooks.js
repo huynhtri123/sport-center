@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import AuthContext from '../contexts/Auth/AuthContext';
 import GetFieldsContext from '../contexts/Field/GetFieldsContext';
 import SportContext from '../contexts/Sport/SportContext';
+import TournamentContext from '../contexts/Tournament/TournamentContext';
 
 export const useCheckSignedIn = () => {
     const [isSignedIn, setIsSignedIn] = useContext(AuthContext);
@@ -32,5 +33,19 @@ export const useCleanupStorage = () => {
             localStorage.removeItem('selectedField');
             localStorage.removeItem('selectedFields');
         }
+        // tournament
+        if (
+            location.pathname !== '/tournaments' &&
+            location.pathname !== '/tournament/detail' &&
+            location.pathname !== '/tournament/register'
+        ) {
+            localStorage.removeItem('selectedTournament');
+            localStorage.removeItem('selectedTournament');
+        }
     }, [location.pathname]);
+};
+
+export const useTournament = () => {
+    const [tournament, setTournament] = useContext(TournamentContext);
+    return [tournament, setTournament];
 };

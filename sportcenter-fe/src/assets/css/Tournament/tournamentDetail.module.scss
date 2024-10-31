@@ -1,0 +1,108 @@
+@import '../variables';
+
+.tournamentDetailContainer {
+    max-width: 1200px; /* Giới hạn chiều rộng tối đa */
+    margin: 24px; /* Căn giữa container */
+    padding: 20px;
+    font-family: 'Arial', sans-serif;
+    color: back;
+    background-color: white; /* Nền sáng cho dễ nhìn */
+    border-radius: 10px; /* Bo góc cho container */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Đổ bóng cho container */
+}
+
+.infoSection {
+    display: flex; /* Sử dụng grid để lấp đầy không gian */
+    gap: 100px; /* Khoảng cách giữa các phần tử */
+    align-items: flex-start; /* Căn chỉnh các phần tử theo chiều dọc */
+    margin-bottom: 40px;
+    padding: 20px; /* Thêm padding để có không gian thoải mái hơn */
+    background-color: $blue-prime; /* Nền trắng cho phần thông tin */
+    border-radius: 8px; /* Bo góc cho phần thông tin */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Đổ bóng cho phần thông tin */
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr; /* Chuyển sang dạng cột trên màn hình nhỏ */
+        align-items: center; /* Căn giữa cho phần tử */
+    }
+}
+
+.tournamentInfo {
+    padding-right: 20px;
+    color: white;
+
+    h1 {
+        font-size: 2rem;
+        color: $yellow-hover;
+        margin-bottom: 10px;
+    }
+
+    strong {
+        color: $yellow-prime;
+    }
+
+    button.registerButton {
+        margin-top: 15px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+
+        &:hover {
+            background-color: $yellow-hover;
+        }
+    }
+}
+
+.thumbnailContainer {
+    display: flex; /* Căn giữa hình ảnh */
+    justify-content: center; /* Căn giữa hình ảnh */
+    align-items: center; /* Căn giữa hình ảnh */
+    border: 3px solid white;
+    border-radius: 5px;
+}
+
+.thumbnail {
+    width: 400px;
+    height: 500px;
+    border-radius: 8px;
+}
+
+.prizes,
+.registeredTeams {
+    margin-bottom: 30px;
+
+    h2 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: $yellow-hover;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 5px;
+    }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+
+        li {
+            margin-bottom: 5px;
+        }
+    }
+
+    p {
+        color: #888;
+    }
+}
+
+.teamItem {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+
+    img.teamLogo {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        margin-right: 15px;
+    }
+}

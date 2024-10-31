@@ -1,13 +1,18 @@
 package app.sportcenter.controllers;
 
 import app.sportcenter.commons.BaseResponse;
+import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.models.dto.TournamentRegisterRequest;
 import app.sportcenter.models.dto.TournamentRequest;
+import app.sportcenter.models.entities.User;
 import app.sportcenter.services.TournamentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -78,6 +83,25 @@ public class TournamentController {
     @PatchMapping("/register")
     public ResponseEntity<BaseResponse> register(@Valid @RequestBody TournamentRegisterRequest request) {
         return tournamentService.register(request);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
+    @PatchMapping("/checkRegistrationEligibility")
+    public ResponseEntity<BaseResponse> checkRegistrationEligibility(@Valid @RequestBody TournamentRegisterRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+        try {
+            tournamentService.checkRegistrationEligibility(request.getTournamentId(), request.getTeamId(), currentUser);
+            return ResponseEntity.ok(
+                    new BaseResponse("Đã check! có thể đăng kí giải đấu.",
+                            HttpStatus.OK.value(),   null)
+            );
+        } catch (CustomException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new BaseResponse("Đã check! Failed. " + e.getMessage(),
+                            HttpStatus.BAD_REQUEST.value(),   null)
+            );
+        }
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")

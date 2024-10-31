@@ -10,9 +10,9 @@ function SportHome({ title, description, linkTo, fieldType, bannerImage, feature
     const [fields, setFields] = useGetFields();
     const navigate = useNavigate();
 
-    const handleGetFields = async () => {
+    const fetchAndNavigate = async (type, to) => {
         try {
-            const fieldsResponse = await fieldApi.findByType(fieldType);
+            const fieldsResponse = await fieldApi.findByType(type);
             if (fieldsResponse.status === 404) {
                 toast.warn(fieldsResponse.message);
             } else {
@@ -20,12 +20,14 @@ function SportHome({ title, description, linkTo, fieldType, bannerImage, feature
             }
             setFields(fieldsResponse.data);
             localStorage.setItem('selectedFields', JSON.stringify(fieldsResponse.data));
-            navigate(linkTo); // Chuyển hướng tới linkTo sau khi lấy dữ liệu thành công
+            navigate(to); // Navigate after successful data fetching
         } catch (err) {
             setFields([]);
             toast.error(err.message || 'Có lỗi xảy ra!');
         }
     };
+
+    const handleGetFields = () => fetchAndNavigate(fieldType, linkTo);
 
     return (
         <div className={styles.sportHomeContainer}>
@@ -47,9 +49,23 @@ function SportHome({ title, description, linkTo, fieldType, bannerImage, feature
                 <div className={styles.featuresContainer}>
                     {features.map((feature, index) => (
                         <div className={styles.featureCard} key={index}>
-                            <img src={feature.image} alt={feature.alt} />
-                            <h3>{feature.title}</h3>
-                            <p>{feature.description}</p>
+                            <button
+                                to='#' // Prevent default Link behavior
+                                className={styles.featureLink}
+                                onClick={() => {
+                                    // Check if it's the first feature (Đa dạng sân)
+                                    console.log(feature.linkTo);
+                                    if (index === 0) {
+                                        fetchAndNavigate(fieldType, feature.linkTo);
+                                    } else {
+                                        navigate(feature.linkTo);
+                                    }
+                                }}
+                            >
+                                <img src={feature.image} alt={feature.alt} />
+                                <h3>{feature.title}</h3>
+                                <p>{feature.description}</p>
+                            </button>
                         </div>
                     ))}
                 </div>
