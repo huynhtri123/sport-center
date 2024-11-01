@@ -51,6 +51,12 @@ public class TournamentController {
         return tournamentService.getRegistedTeams(tournamentId);
     }
 
+    @PreAuthorize("hasAuthority('CUSTOMER')")
+    @GetMapping("/myTournaments")
+    public ResponseEntity<BaseResponse> myTournaments() {
+        return tournamentService.myRegistered();
+    }
+
     @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/update/{tournamentId}")
     public ResponseEntity<BaseResponse> updateById(@PathVariable("tournamentId") String tournamentId,

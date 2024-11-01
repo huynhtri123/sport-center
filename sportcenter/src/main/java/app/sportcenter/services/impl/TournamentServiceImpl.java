@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -133,6 +134,37 @@ public class TournamentServiceImpl implements TournamentService {
                 new BaseResponse("Tìm thấy danh sách đội tham gia giải đấu", HttpStatus.OK.value(), teamsResponse)
         );
     }
+
+    @Override
+    public ResponseEntity<BaseResponse> myRegistered() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+        if (currentUser == null) {
+            throw new CustomException("Không tìm thấy thông tin đăng nhập!", HttpStatus.BAD_REQUEST.value());
+        }
+        String userId = currentUser.getId();
+
+        // Bước 1: Tìm tất cả các đội của người dùng
+        List<Team> userTeams = teamRepository.getTeamByUserIdAndIsActiveTrueAndIsDeletedFalse(userId);
+        if (userTeams.isEmpty()) {
+            throw new NotFoundException("Không tìm thấy đội nào của người dùng!");
+        }
+
+        // Bước 2: Lấy danh sách ID của các đội
+        List<String> teamIds = userTeams.stream().map(Team::getId).collect(Collectors.toList());
+
+        // Bước 3: Tìm tất cả các giải đấu mà có các đội của người dùng đã đăng ký
+        List<Tournament> tournaments = tournamentRepository.findByRegisteredTeamIds(teamIds);
+        if (tournaments.isEmpty()) {
+            throw new NotFoundException("Không tìm thấy giải đấu nào mà các đội của người dùng đã đăng ký!");
+        }
+
+        List<TournamentResponse> responses = tournaments.stream().map(tournamentMapper::convertToDTO).toList();
+        return ResponseEntity.ok(
+                new BaseResponse("Tìm thấy danh sách giải đấu mà người dùng tham gia", HttpStatus.OK.value(), responses)
+        );
+    }
+
 
     @Transactional
     @Override
