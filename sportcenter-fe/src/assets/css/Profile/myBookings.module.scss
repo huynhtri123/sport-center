@@ -1,0 +1,55 @@
+// myBookings.module.scss
+@import '../variables';
+
+.myBookingsContainer {
+    background-color: $dark-blue-light;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 0 auto;
+
+    h2 {
+        font-size: 1.8rem;
+        color: $yellow-prime;
+        text-align: center;
+    }
+}
+
+.bookingList {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.bookingCard {
+    background-color: #fff;
+    border: 1px solid $yellow-hover;
+    border-radius: 8px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    h4 {
+        font-size: 1.3rem;
+        color: $blue-prime-hover;
+        margin-bottom: 0.5rem;
+    }
+
+    p {
+        font-size: 0.95rem;
+        color: $dark-sage;
+        margin: 0.2rem 0;
+        display: flex;
+        justify-content: space-between;
+        padding: 0.3rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+}

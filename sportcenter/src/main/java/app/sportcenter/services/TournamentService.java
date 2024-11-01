@@ -13,6 +13,7 @@ public interface TournamentService {
     public ResponseEntity<BaseResponse> getById(String id);
     public ResponseEntity<BaseResponse> getBySportId(String sportId);
     public ResponseEntity<BaseResponse> getRegistedTeams(String tournamentId);
+    public ResponseEntity<BaseResponse> myRegistered();
 
     public ResponseEntity<BaseResponse> updateById(String id, TournamentRequest tournamentRequest);
 

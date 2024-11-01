@@ -1,0 +1,35 @@
+@import '../variables';
+
+.myTournamentsContainer {
+    background-color: $dark-blue-strong;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+
+    h2 {
+        font-size: 1.8rem;
+        color: $yellow-prime;
+        margin-bottom: 1rem;
+    }
+}
+
+.tournamentCard {
+    background-color: #fff;
+    border: 1px solid $yellow-hover;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    h4 {
+        font-size: 1.5rem;
+        color: $blue-prime-hover;
+        margin-bottom: 0.5rem;
+    }
+
+    p {
+        font-size: 1rem;
+        color: $dark-sage;
+        margin: 0.2rem 0;
+    }
+}

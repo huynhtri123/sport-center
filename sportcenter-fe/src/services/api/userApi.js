@@ -9,6 +9,18 @@ const userApi = {
         const url = '/user/updateProfile';
         return axiosClient.put(url, userRequest);
     },
+
+    // bookings
+    myBookings(userId) {
+        const url = `/booking/myBookings/${userId}`;
+        return axiosClient.get(url);
+    },
+
+    // registered tournaments
+    myTournaments() {
+        const url = '/tounament/myTournaments';
+        return axiosClient.get(url);
+    },
 };
 
 export default userApi;
