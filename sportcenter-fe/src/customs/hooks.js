@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import AuthContext from '../contexts/Auth/AuthContext';
 import GetFieldsContext from '../contexts/Field/GetFieldsContext';
 import SportContext from '../contexts/Sport/SportContext';
+import CourseContext from '../contexts/Course/CourseContext';
 
 export const useCheckSignedIn = () => {
     const [isSignedIn, setIsSignedIn] = useContext(AuthContext);
@@ -33,4 +34,9 @@ export const useCleanupStorage = () => {
             localStorage.removeItem('selectedFields');
         }
     }, [location.pathname]);
+};
+
+export const useGetCourses = () => {
+    const [courses, setCourses] = useContext(CourseContext);
+    return [courses, setCourses];
 };
