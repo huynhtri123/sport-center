@@ -20,7 +20,6 @@ import SportList from './pages/Customer/Sport/SportList';
 import DynamicSportHome from './pages/Customer/Sport/SportHome/DynamicSportHome';
 import Profile from './pages/Customer/Profile/Profile';
 
-
 import AuthProvider from './contexts/Auth/AuthProvider';
 import AdminDashBoard from './pages/Admin/AdminDashBoard';
 import ManageFields from './pages/Admin/ManageFields';
@@ -42,57 +41,53 @@ function App() {
             <AuthProvider>
                 <SportProvider>
                     <CourseProvider>
-                      
-                      <TournamentProvider>
-                          <div className={clsx(styles.app)}>
-                              {/* Chỉ hiển thị NavBar nếu đường dẫn không phải là /admin */}
+                        <TournamentProvider>
+                            <GetFieldsProvider>
+                                <div className={clsx(styles.app)}>
+                                    {/* Chỉ hiển thị NavBar nếu đường dẫn không phải là /admin */}
+                                    {location.pathname !== '/admin' && <NavBar />}
+                                    <div className={clsx(styles.appContent)}>
+                                        <Routes>
+                                            <Route path='/' element={<Home />} />
+                                            <Route path='/profile' element={<Profile />} />
+                                            <Route path='/sign-up' element={<Signup />} />
+                                            <Route path='/sign-in' element={<Signin />} />
+                                            <Route path='/forgot-password' element={<ForgotPassword />} />
 
-                              {location.pathname !== '/admin' && <NavBar />}
-                              <div className={clsx(styles.appContent)}>
-                                  <GetFieldsProvider>
-                                      <Routes>
-                                          <Route path='/' element={<Home />} />
-                                          <Route path='/profile' element={<Profile />} />
-                                          <Route path='/sign-up' element={<Signup />} />
-                                          <Route path='/sign-in' element={<Signin />} />
-                                          <Route path='/forgot-password' element={<ForgotPassword />} />
+                                            <Route path='/admin' element={<AdminDashBoard />} />
+                                            <Route path='/admin/managefields' element={<ManageFields />} />
 
-                                          <Route path='/admin' element={<AdminDashBoard />} />
-                                          <Route path='/admin/managefields' element={<ManageFields />} />
+                                            <Route path='/sport/:sportName' element={<DynamicSportHome />} />
+                                            <Route path='/sport/fields' element={<FieldList />} />
+                                            <Route path='/sports' element={<SportList />} />
 
-                                          <Route path='/sport/:sportName' element={<DynamicSportHome />} />
-                                          <Route path='/sport/fields' element={<FieldList />} />
-                                          <Route path='/sports' element={<SportList />} />
+                                            <Route path='/booking' element={<Booking />} />
+                                            <Route path='/tournaments' element={<TournamentHome />} />
+                                            <Route path='/tournament/detail' element={<TournamentDetail />} />
+                                            <Route path='/tournament/register' element={<TournamentRegister />} />
 
-                                          <Route path='/booking' element={<Booking />} />
-                                          <Route path='/tournaments' element={<TournamentHome />} />
-                                          <Route path='/tournament/detail' element={<TournamentDetail />} />
-                                          <Route path='/tournament/register' element={<TournamentRegister />} />
+                                            <Route path='/courses' element={<CourseList />} />
+                                            <Route path='/courses/:courseId' element={<CourseLesson />} />
+                                        </Routes>
+                                    </div>
 
-                                          <Route path='/courses' element={<CourseList />} />
-                                          <Route path="/courses/:courseId" element={<CourseLesson />} />
-                                      </Routes>
-                                  </GetFieldsProvider>
-                              </div>
-
-                              <Footer />
-
-                              <ToastContainer
-                                  position='top-right'
-                                  autoClose={2000}
-                                  hideProgressBar={false}
-                                  newestOnTop={false}
-                                  closeOnClick
-                                  rtl={false}
-                                  pauseOnFocusLoss
-                                  draggable
-                                  pauseOnHover
-                                  theme='light'
-                              />
-                          </div>
-
-                      </TournamentProvider>
-                     </CourseProvider>
+                                    <Footer />
+                                    <ToastContainer
+                                        position='top-right'
+                                        autoClose={2000}
+                                        hideProgressBar={false}
+                                        newestOnTop={false}
+                                        closeOnClick
+                                        rtl={false}
+                                        pauseOnFocusLoss
+                                        draggable
+                                        pauseOnHover
+                                        theme='light'
+                                    />
+                                </div>
+                            </GetFieldsProvider>
+                        </TournamentProvider>
+                    </CourseProvider>
                 </SportProvider>
             </AuthProvider>
         </GlobalStyle>

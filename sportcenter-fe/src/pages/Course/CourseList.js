@@ -27,7 +27,7 @@ function CourseList() {
                 {courses.map((course) => (
                     <li key={course.id} className={styles.courseItem}>
                         <Link to={`/courses/${course.id}`} className={styles.courseLink}>
-                            <img src={course.imageUrl} alt={`${course.courseName} image`} className={styles.courseImage} />
+                            <img src={course.imageUrl} alt={`${course.courseName}`} className={styles.courseImage} />
                             <div className={styles.courseInfo}>
                                 <h2>{course.courseName}</h2>
                                 <p>Tuition: ${course.tuition}</p>
