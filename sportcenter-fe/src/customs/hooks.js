@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import AuthContext from '../contexts/Auth/AuthContext';
 import GetFieldsContext from '../contexts/Field/GetFieldsContext';
 import SportContext from '../contexts/Sport/SportContext';
+import CourseContext from '../contexts/Course/CourseContext';
 import TournamentContext from '../contexts/Tournament/TournamentContext';
 
 export const useCheckSignedIn = () => {
@@ -45,6 +46,11 @@ export const useCleanupStorage = () => {
     }, [location.pathname]);
 };
 
+
+export const useGetCourses = () => {
+    const [courses, setCourses] = useContext(CourseContext);
+    return [courses, setCourses];
+};
 export const useTournament = () => {
     const [tournament, setTournament] = useContext(TournamentContext);
     return [tournament, setTournament];

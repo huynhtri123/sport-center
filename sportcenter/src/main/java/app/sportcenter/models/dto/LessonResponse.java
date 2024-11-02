@@ -1,0 +1,20 @@
+package app.sportcenter.models.dto;
+
+
+import app.sportcenter.commons.CourseSportType;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
+public class LessonResponse extends BaseResponseDTO {
+    private String id;
+    private CourseSportType courseSportType;
+    private String lessonName;
+    private String description;
+    private String videoId;
+}

@@ -1,0 +1,67 @@
+@import '../variables';
+
+.container {
+    width: 100%; // Set the width to 100% to occupy the full width of the screen
+    height: auto; // Set an explicit height for the container (adjust this value as needed)
+    padding: 24px; // Keep the padding for spacing around content
+    box-sizing: border-box; // Ensure padding is included in the width and height calculation
+    text-align: center;
+}
+
+.title {
+    margin-bottom: 20px;
+    color: white;
+}
+
+.courseList {
+    list-style: none;
+    padding: 0;
+}
+
+.courseItem {
+    margin: 20px 0;
+    cursor: pointer;
+    display: flex;
+    background-color: $blue-prime; // Ensure the background is set to white
+    border-radius: 8px;
+    transition: transform 0.2s, box-shadow 0.2s; // Add transition for box-shadow
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); // Add shadow
+
+    &:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 20px $blue-prime; // Enhance shadow on hover
+    }
+}
+
+.courseLink {
+    display: flex;
+    align-items: flex-start;
+    text-decoration: none; // Remove underline from links
+    color: white; // Use the inherited color
+    width: 100%; // Ensure the link takes full width of the item
+    height: 330px;
+}
+
+.courseImage {
+    width: 488px; // Increase the width of course images (adjust as needed)
+    height: 300px; // Increase the height of course images (adjust as needed)
+    border-radius: 8px;
+    margin-right: 20px;
+    padding-top: 20px;
+    padding-left: 20px;
+    
+}
+
+.courseInfo {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    text-align: left;
+    padding: 20px;
+    color: white; // Set text color to white for course information
+
+    h3, p {
+        color: white; // Ensure all text is white within course info
+    }
+}

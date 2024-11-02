@@ -21,6 +21,6 @@ public class Enrollment extends BaseEntity implements PricedItem {
 
     @Override
     public Double getPrice() {
-        return this.course.getTuitition();
+        return this.course.getTuition();
     }
 }
