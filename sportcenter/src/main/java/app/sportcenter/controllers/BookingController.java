@@ -19,13 +19,13 @@ import java.time.ZonedDateTime;
 
 
 @RestController
-@RequestMapping("/api/booking")
+@RequestMapping("/api")
 public class BookingController {
     @Autowired
     private BookingService bookingService;
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @PostMapping("/create")
+    @PostMapping("/booking/create")
     public ResponseEntity<BaseResponse> createBooking(@Valid @RequestBody BookingRequest bookingRequest) {
         // Lấy thông tin người dùng hiện tại từ SecurityContext
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -35,64 +35,64 @@ public class BookingController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/{bookingId}")
+    @GetMapping("/booking/{bookingId}")
     public ResponseEntity<BaseResponse> getBookingById(@PathVariable String bookingId) {
         return bookingService.getBookingById(bookingId);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/getByUserId/{userId}")
+    @GetMapping("/booking/getByUserId/{userId}")
     public ResponseEntity<BaseResponse> getByUserId(@PathVariable String userId) {
         return bookingService.getBookingByUserId(userId);
     }
 
     @PreAuthorize("hasAnyAuthority('CUSTOMER')")
-    @GetMapping("/myBookings/{userId}")
+    @GetMapping("/booking/myBookings/{userId}")
     public ResponseEntity<BaseResponse> getCurrentBookingsOfCurrentUser(@PathVariable String userId) {
         return bookingService.getCurrentBookingsOfCurrentUser(userId);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/getByFieldId/{fieldId}")
+    @GetMapping("/booking/getByFieldId/{fieldId}")
     public ResponseEntity<BaseResponse> getByFieldId(@PathVariable String fieldId) {
         return bookingService.getBookingByFieldId(fieldId);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/byStartTime/{startTime}")
+    @GetMapping("/booking/byStartTime/{startTime}")
     public ResponseEntity<BaseResponse> getBookingsByStartTime(@PathVariable("startTime") ZonedDateTime startTime) {
         return bookingService.getBookingsByStartTime(startTime);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/getAllActive")
+    @GetMapping("/booking/getAllActive")
     public ResponseEntity<BaseResponse> getBookingsByStartTime() {
         return bookingService.getAllBookings();
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PatchMapping("/softDelete/{bookingId}")
+    @PatchMapping("/booking/softDelete/{bookingId}")
     public ResponseEntity<BaseResponse> softDelete(@PathVariable String bookingId) {
         boolean newIsDeleted = true;
         return bookingService.changeIsDeleted(bookingId, newIsDeleted);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PatchMapping("/restore/{bookingId}")
+    @PatchMapping("/booking/restore/{bookingId}")
     public ResponseEntity<BaseResponse> restore(@PathVariable String bookingId) {
         boolean newIsDeleted = false;
         return bookingService.changeIsDeleted(bookingId, newIsDeleted);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @DeleteMapping("/forceDelete/{bookingId}")
+    @DeleteMapping("/booking/forceDelete/{bookingId}")
     public ResponseEntity<BaseResponse> forceDelete(@PathVariable String bookingId) {
         return bookingService.forceDelete(bookingId);
     }
 
     // lấy tất cả booking theo khoảng thời gian cụ thể. Ví dụ theo ngày (7:00 ngày 1/1/2024 - 22:00 ngày 1/1/2024)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @PutMapping("/updateAndGetSchedule")
+    // public
+    @PutMapping("/public/booking/updateAndGetSchedule")
     public ResponseEntity<BaseResponse> getFieldSchedule(@Valid @RequestBody OnDayScheduleRequest onDayScheduleRequest) {
         String fieldId = onDayScheduleRequest.getFieldId();
         ZonedDateTime startOfDay = onDayScheduleRequest.getStartOfDay();

@@ -40,7 +40,7 @@ public class SportController {
     }
 
     // api này public được nên ko cần xác thực
-    @GetMapping("/auth/sport/getAllActive")
+    @GetMapping("/public/sport/getAllActive")
     public ResponseEntity<BaseResponse> getAll() {
         return sportService.getAll();
     }

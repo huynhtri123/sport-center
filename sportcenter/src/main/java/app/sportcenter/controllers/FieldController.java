@@ -12,76 +12,75 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/field")
+@RequestMapping("/api")
 public class FieldController {
     @Autowired
     private FieldService fieldService;
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping("/create")
+    @PostMapping("/field/create")
     public ResponseEntity<BaseResponse> create(@Valid @RequestBody FieldRequest fieldRequest) {
         return fieldService.create(fieldRequest);
     }
 
-    // Lấy tất cả Field đang hoạt động (active & not deleted)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @GetMapping("/getAllActive")
+    // public - Lấy tất cả Field đang hoạt động (active & not deleted)
+    @GetMapping("/public/field/getAllActive")
     public ResponseEntity<BaseResponse> getAll() {
         return fieldService.getAllActive();
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @GetMapping("/getById/{fieldId}")
+    // public
+    @GetMapping("/public/field/getById/{fieldId}")
     public ResponseEntity<BaseResponse> getById(@PathVariable("fieldId") String fieldId) {
         return fieldService.getById(fieldId);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/getAllSoftDeleted")
+    @GetMapping("/field/getAllSoftDeleted")
     public ResponseEntity<BaseResponse> getAllSoftDeleted() {
         return fieldService.getAllSoftDeleted();
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PutMapping("/update/{fieldId}")
+    @PutMapping("/field/update/{fieldId}")
     public ResponseEntity<BaseResponse> updateById(@PathVariable(value = "fieldId") String fieldId,
                                                    @Valid @RequestBody FieldRequest fieldRequest) {
         return fieldService.updateById(fieldId, fieldRequest);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PatchMapping("/toggleActiveStatus/{fieldId}")
+    @PatchMapping("/field/toggleActiveStatus/{fieldId}")
     public ResponseEntity<BaseResponse> toggleActiveStatus(@PathVariable("fieldId") String fieldId) {
         return fieldService.toggleActiveStatus(fieldId);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PatchMapping("/softDelete/{fieldId}")
+    @PatchMapping("/field/softDelete/{fieldId}")
     public ResponseEntity<BaseResponse> softDelete(@PathVariable("fieldId") String fieldId) {
         return fieldService.softDeleted(fieldId);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PatchMapping("/restore/{fieldId}")
+    @PatchMapping("/field/restore/{fieldId}")
     public ResponseEntity<BaseResponse> restore(@PathVariable("fieldId") String fieldId) {
         return fieldService.restore(fieldId);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @DeleteMapping("/forceDelete/{fieldId}")
+    @DeleteMapping("/field/forceDelete/{fieldId}")
     public ResponseEntity<BaseResponse> forceDelete(@PathVariable("fieldId") String fieldId) {
         return fieldService.forceDelete(fieldId);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @GetMapping("/searchByName")
+    // public
+    @GetMapping("/public/field/searchByName")
     public ResponseEntity<BaseResponse> searchByNameContainingIgnoreCase(
             @RequestParam("fieldName") String fieldName) {
         return fieldService.searchByNameContainingIgnoreCase(fieldName);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @GetMapping("/findByType")
+    // public
+    @GetMapping("/public/field/findByType")
     public ResponseEntity<BaseResponse> findByFieldType(@RequestParam("type") FieldType fieldType) {
         return fieldService.findByFieldType(fieldType);
     }

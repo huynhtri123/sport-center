@@ -14,6 +14,8 @@ public interface TournamentService {
     public ResponseEntity<BaseResponse> getBySportId(String sportId);
     public ResponseEntity<BaseResponse> getRegistedTeams(String tournamentId);
     public ResponseEntity<BaseResponse> myRegistered();
+    // lấy Team trong Tournament
+    public ResponseEntity<BaseResponse> getMyRegisteredTeamInTournament(String tournamentId);
 
     public ResponseEntity<BaseResponse> updateById(String id, TournamentRequest tournamentRequest);
 

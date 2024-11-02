@@ -12,6 +12,7 @@ import MyBookings from './MyBookings';
 import MyCart from './MyCart';
 import MyPaymentInfo from './MyPaymentInfo';
 import MyTournaments from './MyTournaments';
+import MyTeam from './MyTeams';
 
 function Profile() {
     const [profile, setProfile] = useState({}); // để chứa data lấy từ api
@@ -25,9 +26,11 @@ function Profile() {
     const [showPaymentInfo, setShowPaymentInfo] = useState(false);
     const [showBookings, setShowBookings] = useState(false);
     const [showTournaments, setShowTournaments] = useState(false);
+    const [showTeams, setShowTeams] = useState(false);
     // data states
     const [myBooking, setMyBookings] = useState([]);
     const [tournaments, setTournaments] = useState([]);
+    const [teams, setTeams] = useState([]);
     // handles
     const handleToggleCart = () => setShowCart(!showCart);
     const handleTogglePaymentInfo = () => setShowPaymentInfo(!showPaymentInfo);
@@ -48,11 +51,35 @@ function Profile() {
         if (showTournaments === false && profile?.id && tournaments.length === 0) {
             try {
                 const tournamentsResponse = await userApi.myTournaments();
-                console.log(tournamentsResponse);
-                setTournaments(tournamentsResponse.data);
+                const tournamentsData = tournamentsResponse.data;
+
+                // tìm team cho từng tournament
+                const tournamentsWithTeams = await Promise.all(
+                    tournamentsData.map(async (tournament) => {
+                        try {
+                            const teamResponse = await userApi.myTeamInTournament(tournament.id);
+                            return { ...tournament, team: teamResponse.data };
+                        } catch (error) {
+                            console.error(`Không thể lấy Team cho tournament ${tournament.id}:`, error);
+                            return { ...tournament, team: null }; // Gán null nếu không lấy được team
+                        }
+                    })
+                );
+
+                setTournaments(tournamentsWithTeams);
             } catch (err) {
                 console.error(err);
             }
+        }
+    };
+    const handleToggleTeams = async () => {
+        setShowTeams(!showTeams);
+        try {
+            const teamResponse = await userApi.myTeams();
+            console.log(teamResponse);
+            setTeams(teamResponse.data);
+        } catch (err) {
+            console.error(err);
         }
     };
 
@@ -258,11 +285,20 @@ function Profile() {
 
             <div className={styles.section}>
                 <h3 onClick={handleToggleTournaments}>
-                    <i className='fa-regular fa-calendar-days'></i>
-                    <span className='ms-3'>Registered Tournaments And Events</span>
+                    <i class='fa-regular fa-calendar-check'></i>
+                    <span className='ms-3'>Tournaments And Events</span>
                 </h3>
-                <p>Check your upcoming sports events and tournaments.</p>
+                <p>Check your registered tournaments and sports events.</p>
                 {showTournaments && <MyTournaments tournaments={tournaments}></MyTournaments>}
+            </div>
+
+            <div className={styles.section}>
+                <h3 onClick={handleToggleTeams}>
+                    <i class='fa-solid fa-people-group'></i>
+                    <span className='ms-3'>My Teams</span>
+                </h3>
+                <p>See your teams and their accomplishments.</p>
+                {showTeams && <MyTeam teams={teams}></MyTeam>}
             </div>
         </div>
     );

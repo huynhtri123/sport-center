@@ -2,15 +2,15 @@ import axiosClient from './axiosClient';
 
 const tournamentApi = {
     getAllActive() {
-        const url = '/tounament/getAllActive';
+        const url = '/public/tounament/getAllActive';
         return axiosClient.get(url);
     },
     getById(tournamentId) {
-        const url = `/tounament/getById/${tournamentId}`;
+        const url = `/public/tounament/getById/${tournamentId}`;
         return axiosClient.get(url);
     },
     getRegistedTeams(tournamentId) {
-        const url = `/tounament/getRegistedTeams/${tournamentId}`;
+        const url = `/public/tounament/getRegistedTeams/${tournamentId}`;
         return axiosClient.get(url);
     },
     register(registerRequest) {
