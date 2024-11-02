@@ -33,10 +33,9 @@ const sportApi = {
     restore(sportId) {
         const url = `/sport/restore/${sportId}`;
         return axiosClient.patch(url);
-    }
-,
+    },
     getAllActive() {
-        const url = '/auth/sport/getAllActive';
+        const url = '/public/sport/getAllActive';
         return axiosClient.get(url);
     },
 };

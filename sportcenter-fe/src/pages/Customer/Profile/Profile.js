@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 import Button from '../../../components/Button/Button';
@@ -9,13 +8,80 @@ import fileApi from '../../../services/api/fileApi';
 import { formatDateToZoneDateTime } from '../../../utils/DateTimeConverter';
 import { Loading } from '../../../components/Loading/Loading';
 
+import MyBookings from './MyBookings';
+import MyCart from './MyCart';
+import MyPaymentInfo from './MyPaymentInfo';
+import MyTournaments from './MyTournaments';
+import MyTeam from './MyTeams';
+
 function Profile() {
     const [profile, setProfile] = useState({}); // để chứa data lấy từ api
     const [userInfo, setUserInfo] = useState({}); // để chứa data khi edit
     const [originalUserInfo, setOriginalUserInfo] = useState({}); // để khi bấm cancel thì trả về data cũ
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const navigate = useNavigate();
+
+    // show hoặc hide các thông tin khác
+    const [showCart, setShowCart] = useState(false);
+    const [showPaymentInfo, setShowPaymentInfo] = useState(false);
+    const [showBookings, setShowBookings] = useState(false);
+    const [showTournaments, setShowTournaments] = useState(false);
+    const [showTeams, setShowTeams] = useState(false);
+    // data states
+    const [myBooking, setMyBookings] = useState([]);
+    const [tournaments, setTournaments] = useState([]);
+    const [teams, setTeams] = useState([]);
+    // handles
+    const handleToggleCart = () => setShowCart(!showCart);
+    const handleTogglePaymentInfo = () => setShowPaymentInfo(!showPaymentInfo);
+    const handleToggleBookings = async () => {
+        setShowBookings(!showBookings);
+        if (showBookings === false && profile?.id && myBooking.length === 0) {
+            try {
+                const myBookingResponse = await userApi.myBookings(profile.id);
+                console.log(myBookingResponse);
+                setMyBookings(myBookingResponse.data);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    };
+    const handleToggleTournaments = async () => {
+        setShowTournaments(!showTournaments);
+        if (showTournaments === false && profile?.id && tournaments.length === 0) {
+            try {
+                const tournamentsResponse = await userApi.myTournaments();
+                const tournamentsData = tournamentsResponse.data;
+
+                // tìm team cho từng tournament
+                const tournamentsWithTeams = await Promise.all(
+                    tournamentsData.map(async (tournament) => {
+                        try {
+                            const teamResponse = await userApi.myTeamInTournament(tournament.id);
+                            return { ...tournament, team: teamResponse.data };
+                        } catch (error) {
+                            console.error(`Không thể lấy Team cho tournament ${tournament.id}:`, error);
+                            return { ...tournament, team: null }; // Gán null nếu không lấy được team
+                        }
+                    })
+                );
+
+                setTournaments(tournamentsWithTeams);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    };
+    const handleToggleTeams = async () => {
+        setShowTeams(!showTeams);
+        try {
+            const teamResponse = await userApi.myTeams();
+            console.log(teamResponse);
+            setTeams(teamResponse.data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
     const getMyProfile = async () => {
         try {
@@ -45,10 +111,6 @@ function Profile() {
             setOriginalUserInfo(profileData); // Lưu lại thông tin gốc
         }
     }, [profile]);
-
-    const handleNavigate = (path) => {
-        navigate(path);
-    };
 
     const handleEditToggle = () => {
         setIsEditing(!isEditing);
@@ -194,28 +256,49 @@ function Profile() {
                 </div>
             </div>
 
-            <div className={styles.section} onClick={() => handleNavigate('/cart-details')}>
-                <h3>
-                    <i class='fa-solid fa-bag-shopping'></i>
+            <div className={styles.section}>
+                <h3 onClick={handleToggleCart}>
+                    <i className='fa-solid fa-bag-shopping'></i>
                     <span className='ms-3'>Cart</span>
                 </h3>
                 <p>View your cart items and proceed to checkout.</p>
+                {showCart && <MyCart></MyCart>}
             </div>
 
-            <div className={styles.section} onClick={() => handleNavigate('/payment-info')}>
-                <h3>
-                    <i class='fa-solid fa-money-check-dollar'></i>
+            <div className={styles.section}>
+                <h3 onClick={handleTogglePaymentInfo}>
+                    <i className='fa-solid fa-money-check-dollar'></i>
                     <span className='ms-3'>Payment info</span>
                 </h3>
                 <p>Manage your saved payment methods.</p>
+                {showPaymentInfo && <MyPaymentInfo></MyPaymentInfo>}
             </div>
 
-            <div className={styles.section} onClick={() => handleNavigate('/bookings')}>
-                <h3>
-                    <i class='fa-regular fa-calendar-days'></i>
+            <div className={styles.section}>
+                <h3 onClick={handleToggleBookings}>
+                    <i className='fa-regular fa-calendar-days'></i>
                     <span className='ms-3'>Bookings</span>
                 </h3>
-                <p>Check your upcoming sports events and classes.</p>
+                <p>Check your current bookings field.</p>
+                {showBookings && <MyBookings bookings={myBooking}></MyBookings>}
+            </div>
+
+            <div className={styles.section}>
+                <h3 onClick={handleToggleTournaments}>
+                    <i class='fa-regular fa-calendar-check'></i>
+                    <span className='ms-3'>Tournaments And Events</span>
+                </h3>
+                <p>Check your registered tournaments and sports events.</p>
+                {showTournaments && <MyTournaments tournaments={tournaments}></MyTournaments>}
+            </div>
+
+            <div className={styles.section}>
+                <h3 onClick={handleToggleTeams}>
+                    <i class='fa-solid fa-people-group'></i>
+                    <span className='ms-3'>My Teams</span>
+                </h3>
+                <p>See your teams and their accomplishments.</p>
+                {showTeams && <MyTeam teams={teams}></MyTeam>}
             </div>
         </div>
     );

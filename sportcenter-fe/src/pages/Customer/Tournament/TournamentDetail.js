@@ -1,0 +1,132 @@
+import React, { useEffect, useState } from 'react';
+import styles from '../../../assets/css/Tournament/tournamentDetail.module.scss';
+import { useTournament } from '../../../customs/hooks';
+import Button from '../../../components/Button/Button';
+import tournamentApi from '../../../services/api/tournamentApi';
+import { useNavigate } from 'react-router-dom';
+
+const TournamentDetail = () => {
+    const [tournament, setTournament] = useTournament();
+    const [registeredTeams, setRegisteredTeams] = useState([]);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const storedTournament = localStorage.getItem('selectedTournament');
+        if (storedTournament) {
+            setTournament(JSON.parse(storedTournament));
+        }
+    }, [setTournament]);
+
+    const getRegisteredTeams = async (tournamentId) => {
+        try {
+            const teamResponse = await tournamentApi.getRegistedTeams(tournamentId);
+            // console.log(teamResponse);
+            setRegisteredTeams(teamResponse.data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    useEffect(() => {
+        if (tournament && tournament.registeredTeamIds) {
+            getRegisteredTeams(tournament.id);
+        }
+    }, [tournament]);
+    const numberOfParticipants = registeredTeams ? registeredTeams.length : 0;
+
+    const prizes = tournament.prizes || [];
+
+    const handleRegister = () => {
+        navigate('/tournament/register');
+        console.log('Registering for tournament...');
+    };
+
+    return (
+        <div className={styles.tournamentDetailContainer}>
+            {/* Section 1: Thông tin giải đấu */}
+            <div className={styles.infoSection}>
+                <div className={styles.tournamentInfo}>
+                    <h1 className={styles.tournamentName}>
+                        <i className='fa-solid fa-trophy me-3'></i>
+                        {tournament.tournamentName}
+                    </h1>
+                    <div className='mt-4'>
+                        <span>Sport:</span> {tournament.sport?.sportName}
+                    </div>
+                    <div>
+                        <span>Start Date:</span> {new Date(tournament.startDate).toLocaleString()}
+                    </div>
+                    <div>
+                        <span>End Date:</span> {new Date(tournament.endDate).toLocaleString()}
+                    </div>
+                    <div>
+                        <span>Registration Deadline:</span> {new Date(tournament.registrationDeadline).toLocaleString()}
+                    </div>
+                    <div>
+                        <span>Max Teams:</span> {tournament.maxTeams}
+                    </div>
+                    <Button className={styles.registerButton} onClick={handleRegister}>
+                        Register for Tournament
+                    </Button>
+                </div>
+                <div className={styles.thumbnailContainer}>
+                    <img
+                        src={tournament.thumUrl}
+                        alt={`${tournament.tournamentName} Thumbnail`}
+                        className={styles.thumbnail}
+                    />
+                </div>
+            </div>
+
+            {/* Section 2: Giải thưởng */}
+            <section className={styles.prizes}>
+                <h2>
+                    <i className='fa-solid fa-award me-3'></i>
+                    Prizes
+                </h2>
+                {prizes.length > 0 ? (
+                    <ul>
+                        {prizes.map((prize, index) => (
+                            <li key={index}>
+                                <strong>Position {prize.position}:</strong> {prize.description} - ${prize.reward}
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p>No prizes available.</p>
+                )}
+            </section>
+
+            {/* Section 3: Các đội tham gia */}
+            <section className={styles.registeredTeams}>
+                <h2>
+                    <i className='fa-solid fa-people-group me-3'></i>
+                    Registered Teams ({numberOfParticipants})
+                </h2>
+                {registeredTeams && registeredTeams.length > 0 ? (
+                    <ul>
+                        {registeredTeams.map((team) => (
+                            <li key={team.id} className={styles.teamItem}>
+                                <img src={team.teamLogoUrl} alt={`${team.teamName} Logo`} className={styles.teamLogo} />
+                                <div>
+                                    <strong>{team.teamName}</strong>
+                                    <ul>
+                                        {team.players.map((player, index) => (
+                                            <li key={index}>
+                                                {player.name} (#{player.number}) - {player.position}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p>No teams registered yet.</p>
+                )}
+            </section>
+        </div>
+    );
+};
+
+export default TournamentDetail;

@@ -3,23 +3,13 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styles from '../../assets/css/admin.module.scss';
 import { Pie, Bar } from 'react-chartjs-2';
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend,
-    ArcElement,
-} from 'chart.js';
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
-
 import ManageFields from './ManageFields';
 import ManagePlayers from './ManagePlayers';
 import ManageSports from './ManageSports';
 import ManageTeams from './ManageTeams';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
 function AdminDashboard() {
     const [selectedSection, setSelectedSection] = useState('dashboard');
@@ -69,16 +59,8 @@ function AdminDashboard() {
             {
                 label: 'Booking Distribution',
                 data: [60, 30, 10],
-                backgroundColor: [
-                    'rgba(255, 206, 86, 0.6)',
-                    'rgba(75, 192, 192, 0.6)',
-                    'rgba(153, 102, 255, 0.6)',
-                ],
-                borderColor: [
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                ],
+                backgroundColor: ['rgba(255, 206, 86, 0.6)', 'rgba(75, 192, 192, 0.6)', 'rgba(153, 102, 255, 0.6)'],
+                borderColor: ['rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'],
                 borderWidth: 1,
             },
         ],
@@ -146,18 +128,19 @@ function AdminDashboard() {
 
     return (
         <div className={styles.adminContainer}>
-            <nav className={styles.sidebar} role="navigation" aria-label="Admin Panel">
+            <nav className={styles.sidebar} role='navigation' aria-label='Admin Panel'>
                 <h2>Admin Panel</h2>
                 <ul className={styles.navList}>
                     {sections.map((section) => (
+                        // eslint-disable-next-line jsx-a11y/role-supports-aria-props
                         <li
                             key={section.name}
                             className={`${styles.navItem} ${selectedSection === section.name ? styles.active : ''}`}
                             onClick={() => setSelectedSection(section.name)}
-                            role="menuitem"
+                            role='menuitem'
                             aria-selected={selectedSection === section.name}
                         >
-                            <i className={section.icon} aria-hidden="true"></i>
+                            <i className={section.icon} aria-hidden='true'></i>
                             <span>{section.name}</span>
                         </li>
                     ))}
@@ -167,11 +150,11 @@ function AdminDashboard() {
             <div className={styles.content}>
                 <header className={styles.header}>
                     <h1>{selectedSection}</h1>
-                    <Link to='/' className={`btn ${styles.logoutButton}`}>Logout</Link>
+                    <Link to='/' className={`btn ${styles.logoutButton}`}>
+                        Logout
+                    </Link>
                 </header>
-                <div className={styles.mainContent}>
-                    {renderContent()}
-                </div>
+                <div className={styles.mainContent}>{renderContent()}</div>
             </div>
         </div>
     );

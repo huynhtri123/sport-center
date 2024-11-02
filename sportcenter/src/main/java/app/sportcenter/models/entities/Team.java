@@ -1,9 +1,6 @@
 package app.sportcenter.models.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -13,14 +10,15 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @EqualsAndHashCode(callSuper = false)
 public class Team extends BaseEntity {
     @Id
     private String id;
+    private String userId;                          // chủ sở hữu (thường dùng người đang đăng nhập hiện tại)
     private String teamName;
     private List<Player> players;                   // danh sách thành viên trong đội
-    private Player captain;                         // đội trưởng
     private String teamLogoUrl;                     // link logo đội
-    private List<Tounament> EnrolledTounaments;     // danh sách giải đấu đã tham gia
+    private List<String> enrolledTournamentIds;     // danh sách ID của các giải đấu đã tham gia
     private List<Prize> wonPrizes;                  // danh sách giải thưởng đã giành được
 }

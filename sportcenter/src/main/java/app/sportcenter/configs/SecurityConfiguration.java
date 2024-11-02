@@ -53,7 +53,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(this.corsConfigurationSource())) // Kích hoạt CORS
-                .authorizeHttpRequests(request -> request.requestMatchers("/api/auth/**")
+                .authorizeHttpRequests(request -> request.requestMatchers("/api/auth/**", "/api/public/**")
                         .permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exceptionHandling -> exceptionHandling       // xử lý exceptions

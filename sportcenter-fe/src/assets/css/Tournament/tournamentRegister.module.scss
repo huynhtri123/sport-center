@@ -1,0 +1,116 @@
+// tournamentRegister.module.scss
+@import '../variables';
+
+.tournamentRegisterContainer {
+    max-width: 1000px;
+    margin: 24px;
+    padding: 40px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+
+    h1 {
+        text-align: center;
+        color: $dark-teal;
+        font-size: 24px;
+        margin-bottom: 30px;
+    }
+
+    .flexContainer {
+        display: flex;
+        gap: 20px;
+    }
+
+    .formSection,
+    .playersSection {
+        flex: 1;
+        margin-bottom: 20px;
+
+        label {
+            display: block;
+            font-weight: bold;
+            color: $dark-blue;
+            margin: 8px 0 5px;
+        }
+
+        input[type='text'],
+        input[type='file'],
+        input[type='number'] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 16px;
+
+            &:focus {
+                outline: none;
+                border-color: $dark-teal;
+                box-shadow: 0 0 4px rgba(58, 123, 213, 0.2);
+            }
+        }
+    }
+
+    .playersSection {
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+
+        .playerInput {
+            margin-bottom: 15px;
+
+            h4 {
+                font-size: 18px;
+                color: $dark-teal;
+                margin-bottom: 10px;
+            }
+
+            input {
+                display: block;
+                width: calc(100% - 16px);
+                margin: 6px auto;
+                padding: 8px;
+                font-size: 16px;
+                border: 1px solid #ced4da;
+                border-radius: 4px;
+
+                &:focus {
+                    outline: none;
+                    border-color: $dark-teal;
+                    box-shadow: 0 0 4px rgba(58, 123, 213, 0.2);
+                }
+            }
+        }
+    }
+
+    .actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+
+        button {
+            font-size: 16px;
+            padding: 10px 20px;
+            border: none;
+            font-weight: 700;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .cancelButton {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .cancelButton:hover {
+            background-color: #b82533;
+        }
+    }
+
+    .error {
+        color: red;
+        margin-top: 10px;
+    }
+}

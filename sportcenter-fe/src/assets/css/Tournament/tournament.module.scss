@@ -1,0 +1,115 @@
+@import '../variables';
+
+.tournamentHome {
+    margin: 24px;
+    padding: 20px;
+    background-color: #f5f8fa;
+    color: #333;
+    font-family: Arial, sans-serif;
+}
+
+.banner {
+    background: $blue-prime;
+    color: #fff;
+    padding: 40px 20px;
+    text-align: center;
+    border-radius: 8px;
+    margin-bottom: 20px;
+
+    .bannerContent {
+        font-size: 1.8em;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .filterContainer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        label {
+            font-size: 1em;
+            margin-bottom: 8px;
+        }
+
+        select {
+            padding: 10px;
+            font-size: 1em;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            width: 100%;
+            max-width: 300px;
+            background-color: #e3f2fd;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+
+            &:focus {
+                background-color: #bbdefb;
+                outline: none;
+            }
+        }
+    }
+}
+
+.tournamentList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.tournamentCard {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    img {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+    }
+
+    .content {
+        padding: 15px;
+
+        h2 {
+            font-size: 1.5em;
+            color: #0052cc;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 0.95em;
+            margin: 5px 0;
+
+            strong {
+                color: #333;
+            }
+        }
+
+        .detailsBtn {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            font-size: 0.9em;
+            color: #fff;
+            background-color: #0d47a1;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+
+            &:hover {
+                background-color: #0052cc;
+            }
+        }
+    }
+}
