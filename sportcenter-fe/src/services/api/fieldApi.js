@@ -9,13 +9,13 @@ const fieldApi = {
 
     // Lấy tất cả các sân đang hoạt động (active & not deleted)
     getAllActive() {
-        const url = '/field/getAllActive';
+        const url = '/public/field/getAllActive';
         return axiosClient.get(url);
     },
 
     // Lấy thông tin sân theo ID
     getById(fieldId) {
-        const url = `/field/getById/${fieldId}`;
+        const url = `/public/field/getById/${fieldId}`;
         return axiosClient.get(url);
     },
 
@@ -57,13 +57,13 @@ const fieldApi = {
 
     // Tìm kiếm sân theo tên
     searchByName(fieldName) {
-        const url = `/field/searchByName?fieldName=${fieldName}`;
+        const url = `/public/field/searchByName?fieldName=${fieldName}`;
         return axiosClient.get(url);
     },
 
     // Tìm kiếm sân theo loại
     async findByType(type) {
-        const url = `/field/findByType?type=${type}`;
+        const url = `/public/field/findByType?type=${type}`;
         try {
             const response = await axiosClient.get(url);
             return response;
@@ -80,7 +80,7 @@ const fieldApi = {
         }
     },
     findById(fieldId) {
-        const url = `/field/getById/${fieldId}`;
+        const url = `/public/field/getById/${fieldId}`;
         return axiosClient.get(url);
     },
 };

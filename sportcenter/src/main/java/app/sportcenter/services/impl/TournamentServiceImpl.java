@@ -165,6 +165,35 @@ public class TournamentServiceImpl implements TournamentService {
         );
     }
 
+    @Override
+    public ResponseEntity<BaseResponse> getMyRegisteredTeamInTournament(String tournamentId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication.getPrincipal() instanceof User currentUser)) {
+            throw new NotFoundException("Không tìm thấy người dùng đang đăng nhập");
+        }
+
+        Tournament tournament = tournamentRepository.findById(tournamentId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy Tournament"));
+
+        Optional<Team> userTeam = tournament.getRegisteredTeamIds()
+                .stream().map(teamRepository::findById)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .filter(team -> team.getUserId().equals(currentUser.getId()))
+                .findFirst();
+        if (userTeam.isPresent()) {
+            TeamResponse response = teamMapper.convertToDTO(userTeam.get());
+            return ResponseEntity.ok(
+                    new BaseResponse("Tìm thấy Team của người dùng hiện tại trong giải đấu này",
+                            HttpStatus.OK.value(), response)
+            );
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                new BaseResponse("Không tìm thấy Team của người dùng hiện tại trong Tournament này!",
+                        HttpStatus.NOT_FOUND.value(), null)
+        );
+    }
+
 
     @Transactional
     @Override

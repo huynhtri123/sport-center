@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+
 import styles from '../../../assets/css/Tournament/tournamentRegister.module.scss';
 import Button from '../../../components/Button/Button';
 import tournamentApi from '../../../services/api/tournamentApi';
@@ -6,8 +9,6 @@ import { useTournament } from '../../../customs/hooks';
 import fileApi from '../../../services/api/fileApi';
 import teamApi from '../../../services/api/teamApi';
 import { Loading } from '../../../components/Loading/Loading';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
 
 function TournamentRegister() {
     const [tournament] = useTournament();
@@ -42,12 +43,15 @@ function TournamentRegister() {
         const file = e.target.files[0];
         if (file) {
             try {
+                setIsLoading(true);
                 const uploadResponse = await fileApi.uploadImage(file);
                 // console.log(uploadResponse);
                 setTeamLogoUrl(uploadResponse.data.url);
                 toast.info(uploadResponse.message);
             } catch (err) {
                 console.error(err);
+            } finally {
+                setIsLoading(false);
             }
         }
     };
@@ -64,6 +68,8 @@ function TournamentRegister() {
             return;
         }
 
+        let createdTeamId = null;
+
         try {
             setIsLoading(true);
             // tạo Team
@@ -77,6 +83,7 @@ function TournamentRegister() {
             const teamResponse = await teamApi.create(teamRequest);
             // console.log(teamResponse);
             toast.success(teamResponse.message);
+            createdTeamId = teamResponse.data.id;
 
             // đăng kí
             const registerRequest = {
@@ -91,6 +98,15 @@ function TournamentRegister() {
         } catch (error) {
             console.error('Đăng ký thất bại:', error);
             setErrorMessage('Có lỗi xảy ra, vui lòng thử lại!');
+            // đăng kí ko thành công thì xoá đội vừa tạo luôn
+            if (createdTeamId) {
+                try {
+                    const forceDeleteResponse = await teamApi.forceDelete(createdTeamId);
+                    console.log(forceDeleteResponse);
+                } catch (err) {
+                    console.error(err);
+                }
+            }
         } finally {
             setIsLoading(false);
         }

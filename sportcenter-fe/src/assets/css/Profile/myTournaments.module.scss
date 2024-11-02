@@ -20,6 +20,9 @@
     padding: 1rem;
     margin-bottom: 1rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
 
     h4 {
         font-size: 1.5rem;
@@ -31,5 +34,49 @@
         font-size: 1rem;
         color: $dark-sage;
         margin: 0.2rem 0;
+    }
+
+    .teamInfo {
+        text-align: center;
+        margin-left: 1rem;
+        flex: 0 0 40%;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .teamTitle {
+        font-size: 1.4rem;
+        color: $blue-prime-hover;
+        margin-bottom: 0.5rem;
+    }
+
+    .teamLogo {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+    }
+
+    .teamPlayers {
+        font-size: 0.9rem;
+        color: $dark-sage;
+        margin-bottom: 0.5rem;
+    }
+
+    .cancelButton {
+        background-color: #ccc;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        margin-top: auto;
+        transition: background-color 0.3s;
+
+        &:hover {
+            background-color: darken(#ccc, 10%);
+        }
     }
 }

@@ -16,83 +16,89 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/tounament")
+@RequestMapping("/api")
 public class TournamentController {
     @Autowired
     private TournamentService tournamentService;
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping("/create")
+    @PostMapping("/tounament/create")
     public ResponseEntity<BaseResponse> create(@Valid @RequestBody TournamentRequest tournamentRequest) {
         return tournamentService.create(tournamentRequest);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @GetMapping("/getAllActive")
+    // public
+    @GetMapping("/public/tounament/getAllActive")
     public ResponseEntity<BaseResponse> getAllActive() {
         return tournamentService.getAllActive();
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @GetMapping("/getById/{tournamentId}")
+    // public
+    @GetMapping("/public/tounament/getById/{tournamentId}")
     public ResponseEntity<BaseResponse> getById(@PathVariable("tournamentId") String tournamentId) {
         return tournamentService.getById(tournamentId);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @GetMapping("/getBySportId")
+    // public
+    @GetMapping("/public/tounament/getBySportId")
     public ResponseEntity<BaseResponse> getBySportId(@RequestParam("sportId") String sportId) {
         return tournamentService.getBySportId(sportId);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @GetMapping("/getRegistedTeams/{tournamentId}")
+    // public
+    @GetMapping("/public/tounament/getRegistedTeams/{tournamentId}")
     public ResponseEntity<BaseResponse> getRegistedTeams(@PathVariable("tournamentId") String tournamentId) {
         return tournamentService.getRegistedTeams(tournamentId);
     }
 
     @PreAuthorize("hasAuthority('CUSTOMER')")
-    @GetMapping("/myTournaments")
+    @GetMapping("/tounament/myTournaments")
     public ResponseEntity<BaseResponse> myTournaments() {
         return tournamentService.myRegistered();
     }
 
+    @PreAuthorize("hasAuthority('CUSTOMER')")
+    @GetMapping("/tounament/myTeamInTournament/{tournamentId}")
+    public ResponseEntity<BaseResponse> myTeamInTournament(@PathVariable("tournamentId") String tournamentId) {
+        return tournamentService.getMyRegisteredTeamInTournament(tournamentId);
+    }
+
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PutMapping("/update/{tournamentId}")
+    @PutMapping("/tounament/update/{tournamentId}")
     public ResponseEntity<BaseResponse> updateById(@PathVariable("tournamentId") String tournamentId,
                                                    @RequestBody TournamentRequest tournamentRequest) {
         return tournamentService.updateById(tournamentId, tournamentRequest);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PatchMapping("/softDelete/{tournamentId}")
+    @PatchMapping("/tounament/softDelete/{tournamentId}")
     public ResponseEntity<BaseResponse> softDelete(@PathVariable("tournamentId") String tournamentId) {
         boolean newIsDeleted = true;
         return tournamentService.toggleDelete(tournamentId, newIsDeleted);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PatchMapping("/restore/{tournamentId}")
+    @PatchMapping("/tounament/restore/{tournamentId}")
     public ResponseEntity<BaseResponse> restore(@PathVariable("tournamentId") String tournamentId) {
         boolean newIsDeleted = false;
         return tournamentService.toggleDelete(tournamentId, newIsDeleted);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @DeleteMapping("/forceDelete/{tournamentId}")
+    @DeleteMapping("/tounament/forceDelete/{tournamentId}")
     public ResponseEntity<BaseResponse> forceDelete(@PathVariable("tournamentId") String tournamentId) {
         return tournamentService.forceDelete(tournamentId);
     }
 
     // for customer
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @PatchMapping("/register")
+    @PatchMapping("/tounament/register")
     public ResponseEntity<BaseResponse> register(@Valid @RequestBody TournamentRegisterRequest request) {
         return tournamentService.register(request);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @PatchMapping("/checkRegistrationEligibility")
+    @PatchMapping("/tounament/checkRegistrationEligibility")
     public ResponseEntity<BaseResponse> checkRegistrationEligibility(@Valid @RequestBody TournamentRegisterRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
@@ -111,7 +117,7 @@ public class TournamentController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @PatchMapping("/unregister")
+    @PatchMapping("/tounament/unregister")
     public ResponseEntity<BaseResponse> unregister(@Valid @RequestBody TournamentRegisterRequest request) {
         return tournamentService.unregister(request);
     }

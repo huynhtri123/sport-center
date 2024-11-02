@@ -21,6 +21,18 @@ const userApi = {
         const url = '/tounament/myTournaments';
         return axiosClient.get(url);
     },
+    myTeamInTournament(tournamentId) {
+        const url = `/tounament/myTeamInTournament/${tournamentId}`;
+        return axiosClient.get(url);
+    },
+    unregisterTournament(unregisterRequest) {
+        const url = '/tounament/unregister';
+        return axiosClient.patch(url, unregisterRequest);
+    },
+    myTeams() {
+        const url = '/team/myTeams';
+        return axiosClient.get(url);
+    },
 };
 
 export default userApi;

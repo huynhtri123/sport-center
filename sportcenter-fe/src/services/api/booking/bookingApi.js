@@ -2,7 +2,7 @@ import axiosClient from '../axiosClient';
 
 const bookingApi = {
     updateAndGetSchedule(onDayScheduleRequest) {
-        const url = '/booking/updateAndGetSchedule';
+        const url = '/public/booking/updateAndGetSchedule';
         return axiosClient.put(url, onDayScheduleRequest);
     },
     createBooking(bookingRequest) {
