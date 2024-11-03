@@ -1,11 +1,19 @@
 @import '../variables';
 
 .tournamentHome {
-    margin: 24px;
+    margin: 24px auto;
     padding: 20px;
     background-color: #f5f8fa;
     color: #333;
     font-family: Arial, sans-serif;
+    max-width: 1200px;
+    width: 90%;
+}
+
+@media (min-width: 1400px) {
+    .tournamentHome {
+        max-width: 1400px;
+    }
 }
 
 .banner {

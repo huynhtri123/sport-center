@@ -1,85 +1,130 @@
-// tournamentRegister.module.scss
 @import '../variables';
 
 .tournamentRegisterContainer {
-    max-width: 1000px;
+    max-width: 90%;
     margin: 24px;
-    padding: 40px;
-    background: #f8f9fa;
+    padding: 30px 50px;
+    background: white;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
     font-family: Arial, sans-serif;
+    border: 2px solid $blue-prime;
 
     h1 {
         text-align: center;
-        color: $dark-teal;
-        font-size: 24px;
+        color: $blue-prime;
+        font-weight: 700;
+        font-size: 28px;
         margin-bottom: 30px;
     }
 
-    .flexContainer {
+    .formContainer {
         display: flex;
-        gap: 20px;
+        gap: 30px;
+        justify-content: space-between;
     }
 
-    .formSection,
-    .playersSection {
+    .teamInfo {
         flex: 1;
-        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
 
         label {
-            display: block;
             font-weight: bold;
             color: $dark-blue;
-            margin: 8px 0 5px;
+            margin-top: 15px;
+            font-size: 16px;
         }
 
         input[type='text'],
-        input[type='file'],
         input[type='number'] {
-            width: 100%;
-            padding: 8px;
+            padding: 10px;
+            font-size: 18px;
+            border: 1px solid #d3d3d3;
+            border-radius: 5px;
             margin-bottom: 10px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            font-size: 16px;
 
             &:focus {
                 outline: none;
-                border-color: $dark-teal;
-                box-shadow: 0 0 4px rgba(58, 123, 213, 0.2);
+                border-color: $blue-prime;
+                box-shadow: 0 0 6px rgba(58, 123, 213, 0.2);
+            }
+        }
+
+        .logoUpload {
+            .logoWrapper {
+                position: relative;
+                display: inline-block;
+                width: 120px;
+                height: 120px;
+                border-radius: 50%;
+                overflow: hidden;
+                border: 2px solid #d3d3d3;
+                margin-top: 10px;
+
+                .teamLogoPreview {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    border-radius: 50%;
+                }
+
+                .fileInput {
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+                    opacity: 0;
+                    top: 0;
+                    left: 0;
+                    cursor: pointer;
+                }
+
+                .uploadText {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    color: white;
+                    font-weight: bold;
+                    font-size: 18px;
+                    text-align: center;
+                    background-color: rgba(0, 0, 0, 0.6);
+                    padding: 5px 10px;
+                    border-radius: 5px;
+                }
             }
         }
     }
 
     .playersSection {
-        background: #ffffff;
+        margin-left: 36px;
+        flex: 2;
+        background: #fff;
+        border: 1px solid #e9ecef;
         padding: 20px;
         border-radius: 8px;
-        border: 1px solid #dee2e6;
 
         .playerInput {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
 
             h4 {
-                font-size: 18px;
+                font-size: 18px; // Tăng kích thước tiêu đề thành viên
                 color: $dark-teal;
                 margin-bottom: 10px;
             }
 
             input {
-                display: block;
-                width: calc(100% - 16px);
-                margin: 6px auto;
+                width: 100%;
                 padding: 8px;
                 font-size: 16px;
+                margin-top: 6px;
                 border: 1px solid #ced4da;
                 border-radius: 4px;
 
                 &:focus {
                     outline: none;
                     border-color: $dark-teal;
-                    box-shadow: 0 0 4px rgba(58, 123, 213, 0.2);
+                    box-shadow: 0 0 6px rgba(58, 123, 213, 0.2);
                 }
             }
         }
@@ -88,29 +133,41 @@
     .actions {
         display: flex;
         justify-content: space-between;
-        margin-top: 20px;
+        margin-top: 25px;
 
         button {
+            font-weight: 700;
             font-size: 16px;
             padding: 10px 20px;
-            border: none;
-            font-weight: 700;
             border-radius: 5px;
             cursor: pointer;
-        }
 
-        .cancelButton {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .cancelButton:hover {
-            background-color: #b82533;
+            &:hover {
+                opacity: 0.9;
+            }
         }
     }
 
     .error {
         color: red;
-        margin-top: 10px;
+        margin-top: 15px;
+        text-align: center;
     }
+}
+
+.registerBtn {
+    background-color: $yellow-prime;
+    color: $blue-prime;
+}
+.registerBtn:hover {
+    background-color: $yellow-hover;
+    color: $dark-blue-light;
+}
+
+.cancelButton {
+    background-color: #dc3545;
+    color: white;
+}
+.cancelButton:hover {
+    background-color: #b82533;
 }
