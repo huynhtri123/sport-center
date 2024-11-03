@@ -13,7 +13,7 @@ import { Loading } from '../../../components/Loading/Loading';
 function TournamentRegister() {
     const [tournament] = useTournament();
     const [teamName, setTeamName] = useState('');
-    const [teamLogoUrl, setTeamLogoUrl] = useState('');
+    const [teamLogoUrl, setTeamLogoUrl] = useState('https://via.placeholder.com/150'); // URL mặc định cho logo
     const [numPlayers, setNumPlayers] = useState(1);
     const [players, setPlayers] = useState([{ name: '', position: '', number: '' }]);
     const [errorMessage, setErrorMessage] = useState('');
@@ -21,9 +21,8 @@ function TournamentRegister() {
     const navigate = useNavigate();
 
     const handleNumPlayersChange = (e) => {
-        const count = parseInt(e.target.value, 10); // chuyển string thành số nguyên hệ 10
+        const count = parseInt(e.target.value, 10);
         setNumPlayers(count);
-
         const updatedPlayers = [...players];
         while (updatedPlayers.length < count) {
             updatedPlayers.push({ name: '', position: '', number: '' });
@@ -45,9 +44,8 @@ function TournamentRegister() {
             try {
                 setIsLoading(true);
                 const uploadResponse = await fileApi.uploadImage(file);
-                // console.log(uploadResponse);
                 setTeamLogoUrl(uploadResponse.data.url);
-                toast.info(uploadResponse.message);
+                toast.info('Logo đã được cập nhật!');
             } catch (err) {
                 console.error(err);
             } finally {
@@ -61,7 +59,6 @@ function TournamentRegister() {
             setErrorMessage('Bạn chưa nhập tên cho đội!');
             return;
         }
-        // Kiểm tra xem tất cả các thành viên đều có tên không
         const allPlayersValid = players.every((player) => player.name.trim() !== '');
         if (!allPlayersValid) {
             setErrorMessage('Tất cả các thành viên cần có tên!');
@@ -72,7 +69,6 @@ function TournamentRegister() {
 
         try {
             setIsLoading(true);
-            // tạo Team
             const teamRequest = {
                 teamName,
                 players,
@@ -81,24 +77,20 @@ function TournamentRegister() {
             };
 
             const teamResponse = await teamApi.create(teamRequest);
-            // console.log(teamResponse);
             toast.success(teamResponse.message);
             createdTeamId = teamResponse.data.id;
 
-            // đăng kí
             const registerRequest = {
                 tournamentId: tournament.id,
                 teamId: teamResponse.data.id,
             };
-            const registerRespones = await tournamentApi.register(registerRequest);
-            // console.log(registerRespones);
-            toast(registerRespones.message);
-            localStorage.setItem('selectedTournament', JSON.stringify(registerRespones.data));
+            const registerResponse = await tournamentApi.register(registerRequest);
+            toast(registerResponse.message);
+            localStorage.setItem('selectedTournament', JSON.stringify(registerResponse.data));
             navigate('/tournament/detail');
         } catch (error) {
             console.error('Đăng ký thất bại:', error);
             setErrorMessage('Có lỗi xảy ra, vui lòng thử lại!');
-            // đăng kí ko thành công thì xoá đội vừa tạo luôn
             if (createdTeamId) {
                 try {
                     const forceDeleteResponse = await teamApi.forceDelete(createdTeamId);
@@ -118,13 +110,10 @@ function TournamentRegister() {
 
     return (
         <div className={styles.tournamentRegisterContainer}>
-            {isLoading && <Loading></Loading>}
-
-            <h1>Đăng ký Tham gia Giải đấu: {tournament.tournamentName}</h1>
-
-            <div className={styles.flexContainer}>
-                {/* Thông tin đội */}
-                <div className={styles.formSection}>
+            {isLoading && <Loading />}
+            <h1>Register for the Tournament: {tournament.tournamentName}</h1>
+            <div className={styles.formContainer}>
+                <div className={styles.teamInfo}>
                     <label>Tên Đội:</label>
                     <input
                         type='text'
@@ -133,15 +122,16 @@ function TournamentRegister() {
                         placeholder='Nhập tên đội'
                         required
                     />
-
                     <label>Logo Đội:</label>
-                    <input type='file' onChange={handleFileChange} />
-
+                    <div className={styles.logoUpload}>
+                        <div className={styles.logoWrapper}>
+                            <img src={teamLogoUrl} alt='Team Logo' className={styles.teamLogoPreview} />
+                            <input type='file' onChange={handleFileChange} className={styles.fileInput} />
+                        </div>
+                    </div>
                     <label>Số lượng thành viên:</label>
                     <input type='number' min='1' value={numPlayers} onChange={handleNumPlayersChange} />
                 </div>
-
-                {/* Danh sách thành viên */}
                 <div className={styles.playersSection}>
                     {players.map((player, index) => (
                         <div key={index} className={styles.playerInput}>
@@ -169,12 +159,12 @@ function TournamentRegister() {
                     ))}
                 </div>
             </div>
-
             {errorMessage && <p className={styles.error}>{errorMessage}</p>}
-
             <div className={styles.actions}>
-                <Button onClick={handleRegister}>Đăng ký</Button>
-                <Button onClick={() => handleBack()} className={styles.cancelButton}>
+                <Button onClick={handleRegister} className={styles.registerBtn}>
+                    Đăng ký
+                </Button>
+                <Button onClick={handleBack} className={styles.cancelButton}>
                     Quay lại
                 </Button>
             </div>
