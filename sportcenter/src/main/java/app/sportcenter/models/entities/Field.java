@@ -68,7 +68,7 @@ public class Field extends BaseEntity {
             ZonedDateTime start = booking.getStartTime();
             ZonedDateTime end = booking.getEndTime();
 
-            // vì nếu booking-end>now thì cái này hết hạn rồi (trong quá khứ rồi), đâu được cập nhật thành IN_USE
+            // vì nếu booking end>now thì cái này hết hạn rồi (trong quá khứ rồi), đâu được cập nhật thành IN_USE
             if (end.isAfter(ZonedDateTime.now())) {
                 for (TimeSlot slot : this.timeSlots) {
                     // các slot còn hạn sử dụng (còn trong khoảng tgian booking)

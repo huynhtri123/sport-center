@@ -20,4 +20,6 @@ public interface BookingService {
     // softDelete & restore
     public ResponseEntity<BaseResponse> changeIsDeleted(String bookingId, boolean flag);
     public ResponseEntity<BaseResponse> forceDelete(String bookingId);
+    // huỷ đặt sân
+    public ResponseEntity<BaseResponse> cancelBooking(String bookingId);
 }

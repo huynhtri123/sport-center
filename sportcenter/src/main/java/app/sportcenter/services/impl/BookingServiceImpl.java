@@ -2,7 +2,9 @@ package app.sportcenter.services.impl;
 
 import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.commons.FieldStatus;
+import app.sportcenter.commons.Role;
 import app.sportcenter.exceptions.CustomException;
+import app.sportcenter.exceptions.NotFoundException;
 import app.sportcenter.models.dto.BookingRequest;
 import app.sportcenter.models.dto.BookingResponse;
 import app.sportcenter.models.dto.FieldResponse;
@@ -47,6 +49,11 @@ public class BookingServiceImpl implements BookingService {
     @Autowired
     private FieldMapper fieldMapper;
 
+    // 1. tìm coi trong khoảng thời gian đặt (ví dụ 7h-9h) coi có cái booking nào IN_USE không,
+    // nếu có thì là sân không trống -> xong
+    // nếu không -> sân trống, thì:
+    // 1.1. tạo 2 timeSlot AVAILABLE (7h-9h),
+    // đổi 2 timeSlot đó sang IN_USE để response trả về ngay
     @Transactional
     @Override
     public ResponseEntity<BaseResponse> createBooking(BookingRequest bookingRequest) {
@@ -59,27 +66,24 @@ public class BookingServiceImpl implements BookingService {
         log.info("Booking user: " + currentUser.getFullName());
         log.info("Booking field: " + field.getFieldName());
 
-        // 2. Tính toán thời gian kết thúc dựa trên số giờ đặt
-        ZonedDateTime startTime = bookingRequest.getStartTime();
+        // tính toán thời gian kết thúc dựa trên số giờ đặt
+        // vì theo quy ước converter đã cấu hình thì đầu vào mongo sẽ phải là +0,
+        // nên đầu vào ta dùng giờ VN nhưng định dạng +0,
+        // do đó cần trừ đi 7 múi để lưu vào db chính xác, khi get ra thì sẽ là +7 là vừa
+        ZonedDateTime startTime = bookingRequest.getStartTime().minusHours(7);
         ZonedDateTime endTime = startTime.plusHours(bookingRequest.getNumberOfHours());
-
-        // 3. Lấy tất cả các booking của sân trong khoảng thời gian cụ thể
-        List<Booking> bookings = bookingRepository.findBookingsByFieldAndTimeRange(
-                bookingRequest.getFieldId(), startTime, endTime
-        );
+//        log.info((startTime+ "/" + endTime));
 
         // tìm danh sách booking có timeSlots có trạng thái IN_USE trong khoảng thời gian này
+        // nếu sân trống thì list này = 0
         List<Booking> inUseBookingList = bookingRepository.findInUseTimeSlotsByFieldAndTimeRange(field.getId(),
                 startTime, endTime);
         // nếu có nghĩa là kẹt lịch, out
         if (inUseBookingList.isEmpty()) {
-            // 4. Tạo các timeSlot từ thời gian đặt sân (*không phải nguyên ngày)
+            // tạo ra các timeSlot AVAILABLE cho khoảng tgian đặt (ví dụ 7-9h -> tạo 2 timeSlot AVAILABLE
             field.createTimeSlots(startTime, endTime);
-            // 5. Cập nhật trạng thái các TimeSlot theo các bookings hiện có
-            // kiểm tra coi số lượng nhỏ timeSlot vừa tạo có cái nào còn hạn
-            field.updateTimeSlotsStatus(bookings);
 
-            // 6. Đổi trạng thái của các TimeSlot liên quan đến booking thành IN_USE
+            // Đổi trạng thái của các TimeSlot liên quan đến booking thành IN_USE
             for (TimeSlot slot : field.getTimeSlots()) {
                 if (slot.getStartTime().isBefore(endTime) &&
                         slot.getEndTime().isAfter(startTime)) {
@@ -89,7 +93,8 @@ public class BookingServiceImpl implements BookingService {
 
             fieldRepository.save(field);
 
-            // 7. Tạo booking mới với trạng thái sân đã được cập nhật
+            // Tạo booking mới với trạng thái sân đã được cập nhật
+            bookingRequest.setStartTime(startTime);
             Booking booking = bookingMapper.convertToEntity(bookingRequest, field, currentUser);
             Booking savedBooking = bookingRepository.save(booking);
 
@@ -198,6 +203,10 @@ public class BookingServiceImpl implements BookingService {
         );
     }
 
+    // 1. tạo ra (18) timeSLot AVAILABLE trải dài nguyên ngày,
+    // 2. duyệt "bookings" trong ngày đó nếu có thì
+    // hàm update sẽ kiểm tra để đổi trạng thái những timeSLot đã bị đặt thành in use,
+    // nếu không thì 18 slot đó vẫn là AVAILABLE
     @Transactional
     @Override
     public ResponseEntity<BaseResponse> getFieldSchedule(String fieldId, ZonedDateTime startOfDay, ZonedDateTime endOfDay) {
@@ -215,6 +224,8 @@ public class BookingServiceImpl implements BookingService {
         Field updatedField = fieldRepository.save(field);
 
         FieldResponse fieldResponse = fieldMapper.convertToDTO(updatedField);
+        // lấy từ DB (+0) ra thì +thêm 7 múi để thành giờ VN
+        fieldResponse.convertTimeSlotsToUTCPlus7();
 
         return ResponseEntity.ok(
                 new BaseResponse("Lấy lịch sân thành công.", HttpStatus.OK.value(), fieldResponse));
@@ -247,6 +258,22 @@ public class BookingServiceImpl implements BookingService {
         return ResponseEntity.ok(
                 new BaseResponse("Xoá cứng thành công.", HttpStatus.OK.value(), response)
         );
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse> cancelBooking(String bookingId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy Booking này"));
+        // chỉ chủ sỡ hữu hoặc admin mới có quyền huỷ booking
+        if (booking.getUser().getId().equals(currentUser.getId()) || currentUser.getRole().equals(Role.ADMIN)) {
+            return null;
+        } else {
+            throw new CustomException("Bạn không có quyền huỷ đặt sân của người khác", HttpStatus.BAD_REQUEST.value());
+        }
+
     }
 
     private void sendMailBooking(User user, BookingResponse bookingResponse) {

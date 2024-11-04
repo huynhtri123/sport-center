@@ -39,7 +39,7 @@ function Profile() {
         if (showBookings === false && profile?.id && myBooking.length === 0) {
             try {
                 const myBookingResponse = await userApi.myBookings(profile.id);
-                console.log(myBookingResponse);
+                // console.log(myBookingResponse);
                 setMyBookings(myBookingResponse.data);
             } catch (err) {
                 console.error(err);
@@ -285,7 +285,7 @@ function Profile() {
 
             <div className={styles.section}>
                 <h3 onClick={handleToggleTournaments}>
-                    <i class='fa-regular fa-calendar-check'></i>
+                    <i className='fa-regular fa-calendar-check'></i>
                     <span className='ms-3'>Tournaments And Events</span>
                 </h3>
                 <p>Check your registered tournaments and sports events.</p>
@@ -294,7 +294,7 @@ function Profile() {
 
             <div className={styles.section}>
                 <h3 onClick={handleToggleTeams}>
-                    <i class='fa-solid fa-people-group'></i>
+                    <i className='fa-solid fa-people-group'></i>
                     <span className='ms-3'>My Teams</span>
                 </h3>
                 <p>See your teams and their accomplishments.</p>

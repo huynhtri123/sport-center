@@ -9,7 +9,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.time.ZoneId;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -25,4 +27,11 @@ public class FieldResponse extends BaseResponseDTO {
 
     // danh sách trạng thái theo khung giờ
     private List<TimeSlot> timeSlots;
+    // chuyển về giờ việt nam (+7), vì khi lưu vào db là +0
+    public void convertTimeSlotsToUTCPlus7() {
+        this.timeSlots.forEach(slot -> {
+            slot.setStartTime(slot.getStartTime().plusHours(7));
+            slot.setEndTime(slot.getEndTime().plusHours(7));
+        });
+    }
 }

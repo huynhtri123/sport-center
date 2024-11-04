@@ -9,9 +9,9 @@ import { useGetField } from '../../../customs/hooks';
 
 function Booking() {
     const [field, setField] = useGetField(); // field lấy từ context (được set ở FieldList)
-    const [selectedDate, setSelectedDate] = useState(''); // ngày
-    const [timeSlots, setTimeSlots] = useState([]); // Danh sách timeSlots
-    const [numberOfHours, setNumberOfHours] = useState(1); // Số giờ đặt
+    const [selectedDate, setSelectedDate] = useState(''); // ngày được chọn (vd: 2024-12-10)
+    const [timeSlots, setTimeSlots] = useState([]); // danh sách timeSlots
+    const [numberOfHours, setNumberOfHours] = useState(1); // số giờ đặt
     const [startTime, setStartTime] = useState(''); // Thời gian bắt đầu của timeSlot được chọn
     const [isLoading, setIsLoading] = useState(false);
     const startTimeRef = useRef(); // để canh ô input startTime của booking có trống ko
@@ -29,19 +29,21 @@ function Booking() {
                 if (savedField) {
                     setField(JSON.parse(savedField));
                 }
-                console.warn('Sân chưa được nạp (chỉ là chưa kịp nạp thôi, ko sao)');
+                // console.warn('Sân chưa được nạp (chỉ là chưa kịp nạp thôi, ko sao)');
                 return;
             }
-            // console.log(field);
+
+            // Cấu hình thời gian với định dạng giờ Việt Nam (+7) vì BE yêu cầu input là kiểu +7
             const onDaySchedule = {
                 fieldId: field.id,
-                startOfDay: `${date}T00:00:00Z`, // Bắt đầu từ 00:00 ngày được chọn
-                endOfDay: `${date}T23:59:00Z`, // Kết thúc vào 23:59 ngày được chọn
+                startOfDay: `${date}T00:00:00+07:00`, // Bắt đầu từ 00:00 ngày được chọn
+                endOfDay: `${date}T23:59:00+07:00`, // Kết thúc vào 23:59 ngày được chọn
             };
+            // console.log('GEt: ', onDaySchedule);
 
             try {
+                // api này trả về kiểu +7
                 const response = await bookingApi.updateAndGetSchedule(onDaySchedule);
-                // console.log(response);
                 setTimeSlots(response.data.timeSlots); // cập nhật danh sách timeSlots đã được lấy theo ngày
             } catch (error) {
                 console.error('Error fetching time slots:', error);
@@ -50,8 +52,9 @@ function Booking() {
         [field, setField]
     );
 
-    // hàm xử lý khi chọn ngày -> nạp lại danh sách timeSlot
+    // Hàm xử lý khi chọn ngày -> nạp lại danh sách timeSlot
     const handleDateChange = (e) => {
+        // vd: 2024-12-10
         const date = e.target.value;
         setSelectedDate(date);
         fetchTimeSlots(date);
@@ -65,20 +68,23 @@ function Booking() {
         }
         try {
             setIsLoading(true);
+            // startTime là giờ Việt Nam nhưng định dạng UTC (+0) cho khớp BE
+            // console.log(startTime);
             const startDateTimeString = `${selectedDate}T${startTime}:00+00:00`;
-            // console.log(startDateTimeString);
+            // console.log(startDateTimeString)
+            const startTimeUTC = new Date(startDateTimeString).toISOString();
+            // console.log(startTimeUTC)
 
             const bookingRequest = {
                 fieldId: field.id,
-                startTime: startDateTimeString, // Sử dụng định dạng startTime đã chỉnh sửa
+                startTime: startTimeUTC,
                 numberOfHours: numberOfHours,
             };
+            // console.log('create: ', bookingRequest);
 
-            // eslint-disable-next-line no-unused-vars
             const response = await bookingApi.createBooking(bookingRequest);
             fetchTimeSlots(selectedDate); // nạp lại danh sách timeSlot
-            // console.log(response);
-            toast.success('Booking successfully!');
+            toast.success(response.message);
         } catch (err) {
             console.error(err);
             toast.error(err);
@@ -90,7 +96,7 @@ function Booking() {
     useEffect(() => {
         // Đặt ngày mặc định là ngày hiện tại
         const today = new Date();
-        const defaultDate = today.toISOString().split('T')[0]; // cắt chuỗi tại vị trí T, lấy khúc đầu (chỉ phần ngày)
+        const defaultDate = today.toISOString().split('T')[0]; // vd: 2024-12-10
         setSelectedDate(defaultDate);
         fetchTimeSlots(defaultDate); // lấy today's timeSlots khi component được mount
     }, [fetchTimeSlots]);
@@ -104,7 +110,7 @@ function Booking() {
 
     return (
         <div className={styles.bookingContainer}>
-            {isLoading && <Loading></Loading>}
+            {isLoading && <Loading />}
 
             <section className={styles.fieldDetailSection}>
                 <div className={styles.fieldImage}>
@@ -124,13 +130,12 @@ function Booking() {
                 <div className={styles.formGroup}>
                     <label htmlFor='datePicker'>Chọn ngày:</label>
                     <input
-                        type='date'
+                        type='date' // vd: 2024-12-10
                         id='datePicker'
                         required
                         value={selectedDate}
                         onChange={handleDateChange}
                         min={new Date().toISOString().split('T')[0]} // Chỉ cho phép chọn ngày hôm nay hoặc tương lai
-                        // split: tách chuỗi tại 'T', [0] để lấy phần phía trước (2024-10-24T08:30:45.000Z -> 2024-10-24)
                     />
                 </div>
 
@@ -139,7 +144,7 @@ function Booking() {
                     {timeSlots.length > 0 ? (
                         timeSlots.map((slot, index) => {
                             const slotStartTime = new Date(slot.startTime);
-                            const currentTimeVN = new Date(new Date().getTime() + 7 * 60 * 60 * 1000); //+7h
+                            const currentTimeVN = new Date(new Date().getTime() + 7 * 60 * 60 * 1000); // +7h
                             const isPastSlot = slotStartTime < currentTimeVN; // Kiểm tra xem slot đã qua hay chưa
                             const isAvailable = slot.status === 'AVAILABLE';
                             return (

@@ -36,7 +36,6 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
     public List<Booking> findBookingsByFieldAndTimeRange(String fieldId, ZonedDateTime startOfDay, ZonedDateTime endOfDay);
 
     // tìm các booking có timeSlots có trạng thái IN_USE trong khoảng thời gian cụ thể
-//    @Query("{ 'field._id': ?0,  'field.timeSlots': { $elemMatch:  { 'status':  'IN_USE'}}, 'isActive': true, 'isDeleted': false }")
     @Query("{ 'field._id': ?0, $and: [ { 'field.timeSlots': { $elemMatch: { 'status': 'IN_USE' } } }, { $or: [ { 'startTime': { $gte: ?1, $lt: ?2 } }, { 'endTime': { $gt: ?1, $lte: ?2 } }, { 'startTime': { $lt: ?1 }, 'endTime': { $gt: ?2 } } ] } ], 'isActive': true, 'isDeleted': false }")
     public List<Booking> findInUseTimeSlotsByFieldAndTimeRange(String fieldId, ZonedDateTime startTime, ZonedDateTime endTime);
 

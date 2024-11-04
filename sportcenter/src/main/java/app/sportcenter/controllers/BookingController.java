@@ -27,10 +27,6 @@ public class BookingController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
     @PostMapping("/booking/create")
     public ResponseEntity<BaseResponse> createBooking(@Valid @RequestBody BookingRequest bookingRequest) {
-        // Lấy thông tin người dùng hiện tại từ SecurityContext
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) authentication.getPrincipal();
-        String userId = currentUser.getId();
         return bookingService.createBooking(bookingRequest);
     }
 
