@@ -1,0 +1,43 @@
+import React, { useState } from 'react';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+import { handleLocalStorage } from '../../utils/handleLocalStorage';
+import { useCheckSignedIn } from '../../customs/hooks';
+import styles from '../../assets/css/Auth/auth.module.scss';
+import Button from '../../components/Button/Button';
+import ConfirmModal from '../../components/Modal/ConfirmModal';
+
+function Signout() {
+    // eslint-disable-next-line no-unused-vars
+    const [isSignedIn, setIsSignedIn] = useCheckSignedIn();
+    const navigate = useNavigate();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const toggleModalOpen = () => {
+        setIsModalOpen(!isModalOpen);
+    };
+
+    const handleSignout = () => {
+        handleLocalStorage.clearToken();
+        setIsSignedIn(false);
+        toast.info('Log out successfully!');
+        navigate('/');
+    };
+
+    return (
+        <>
+            <Button onClick={toggleModalOpen} className={styles.logoutButton}>
+                Sign out
+            </Button>
+            {isModalOpen && (
+                <ConfirmModal
+                    title={'Bạn có chắc muốn đăng xuất?'}
+                    isOpen={isModalOpen}
+                    onClose={toggleModalOpen}
+                    onSubmit={handleSignout}
+                ></ConfirmModal>
+            )}
+        </>
+    );
+}
+
+export default Signout;

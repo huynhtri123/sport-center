@@ -10,11 +10,13 @@ h4 {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: #ccc;
+    background-color: rgba(0, 0, 0, 0.7); // Tối hơn để tăng độ tương phản
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
+    z-index: 1000; // Đảm bảo nó nằm trên cùng
+    pointer-events: auto; // Bật pointer-events để chặn tương tác
 }
 
 .modalContent {

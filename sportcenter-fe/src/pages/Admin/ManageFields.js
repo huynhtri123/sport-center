@@ -2,8 +2,15 @@ import React, { useState } from 'react';
 import styles from '../../assets/css/manageFields.module.scss'; // Kiểm tra đường dẫn
 
 function ManageFields() {
+    // eslint-disable-next-line no-unused-vars
     const [fields, setFields] = useState([
-        { id: 1, name: 'Football Field A', description: 'Standard size field', price: 100, image: '/images/fieldA.jpg' },
+        {
+            id: 1,
+            name: 'Football Field A',
+            description: 'Standard size field',
+            price: 100,
+            image: '/images/fieldA.jpg',
+        },
         { id: 2, name: 'Football Field B', description: 'Small size field', price: 80, image: '/images/fieldB.jpg' },
     ]);
 
