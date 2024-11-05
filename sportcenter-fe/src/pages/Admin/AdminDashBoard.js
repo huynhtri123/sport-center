@@ -1,12 +1,12 @@
 // src/pages/Admin/AdminDashBoard.js
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import styles from '../../assets/css/admin.module.scss';
 import { Pie, Bar } from 'react-chartjs-2';
 import ManageFields from './ManageFields';
 import ManagePlayers from './ManagePlayers';
 import ManageSports from './ManageSports';
 import ManageTeams from './ManageTeams';
+import Signout from '../Auth/Signout';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
@@ -150,9 +150,7 @@ function AdminDashboard() {
             <div className={styles.content}>
                 <header className={styles.header}>
                     <h1>{selectedSection}</h1>
-                    <Link to='/' className={`btn ${styles.logoutButton}`}>
-                        Logout
-                    </Link>
+                    <Signout></Signout>
                 </header>
                 <div className={styles.mainContent}>{renderContent()}</div>
             </div>

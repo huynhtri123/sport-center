@@ -9,6 +9,7 @@ import Input from '../../components/Input/Input';
 import authApi from '../../services/api/authApi';
 import { handleLocalStorage } from '../../utils/handleLocalStorage';
 import { useCheckSignedIn } from '../../customs/hooks';
+import { Role } from '../../utils/enums/Role';
 
 function Signin() {
     const [signinRequest, setSigninRequest] = useState({
@@ -41,16 +42,22 @@ function Signin() {
             const siginResponse = await authApi.signin(signinRequest);
             // Xóa thông tin cũ trước khi lưu thông tin mới (việc này sẽ cho làm trong đăng xuất)
             handleLocalStorage.clearToken();
-
             // Lưu thông tin mới vào localStorage
-            const { email, tokenType, token, refreshToken } = siginResponse.data;
-            handleLocalStorage.setToken(email, tokenType, token, refreshToken);
+            // console.log(siginResponse.data);
+            const { email, role, tokenType, token, refreshToken } = siginResponse.data;
+            handleLocalStorage.setToken(email, role, tokenType, token, refreshToken);
 
-            console.log('Logged in successfully:', siginResponse.data);
-            toast.success('Login successfully!');
+            toast.success(siginResponse.message);
             setFailed(false);
             setIsSignedIn(true);
-            navigate('/');
+
+            // chuyển hướng
+            const currentRole = handleLocalStorage.getCurrentRole();
+            if (currentRole === Role.ADMIN) {
+                navigate('/admin');
+            } else {
+                navigate('/');
+            }
         } catch (error) {
             // Thông báo đã được cài trong axiosClient rồi nên ở đây khỏi
             console.error('Login failed:', error);

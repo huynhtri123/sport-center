@@ -21,13 +21,14 @@ import DynamicSportHome from './pages/Customer/Sport/SportHome/DynamicSportHome'
 import Profile from './pages/Customer/Profile/Profile';
 
 import AdminDashBoard from './pages/Admin/AdminDashBoard';
-import ManageFields from './pages/Admin/ManageFields';
 import { useCleanupStorage } from './customs/hooks';
 import TournamentHome from './pages/Customer/Tournament/TournamentHome';
 import TournamentDetail from './pages/Customer/Tournament/TournamentDetail';
 import TournamentRegister from './pages/Customer/Tournament/TournamentRegister';
 
 import AllProviders from './contexts/AllProviders';
+import ProtectedRoute from './components/ProtectedRoute';
+import { Role } from './utils/enums/Role';
 
 function App() {
     useCleanupStorage();
@@ -41,14 +42,19 @@ function App() {
                     {location.pathname !== '/admin' && <NavBar />}
                     <div className={clsx(styles.appContent)}>
                         <Routes>
+                            <Route
+                                path='/admin'
+                                element={
+                                    <ProtectedRoute requiredRole={Role.ADMIN}>
+                                        <AdminDashBoard></AdminDashBoard>
+                                    </ProtectedRoute>
+                                }
+                            />
                             <Route path='/' element={<Home />} />
                             <Route path='/profile' element={<Profile />} />
                             <Route path='/sign-up' element={<Signup />} />
                             <Route path='/sign-in' element={<Signin />} />
                             <Route path='/forgot-password' element={<ForgotPassword />} />
-
-                            <Route path='/admin' element={<AdminDashBoard />} />
-                            <Route path='/admin/managefields' element={<ManageFields />} />
 
                             <Route path='/sport/:sportName' element={<DynamicSportHome />} />
                             <Route path='/sport/fields' element={<FieldList />} />

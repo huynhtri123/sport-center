@@ -192,6 +192,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         JWTAuthResponse jwtAuthResponse = new JWTAuthResponse();
         jwtAuthResponse.setEmail(user.getEmail());
+        jwtAuthResponse.setRole(user.getRole().name());
         jwtAuthResponse.setTokenType("Bearer");
         jwtAuthResponse.setToken(jwt);
         jwtAuthResponse.setRefreshToken(refreshToken);

@@ -4,11 +4,16 @@ export const handleLocalStorage = {
         localStorage.removeItem('tokenType');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('email');
+        localStorage.removeItem('role');
     },
-    setToken(email, tokenType, token, refreshToken) {
+    setToken(email, role, tokenType, token, refreshToken) {
         localStorage.setItem('email', email);
+        localStorage.setItem('role', role);
         localStorage.setItem('tokenType', tokenType);
         localStorage.setItem('token', token);
         localStorage.setItem('refreshToken', refreshToken);
+    },
+    getCurrentRole() {
+        return localStorage.getItem('role') ?? null;
     },
 };
