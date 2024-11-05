@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import styles from '../../../assets/css/Profile/myTournaments.module.scss';
 import userApi from '../../../services/api/userApi';
-import { toast } from 'react-toastify';
 import { Loading } from '../../../components/Loading/Loading';
-
 import ConfirmModal from '../../../components/Modal/ConfirmModal';
 
 function MyTournaments({ tournaments }) {
@@ -81,7 +80,9 @@ function TournamentCard({ tournament, setLocalTournaments }) {
                     </button>{' '}
                     {isConfirmModalOpen && (
                         <ConfirmModal
-                            title={'Bạn có chắc muốn huỷ đăng kí giải đấu không? Hành động này sẽ không được hoàn tác.'}
+                            title={
+                                'Bạn có chắc muốn huỷ đăng ký giải đấu? Hành động này sẽ không được hoàn tiền và không thể hoàn tác!'
+                            }
                             isOpen={isConfirmModalOpen}
                             onClose={handleToggleConfirmModal}
                             onSubmit={() => handleUnregister(tournament.id)}

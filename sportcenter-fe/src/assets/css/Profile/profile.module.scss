@@ -85,6 +85,22 @@
     color: $yellow-prime;
 }
 
+.logoutButton {
+    background-color: #dc3545; // Màu đỏ cho nút đăng xuất
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px; // Khoảng cách từ phần profile
+    transition: background-color 0.3s ease;
+
+    &:hover {
+        background-color: #c82333; // Màu khi hover
+        color: white;
+    }
+}
+
 .section {
     background-color: $blue-prime;
     color: white;

@@ -77,7 +77,7 @@ function TournamentRegister() {
             };
 
             const teamResponse = await teamApi.create(teamRequest);
-            toast.success(teamResponse.message);
+            // toast.success(teamResponse.message);
             createdTeamId = teamResponse.data.id;
 
             const registerRequest = {

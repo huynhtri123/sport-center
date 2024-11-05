@@ -1,9 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
 
 import styles from '../assets/css/Layouts/navBar.module.scss';
-import { handleLocalStorage } from '../utils/handleLocalStorage';
 import { useCheckSignedIn } from '../customs/hooks';
 import { useGetSports } from '../customs/hooks';
 import sportApi from '../services/api/sportApi';
@@ -12,6 +10,7 @@ function NavBar() {
     const [sports, setSports] = useGetSports();
     const [selectedSport, setSelectedSport] = useState('');
     const location = useLocation();
+    // eslint-disable-next-line no-unused-vars
     const [isSignedIn, setIsSignedIn] = useCheckSignedIn();
 
     const handleChangeSelect = (e) => {
@@ -24,12 +23,6 @@ function NavBar() {
         if (selectedSport) {
             navigate(`/sport/${selectedSport.toLowerCase()}`);
         }
-    };
-
-    const handleSignoutSubmit = () => {
-        handleLocalStorage.clearToken();
-        setIsSignedIn(false);
-        toast.success('Log out successfully!');
     };
 
     useEffect(() => {

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 import Button from '../../../components/Button/Button';
 import styles from '../../../assets/css/Profile/profile.module.scss';
@@ -7,6 +8,7 @@ import userApi from '../../../services/api/userApi';
 import fileApi from '../../../services/api/fileApi';
 import { formatDateToZoneDateTime } from '../../../utils/DateTimeConverter';
 import { Loading } from '../../../components/Loading/Loading';
+import ConfirmModal from '../../../components/Modal/ConfirmModal';
 
 import MyBookings from './MyBookings';
 import MyCart from './MyCart';
@@ -14,12 +16,24 @@ import MyPaymentInfo from './MyPaymentInfo';
 import MyTournaments from './MyTournaments';
 import MyTeam from './MyTeams';
 
+import { useCheckSignedIn } from '../../../customs/hooks';
+import { handleLocalStorage } from '../../../utils/handleLocalStorage';
+
 function Profile() {
     const [profile, setProfile] = useState({}); // để chứa data lấy từ api
     const [userInfo, setUserInfo] = useState({}); // để chứa data khi edit
     const [originalUserInfo, setOriginalUserInfo] = useState({}); // để khi bấm cancel thì trả về data cũ
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+
+    // for sign out
+    // eslint-disable-next-line no-unused-vars
+    const [isSignedIn, setIsSignedIn] = useCheckSignedIn();
+    const navigate = useNavigate();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const toggleModalOpen = () => {
+        setIsModalOpen(!isModalOpen);
+    };
 
     // show hoặc hide các thông tin khác
     const [showCart, setShowCart] = useState(false);
@@ -122,6 +136,13 @@ function Profile() {
             ...prevInfo,
             [name]: value,
         }));
+    };
+
+    const handleSignout = () => {
+        handleLocalStorage.clearToken();
+        setIsSignedIn(false);
+        toast.info('Log out successfully!');
+        navigate('/');
     };
 
     const handleImageChange = async (e) => {
@@ -299,6 +320,20 @@ function Profile() {
                 </h3>
                 <p>See your teams and their accomplishments.</p>
                 {showTeams && <MyTeam teams={teams}></MyTeam>}
+            </div>
+
+            <div className='d-flex justify-content-end mb-4'>
+                <Button onClick={toggleModalOpen} className={styles.logoutButton}>
+                    Sign out
+                </Button>
+                {isModalOpen && (
+                    <ConfirmModal
+                        title={'Bạn có chắc muốn đăng xuất?'}
+                        isOpen={isModalOpen}
+                        onClose={toggleModalOpen}
+                        onSubmit={handleSignout}
+                    ></ConfirmModal>
+                )}
             </div>
         </div>
     );

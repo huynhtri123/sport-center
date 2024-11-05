@@ -24,7 +24,7 @@ public class BookingController {
     @Autowired
     private BookingService bookingService;
 
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER')")
     @PostMapping("/booking/create")
     public ResponseEntity<BaseResponse> createBooking(@Valid @RequestBody BookingRequest bookingRequest) {
         return bookingService.createBooking(bookingRequest);
@@ -94,6 +94,12 @@ public class BookingController {
         ZonedDateTime startOfDay = onDayScheduleRequest.getStartOfDay();
         ZonedDateTime endOfDay = onDayScheduleRequest.getEndOfDay();
         return bookingService.getFieldSchedule(fieldId, startOfDay, endOfDay);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
+    @PutMapping("/booking/cancelBooking/{bookingId}")
+    public ResponseEntity<BaseResponse> cancelBooking(@PathVariable("bookingId") String bookingId) {
+        return bookingService.cancelBooking(bookingId);
     }
 
 }
