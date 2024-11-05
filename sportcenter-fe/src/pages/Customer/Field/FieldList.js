@@ -65,20 +65,10 @@ const FieldList = () => {
             <h2 className={styles.title}>{fields[0]?.fieldType || 'Fields'}</h2>
             <div className={styles.cardContainer}>
                 {fields.map((fieldMap) => {
-                    let countAvailableTimeSlots = fieldMap.timeSlots
-                        ? fieldMap.timeSlots.filter((timeSlot) => timeSlot.status === 'AVAILABLE').length
-                        : 0;
-                    let nowInHour = new Date().getHours();
-                    if (new Date().getMinutes() > 0) {
-                        nowInHour += 1;
-                    }
-
-                    let availableSlots = countAvailableTimeSlots - nowInHour;
-
                     return (
                         <Link
                             key={fieldMap.id}
-                            className={`${styles.card} ${availableSlots === 0 ? styles.notAvailable : ''}`}
+                            className={`${styles.card}`}
                             onClick={() => handleGetField(fieldMap.id)}
                             to={`/booking`}
                         >
@@ -86,7 +76,6 @@ const FieldList = () => {
                             <h3>{fieldMap.fieldName}</h3>
                             <p>Mô tả: {fieldMap.description}</p>
                             <p style={{ color: '#dd0f00' }}>Giá: {fieldMap.price}</p>
-                            <p>Số lượng timeSlots trống: {availableSlots}</p>
                         </Link>
                     );
                 })}

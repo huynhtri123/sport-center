@@ -74,6 +74,34 @@ public class MailServiceImpl implements MailService {
     }
 
     @Override
+    public void sendMailCancelBooking(String toEmail, String fullName, String bookingDate, String startTime, String endTime) {
+        try {
+            MimeMessagePreparator preparator = new MimeMessagePreparator() {
+                public void prepare(MimeMessage mimeMessage) throws Exception {
+                    MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+                    messageHelper.setTo(toEmail);
+                    messageHelper.setSubject("Sport Center - Booking Cancellation");
+
+                    Context context = new Context();
+                    context.setVariable("fullName", fullName);
+                    context.setVariable("bookingDate", bookingDate);
+                    context.setVariable("startTime", startTime);
+                    context.setVariable("endTime", endTime);
+
+                    String content = templateEngine.process("CancelBookingTemplate", context);
+                    messageHelper.setText(content, true);
+                }
+            };
+            mailSender.send(preparator);
+
+        } catch (Exception e) {
+            throw new CustomException("Lỗi khi gửi mail huỷ booking: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+    }
+
+
+    @Override
     public void sendMailRegisterTournament(String toEmail, String tournamentName, ZonedDateTime startDate, ZonedDateTime endDate, Team team) {
         MimeMessagePreparator preparator = new MimeMessagePreparator() {
             public void prepare(MimeMessage mimeMessage) throws Exception {

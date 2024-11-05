@@ -49,15 +49,9 @@ public class BookingServiceImpl implements BookingService {
     @Autowired
     private FieldMapper fieldMapper;
 
-    // 1. tìm coi trong khoảng thời gian đặt (ví dụ 7h-9h) coi có cái booking nào IN_USE không,
-    // nếu có thì là sân không trống -> xong
-    // nếu không -> sân trống, thì:
-    // 1.1. tạo 2 timeSlot AVAILABLE (7h-9h),
-    // đổi 2 timeSlot đó sang IN_USE để response trả về ngay
     @Transactional
     @Override
     public ResponseEntity<BaseResponse> createBooking(BookingRequest bookingRequest) {
-        // Lấy thông tin người dùng hiện tại từ SecurityContext
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
 
@@ -72,7 +66,7 @@ public class BookingServiceImpl implements BookingService {
         // do đó cần trừ đi 7 múi để lưu vào db chính xác, khi get ra thì sẽ là +7 là vừa
         ZonedDateTime startTime = bookingRequest.getStartTime().minusHours(7);
         ZonedDateTime endTime = startTime.plusHours(bookingRequest.getNumberOfHours());
-//        log.info((startTime+ "/" + endTime));
+        //log.info((startTime+ "/" + endTime));
 
         // tìm danh sách booking có timeSlots có trạng thái IN_USE trong khoảng thời gian này
         // nếu sân trống thì list này = 0
@@ -103,7 +97,7 @@ public class BookingServiceImpl implements BookingService {
             sendMailBooking(currentUser, response);
 
             return ResponseEntity.ok(
-                    new BaseResponse("Tạo mới Booking thành công!", HttpStatus.OK.value(), response)
+                    new BaseResponse("Đặt sân thành công!", HttpStatus.OK.value(), response)
             );
         }
 
@@ -143,7 +137,7 @@ public class BookingServiceImpl implements BookingService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
         String currentUserId = currentUser.getId();
-        log.info(currentUserId);
+        log.info("Current user for get my bookings: " + currentUserId);
 
         // Kiểm tra xem userId truyền vào có trùng với userId trong JWT hay không
         if (!currentUserId.equals(userId)) {
@@ -204,7 +198,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     // 1. tạo ra (18) timeSLot AVAILABLE trải dài nguyên ngày,
-    // 2. duyệt "bookings" trong ngày đó nếu có thì
+    // 2. duyệt "bookings" của field đó trong ngày đso nếu có thì
     // hàm update sẽ kiểm tra để đổi trạng thái những timeSLot đã bị đặt thành in use,
     // nếu không thì 18 slot đó vẫn là AVAILABLE
     @Transactional
@@ -269,7 +263,31 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy Booking này"));
         // chỉ chủ sỡ hữu hoặc admin mới có quyền huỷ booking
         if (booking.getUser().getId().equals(currentUser.getId()) || currentUser.getRole().equals(Role.ADMIN)) {
-            return null;
+            Field field = booking.getField();
+            if (field == null) {
+                throw new NotFoundException("Không tìm thấy Field trong Booking này");
+            }
+            ZonedDateTime bookingStartTime = booking.getStartTime();
+            ZonedDateTime bookingEndTime = booking.getEndTime();
+
+            // tạo timeSlot AVAILABLE trong khoảng thời gian này
+            field.createTimeSlots(bookingStartTime, bookingEndTime);
+            fieldRepository.save(field);
+
+            // huỷ -> tắt isActive
+            booking.setField(field);
+            booking.setIsActive(false);
+            Booking canceledBooking = bookingRepository.save(booking);
+
+            BookingResponse response = bookingMapper.convertToResponse(canceledBooking);
+            log.info("Đã huỷ booking " + canceledBooking.getId());
+            // send mail
+            sendMailCancelBooking(currentUser, response);
+
+            return ResponseEntity.ok(
+                    new BaseResponse("Huỷ đặt sân thành công", HttpStatus.OK.value(), response)
+            );
+
         } else {
             throw new CustomException("Bạn không có quyền huỷ đặt sân của người khác", HttpStatus.BAD_REQUEST.value());
         }
@@ -296,6 +314,28 @@ public class BookingServiceImpl implements BookingService {
 
         } catch (Exception e) {
             throw new CustomException("Lỗi khi gửi mail booking: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+    }
+    private void sendMailCancelBooking(User user, BookingResponse canceledBooking) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z");
+        try {
+            // Chuyển đổi các thời gian sang múi giờ Việt Nam
+            ZonedDateTime bookingDateInVietnam = canceledBooking.getBookingDate().withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"));
+            ZonedDateTime startTimeInVietnam = canceledBooking.getStartTime().withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"));
+            ZonedDateTime endTimeInVietnam = canceledBooking.getEndTime().withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"));
+
+            String email = user.getEmail();
+            String fullName = user.getFullName();
+            String bookingDate = bookingDateInVietnam.format(formatter);
+            String startTime = startTimeInVietnam.format(formatter);
+            String endTime = endTimeInVietnam.format(formatter);
+
+            // Gọi hàm gửi email
+            mailService.sendMailCancelBooking(email, fullName, bookingDate, startTime, endTime);
+
+        } catch (Exception e) {
+            throw new CustomException("Lỗi khi gửi mail huỷ booking: " + e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
