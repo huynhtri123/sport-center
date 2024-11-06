@@ -1,6 +1,6 @@
-@import './variables';
+@import '../variables';
 
-.manageSports {
+.managePlayers {
     padding: 20px;
     flex-grow: 1; // Ensure content occupies remaining space beside any sidebar
 
@@ -9,14 +9,15 @@
         color: $blue-prime; // Title color
     }
 
-    .sportsTable {
+    .playersTable {
         width: 100%;
         border-collapse: collapse; // Remove spacing between cells
         background-color: #fff;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         text-align: left;
 
-        th, td {
+        th,
+        td {
             padding: 12px;
             border: 1px solid #ddd;
         }
@@ -30,7 +31,7 @@
             vertical-align: middle; // Center cell content vertically
         }
 
-        .sportImage {
+        .playerImage {
             width: 80px;
             height: 50px;
             object-fit: cover;
@@ -65,6 +66,21 @@
                 outline: none;
             }
         }
+
+        select {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+
+            &:focus {
+                border-color: $blue-prime;
+                outline: none;
+            }
+        }
     }
 
     .addButton {
@@ -82,7 +98,8 @@
         }
     }
 
-    .editButton, .deleteButton {
+    .editButton,
+    .deleteButton {
         color: white;
         padding: 6px 12px;
         border: none;

@@ -29,7 +29,6 @@ function MyTeam({ teams }) {
             console.log(softDeleteResponse);
             // Chỉ xóa team sau khi nhận được phản hồi từ API
             setLocalTeams((prevTeams) => prevTeams.filter((team) => team.id !== teamToDelete));
-            setIsConfirmModalOpen(false);
             toast.success(softDeleteResponse.message);
             setTeamToDelete(null); // Đặt lại teamToDelete
         } catch (err) {
@@ -37,6 +36,7 @@ function MyTeam({ teams }) {
             toast.error('Xóa team không thành công.');
         } finally {
             setIsLoading(false);
+            setIsConfirmModalOpen(false);
         }
     };
 

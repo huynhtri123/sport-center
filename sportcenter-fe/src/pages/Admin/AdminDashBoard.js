@@ -3,9 +3,7 @@ import React, { useState } from 'react';
 import styles from '../../assets/css/admin.module.scss';
 import { Pie, Bar } from 'react-chartjs-2';
 import ManageFields from './ManageFields';
-import ManagePlayers from './ManagePlayers';
 import ManageSports from './ManageSports';
-import ManageTeams from './ManageTeams';
 import Signout from '../Auth/Signout';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 
@@ -16,10 +14,8 @@ function AdminDashboard() {
 
     const sections = [
         { name: 'Dashboard', icon: 'fa-solid fa-chart-line' },
-        { name: 'Manage Fields', icon: 'fa-solid fa-futbol' },
-        { name: 'Manage Players', icon: 'fa-solid fa-user' },
+        { name: 'Manage Fields', icon: 'fa-solid fa-money-bill' },
         { name: 'Manage Sports', icon: 'fa-solid fa-basketball-ball' },
-        { name: 'Manage Teams', icon: 'fa-solid fa-users' },
         { name: 'Manage Bookings', icon: 'fa-solid fa-calendar-check' },
         { name: 'Manage Classes', icon: 'fa-solid fa-dumbbell' },
         { name: 'Manage Tournaments', icon: 'fa-solid fa-trophy' },
@@ -115,12 +111,8 @@ function AdminDashboard() {
                 );
             case 'Manage Fields':
                 return <ManageFields />;
-            case 'Manage Players':
-                return <ManagePlayers />;
             case 'Manage Sports':
                 return <ManageSports />;
-            case 'Manage Teams':
-                return <ManageTeams />;
             default:
                 return <h2>Welcome to Admin Dashboard</h2>;
         }

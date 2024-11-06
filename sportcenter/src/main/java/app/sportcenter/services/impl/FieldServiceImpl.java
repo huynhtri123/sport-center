@@ -2,32 +2,45 @@ package app.sportcenter.services.impl;
 
 import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.commons.FieldType;
+import app.sportcenter.configs.AppConfig;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
 import app.sportcenter.models.dto.FieldRequest;
 import app.sportcenter.models.dto.FieldResponse;
+import app.sportcenter.models.entities.Booking;
 import app.sportcenter.models.entities.Field;
+import app.sportcenter.repositories.BookingRepository;
 import app.sportcenter.repositories.FieldRepository;
+import app.sportcenter.services.CloudinaryService;
 import app.sportcenter.services.FieldService;
 import app.sportcenter.utils.mappers.FieldMapper;
-import org.modelmapper.ModelMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Service
+@Slf4j
 public class FieldServiceImpl implements FieldService {
 
     @Autowired
     private FieldRepository fieldRepository;
     @Autowired
+    private BookingRepository bookingRepository;
+    @Autowired
     private FieldMapper fieldMapper;
     @Autowired
-    private ModelMapper modelMapper;
+    private AppConfig appConfig;
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
+    @Transactional
     @Override
     public ResponseEntity<BaseResponse> create(FieldRequest fieldRequest) {
         Field field = fieldMapper.convertToEntity(fieldRequest);
@@ -80,6 +93,7 @@ public class FieldServiceImpl implements FieldService {
         );
     }
 
+    @Transactional
     @Override
     public ResponseEntity<BaseResponse> updateById(String fieldId, FieldRequest newField) {
         Field field = fieldRepository.findById(fieldId).orElseThrow(() ->
@@ -94,6 +108,7 @@ public class FieldServiceImpl implements FieldService {
         );
     }
 
+    @Transactional
     @Override
     public ResponseEntity<BaseResponse> toggleActiveStatus(String fieldId) {
         Field field = fieldRepository.findById(fieldId).orElseThrow(() ->
@@ -111,13 +126,24 @@ public class FieldServiceImpl implements FieldService {
         );
     }
 
+    @Transactional
     @Override
     public ResponseEntity<BaseResponse> softDeleted(String fieldId) {
         Field field = fieldRepository.findById(fieldId).orElseThrow(() ->
                 new NotFoundException("Không tìm thấy Field!"));
 
-        field.setIsDeleted(true);
+        // tìm coi có bất kỳ Booking nào đang chứa Field này thì không cho xoá luôn
+        List<Booking> relevantBookings = bookingRepository.getBookingByFieldId(fieldId);
+        if (!relevantBookings.isEmpty()) {
+            ZonedDateTime now = ZonedDateTime.now().plusHours(7); // vì khi tạo booking ta trừ 7
+            boolean hasActiveBookings = relevantBookings.stream()
+                    .anyMatch(booking -> booking.getIsActive() && booking.getEndTime().isAfter(now));
+            if (hasActiveBookings) {
+                throw new CustomException("Có Booking đang hoạt động chứa Field này, bạn không thể xoá nó!", HttpStatus.BAD_REQUEST.value());
+            }
+        }
 
+        field.setIsDeleted(true);
         Field updatedField = fieldRepository.save(field);
         FieldResponse responseField = fieldMapper.convertToDTO(updatedField);
 
@@ -126,6 +152,7 @@ public class FieldServiceImpl implements FieldService {
         );
     }
 
+    @Transactional
     @Override
     public ResponseEntity<BaseResponse> restore(String fieldId) {
         Field field = fieldRepository.findById(fieldId).orElseThrow(() ->
@@ -141,12 +168,32 @@ public class FieldServiceImpl implements FieldService {
         );
     }
 
+    @Transactional
     @Override
     public ResponseEntity<BaseResponse> forceDelete(String fieldId) {
         Field field = fieldRepository.findById(fieldId).orElseThrow(() ->
                 new NotFoundException("Không tìm thấy Field!"));
         FieldResponse resonseField = fieldMapper.convertToDTO(field);
 
+        // tìm coi có bất kỳ Booking nào đang chứa Field này thì không cho xoá luôn
+        List<Booking> relevantBookings = bookingRepository.getBookingByFieldId(fieldId);
+        if (!relevantBookings.isEmpty()) {
+            ZonedDateTime now = ZonedDateTime.now().plusHours(7); // vì khi tạo booking ta trừ 7
+            boolean hasActiveBookings = relevantBookings.stream()
+                    .anyMatch(booking -> booking.getIsActive() && booking.getEndTime().isAfter(now));
+            if (hasActiveBookings) {
+                throw new CustomException("Có Booking đang hoạt động chứa Field này, bạn không thể xoá nó!", HttpStatus.BAD_REQUEST.value());
+            }
+        }
+        // Xóa ảnh từ Cloudinary (chỉ xoá ảnh không phải ảnh mặc định)
+        try {
+            if (field.getImageUrl() != null && !field.getImageUrl().equals(appConfig.getDefaultIcon())) {
+                cloudinaryService.deleteByUrl(field.getImageUrl());
+                log.info("Đã xóa ảnh logo của field với ID: {}", field.getId());
+            }
+        } catch (IOException e) {
+            log.error("Lỗi khi xóa ảnh trên Cloudinary: {}", e.getMessage());
+        }
         // xoá cứng
         fieldRepository.deleteById(fieldId);
 

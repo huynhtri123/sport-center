@@ -36,7 +36,7 @@ public class SchedulerConfig {
     @Transactional
     @Scheduled(fixedRate = 60000) // chạy mỗi 1 phut
     public void checkFieldTimeSlotsStatus() {
-        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime now = ZonedDateTime.now().plusHours(7);   // vì khi tạo bookign thì ta đã trừ 7
 
         // 1. Lấy tất cả các booking đã hết hạn (thời gian kết thúc trước hiện tại)
         List<Booking> expiredBookings = bookingRepository.findExpiredBookings(now);
@@ -68,6 +68,7 @@ public class SchedulerConfig {
             // 3. Chỉ lưu nếu có thay đổi trạng thái của `TimeSlot`
             if (isUpdated) {
                 booking.setField(field);
+                booking.setIsActive(false); // Đánh dấu Booking là không còn hoạt động
                 fieldRepository.save(field);
                 bookingRepository.save(booking);
                 log.info("Đặt sân hết hạn. Đã cập nhật trạng thái TimeSlots về AVAILABLE, ID sân: {}, ID booking: {}",

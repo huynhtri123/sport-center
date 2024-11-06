@@ -22,8 +22,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Slf4j
@@ -41,6 +43,7 @@ public class TeamServiceImpl implements TeamService {
     @Autowired
     private TeamMapper teamMapper;
 
+    @Transactional
     @Override
     public ResponseEntity<BaseResponse> create(TeamRequest teamRequest) {
         // lấy thông tin người đang đăng nhập làm chủ sở hữu team
@@ -108,6 +111,7 @@ public class TeamServiceImpl implements TeamService {
         );
     }
 
+    @Transactional
     @Override
     public ResponseEntity<BaseResponse> update(String id, TeamRequest teamRequest) {
         Team team = teamRepository.getTeamById(id);
@@ -139,6 +143,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
+    @Transactional
     @Override
     public ResponseEntity<BaseResponse> softDelete(String id) {
         Team team = teamRepository.getTeamById(id);
@@ -158,16 +163,23 @@ public class TeamServiceImpl implements TeamService {
 
         // nếu đăng nhập đúng, hoặc là admin thì đươc cập nhật
         if (userId.equals(team.getUserId()) || currentUser.getRole().equals(Role.ADMIN)) {
+            // tìm xem nếu có bất kỳ giải đấu nào có chứa Team thì ko cho xoá
+            List<Tournament> tournamentsWithTeam = tournamentRepository.findByRegisteredTeamId(team.getId());
+            if (!tournamentsWithTeam.isEmpty()) {
+                ZonedDateTime now = ZonedDateTime.now().plusHours(7);   // về giờ vn
+                boolean hasActiveTournament = tournamentsWithTeam.stream()
+                        .anyMatch((tournament ->
+                                tournament.getIsActive() &&
+                                        !tournament.getIsDeleted() &&
+                                        tournament.getEndDate().isAfter(now)
+                                ));
+                if (hasActiveTournament) {
+                    throw new CustomException("Team này đang có tham gia giải đấu, bạn không thể xoá nó!", HttpStatus.BAD_REQUEST.value());
+                }
+            }
+
             team.setIsDeleted(true);
             teamRepository.save(team);
-
-            // xoá Team ra khỏi các giải đấu Team này hiện tham gia
-            List<Tournament> tournamentsWithTeam = tournamentRepository.findByRegisteredTeamId(team.getId());
-            for (Tournament t : tournamentsWithTeam) {
-                t.getRegisteredTeamIds().remove(team.getId());
-                tournamentRepository.save(t);
-                log.warn("Xoá mềm Team {} -> xoá Team ra khỏi giải {}", team.getId(), t.getTournamentName());
-            }
 
             TeamResponse responseTeam = teamMapper.convertToDTO(team);
             return ResponseEntity.status(HttpStatus.OK).body(
@@ -179,6 +191,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
+    @Transactional
     @Override
     public ResponseEntity<BaseResponse> restore(String id) {
         Team team = teamRepository.getTeamById(id);
@@ -209,6 +222,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
+    @Transactional
     @Override
     public ResponseEntity<BaseResponse> forceDelete(String id) {
         Team team = teamRepository.getTeamById(id);
@@ -228,6 +242,21 @@ public class TeamServiceImpl implements TeamService {
 
         // nếu đăng nhập đúng, hoặc là admin thì đươc cập nhật
         if (userId.equals(team.getUserId()) || currentUser.getRole().equals(Role.ADMIN)) {
+            // tìm xem nếu có bất kỳ giải đấu nào có chứa Team thì ko cho xoá
+            List<Tournament> tournamentsWithTeam = tournamentRepository.findByRegisteredTeamId(team.getId());
+            if (!tournamentsWithTeam.isEmpty()) {
+                ZonedDateTime now = ZonedDateTime.now().plusHours(7);   // về giờ vn
+                boolean hasActiveTournament = tournamentsWithTeam.stream()
+                        .anyMatch((tournament ->
+                                tournament.getIsActive() &&
+                                        !tournament.getIsDeleted() &&
+                                        tournament.getEndDate().isAfter(now)
+                        ));
+                if (hasActiveTournament) {
+                    throw new CustomException("Team này đang có tham gia giải đấu, bạn không thể xoá nó!", HttpStatus.BAD_REQUEST.value());
+                }
+            }
+
             // Xóa ảnh từ Cloudinary (chỉ xoá ảnh không phải ảnh mặc định)
             try {
                 if (team.getTeamLogoUrl() != null && !team.getTeamLogoUrl().equals(appConfig.getDefaultIcon())) {
