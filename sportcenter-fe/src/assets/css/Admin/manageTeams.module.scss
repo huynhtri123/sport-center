@@ -1,4 +1,4 @@
-@import './variables';
+@import '../variables';
 
 .manageTeams {
     padding: 20px;
@@ -16,7 +16,8 @@
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         text-align: left;
 
-        th, td {
+        th,
+        td {
             padding: 12px;
             border: 1px solid #ddd;
         }
@@ -82,7 +83,8 @@
         }
     }
 
-    .editButton, .deleteButton {
+    .editButton,
+    .deleteButton {
         color: white;
         padding: 6px 12px;
         border: none;

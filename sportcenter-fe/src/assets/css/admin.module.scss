@@ -95,7 +95,8 @@
 .dashboardContainer {
     padding-top: 80px; /* Đảm bảo nội dung Dashboard không chồng lên NavBar */
     /* 80px là chiều cao của NavBar, có thể điều chỉnh theo kích thước thực tế */
-}.chartContainer {
+}
+.chartContainer {
     display: flex; /* Use flexbox for layout */
     justify-content: space-between; /* Space out the charts */
     align-items: flex-start; /* Align charts at the top */
