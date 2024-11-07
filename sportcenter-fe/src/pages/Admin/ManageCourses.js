@@ -23,10 +23,10 @@ function ManageCourses() {
     async function fetchCourses() {
         try {
             const response = await courseApi.getAllActive();
-            setCourses(response.data);
+            setCourses(response.data || []); // Set to empty array if response.data is null or undefined
         } catch (error) {
-            console.error("Failed to fetch courses:", error);
-            toast.error("Failed to fetch courses. Please try again.");
+            console.error('Failed to fetch courses:', error);
+            toast.error('Failed to fetch courses. Please try again.');
         }
     }
 
@@ -34,11 +34,11 @@ function ManageCourses() {
         try {
             const response = await courseApi.create(newCourse);
             setCourses([...courses, response.data]);
-            toast.success("Course added successfully!");
+            toast.success('Course added successfully!');
             resetForm();
         } catch (error) {
-            console.error("Failed to add course:", error.response || error);
-            toast.error("Failed to add course. Please try again.");
+            console.error('Failed to add course:', error.response || error);
+            toast.error('Failed to add course. Please try again.');
         }
     };
 
@@ -58,23 +58,23 @@ function ManageCourses() {
     const handleUpdateCourse = async () => {
         try {
             const response = await courseApi.update(editingCourse.id, newCourse);
-            setCourses(courses.map(course => (course.id === editingCourse.id ? response.data : course)));
-            toast.success("Course updated successfully!");
+            setCourses(courses.map((course) => (course.id === editingCourse.id ? response.data : course)));
+            toast.success('Course updated successfully!');
             resetForm();
         } catch (error) {
-            console.error("Failed to update course:", error.response ? error.response.data : error.message);
-            toast.error("Failed to update course. Please try again.");
+            console.error('Failed to update course:', error.response ? error.response.data : error.message);
+            toast.error('Failed to update course. Please try again.');
         }
     };
 
     const handleDeleteCourse = async (courseId) => {
         try {
             await courseApi.softDelete(courseId);
-            setCourses(courses.filter(course => course.id !== courseId));
-            toast.success("Course deleted successfully!");
+            setCourses(courses.filter((course) => course.id !== courseId));
+            toast.success('Course deleted successfully!');
         } catch (error) {
-            console.error("Failed to delete course:", error.response || error);
-            toast.error("Failed to delete course. Please try again.");
+            console.error('Failed to delete course:', error.response || error);
+            toast.error('Failed to delete course. Please try again.');
         }
     };
 
@@ -108,68 +108,84 @@ function ManageCourses() {
     return (
         <div className={styles.manageCourses}>
             <h2>Manage Courses</h2>
-            <button className={`btn ${styles.addButton}`} onClick={() => setIsFormVisible(prev => !prev)}>
-                {isFormVisible ? "Cancel" : "Add New Course"}
+            <button className={`btn ${styles.addButton}`} onClick={() => setIsFormVisible((prev) => !prev)}>
+                {isFormVisible ? 'Cancel' : 'Add New Course'}
             </button>
-            <table className={styles.coursesTable}>
-                <thead>
-                    <tr>
-                        <th>STT</th>
-                        <th>Course Name</th>
-                        <th>Description</th>
-                        <th>Image</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {courses.map((course, index) => (
-                        <tr key={course.id}>
-                            <td>{index + 1}</td>
-                            <td>{course.courseName}</td>
-                            <td>{course.description}</td>
-                            <td>
-                                <img src={course.imageUrl} alt={course.courseName} className={styles.courseImage} />
-                            </td>
-                            <td>
-                                <button className={`btn ${styles.editButton}`} onClick={() => handleEditCourse(course)}>Edit</button>
-                                <button className={`btn ${styles.deleteButton}`} onClick={() => handleDeleteCourse(course.id)}>Delete</button>
-                            </td>
+
+            {/* Display message if there are no courses */}
+            {courses.length === 0 ? (
+                <p>No courses available.</p>
+            ) : (
+                <table className={styles.coursesTable}>
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Course Name</th>
+                            <th>Description</th>
+                            <th>Image</th>
+                            <th>Actions</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {courses.map((course, index) => (
+                            <tr key={course.id}>
+                                <td>{index + 1}</td>
+                                <td>{course.courseName}</td>
+                                <td>{course.description}</td>
+                                <td>
+                                    <img src={course.imageUrl} alt={course.courseName} className={styles.courseImage} />
+                                </td>
+                                <td>
+                                    <button
+                                        className={`btn ${styles.editButton}`}
+                                        onClick={() => handleEditCourse(course)}
+                                    >
+                                        Edit
+                                    </button>
+                                    <button
+                                        className={`btn ${styles.deleteButton}`}
+                                        onClick={() => handleDeleteCourse(course.id)}
+                                    >
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            )}
 
             {isFormVisible && ( // Conditionally render the form
                 <div className={styles.formContainer}>
-                    <h3>{editingCourse ? "Edit Course" : "Add New Course"}</h3>
+                    <h3>{editingCourse ? 'Edit Course' : 'Add New Course'}</h3>
                     <input
-                        type="text"
-                        placeholder="Course Name"
+                        type='text'
+                        placeholder='Course Name'
                         value={newCourse.courseName}
                         onChange={(e) => setNewCourse({ ...newCourse, courseName: e.target.value })}
                     />
                     <input
-                        type="text"
-                        placeholder="Description"
+                        type='text'
+                        placeholder='Description'
                         value={newCourse.description}
                         onChange={(e) => setNewCourse({ ...newCourse, description: e.target.value })}
                     />
                     <input
-                        type="number"
-                        placeholder="Tuition"
+                        type='number'
+                        placeholder='Tuition'
                         value={newCourse.tuition}
                         onChange={(e) => setNewCourse({ ...newCourse, tuition: e.target.value })}
                     />
                     <input
-                        type="text"
-                        placeholder="Image URL"
+                        type='text'
+                        placeholder='Image URL'
                         value={newCourse.imageUrl}
                         onChange={(e) => setNewCourse({ ...newCourse, imageUrl: e.target.value })}
                     />
 
                     <input
-                        type="number"
-                        placeholder="Number of Lessons"
+                        type='number'
+                        placeholder='Number of Lessons'
                         value={lessonCount}
                         onChange={(e) => setLessonCount(Number(e.target.value))}
                         onBlur={handleAddLessonFields}
@@ -179,32 +195,32 @@ function ManageCourses() {
                         <div key={index} className={styles.lessonContainer}>
                             <h4>{`Lesson ${index + 1}`}</h4>
                             <input
-                                type="text"
-                                placeholder="Course Sport Type"
+                                type='text'
+                                placeholder='Course Sport Type'
                                 value={lesson.courseSportType}
                                 onChange={(e) => handleLessonChange(index, 'courseSportType', e.target.value)}
                             />
                             <input
-                                type="text"
-                                placeholder="Lesson Name"
+                                type='text'
+                                placeholder='Lesson Name'
                                 value={lesson.lessonName}
                                 onChange={(e) => handleLessonChange(index, 'lessonName', e.target.value)}
                             />
                             <input
-                                type="text"
-                                placeholder="Description"
+                                type='text'
+                                placeholder='Description'
                                 value={lesson.description}
                                 onChange={(e) => handleLessonChange(index, 'description', e.target.value)}
                             />
                             <input
-                                type="text"
-                                placeholder="Level"
+                                type='text'
+                                placeholder='Level'
                                 value={lesson.levelLesson}
                                 onChange={(e) => handleLessonChange(index, 'levelLesson', e.target.value)}
                             />
                             <input
-                                type="text"
-                                placeholder="Video ID"
+                                type='text'
+                                placeholder='Video ID'
                                 value={lesson.videoId}
                                 onChange={(e) => handleLessonChange(index, 'videoId', e.target.value)}
                             />
@@ -215,10 +231,12 @@ function ManageCourses() {
                         className={`btn ${styles.addButton}`}
                         onClick={editingCourse ? handleUpdateCourse : handleAddCourse}
                     >
-                        {editingCourse ? "Update Course" : "Add Course"}
+                        {editingCourse ? 'Update Course' : 'Add Course'}
                     </button>
                     {editingCourse && (
-                        <button className="btn" onClick={resetForm}>Cancel</button>
+                        <button className='btn' onClick={resetForm}>
+                            Cancel
+                        </button>
                     )}
                 </div>
             )}

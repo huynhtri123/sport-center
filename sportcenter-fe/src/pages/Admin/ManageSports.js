@@ -4,7 +4,7 @@ import styles from '../../assets/css/Admin/manageSports.module.scss';
 import { toast } from 'react-toastify';
 
 function ManageSports() {
-    const [sports, setSports] = useState([]);
+    const [sports, setSports] = useState([]); // Initialize as an empty array
     const [newSport, setNewSport] = useState({ sportName: '', description: '', imageUrl: '' });
     const [editingSport, setEditingSport] = useState(null);
     const [isFormVisible, setIsFormVisible] = useState(false); // State for form visibility
@@ -16,7 +16,7 @@ function ManageSports() {
     async function fetchSports() {
         try {
             const response = await sportApi.getAllActive();
-            setSports(response.data);
+            setSports(response.data || []); // Ensure data is an array even if null
         } catch (error) {
             console.error('Failed to fetch sports:', error);
             toast.error('Failed to fetch sports. Please try again.');
@@ -68,40 +68,47 @@ function ManageSports() {
     return (
         <div className={styles.manageSports}>
             <h2>Manage Sports</h2>
-            <table className={styles.sportsTable}>
-                <thead>
-                    <tr>
-                        <th>STT</th>
-                        <th>Sport Name</th>
-                        <th>Description</th>
-                        <th>Image</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {sports.map((sport, index) => (
-                        <tr key={sport.id}>
-                            <td>{index + 1}</td>
-                            <td>{sport.sportName}</td>
-                            <td>{sport.description}</td>
-                            <td>
-                                <img src={sport.imageUrl} alt={sport.sportName} className={styles.sportImage} />
-                            </td>
-                            <td>
-                                <button className={`btn ${styles.editButton}`} onClick={() => handleEditSport(sport)}>
-                                    Edit
-                                </button>
-                                <button
-                                    className={`btn ${styles.deleteButton}`}
-                                    onClick={() => handleDeleteSport(sport.id)}
-                                >
-                                    Delete
-                                </button>
-                            </td>
+            {sports && sports.length > 0 ? ( // Check if sports has data
+                <table className={styles.sportsTable}>
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Sport Name</th>
+                            <th>Description</th>
+                            <th>Image</th>
+                            <th>Actions</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {sports.map((sport, index) => (
+                            <tr key={sport.id}>
+                                <td>{index + 1}</td>
+                                <td>{sport.sportName}</td>
+                                <td>{sport.description}</td>
+                                <td>
+                                    <img src={sport.imageUrl} alt={sport.sportName} className={styles.sportImage} />
+                                </td>
+                                <td>
+                                    <button
+                                        className={`btn ${styles.editButton}`}
+                                        onClick={() => handleEditSport(sport)}
+                                    >
+                                        Edit
+                                    </button>
+                                    <button
+                                        className={`btn ${styles.deleteButton}`}
+                                        onClick={() => handleDeleteSport(sport.id)}
+                                    >
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            ) : (
+                <p>No sports available. Please add a new sport.</p>
+            )}
 
             <button className={`btn ${styles.addButton}`} onClick={() => setIsFormVisible((prev) => !prev)}>
                 {isFormVisible ? 'Cancel' : 'Add New Sport'}
