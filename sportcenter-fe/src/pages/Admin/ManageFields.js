@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import styles from '../../assets/css/manageFields.module.scss'; // Kiểm tra đường dẫn
+import styles from '../../assets/css/Admin/manageFields.module.scss'; // Kiểm tra đường dẫn
 
 function ManageFields() {
     const [fields, setFields] = useState([

@@ -3,10 +3,49 @@
 .courseContainer {
     padding: 20px;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: flex-start; // Align sidebar and lesson grid to the left
+    align-items: flex-start; // Align items to the top
     width: 100vw;
     box-sizing: border-box;
+}
+
+.sidebar {
+    background-color: $blue-prime; // Sidebar background color consistent with the theme
+    border-radius: 10px;
+    padding: 15px;
+    width: 250px; // Fixed width for the sidebar
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-right: 20px; // Space between sidebar and lesson grid
+    height: auto; // Adjusts automatically based on content
+    margin-top: 15px;
+
+    h2 {
+        font-size: 1.5em;
+        margin-bottom: 15px;
+        text-align: center;
+        color: white; // Change title color to white for contrast
+    }
+
+    .lessonLevel {
+        display: flex;
+        align-items: center; // Center align the icon and text
+        margin-bottom: 10px; // Space between levels
+        transition: color 0.3s ease, background-color 0.3s ease, transform 0.3s ease; // Add transition for color, background, and transform
+
+        span {
+            margin-left: 10px; // Space between icon and text
+            font-size: 1.1em; // Font size for lesson levels
+            color: white; // Change text color to white for contrast
+        }
+
+        // Hover effect for each lesson level
+        &:hover {
+            cursor: pointer; // Change cursor on hover
+            color: lightblue; // Change text color on hover for visibility
+            background-color: rgba(255, 255, 255, 0.2); // Light background on hover for contrast
+            transform: translateY(-5px); // Move the element up on hover
+        }
+    }
 }
 
 .lessonGrid {
@@ -35,7 +74,7 @@
         box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
     }
 
-    h3 {
+    h4 {
         font-size: 1.2em;
         margin: 10px 0;
         text-align: left;
@@ -55,5 +94,17 @@
         border: none;
         border-radius: 8px;
         margin-top: 10px;
+    }
+}
+
+// Optional: Responsive design adjustments
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%; // Make sidebar full width on smaller screens
+        margin: 0 0 20px 0; // Remove margin to stack above lesson grid
+    }
+
+    .lessonGrid {
+        padding: 10px; // Reduce padding on smaller screens
     }
 }

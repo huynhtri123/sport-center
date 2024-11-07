@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface TournamentRepository extends MongoRepository<Tournament, String> {
     public List<Tournament> getTournamentByIsActiveTrueAndIsDeletedFalse();
+    boolean existsBySportIdAndIsActiveTrueAndIsDeletedFalse(String sportId);
 
     @Query("{ 'sportId': ?0, 'isDeleted': false, 'isActive': true }")
     public List<Tournament> getBySportId(String sportId);

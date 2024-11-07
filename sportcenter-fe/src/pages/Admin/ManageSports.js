@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import sportApi from '../../services/api/sportApi';
-import styles from '../../assets/css/manageSports.module.scss';
+import styles from '../../assets/css/Admin/manageSports.module.scss';
 import { toast } from 'react-toastify';
 
 function ManageSports() {
     const [sports, setSports] = useState([]);
     const [newSport, setNewSport] = useState({ sportName: '', description: '', imageUrl: '' });
     const [editingSport, setEditingSport] = useState(null);
+    const [isFormVisible, setIsFormVisible] = useState(false); // State for form visibility
 
-    // Fetch the sports data from the API when the component mounts
     useEffect(() => {
         fetchSports();
     }, []);
@@ -25,10 +25,11 @@ function ManageSports() {
 
     const handleAddSport = async () => {
         try {
-            const response = await sportApi.create(newSport); // Use 'create' here
-            setSports([...sports, response.data]); // Add the new sport to the list
+            const response = await sportApi.create(newSport);
+            setSports([...sports, response.data]);
             toast.success("Sport added successfully!");
-            setNewSport({ sportName: '', description: '', imageUrl: '' }); // Reset form
+            setNewSport({ sportName: '', description: '', imageUrl: '' });
+            setIsFormVisible(false); // Hide form after adding
         } catch (error) {
             console.error("Failed to add sport:", error.response || error);
             toast.error("Failed to add sport. Please try again.");
@@ -36,7 +37,8 @@ function ManageSports() {
     };
 
     const handleEditSport = (sport) => {
-        setEditingSport(sport); // Set sport to be edited
+        setEditingSport(sport);
+        setIsFormVisible(true); // Show form when editing
     };
 
     const handleUpdateSport = async () => {
@@ -44,16 +46,17 @@ function ManageSports() {
             const response = await sportApi.update(editingSport.id, editingSport);
             setSports(sports.map(sport => (sport.id === editingSport.id ? response.data : sport)));
             toast.success("Sport updated successfully!");
-            setEditingSport(null); // Reset editing state
+            setEditingSport(null);
+            setIsFormVisible(false); // Hide form after updating
         } catch (error) {
-            console.error("Failed to update sport:", error);
+            console.error("Failed to update sport:", error.response ? error.response.data : error.message);
             toast.error("Failed to update sport. Please try again.");
         }
     };
 
     const handleDeleteSport = async (sportId) => {
         try {
-            await sportApi.softDelete(sportId); // Use 'delete' here
+            await sportApi.softDelete(sportId);
             setSports(sports.filter(sport => sport.id !== sportId));
             toast.success("Sport deleted successfully!");
         } catch (error) {
@@ -93,36 +96,45 @@ function ManageSports() {
                 </tbody>
             </table>
 
-            <div className={styles.formContainer}>
-                <h3>{editingSport ? "Edit Sport" : "Add New Sport"}</h3>
-                <input
-                    type="text"
-                    placeholder="Sport Name"
-                    value={editingSport ? editingSport.sportName : newSport.sportName}
-                    onChange={(e) => editingSport ? setEditingSport({ ...editingSport, sportName: e.target.value }) : setNewSport({ ...newSport, sportName: e.target.value })}
-                />
-                <input
-                    type="text"
-                    placeholder="Description"
-                    value={editingSport ? editingSport.description : newSport.description}
-                    onChange={(e) => editingSport ? setEditingSport({ ...editingSport, description: e.target.value }) : setNewSport({ ...newSport, description: e.target.value })}
-                />
-                <input
-                    type="text"
-                    placeholder="Image URL"
-                    value={editingSport ? editingSport.imageUrl : newSport.imageUrl}
-                    onChange={(e) => editingSport ? setEditingSport({ ...editingSport, imageUrl: e.target.value }) : setNewSport({ ...newSport, imageUrl: e.target.value })}
-                />
-                <button
-                    className={`btn ${styles.addButton}`}
-                    onClick={editingSport ? handleUpdateSport : handleAddSport}
-                >
-                    {editingSport ? "Update Sport" : "Add Sport"}
-                </button>
-                {editingSport && (
-                    <button className="btn" onClick={() => setEditingSport(null)}>Cancel</button>
-                )}
-            </div>
+            <button 
+                className={`btn ${styles.addButton}`} 
+                onClick={() => setIsFormVisible(prev => !prev)}
+            >
+                {isFormVisible ? "Cancel" : "Add New Sport"}
+            </button>
+
+            {isFormVisible && ( // Conditional rendering of the form
+                <div className={styles.formContainer}>
+                    <h3>{editingSport ? "Edit Sport" : "Add New Sport"}</h3>
+                    <input
+                        type="text"
+                        placeholder="Sport Name"
+                        value={editingSport ? editingSport.sportName : newSport.sportName}
+                        onChange={(e) => editingSport ? setEditingSport({ ...editingSport, sportName: e.target.value }) : setNewSport({ ...newSport, sportName: e.target.value })}
+                    />
+                    <input
+                        type="text"
+                        placeholder="Description"
+                        value={editingSport ? editingSport.description : newSport.description}
+                        onChange={(e) => editingSport ? setEditingSport({ ...editingSport, description: e.target.value }) : setNewSport({ ...newSport, description: e.target.value })}
+                    />
+                    <input
+                        type="text"
+                        placeholder="Image URL"
+                        value={editingSport ? editingSport.imageUrl : newSport.imageUrl}
+                        onChange={(e) => editingSport ? setEditingSport({ ...editingSport, imageUrl: e.target.value }) : setNewSport({ ...newSport, imageUrl: e.target.value })}
+                    />
+                    <button
+                        className={`btn ${styles.addButton}`}
+                        onClick={editingSport ? handleUpdateSport : handleAddSport}
+                    >
+                        {editingSport ? "Update Sport" : "Add Sport"}
+                    </button>
+                    {editingSport && (
+                        <button className="btn" onClick={() => setEditingSport(null)}>Cancel Edit</button>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

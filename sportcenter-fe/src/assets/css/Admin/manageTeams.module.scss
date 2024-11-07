@@ -1,6 +1,6 @@
-@import './variables';
+@import '../variables';
 
-.manageSports {
+.manageTeams {
     padding: 20px;
     flex-grow: 1; // Ensure content occupies remaining space beside any sidebar
 
@@ -9,7 +9,7 @@
         color: $blue-prime; // Title color
     }
 
-    .sportsTable {
+    .teamsTable {
         width: 100%;
         border-collapse: collapse; // Remove spacing between cells
         background-color: #fff;
@@ -30,7 +30,7 @@
             vertical-align: middle; // Center cell content vertically
         }
 
-        .sportImage {
+        .teamLogo {
             width: 80px;
             height: 50px;
             object-fit: cover;

@@ -2,7 +2,6 @@ package app.sportcenter.controllers;
 
 
 import app.sportcenter.commons.BaseResponse;
-import app.sportcenter.commons.CourseSportType;
 import app.sportcenter.models.dto.CourseRequest;
 import app.sportcenter.services.CourseService;
 import jakarta.validation.Valid;
@@ -54,4 +53,18 @@ public class CourseController {
             @RequestParam("courseName") String courseName) {
         return courseService.searchByNameContainingIgnoreCase(courseName);
     }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PutMapping("/updateById/{courseId}")
+    public ResponseEntity<BaseResponse> updateById(@PathVariable(value = "courseId") String courseId,
+                                                   @Valid @RequestBody CourseRequest courseRequest) {
+        return courseService.updateById(courseId, courseRequest);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @DeleteMapping("/deleteLesson/{courseId}/lessons/{lessonId}")
+    public ResponseEntity<BaseResponse> deleteLesson(@PathVariable String courseId, @PathVariable String lessonId) {
+        return courseService.deleteLessonFromCourse(courseId, lessonId);
+    }
+
 }

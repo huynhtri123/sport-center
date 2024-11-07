@@ -2,6 +2,7 @@ package app.sportcenter.models.entities;
 
 
 import app.sportcenter.commons.CourseSportType;
+import app.sportcenter.commons.LevelLesson;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,5 +21,6 @@ public class Lesson extends BaseEntity{
     private CourseSportType courseSportType;
     private String lessonName;
     private String description;
+    private LevelLesson levelLesson;
     private String videoId;
 }

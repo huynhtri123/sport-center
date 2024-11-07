@@ -1,42 +1,39 @@
 import axiosClient from './axiosClient';
 
 const sportApi = {
-    // Tạo mới một môn thể thao
+    // Create a new sport
     create(sportRequest) {
-        const url = '/sport/create';
-        return axiosClient.post(url, sportRequest);
+        return axiosClient.post('/sport/create', sportRequest);
     },
 
-    // Lấy thông tin môn thể thao theo ID
+    // Get a sport by ID
     getById(sportId) {
-        const url = `/sport/getById/${sportId}`;
-        return axiosClient.get(url);
+        return axiosClient.get(`/sport/${sportId}`);
     },
 
-    // Cập nhật thông tin môn thể thao theo ID
+    // Update a sport by ID
     update(sportId, sportRequest) {
-        const url = `/sport/update/${sportId}`;
-        return axiosClient.put(url, sportRequest);
+        return axiosClient.put(`/sport/updateById/${sportId}`, sportRequest);
     },
 
-    // Xóa mềm môn thể thao theo ID
-    softDelete(sportId) {
-        const url = `/sport/softDelete/${sportId}`;
-        return axiosClient.patch(url);
-    },
+    // Permanently delete a sport by ID
     delete(sportId) {
-        const url = `/sport/delete/${sportId}`;
-        return axiosClient.delete(url);
+        return axiosClient.delete(`/sport/${sportId}`);
     },
 
-    // Khôi phục môn thể thao đã bị xóa mềm theo ID
-    restore(sportId) {
-        const url = `/sport/restore/${sportId}`;
-        return axiosClient.patch(url);
+    // Soft delete a sport by ID
+    softDelete(sportId) {
+        return axiosClient.patch(`/sport/softDelete/${sportId}`);
     },
+
+    // Restore a soft-deleted sport by ID
+    restore(sportId) {
+        return axiosClient.patch(`/sport/restore/${sportId}`);
+    },
+
+    // Get all active sports
     getAllActive() {
-        const url = '/public/sport/getAllActive';
-        return axiosClient.get(url);
+        return axiosClient.get('/public/sport/getAllActive');
     },
 };
 

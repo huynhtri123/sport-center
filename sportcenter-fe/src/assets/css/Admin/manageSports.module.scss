@@ -1,6 +1,6 @@
-@import './variables';
+@import '../variables';
 
-.managePlayers {
+.manageSports {
     padding: 20px;
     flex-grow: 1; // Ensure content occupies remaining space beside any sidebar
 
@@ -9,7 +9,7 @@
         color: $blue-prime; // Title color
     }
 
-    .playersTable {
+    .sportsTable {
         width: 100%;
         border-collapse: collapse; // Remove spacing between cells
         background-color: #fff;
@@ -30,7 +30,7 @@
             vertical-align: middle; // Center cell content vertically
         }
 
-        .playerImage {
+        .sportImage {
             width: 80px;
             height: 50px;
             object-fit: cover;
@@ -52,21 +52,6 @@
         }
 
         input {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-
-            &:focus {
-                border-color: $blue-prime;
-                outline: none;
-            }
-        }
-
-        select {
             display: block;
             width: 100%;
             padding: 10px;

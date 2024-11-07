@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import teamApi from '../../services/api/teamApi'; // Update with your actual API service
-import styles from '../../assets/css/manageTeams.module.scss'; // Create this CSS file
+import styles from '../../assets/css/Admin/manageTeams.module.scss'; // Create this CSS file
 import { toast } from 'react-toastify';
 
 function ManageTeams() {

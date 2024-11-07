@@ -8,6 +8,7 @@ import ManagePlayers from './ManagePlayers';
 import ManageSports from './ManageSports';
 import ManageTeams from './ManageTeams';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
+import ManageCourses from './ManageCourses';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
@@ -21,7 +22,7 @@ function AdminDashboard() {
         { name: 'Manage Sports', icon: 'fa-solid fa-basketball-ball' },
         { name: 'Manage Teams', icon: 'fa-solid fa-users' },
         { name: 'Manage Bookings', icon: 'fa-solid fa-calendar-check' },
-        { name: 'Manage Classes', icon: 'fa-solid fa-dumbbell' },
+        { name: 'Manage Courses', icon: 'fa-solid fa-dumbbell' },
         { name: 'Manage Tournaments', icon: 'fa-solid fa-trophy' },
         { name: 'Reports', icon: 'fa-solid fa-file-alt' },
     ];
@@ -121,6 +122,8 @@ function AdminDashboard() {
                 return <ManageSports />;
             case 'Manage Teams':
                 return <ManageTeams />;
+            case 'Manage Courses':
+                return <ManageCourses />
             default:
                 return <h2>Welcome to Admin Dashboard</h2>;
         }

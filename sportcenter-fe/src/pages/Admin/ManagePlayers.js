@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import playerApi from '../../services/api/playerApi'; // Adjust the path as needed
-import styles from '../../assets/css/managePlayers.module.scss';
+import styles from '../../assets/css/Admin/managePlayers.module.scss';
 import { toast } from 'react-toastify';
 
 function ManagePlayers() {
