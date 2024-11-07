@@ -7,6 +7,7 @@ import ManageSports from './ManageSports';
 import Signout from '../Auth/Signout';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import ManageCourses from './ManageCourses';
+import ManageTournaments from './ManageTournaments';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
@@ -116,6 +117,8 @@ function AdminDashboard() {
                 return <ManageSports />;
             case 'Manage Courses':
                 return <ManageCourses />;
+            case 'Manage Tournaments':
+                return <ManageTournaments />;
             default:
                 return <h2>Welcome to Admin Dashboard</h2>;
         }
