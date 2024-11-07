@@ -24,12 +24,14 @@ public class CourseMapper {
     private LessonRepository lessonRepository;
 
     public Course convertToEntity(CourseRequest courseRequest) {
-        Course course = courseRequest != null ? modelMapper.map(courseRequest, Course.class) : null;
+        if (courseRequest == null) return null;
 
-        if (courseRequest != null && courseRequest.getLessonIds() != null) {
-            List<Lesson> lessons = courseRequest.getLessonIds().stream()
-                    .map(lessonId -> lessonRepository.findById(lessonId)
-                            .orElseThrow(() -> new CustomException("Lesson not found with id: " + lessonId, HttpStatus.NOT_FOUND.value())))
+        Course course = modelMapper.map(courseRequest, Course.class);
+
+        // Map lessons from CourseRequest to Course entity
+        if (courseRequest.getLessons() != null) {
+            List<Lesson> lessons = courseRequest.getLessons().stream()
+                    .map(lessonRequest -> modelMapper.map(lessonRequest, Lesson.class))
                     .collect(Collectors.toList());
             course.setLessons(lessons);
         }
@@ -67,6 +69,16 @@ public class CourseMapper {
         oldCourse.setDescription(newCourse.getDescription());
         oldCourse.setTuition(newCourse.getTuition());
         oldCourse.setImageUrl(newCourse.getImageUrl());
+
+        // Update lessons
+        if (newCourse.getLessons() != null) {
+            List<Lesson> updatedLessons = newCourse.getLessons().stream()
+                    .map(lessonRequest -> modelMapper.map(lessonRequest, Lesson.class))
+                    .collect(Collectors.toList());
+            oldCourse.setLessons(updatedLessons);
+        } else {
+            oldCourse.setLessons(List.of()); // Set to an empty list if no lessons are provided
+        }
 
         return oldCourse;
     }

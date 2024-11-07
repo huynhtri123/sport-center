@@ -15,7 +15,7 @@ public interface CourseService {
     public ResponseEntity<BaseResponse> softDelete(String courseId);
     public ResponseEntity<BaseResponse> restore(String courseId);
     public ResponseEntity<BaseResponse> searchByNameContainingIgnoreCase(String courseName);
-
+    public ResponseEntity<BaseResponse> deleteLessonFromCourse(String courseId, String lessonId);
 
 
 

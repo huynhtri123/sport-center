@@ -1,6 +1,5 @@
 package app.sportcenter.models.dto;
 
-import app.sportcenter.models.entities.Lesson;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,5 +27,5 @@ public class CourseRequest extends BaseRequestDTO{
     private String imageUrl;
 
 
-    private List<String> lessonIds;
+    private List<LessonRequest> lessons;
 }

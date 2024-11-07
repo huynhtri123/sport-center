@@ -28,7 +28,7 @@ public class SportController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PutMapping("/sport/update/{sportId}")
+    @PutMapping("/sport/updateById/{sportId}")
     public ResponseEntity<BaseResponse> update(@PathVariable String sportId,@Valid @RequestBody SportRequest sportRequest) {
         return sportService.update(sportId, sportRequest);
     }
@@ -36,7 +36,7 @@ public class SportController {
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PatchMapping("/sport/softDelete/{sportId}")
     public ResponseEntity<BaseResponse> softDelete(@PathVariable String sportId) {
-        return sportService.delete(sportId);
+        return sportService.softDelete(sportId);
     }
 
     // api này public được nên ko cần xác thực

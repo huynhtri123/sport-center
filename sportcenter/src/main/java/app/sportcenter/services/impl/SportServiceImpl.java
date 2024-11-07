@@ -6,6 +6,7 @@ import app.sportcenter.models.dto.SportRequest;
 import app.sportcenter.models.dto.SportResponse;
 import app.sportcenter.models.entities.Sport;
 import app.sportcenter.repositories.SportRepository;
+import app.sportcenter.repositories.TournamentRepository;
 import app.sportcenter.services.SportService;
 import app.sportcenter.utils.mappers.SportMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,9 @@ public class SportServiceImpl implements SportService {
     private SportRepository sportRepository;
     @Autowired
     private SportMapper sportMapper;
+    @Autowired
+    private TournamentRepository tournamentRepository;
+
     @Override
     public ResponseEntity<BaseResponse> create(SportRequest sportRequest) {
         Sport sport = sportMapper.convetToEntity(sportRequest);
@@ -71,20 +75,36 @@ public class SportServiceImpl implements SportService {
     }
 
     @Override
-    public ResponseEntity<BaseResponse> delete(String id) {
+    public ResponseEntity<BaseResponse> softDelete(String id) {
         Sport sport = sportRepository.getSportById(id);
-        if(sport == null) {
+
+        // Check if the sport exists
+        if (sport == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Khong tim thay sport de xoa", HttpStatus.NOT_FOUND.value(),null)
+                    new BaseResponse("Không tìm thấy sport để xóa", HttpStatus.NOT_FOUND.value(), null)
             );
         }
+
+        // Check if any active, non-deleted tournaments are associated with this sport
+        boolean hasAssociatedTournaments = tournamentRepository.existsBySportIdAndIsActiveTrueAndIsDeletedFalse(id);
+        if (hasAssociatedTournaments) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new BaseResponse("Không thể xóa môn thể thao vì đang được sử dụng trong các giải đấu", HttpStatus.BAD_REQUEST.value(), null)
+            );
+        }
+
+        // Mark the sport as deleted
         sport.setIsDeleted(true);
         sportRepository.save(sport);
+
+        // Convert the sport entity to a DTO for the response
         SportResponse responseSport = sportMapper.convertToDTO(sport);
+
         return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("Xoa thanh cong sport", HttpStatus.OK.value(),responseSport)
+                new BaseResponse("Xóa thành công sport", HttpStatus.OK.value(), responseSport)
         );
     }
+
 
     @Override
     public ResponseEntity<BaseResponse> getAll() {

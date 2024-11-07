@@ -7,6 +7,7 @@ import app.sportcenter.exceptions.NotFoundException;
 import app.sportcenter.models.dto.CourseRequest;
 import app.sportcenter.models.dto.CourseResponse;
 import app.sportcenter.models.entities.Course;
+import app.sportcenter.models.entities.Lesson;
 import app.sportcenter.repositories.CourseRepository;
 import app.sportcenter.services.CourseService;
 import app.sportcenter.utils.mappers.CourseMapper;
@@ -72,7 +73,9 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository.findById(courseId).orElseThrow(() ->
                 new NotFoundException("Course not found!"));
 
-        Course updatedCourse = courseRepository.save(courseMapper.replaceAll(course, newCourse));
+        // Update course and its lessons
+        Course updatedCourse = courseMapper.replaceAll(course, newCourse);
+        courseRepository.save(updatedCourse);
 
         CourseResponse responseCourse = courseMapper.convertToDTO(updatedCourse);
 
@@ -130,6 +133,31 @@ public class CourseServiceImpl implements CourseService {
         );
     }
 
+    @Override
+    public ResponseEntity<BaseResponse> deleteLessonFromCourse(String courseId, String lessonId) {
+        // Find the course by ID
+        Course course = courseRepository.findById(courseId).orElseThrow(() ->
+                new NotFoundException("Course not found!"));
+
+        // Check if the lesson exists in the course
+        List<Lesson> lessons = course.getLessons();
+        Lesson lessonToRemove = lessons.stream()
+                .filter(lesson -> lesson.getId().equals(lessonId))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Lesson not found in this course!"));
+
+        // Remove the lesson from the list
+        lessons.remove(lessonToRemove);
+        course.setLessons(lessons);
+
+        // Save the updated course
+        Course updatedCourse = courseRepository.save(course);
+        CourseResponse responseCourse = courseMapper.convertToDTO(updatedCourse);
+
+        return ResponseEntity.ok(
+                new BaseResponse("Lesson deleted successfully.", HttpStatus.OK.value(), responseCourse)
+        );
+    }
 
 
 

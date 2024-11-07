@@ -25,13 +25,6 @@ public class Course extends BaseEntity {
     private String description;
     private String imageUrl;
 
-    @DBRef
     private List<Lesson> lessons;
-//    private Sport sport;                    // môn thể thao được dạy
-//    private User coach;                     // huấn luyện viên đảm nhiệm lớp
-//    private Integer maxParticipants;
-//    private Integer currentParticipants;
-//    private String schedule;                // lịch học
-//    private ZonedDateTime startDate;
-//    private ZonedDateTime endDate;
+
 }

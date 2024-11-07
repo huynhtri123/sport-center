@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-
 import styles from '../../assets/css/Admin/manageFields.module.scss';
 import { useGetFields } from '../../customs/hooks';
 import fieldApi from '../../services/api/fieldApi';

@@ -2,6 +2,7 @@ package app.sportcenter.models.dto;
 
 
 import app.sportcenter.commons.CourseSportType;
+import app.sportcenter.commons.LevelLesson;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,5 +17,6 @@ public class LessonResponse extends BaseResponseDTO {
     private CourseSportType courseSportType;
     private String lessonName;
     private String description;
+    private LevelLesson levelLesson;
     private String videoId;
 }
