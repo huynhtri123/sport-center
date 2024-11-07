@@ -11,58 +11,55 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/course")
+@RequestMapping("/api")
 public class CourseController {
     @Autowired
     private CourseService courseService;
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping("/create")
+    @PostMapping("/course/create")
     public ResponseEntity<BaseResponse> create(@Valid @RequestBody CourseRequest courseRequest) {
         return courseService.create(courseRequest);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @GetMapping("/getAllActive")
+    @GetMapping("/public/course/getAllActive")
     public ResponseEntity<BaseResponse> getAllActive() {
         return courseService.getAllActive();
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @GetMapping("/getById/{courseId}")
+    @GetMapping("/public/course/getById/{courseId}")
     public ResponseEntity<BaseResponse> getById(@PathVariable("courseId") String courseId) {
         return courseService.getById(courseId);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PatchMapping("/softDelete/{courseId}")
+    @PatchMapping("/course/softDelete/{courseId}")
     public ResponseEntity<BaseResponse> softDelete(@PathVariable("courseId") String courseId) {
         return courseService.softDelete(courseId);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PatchMapping("/restore/{courseId}")
+    @PatchMapping("/course/restore/{courseId}")
     public ResponseEntity<BaseResponse> restore(@PathVariable("courseId") String courseId) {
         return courseService.restore(courseId);
     }
 
 
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @GetMapping("/searchByName")
+    @GetMapping("/public/course/searchByName")
     public ResponseEntity<BaseResponse> searchByNameContainingIgnoreCase(
             @RequestParam("courseName") String courseName) {
         return courseService.searchByNameContainingIgnoreCase(courseName);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PutMapping("/updateById/{courseId}")
+    @PutMapping("/course/updateById/{courseId}")
     public ResponseEntity<BaseResponse> updateById(@PathVariable(value = "courseId") String courseId,
                                                    @Valid @RequestBody CourseRequest courseRequest) {
         return courseService.updateById(courseId, courseRequest);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @DeleteMapping("/deleteLesson/{courseId}/lessons/{lessonId}")
+    @DeleteMapping("/course/deleteLesson/{courseId}/lessons/{lessonId}")
     public ResponseEntity<BaseResponse> deleteLesson(@PathVariable String courseId, @PathVariable String lessonId) {
         return courseService.deleteLessonFromCourse(courseId, lessonId);
     }

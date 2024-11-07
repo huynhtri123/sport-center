@@ -12,8 +12,15 @@ import ConfirmModal from '../../components/Modal/ConfirmModal';
 function ManageFields() {
     const [fields, setFields] = useGetFields();
     const [isLoading, setIsLoading] = useState(false);
+
+    // State for the delete modal
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const toggleModalOpen = () => setIsModalOpen(!isModalOpen);
+    const [deleteFieldId, setDeleteFieldId] = useState(null); // Track which field to delete
+
+    const toggleModalOpen = (fieldId = null) => {
+        setDeleteFieldId(fieldId);
+        setIsModalOpen(!isModalOpen);
+    };
 
     const [formData, setFormData] = useState({
         fieldName: '',
@@ -23,12 +30,9 @@ function ManageFields() {
         imageUrl: defaultIcon,
     });
 
-    // State dùng cho chế chộ edit
     const [editFieldId, setEditFieldId] = useState(null);
     const [editFormData, setEditFormData] = useState(formData);
     const [isEditing, setIsEditing] = useState(false);
-
-    // ẩn/hiện form input
     const [showInputForm, setShowInputForm] = useState(false);
 
     const handleChange = (e) => {
@@ -97,10 +101,8 @@ function ManageFields() {
         }
     };
 
-    // nút Add Field hoặc Cancel Edit
     const handleToggleShowAddField = () => {
         setShowInputForm(!showInputForm);
-        // nếu đang trong chế độ chỉnh sửa thì đây là nút huỷ chỉnh sửa
         if (isEditing) {
             setIsEditing(false);
             setEditFieldId(null);
@@ -115,17 +117,17 @@ function ManageFields() {
         } catch (err) {
             console.error(err);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [setFields]);
 
     useEffect(() => {
         getFields();
     }, [getFields]);
 
-    const handleSoftDelete = async (fieldId) => {
+    const handleSoftDelete = async () => {
+        if (!deleteFieldId) return;
         try {
             setIsLoading(true);
-            const softDeleteResponse = await fieldApi.softDelete(fieldId);
+            const softDeleteResponse = await fieldApi.softDelete(deleteFieldId);
             toast.success(softDeleteResponse.message);
             getFields();
         } catch (err) {
@@ -136,7 +138,6 @@ function ManageFields() {
         }
     };
 
-    // bật chế độ chỉnh sửa
     const handleEditClick = (field) => {
         setIsEditing(true);
         setEditFieldId(field.id);
@@ -251,15 +252,18 @@ function ManageFields() {
                                         >
                                             Edit
                                         </button>
-                                        <button className={`btn ${styles.deleteButton}`} onClick={toggleModalOpen}>
+                                        <button
+                                            className={`btn ${styles.deleteButton}`}
+                                            onClick={() => toggleModalOpen(field.id)}
+                                        >
                                             Delete
                                         </button>
-                                        {isModalOpen && (
+                                        {isModalOpen && deleteFieldId === field.id && (
                                             <ConfirmModal
                                                 title='Are you sure you want to delete this field?'
                                                 isOpen={isModalOpen}
-                                                onClose={toggleModalOpen}
-                                                onSubmit={() => handleSoftDelete(field.id)}
+                                                onClose={() => toggleModalOpen(null)}
+                                                onSubmit={handleSoftDelete}
                                             />
                                         )}
                                     </div>

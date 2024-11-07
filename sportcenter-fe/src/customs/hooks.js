@@ -46,11 +46,11 @@ export const useCleanupStorage = () => {
     }, [location.pathname]);
 };
 
-
 export const useGetCourses = () => {
     const [courses, setCourses] = useContext(CourseContext);
     return [courses, setCourses];
 };
+
 export const useTournament = () => {
     const [tournament, setTournament] = useContext(TournamentContext);
     return [tournament, setTournament];

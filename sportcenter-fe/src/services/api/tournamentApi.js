@@ -1,6 +1,14 @@
 import axiosClient from './axiosClient';
 
 const tournamentApi = {
+    create(formData) {
+        const url = '/tounament/create';
+        return axiosClient.post(url, formData);
+    },
+    update(tournamentId, formData) {
+        const url = `/tounament/update/${tournamentId}`;
+        return axiosClient.put(url, formData);
+    },
     getAllActive() {
         const url = '/public/tounament/getAllActive';
         return axiosClient.get(url);
@@ -20,6 +28,10 @@ const tournamentApi = {
     checkRegistrationEligibility(registerRequest) {
         const url = '/tournament/checkRegistrationEligibility';
         return axiosClient.patch(url, registerRequest);
+    },
+    softDelete(tournamentId) {
+        const url = `/tounament/softDelete/${tournamentId}`;
+        return axiosClient.patch(url);
     },
 };
 
