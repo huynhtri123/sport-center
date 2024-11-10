@@ -14,7 +14,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -36,45 +38,30 @@ public class SchedulerConfig {
     @Transactional
     @Scheduled(fixedRate = 60000) // chạy mỗi 1 phut
     public void checkFieldTimeSlotsStatus() {
-        ZonedDateTime now = ZonedDateTime.now().plusHours(7);   // vì khi tạo bookign thì ta đã trừ 7
+        ZonedDateTime now = ZonedDateTime.now();
+        log.info("Check booking status. Thời gian hiện tại (+7): " + now);
 
-        // 1. Lấy tất cả các booking đã hết hạn (thời gian kết thúc trước hiện tại)
+        // lấy tất cả các booking đã hết hạn (thời gian kết thúc trước hiện tại)
         List<Booking> expiredBookings = bookingRepository.findExpiredBookings(now);
+
+        List<Field> fieldsToSave = new ArrayList<>();
+        List<Booking> bookingsToSave = new ArrayList<>();
 
         for (Booking booking : expiredBookings) {
             Field field = booking.getField();
-            ZonedDateTime bookingStartTime = booking.getStartTime();
-            ZonedDateTime bookingEndTime = booking.getEndTime();
+            // 2 cái sau đây là giờ +7, nên chuyển nó về +0 để tạo timeSlot:
+            ZonedDateTime bookingStartTime = booking.getStartTime().withZoneSameInstant(ZoneOffset.UTC);
+            ZonedDateTime bookingEndTime = booking.getEndTime().withZoneSameInstant(ZoneOffset.UTC);
 
-            if (field.getTimeSlots() == null || field.getTimeSlots().isEmpty()) {
-                continue;
-            }
-
-            boolean isUpdated = false;
-
-            // 2. Cập nhật các TimeSlot của Field tương ứng với booking đã hết hạn
-            for (TimeSlot slot : field.getTimeSlots()) {
-                // Chỉ cập nhật trạng thái nếu `TimeSlot` nằm trong thời gian của `Booking` đã hết hạn và hiện đang `IN_USE`
-                if (slot.getStatus() == FieldStatus.IN_USE &&
-                        slot.getEndTime().isBefore(now) &&
-                        slot.getStartTime().isBefore(bookingEndTime) &&
-                        slot.getEndTime().isAfter(bookingStartTime)) {
-
-                    slot.setStatus(FieldStatus.AVAILABLE);
-                    isUpdated = true; // Đánh dấu là có cập nhật
-                }
-            }
-
-            // 3. Chỉ lưu nếu có thay đổi trạng thái của `TimeSlot`
-            if (isUpdated) {
-                booking.setField(field);
-                booking.setIsActive(false); // Đánh dấu Booking là không còn hoạt động
-                fieldRepository.save(field);
-                bookingRepository.save(booking);
-                log.info("Đặt sân hết hạn. Đã cập nhật trạng thái TimeSlots về AVAILABLE, ID sân: {}, ID booking: {}",
-                        field.getId(), booking.getId());
-            }
+            // tạo timeSlot mới <=> trả nó về AVAILABLE
+            field.createTimeSlots(bookingStartTime, bookingEndTime);
+            fieldsToSave.add(field);
+            booking.setIsActive(false);
+            bookingsToSave.add(booking);
+            log.info("Đặt sân hết hạn, vừa cập nhật về AVAILABLE (bookingId: {})", booking.getId());
         }
+        fieldRepository.saveAll(fieldsToSave);
+        bookingRepository.saveAll(bookingsToSave);
     }
 
 }

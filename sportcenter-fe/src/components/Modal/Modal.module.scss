@@ -15,7 +15,7 @@ h4 {
     justify-content: center;
     align-items: center;
     text-align: center;
-    z-index: 1000; // Đảm bảo nó nằm trên cùng
+    z-index: 999; // Đảm bảo nó nằm trên cùng (sau mỗi thằng Loading)
     pointer-events: auto; // Bật pointer-events để chặn tương tác
 }
 

@@ -6,45 +6,45 @@ import bookingApi from '../../../services/api/booking/bookingApi';
 import { Loading } from '../../../components/Loading/Loading';
 import Button from '../../../components/Button/Button';
 import { useGetField } from '../../../customs/hooks';
+import { RecurringIntervalType } from '../../../utils/enums/RecurringIntervalType';
+import ConfirmModal from '../../../components/Modal/ConfirmModal';
 
 function Booking() {
-    const [field, setField] = useGetField(); // field lấy từ context (được set ở FieldList)
-    const [selectedDate, setSelectedDate] = useState(''); // ngày được chọn (vd: 2024-12-10)
-    const [timeSlots, setTimeSlots] = useState([]); // danh sách timeSlots
-    const [numberOfHours, setNumberOfHours] = useState(1); // số giờ đặt
-    const [startTime, setStartTime] = useState(''); // Thời gian bắt đầu của timeSlot được chọn
+    const [field, setField] = useGetField();
+    const [selectedDate, setSelectedDate] = useState('');
+    const [timeSlots, setTimeSlots] = useState([]);
+    const [numberOfHours, setNumberOfHours] = useState(1);
+    const [startTime, setStartTime] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const startTimeRef = useRef(); // để canh ô input startTime của booking có trống ko
+    const startTimeRef = useRef();
+    const [interval, setInterval] = useState(RecurringIntervalType.WEEKLY);
+    const [duration, setDuration] = useState(1);
+    const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+    const [isRecurringModalOpen, setIsRecurringBookingModalOpen] = useState(false);
+    const [bookingPrice, setBookingPrice] = useState(0);
+    const [recurringBookingPrice, setRecurringBookingPrice] = useState(0);
 
     useEffect(() => {
-        window.scrollTo(0, 0); // Scroll to the top of the page when the component mounts
+        window.scrollTo(0, 0);
     }, []);
 
-    // Hàm gọi API để lấy timeSlots cho ngày đã chọn
     const fetchTimeSlots = useCallback(
         async (date) => {
             if (!field || !field.id) {
-                // khi load lại trang thì lấy lại dữ liệu field từ localStorage
                 const savedField = localStorage.getItem('selectedField');
-                if (savedField) {
-                    setField(JSON.parse(savedField));
-                }
-                // console.warn('Sân chưa được nạp (chỉ là chưa kịp nạp thôi, ko sao)');
+                if (savedField) setField(JSON.parse(savedField));
                 return;
             }
 
-            // Cấu hình thời gian với định dạng giờ Việt Nam (+7) vì BE yêu cầu input là kiểu +7
             const onDaySchedule = {
                 fieldId: field.id,
-                startOfDay: `${date}T00:00:00+07:00`, // Bắt đầu từ 00:00 ngày được chọn
-                endOfDay: `${date}T23:59:00+07:00`, // Kết thúc vào 23:59 ngày được chọn
+                startOfDay: `${date}T00:00:00+07:00`,
+                endOfDay: `${date}T23:59:00+07:00`,
             };
-            // console.log('GEt: ', onDaySchedule);
 
             try {
-                // api này trả về kiểu +7
                 const response = await bookingApi.updateAndGetSchedule(onDaySchedule);
-                setTimeSlots(response.data.timeSlots); // cập nhật danh sách timeSlots đã được lấy theo ngày
+                setTimeSlots(response.data.timeSlots);
             } catch (error) {
                 console.error('Error fetching time slots:', error);
             }
@@ -52,15 +52,54 @@ function Booking() {
         [field, setField]
     );
 
-    // Hàm xử lý khi chọn ngày -> nạp lại danh sách timeSlot
     const handleDateChange = (e) => {
-        // vd: 2024-12-10
         const date = e.target.value;
         setSelectedDate(date);
         fetchTimeSlots(date);
     };
 
-    const handleBookingSubmit = async (e) => {
+    const getPrice = async (isRecurring) => {
+        if (!startTimeRef.current.value) {
+            toast.warn('Please pick start time!');
+            return;
+        }
+        try {
+            setIsLoading(true);
+            const startDateTimeString = `${selectedDate}T${startTime}:00+00:00`;
+            const startTimeUTC = new Date(startDateTimeString).toISOString();
+
+            const request = {
+                fieldId: field.id,
+                startTime: startTimeUTC,
+                numberOfHours: numberOfHours,
+                ...(isRecurring && {
+                    startDate: startTimeUTC,
+                    interval: interval,
+                    packageDurationMonths: duration,
+                }),
+            };
+
+            const priceResponse = isRecurring
+                ? await bookingApi.getRecurringBookingPrice(request)
+                : await bookingApi.getBookingPrice(request);
+
+            isRecurring ? setRecurringBookingPrice(priceResponse.data) : setBookingPrice(priceResponse.data);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const toggleModal = (isRecurring, e) => {
+        e.preventDefault();
+        isRecurring
+            ? setIsRecurringBookingModalOpen(!isRecurringModalOpen)
+            : setIsBookingModalOpen(!isBookingModalOpen);
+        getPrice(isRecurring);
+    };
+
+    const handleSubmit = async (isRecurring, e) => {
         e.preventDefault();
         if (!startTimeRef.current.value) {
             toast.warn('Please pick start time!');
@@ -68,50 +107,45 @@ function Booking() {
         }
         try {
             setIsLoading(true);
-            // startTime là giờ Việt Nam nhưng định dạng UTC (+0) cho khớp BE
-            // console.log(startTime);
             const startDateTimeString = `${selectedDate}T${startTime}:00+00:00`;
-            // console.log(startDateTimeString)
             const startTimeUTC = new Date(startDateTimeString).toISOString();
-            // console.log(startTimeUTC)
 
-            const bookingRequest = {
+            const request = {
                 fieldId: field.id,
                 startTime: startTimeUTC,
                 numberOfHours: numberOfHours,
+                ...(isRecurring && {
+                    startDate: startTimeUTC,
+                    interval: interval,
+                    packageDurationMonths: duration,
+                }),
             };
-            // console.log('create: ', bookingRequest);
 
-            const response = await bookingApi.createBooking(bookingRequest);
-            fetchTimeSlots(selectedDate); // nạp lại danh sách timeSlot
+            const response = isRecurring
+                ? await bookingApi.createRecurringBooking(request)
+                : await bookingApi.createBooking(request);
+
+            fetchTimeSlots(selectedDate);
             toast.success(response.message);
         } catch (err) {
             console.error(err);
-            toast.error(err);
+            toast.error(err.message);
         } finally {
             setIsLoading(false);
+            isRecurring ? setIsRecurringBookingModalOpen(false) : setIsBookingModalOpen(false);
         }
     };
 
     useEffect(() => {
-        // Đặt ngày mặc định là ngày hiện tại
         const today = new Date();
-        const defaultDate = today.toISOString().split('T')[0]; // vd: 2024-12-10
+        const defaultDate = today.toISOString().split('T')[0];
         setSelectedDate(defaultDate);
-        fetchTimeSlots(defaultDate); // lấy today's timeSlots khi component được mount
+        fetchTimeSlots(defaultDate);
     }, [fetchTimeSlots]);
-
-    useEffect(() => {
-        // nếu đổi ngày thì nạp lại danh sách
-        if (selectedDate) {
-            fetchTimeSlots(selectedDate);
-        }
-    }, [selectedDate, fetchTimeSlots]);
 
     return (
         <div className={styles.bookingContainer}>
             {isLoading && <Loading />}
-
             <section className={styles.fieldDetailSection}>
                 <div className={styles.fieldImage}>
                     <img src={field.imageUrl} alt={field.fieldName} />
@@ -125,27 +159,23 @@ function Booking() {
 
             <section className={styles.bookingSection}>
                 <h2>Đặt sân</h2>
-
-                {/* Ô chọn ngày */}
                 <div className={styles.formGroup}>
                     <label htmlFor='datePicker'>Chọn ngày:</label>
                     <input
-                        type='date' // vd: 2024-12-10
+                        type='date'
                         id='datePicker'
                         required
                         value={selectedDate}
                         onChange={handleDateChange}
-                        min={new Date().toISOString().split('T')[0]} // Chỉ cho phép chọn ngày hôm nay hoặc tương lai
+                        min={new Date().toISOString().split('T')[0]}
                     />
                 </div>
-
-                {/* Hiển thị danh sách khung giờ */}
                 <div className={styles.timeSlotGrid}>
                     {timeSlots.length > 0 ? (
                         timeSlots.map((slot, index) => {
                             const slotStartTime = new Date(slot.startTime);
-                            const currentTimeVN = new Date(new Date().getTime() + 7 * 60 * 60 * 1000); // +7h
-                            const isPastSlot = slotStartTime < currentTimeVN; // Kiểm tra xem slot đã qua hay chưa
+                            const currentTimeVN = new Date(new Date().getTime() + 7 * 60 * 60 * 1000);
+                            const isPastSlot = slotStartTime < currentTimeVN;
                             const isAvailable = slot.status === 'AVAILABLE';
                             return (
                                 <div
@@ -156,13 +186,12 @@ function Booking() {
                                     )}
                                     onClick={() => {
                                         if (!isPastSlot && isAvailable) {
-                                            setStartTime(slot.startTime.substring(11, 16)); // để điền vào input
+                                            setStartTime(slot.startTime.substring(11, 16));
                                         }
                                     }}
                                 >
                                     <span>
                                         {slot.startTime.substring(11, 16)} - {slot.endTime.substring(11, 16)}
-                                        {/* ví dụ: YYYY-MM-DDTHH:MM:SSZ -> HH:MM */}
                                     </span>
                                 </div>
                             );
@@ -171,15 +200,11 @@ function Booking() {
                         <p>Không có khung giờ nào khả dụng cho ngày đã chọn.</p>
                     )}
                 </div>
-
-                {/* Ô hiển thị thời gian bắt đầu của timeSlot được chọn */}
                 <div className={styles.formGroup}>
                     <label htmlFor='startTime'>Thời gian bắt đầu:</label>
                     <input ref={startTimeRef} type='text' id='startTime' value={startTime} readOnly />
                 </div>
-
-                {/* Form đặt sân */}
-                <form onSubmit={handleBookingSubmit} className={styles.bookingForm}>
+                <form onSubmit={(e) => toggleModal(false, e)} className={styles.bookingForm}>
                     <div className={styles.formGroup}>
                         <label htmlFor='numberOfHours'>Số giờ muốn đặt:</label>
                         <input
@@ -191,10 +216,48 @@ function Booking() {
                             required
                         />
                     </div>
-
-                    <Button type='submit' className={clsx('font-cera-round-pro-medium', styles.bookingButton)}>
+                    <Button type='submit' className={clsx('font-cera-round-pro-medium mb-4', styles.bookingButton)}>
                         Book Now
                     </Button>
+                    {isBookingModalOpen && (
+                        <ConfirmModal
+                            title={`Tổng giá là: ${bookingPrice}, bạn có muốn đặt sân lẻ?`}
+                            isOpen={isBookingModalOpen}
+                            onClose={() => setIsBookingModalOpen(false)}
+                            onSubmit={(e) => handleSubmit(false, e)}
+                        />
+                    )}
+                </form>
+
+                <h2 className='mt-4'>Đặt sân theo lịch cứng</h2>
+                <form onSubmit={(e) => toggleModal(true, e)} className={styles.bookingForm}>
+                    <div className={styles.formGroup}>
+                        <label htmlFor='interval'>Chọn chu kỳ:</label>
+                        <select id='interval' value={interval} onChange={(e) => setInterval(e.target.value)}>
+                            <option value={RecurringIntervalType.DAILY}>Hàng ngày</option>
+                            <option value={RecurringIntervalType.WEEKLY}>Hàng tuần</option>
+                            <option value={RecurringIntervalType.MONTHLY}>Hàng tháng</option>
+                        </select>
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label htmlFor='duration'>Thời hạn gói (tháng):</label>
+                        <select id='duration' value={duration} onChange={(e) => setDuration(e.target.value)}>
+                            <option value={1}>1 tháng</option>
+                            <option value={3}>3 tháng</option>
+                            <option value={6}>6 tháng</option>
+                        </select>
+                    </div>
+                    <Button type='submit' className={clsx('font-cera-round-pro-medium', styles.bookingButton)}>
+                        Book Recurring
+                    </Button>
+                    {isRecurringModalOpen && (
+                        <ConfirmModal
+                            title={`Tổng giá là: ${recurringBookingPrice}, bạn có chắc muốn đặt sân theo lịch cứng?`}
+                            isOpen={isRecurringModalOpen}
+                            onClose={() => setIsRecurringBookingModalOpen(false)}
+                            onSubmit={(e) => handleSubmit(true, e)}
+                        />
+                    )}
                 </form>
             </section>
         </div>

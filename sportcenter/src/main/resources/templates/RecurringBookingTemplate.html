@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Recurring Booking Confirmation</title>
+</head>
+<body>
+<h2>Chào, <span th:text="${fullName}">Tên người dùng</span>!</h2>
+<p>Bạn đã đặt sân <strong th:text="${fieldName}">Tên sân</strong> theo lịch định kỳ.</p>
+
+<p><strong>Chi tiết đặt sân:</strong></p>
+<ul>
+    <li>Ngày bắt đầu: <span th:text="${startDate}">Start Date</span></li>
+    <li>Thời gian bắt đầu: <span th:text="${startTime}">Start Time</span></li>
+    <li>Ngày kết thúc: <span th:text="${endDate}">End Date</span></li>
+    <li>Thời gian kết thúc: <span th:text="${endTime}">End Time</span></li>
+    <li>Định kỳ: <span th:text="${interval}">Interval</span></li>
+    <li>Số giờ mỗi lần đặt: <span th:text="${numberOfHours}">Number of Hours</span></li>
+    <li>Thời hạn gói (tháng): <span th:text="${packageDurationMonths}">Package Duration</span></li>
+    <li>Giá tổng cộng: <strong th:text="${price}">Total Price</strong> VND</li>
+</ul>
+
+<p>Sport Center cảm ơn bạn đã tin tưởng và sử dụng dịch vụ của chúng tôi.</p>
+</body>
+</html>

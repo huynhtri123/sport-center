@@ -7,9 +7,15 @@ import java.time.ZonedDateTime;
 
 public interface MailService {
     public void sendMailVerify(String toEmail, String userName, String verifyCode);
+
     public void sendMailBooking(String toEmail, String fullName, String bookingDate, String numberOfHours,
                                 String startTime, String endTime, String totalPrice);
+    public void sendMailRecurringBooking(String toEmail, String fullName, String fieldName,
+                                         String startDate, String startTime, String endDate,
+                                         String endTime, String interval, String numberOfHours,
+                                         String packageDurationMonths, String price);
     public void sendMailCancelBooking(String toEmail, String fullName, String bookingDate, String startTime, String endTime);
+
     public void sendMailRegisterTournament(String toEmail, String tournamentName,
                                            ZonedDateTime startDate, ZonedDateTime endDate, Team team);
     public void sendMailUnregisterTournament(String toEmail, String tournamentName, ZonedDateTime startDate, ZonedDateTime endDate, Team team);
