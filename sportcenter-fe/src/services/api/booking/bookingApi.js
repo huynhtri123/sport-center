@@ -15,6 +15,22 @@ const bookingApi = {
         const url = `/booking/cancelBooking/${bookingId}`;
         return axiosClient.put(url);
     },
+
+    // đặt theo lịch cứng
+    createRecurringBooking(recurringBookingRequest) {
+        const url = '/booking/createRecurring';
+        return axiosClient.post(url, recurringBookingRequest);
+    },
+
+    // lấy giá tiền trước khi đặt
+    getBookingPrice(bookingRequest) {
+        const url = '/booking/getBookingPrice';
+        return axiosClient.post(url, bookingRequest);
+    },
+    getRecurringBookingPrice(recurringBookingRequest) {
+        const url = '/booking/getRecurringBookingPrice';
+        return axiosClient.post(url, recurringBookingRequest);
+    },
 };
 
 export default bookingApi;

@@ -5,20 +5,17 @@ import app.sportcenter.commons.FieldStatus;
 import app.sportcenter.commons.Role;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
-import app.sportcenter.models.dto.BookingRequest;
-import app.sportcenter.models.dto.BookingResponse;
-import app.sportcenter.models.dto.FieldResponse;
-import app.sportcenter.models.entities.Booking;
-import app.sportcenter.models.entities.Field;
-import app.sportcenter.models.entities.TimeSlot;
-import app.sportcenter.models.entities.User;
+import app.sportcenter.models.dto.*;
+import app.sportcenter.models.entities.*;
 import app.sportcenter.repositories.BookingRepository;
 import app.sportcenter.repositories.FieldRepository;
+import app.sportcenter.repositories.RecurringBookingRepository;
 import app.sportcenter.repositories.UserRepository;
 import app.sportcenter.services.BookingService;
 import app.sportcenter.services.MailService;
 import app.sportcenter.utils.mappers.BookingMapper;
 import app.sportcenter.utils.mappers.FieldMapper;
+import app.sportcenter.utils.mappers.RecurringBookingMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -41,7 +39,9 @@ public class BookingServiceImpl implements BookingService {
     @Autowired
     private BookingMapper bookingMapper;
     @Autowired
-    private UserRepository userRepository;
+    private RecurringBookingRepository recurringBookingRepository;
+    @Autowired
+    private RecurringBookingMapper recurringBookingMapper;
     @Autowired
     private FieldRepository fieldRepository;
     @Autowired
@@ -94,7 +94,7 @@ public class BookingServiceImpl implements BookingService {
 
             BookingResponse response = bookingMapper.convertToResponse(savedBooking);
             // Gửi mail thông báo
-            sendMailBooking(currentUser, response);
+//            sendMailBooking(currentUser, response);
 
             return ResponseEntity.ok(
                     new BaseResponse("Đặt sân thành công!", HttpStatus.OK.value(), response)
@@ -104,6 +104,98 @@ public class BookingServiceImpl implements BookingService {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
                 new BaseResponse("Sân không trống trong thời gian này!", HttpStatus.CONFLICT.value(), null)
         );
+    }
+
+    @Transactional
+    @Override
+    public ResponseEntity<BaseResponse> createRecurringBooking(RecurringBookingRequest recurringBookingRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        Field field = fieldRepository.findById(recurringBookingRequest.getFieldId())
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy Field có id này"));
+        log.info("RecurringBooking user: " + currentUser.getFullName());
+        log.info("RecurringBooking field: " + field.getFieldName());
+
+        RecurringBooking recurringBooking = recurringBookingMapper.convertToEntity(recurringBookingRequest, field, currentUser);
+        recurringBooking.setStartDate(recurringBooking.getStartDate().minusHours(7));
+        recurringBooking.setStartTime(recurringBooking.getStartTime().minusHours(7));
+
+        List<TimeSlot> recurringTimeSlots = recurringBooking.generateTimeSlots();
+        for (TimeSlot timeSlot : recurringTimeSlots) {
+            // tìm danh sách booking có timeSlots có trạng thái IN_USE trong khoảng thời gian này
+            // nếu sân trống thì list này = 0
+            List<Booking> inUseBookingList = bookingRepository.findInUseTimeSlotsByFieldAndTimeRange(field.getId(),
+                    timeSlot.getStartTime(), timeSlot.getEndTime());
+            if (!inUseBookingList.isEmpty()) {
+                throw new CustomException("Thất bại! Có ít nhất 1 timeSlot không trống ở khung giờ này trong tương lai",
+                        HttpStatus.NOT_FOUND.value());
+            }
+        }
+
+        // thoát ra đây được nghĩa là toàn bộ timeSLot 'sẽ chiếm' đều trống trong tương lai
+        // => Tạo các bookings ứng với tất cả timeSLot đó
+        String fieldId = field.getId();
+        int numberOfHours = recurringBooking.getNumberOfHours();
+        List<Booking> bookingsToSave = new ArrayList<>();   // để chút lưu vào db 1 lượt cho đỡ tốn
+        for (TimeSlot timeSlot : recurringTimeSlots) {
+            // tạo:
+            BookingRequest bookingRequest = new BookingRequest(fieldId, timeSlot.getStartTime(), numberOfHours);
+            ZonedDateTime startTime = bookingRequest.getStartTime();
+            ZonedDateTime endTime = startTime.plusHours(bookingRequest.getNumberOfHours());
+
+            // tạo ra các timeSlot AVAILABLE cho khoảng tgian đặt (ví dụ 7-9h -> tạo 2 timeSlot AVAILABLE
+            field.createTimeSlots(startTime, endTime);
+
+            // Đổi trạng thái của các TimeSlot liên quan đến booking thành IN_USE
+            for (TimeSlot slot : field.getTimeSlots()) {
+                if (slot.getStartTime().isBefore(endTime) &&
+                        slot.getEndTime().isAfter(startTime)) {
+                    slot.setStatus(FieldStatus.IN_USE);
+                }
+            }
+
+            Booking booking = bookingMapper.convertToEntity(bookingRequest, field, currentUser);
+            bookingsToSave.add((booking));
+        }
+        fieldRepository.save(field);
+        bookingRepository.saveAll(bookingsToSave);
+
+        RecurringBooking savedRecurringBooking = recurringBookingRepository.save(recurringBooking);
+        RecurringBookingResponse response = recurringBookingMapper.convertToDTO(savedRecurringBooking);
+
+        //send mail
+        sendMailRecurringBooking(currentUser, response);
+
+        String message = "Đặt sân theo lịch cứng (" + recurringBooking.getInterval() + "/" + recurringBooking.getPackageDurationMonths() + " months) thành công!";
+        return ResponseEntity.ok(
+                new BaseResponse(message, HttpStatus.OK.value(), response)
+        );
+
+    }
+
+    @Override
+    public Double getBookingPrice(BookingRequest bookingRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        Field field = fieldRepository.findById(bookingRequest.getFieldId())
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy sân với id này"));
+        Booking booking = bookingMapper.convertToEntity(bookingRequest, field, currentUser);
+
+        return booking.getPrice();
+    }
+
+    @Override
+    public Double getRecurringBookingPrice(RecurringBookingRequest recurringBookingRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        Field field = fieldRepository.findById(recurringBookingRequest.getFieldId())
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy sân với id này"));
+        RecurringBooking recurringBooking = recurringBookingMapper.convertToEntity(recurringBookingRequest, field, currentUser);
+
+        return recurringBooking.getPrice();
     }
 
     @Override
@@ -317,6 +409,44 @@ public class BookingServiceImpl implements BookingService {
                     HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
+
+    public void sendMailRecurringBooking(User user, RecurringBookingResponse recurringBookingResponse) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z");
+        try {
+            String email = user.getEmail();
+            String fullName = user.getFullName();
+            String fieldName = recurringBookingResponse.getField().getFieldName();
+
+            // Chuyển thời gian sang múi giờ Việt Nam (GMT+7)
+            String startDate = recurringBookingResponse.getStartDate()
+                    .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
+                    .format(formatter);
+            String startTime = recurringBookingResponse.getStartTime()
+                    .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
+                    .format(formatter);
+            String endDate = recurringBookingResponse.getEndDate()
+                    .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
+                    .format(formatter);
+            String endTime = recurringBookingResponse.getEndTime()
+                    .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
+                    .format(formatter);
+
+            String interval = recurringBookingResponse.getInterval().name(); // DAILY, WEEKLY, MONTHLY
+            String numberOfHours = recurringBookingResponse.getNumberOfHours().toString();
+            String packageDurationMonths = recurringBookingResponse.getPackageDurationMonths().toString();
+            String price = recurringBookingResponse.getPrice().toString();
+
+            // Gọi phương thức gửi mail với các thông tin đã được định dạng
+            mailService.sendMailRecurringBooking(email, fullName, fieldName, startDate, startTime, endDate, endTime, interval, numberOfHours, packageDurationMonths, price);
+
+        } catch (Exception e) {
+            throw new CustomException("Lỗi khi gửi mail đặt sân định kỳ: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+    }
+
+
+
     private void sendMailCancelBooking(User user, BookingResponse canceledBooking) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z");
         try {

@@ -2,6 +2,8 @@ package app.sportcenter.services;
 
 import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.models.dto.BookingRequest;
+import app.sportcenter.models.dto.RecurringBookingRequest;
+import app.sportcenter.models.dto.RecurringBookingResponse;
 import org.springframework.http.ResponseEntity;
 
 import java.time.ZonedDateTime;
@@ -22,4 +24,10 @@ public interface BookingService {
     public ResponseEntity<BaseResponse> forceDelete(String bookingId);
     // huỷ đặt sân
     public ResponseEntity<BaseResponse> cancelBooking(String bookingId);
+
+    // đặt theo lịch
+    public ResponseEntity<BaseResponse> createRecurringBooking(RecurringBookingRequest recurringBookingRequest);
+
+    public Double getBookingPrice(BookingRequest bookingRequest);
+    public Double getRecurringBookingPrice(RecurringBookingRequest recurringBookingRequest);
 }
