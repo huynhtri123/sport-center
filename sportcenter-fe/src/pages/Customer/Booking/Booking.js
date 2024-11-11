@@ -13,7 +13,7 @@ function Booking() {
     const [field, setField] = useGetField();
     const [selectedDate, setSelectedDate] = useState('');
     const [timeSlots, setTimeSlots] = useState([]);
-    const [numberOfHours, setNumberOfHours] = useState(1);
+    const [numberOfHours, setNumberOfHours] = useState(0);
     const [startTime, setStartTime] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const startTimeRef = useRef();
@@ -96,7 +96,7 @@ function Booking() {
         isRecurring
             ? setIsRecurringBookingModalOpen(!isRecurringModalOpen)
             : setIsBookingModalOpen(!isBookingModalOpen);
-        getPrice(isRecurring);
+        // getPrice(isRecurring);
     };
 
     const handleSubmit = async (isRecurring, e) => {
@@ -142,6 +142,32 @@ function Booking() {
         setSelectedDate(defaultDate);
         fetchTimeSlots(defaultDate);
     }, [fetchTimeSlots]);
+
+    // Ngừng hành vi cuộn chuột thay đổi giá trị trong input numberOfHours
+    useEffect(() => {
+        const inputElement = document.getElementById('numberOfHours');
+        const handleWheel = (event) => {
+            event.preventDefault(); // Ngừng hành vi cuộn chuột
+        };
+        if (inputElement) {
+            inputElement.addEventListener('wheel', handleWheel);
+        }
+        return () => {
+            if (inputElement) {
+                inputElement.removeEventListener('wheel', handleWheel);
+            }
+        };
+    }, []);
+    const handleChangeNumberOfHours = (e) => {
+        setNumberOfHours(e.target.value);
+    };
+
+    useEffect(() => {
+        if (numberOfHours && numberOfHours >= 1) {
+            getPrice(true);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [numberOfHours, interval, duration]);
 
     return (
         <div className={styles.bookingContainer}>
@@ -211,11 +237,13 @@ function Booking() {
                             type='number'
                             id='numberOfHours'
                             min='1'
+                            max='12'
                             value={numberOfHours}
-                            onChange={(e) => setNumberOfHours(e.target.value)}
+                            onChange={(e) => handleChangeNumberOfHours(e)}
                             required
                         />
                     </div>
+                    <p>Price: {field.price * numberOfHours}</p>
                     <Button type='submit' className={clsx('font-cera-round-pro-medium mb-4', styles.bookingButton)}>
                         Book Now
                     </Button>
@@ -247,6 +275,7 @@ function Booking() {
                             <option value={6}>6 tháng</option>
                         </select>
                     </div>
+                    <p>Price: {recurringBookingPrice}</p>
                     <Button type='submit' className={clsx('font-cera-round-pro-medium', styles.bookingButton)}>
                         Book Recurring
                     </Button>
