@@ -31,6 +31,10 @@ const bookingApi = {
         const url = '/booking/getRecurringBookingPrice';
         return axiosClient.post(url, recurringBookingRequest);
     },
+    getAllActive() {
+        const url = '/booking/getAllActive';
+        return axiosClient.get(url);
+    },
 };
 
 export default bookingApi;

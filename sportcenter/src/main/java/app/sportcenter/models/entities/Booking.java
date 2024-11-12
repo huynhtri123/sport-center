@@ -22,6 +22,7 @@ public class Booking extends BaseEntity implements PricedItem {
     private Integer numberOfHours;          // số giờ đặt sân
     private ZonedDateTime startTime;        // thời gian bắt đầu tính giờ
     private ZonedDateTime endTime;          // thời gian trả sân
+    private boolean isRecurring;            // đặt lẻ hay đặt theo lịch cứng
 
     @Override
     public Double getPrice() {
