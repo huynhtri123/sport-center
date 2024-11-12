@@ -214,6 +214,7 @@ public class TournamentServiceImpl implements TournamentService {
         existingTournament.setRegisteredTeamIds(tournamentRequest.getRegisteredTeamIds());
         existingTournament.setRegistrationDeadline(tournamentRequest.getRegistrationDeadline());
         existingTournament.setPrizes(tournamentRequest.getPrizes());
+        existingTournament.setThumUrl(tournamentRequest.getThumUrl());
 
         Tournament updatedTournament = tournamentRepository.save(existingTournament);
 

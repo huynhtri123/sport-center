@@ -216,6 +216,21 @@ function ManageTournaments() {
                         </div>
 
                         <div className={styles.inputGroup}>
+                            <div className={styles.inputGroup}>
+                                <label htmlFor='thumUrl' className='me-3'>
+                                    Ảnh đại diện (URL)
+                                </label>
+                                <input
+                                    id='thumUrl'
+                                    type='url'
+                                    name='thumUrl'
+                                    value={isEditing ? editFormData.thumUrl : formData.thumUrl}
+                                    placeholder='URL ảnh đại diện'
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
+
                             <label htmlFor='sportId' className='me-3'>
                                 ID môn thể thao
                             </label>

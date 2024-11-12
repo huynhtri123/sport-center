@@ -51,6 +51,7 @@ public class BookingServiceImpl implements BookingService {
     @Autowired
     private FieldMapper fieldMapper;
 
+    // đặt lẻ
     @Transactional
     @Override
     public ResponseEntity<BaseResponse> createBooking(BookingRequest bookingRequest) {
@@ -92,11 +93,12 @@ public class BookingServiceImpl implements BookingService {
             // Tạo booking mới với trạng thái sân đã được cập nhật
             bookingRequest.setStartTime(startTime);
             Booking booking = bookingMapper.convertToEntity(bookingRequest, field, currentUser);
+            booking.setRecurring(false);        // đánh dấu đây là đặt lẻ
             Booking savedBooking = bookingRepository.save(booking);
 
             BookingResponse response = bookingMapper.convertToResponse(savedBooking);
             // Gửi mail thông báo
-//            sendMailBooking(currentUser, response);
+            sendMailBooking(currentUser, response);
 
             return ResponseEntity.ok(
                     new BaseResponse("Đặt sân thành công!", HttpStatus.OK.value(), response)
@@ -108,6 +110,7 @@ public class BookingServiceImpl implements BookingService {
         );
     }
 
+    // đặt theo lịch cứng
     @Transactional
     @Override
     public ResponseEntity<BaseResponse> createRecurringBooking(RecurringBookingRequest recurringBookingRequest) {
@@ -158,6 +161,7 @@ public class BookingServiceImpl implements BookingService {
             }
 
             Booking booking = bookingMapper.convertToEntity(bookingRequest, field, currentUser);
+            booking.setRecurring(true);         // đánh dấu đây là đặt cứng
             bookingsToSave.add((booking));
         }
         fieldRepository.save(field);
@@ -384,11 +388,14 @@ public class BookingServiceImpl implements BookingService {
             log.info("Đã huỷ booking " + canceledBooking.getId());
 
             // hoàn tiền
-            currentUser.setAccountBalance(currentUser.getAccountBalance() + booking.getPrice());
-            userRepository.save(currentUser);
+            User owner = userRepository.findById(booking.getUser().getId())
+                            .orElseThrow(() -> new NotFoundException("Không tìm thấy chủ sở hữu booking này"));
+
+            owner.setAccountBalance(owner.getAccountBalance() + booking.getPrice());
+            userRepository.save(owner);
 
             // send mail
-            sendMailCancelBooking(currentUser, response);
+            sendMailCancelBooking(owner, response);
 
             return ResponseEntity.ok(
                     new BaseResponse("Huỷ đặt sân thành công, đã hoàn tiền vào số dư của bạn.", HttpStatus.OK.value(), response)
