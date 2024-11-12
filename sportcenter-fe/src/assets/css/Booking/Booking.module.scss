@@ -1,6 +1,7 @@
 @import '../variables';
 
 .bookingContainer {
+    margin: 24px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -53,6 +54,10 @@
         font-size: 1.1em;
         color: #555;
         line-height: 1.6;
+    }
+
+    .price {
+        color: $price-color;
     }
 }
 
@@ -143,5 +148,9 @@
 
     .bookingButton {
         font-weight: 700;
+    }
+
+    .price {
+        color: $price-color;
     }
 }

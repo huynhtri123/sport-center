@@ -33,6 +33,14 @@ const userApi = {
         const url = '/team/myTeams';
         return axiosClient.get(url);
     },
+    getAccountBalance() {
+        const url = '/user/getAccountBalance';
+        return axiosClient.get(url);
+    },
+    makePaymentByBalance(amountToPay) {
+        const url = `/user/makePaymentByBalance?amountToPay=${amountToPay}`;
+        return axiosClient.patch(url);
+    },
 };
 
 export default userApi;
