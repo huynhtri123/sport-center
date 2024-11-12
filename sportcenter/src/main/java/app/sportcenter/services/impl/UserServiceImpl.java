@@ -80,5 +80,36 @@ public class UserServiceImpl implements UserService {
         );
     }
 
+    @Override
+    public ResponseEntity<BaseResponse> getAccountBalance() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        Double accountBalance = currentUser.getAccountBalance();
+
+        return ResponseEntity.ok(
+                new BaseResponse("Lấy số dư hiện tại thành công.", HttpStatus.OK.value(), accountBalance)
+        );
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse> makePaymentByBalance(Double amountToPay) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        Double accountBalance = currentUser.getAccountBalance();
+        if (accountBalance < amountToPay) {
+            throw new CustomException("Thất bại. Số dư không đủ để thực hiện thanh toán!", HttpStatus.BAD_REQUEST.value());
+        }
+
+        currentUser.setAccountBalance(accountBalance - amountToPay);
+        userRepository.save(currentUser);
+
+        return ResponseEntity.ok(
+                new BaseResponse("Thanh toán bằng số dư thành công!", HttpStatus.OK.value(),
+                        currentUser.getAccountBalance())
+        );
+    }
+
 
 }

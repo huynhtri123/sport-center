@@ -7,7 +7,8 @@ import { Loading } from '../../../components/Loading/Loading';
 import Button from '../../../components/Button/Button';
 import { useGetField } from '../../../customs/hooks';
 import { RecurringIntervalType } from '../../../utils/enums/RecurringIntervalType';
-import ConfirmModal from '../../../components/Modal/ConfirmModal';
+import PaymentModal from '../../../components/Modal/PaymentModal';
+import formatCurrency from '../../../utils/formatCurrency';
 
 function Booking() {
     const [field, setField] = useGetField();
@@ -21,6 +22,7 @@ function Booking() {
     const [duration, setDuration] = useState(1);
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
     const [isRecurringModalOpen, setIsRecurringBookingModalOpen] = useState(false);
+    // eslint-disable-next-line no-unused-vars
     const [bookingPrice, setBookingPrice] = useState(0);
     const [recurringBookingPrice, setRecurringBookingPrice] = useState(0);
 
@@ -99,8 +101,7 @@ function Booking() {
         // getPrice(isRecurring);
     };
 
-    const handleSubmit = async (isRecurring, e) => {
-        e.preventDefault();
+    const handleSubmit = async (isRecurring) => {
         if (!startTimeRef.current.value) {
             toast.warn('Please pick start time!');
             return;
@@ -127,9 +128,12 @@ function Booking() {
 
             fetchTimeSlots(selectedDate);
             toast.success(response.message);
+
+            return true;
         } catch (err) {
             console.error(err);
             toast.error(err.message);
+            return false;
         } finally {
             setIsLoading(false);
             isRecurring ? setIsRecurringBookingModalOpen(false) : setIsBookingModalOpen(false);
@@ -179,7 +183,7 @@ function Booking() {
                 <div className={styles.fieldInfo}>
                     <h1>{field.fieldName}</h1>
                     <p>{field.description}</p>
-                    <p>Giá thuê: {field.price} VND/giờ</p>
+                    <p className={styles.price}>Giá thuê: {formatCurrency(field.price)}/giờ</p>
                 </div>
             </section>
 
@@ -243,16 +247,16 @@ function Booking() {
                             required
                         />
                     </div>
-                    <p>Price: {field.price * numberOfHours}</p>
+                    <p className={styles.price}>Price: {formatCurrency(field.price * numberOfHours)}</p>
                     <Button type='submit' className={clsx('font-cera-round-pro-medium mb-4', styles.bookingButton)}>
                         Book Now
                     </Button>
                     {isBookingModalOpen && (
-                        <ConfirmModal
-                            title={`Tổng giá là: ${bookingPrice}, bạn có muốn đặt sân lẻ?`}
+                        <PaymentModal
+                            price={field.price * numberOfHours}
                             isOpen={isBookingModalOpen}
                             onClose={() => setIsBookingModalOpen(false)}
-                            onSubmit={(e) => handleSubmit(false, e)}
+                            onSubmit={() => handleSubmit(false)}
                         />
                     )}
                 </form>
@@ -275,16 +279,16 @@ function Booking() {
                             <option value={6}>6 tháng</option>
                         </select>
                     </div>
-                    <p>Price: {recurringBookingPrice}</p>
+                    <p className={styles.price}>Price: {formatCurrency(recurringBookingPrice)}</p>
                     <Button type='submit' className={clsx('font-cera-round-pro-medium', styles.bookingButton)}>
                         Book Recurring
                     </Button>
                     {isRecurringModalOpen && (
-                        <ConfirmModal
-                            title={`Tổng giá là: ${recurringBookingPrice}, bạn có chắc muốn đặt sân theo lịch cứng?`}
+                        <PaymentModal
+                            price={recurringBookingPrice}
                             isOpen={isRecurringModalOpen}
                             onClose={() => setIsRecurringBookingModalOpen(false)}
-                            onSubmit={(e) => handleSubmit(true, e)}
+                            onSubmit={() => handleSubmit(true)}
                         />
                     )}
                 </form>

@@ -110,7 +110,8 @@ public class MailServiceImpl implements MailService {
 
 
     @Override
-    public void sendMailCancelBooking(String toEmail, String fullName, String bookingDate, String startTime, String endTime) {
+    public void sendMailCancelBooking(String toEmail, String fullName,
+                                      String bookingDate, String startTime, String endTime, String price) {
         try {
             MimeMessagePreparator preparator = new MimeMessagePreparator() {
                 public void prepare(MimeMessage mimeMessage) throws Exception {
@@ -123,6 +124,7 @@ public class MailServiceImpl implements MailService {
                     context.setVariable("bookingDate", bookingDate);
                     context.setVariable("startTime", startTime);
                     context.setVariable("endTime", endTime);
+                    context.setVariable("price", price);
 
                     String content = templateEngine.process("CancelBookingTemplate", context);
                     messageHelper.setText(content, true);

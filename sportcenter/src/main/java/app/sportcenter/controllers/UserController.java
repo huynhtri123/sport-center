@@ -26,4 +26,16 @@ public class UserController {
     public ResponseEntity<BaseResponse> getCurrentProfile() {
         return userService.getCurrentProfile();
     }
+
+    @PreAuthorize("hasAnyAuthority('CUSTOMER')")
+    @GetMapping("/getAccountBalance")
+    public ResponseEntity<BaseResponse> getAccountBalance() {
+        return userService.getAccountBalance();
+    }
+
+    @PreAuthorize("hasAnyAuthority('CUSTOMER')")
+    @PatchMapping("/makePaymentByBalance")
+    public ResponseEntity<BaseResponse> makePaymentByBalance(@RequestParam Double amountToPay) {
+        return userService.makePaymentByBalance(amountToPay);
+    }
 }

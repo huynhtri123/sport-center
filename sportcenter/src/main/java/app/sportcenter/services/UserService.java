@@ -11,4 +11,6 @@ public interface UserService {
     public User getUserByEmail(String email);
     public ResponseEntity<BaseResponse> updateInfoCurrentUser(UserRequest userRequest);
     public ResponseEntity<BaseResponse> getCurrentProfile();
+    public ResponseEntity<BaseResponse> getAccountBalance();
+    public ResponseEntity<BaseResponse> makePaymentByBalance(Double amountToPay);
 }

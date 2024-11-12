@@ -45,6 +45,8 @@ public class BookingServiceImpl implements BookingService {
     @Autowired
     private FieldRepository fieldRepository;
     @Autowired
+    private UserRepository userRepository;
+    @Autowired
     private MailService mailService;
     @Autowired
     private FieldMapper fieldMapper;
@@ -362,6 +364,13 @@ public class BookingServiceImpl implements BookingService {
             ZonedDateTime bookingStartTime = booking.getStartTime();
             ZonedDateTime bookingEndTime = booking.getEndTime();
 
+            ZonedDateTime now = ZonedDateTime.now();
+
+            // kiểm tra nếu booking đã hết hạn thì out
+            if (bookingEndTime.isBefore(now) || !booking.getIsActive() || booking.getIsDeleted()) {
+                throw new CustomException("Booking này đã hết hạn, không thể huỷ!", HttpStatus.BAD_REQUEST.value());
+            }
+
             // tạo timeSlot AVAILABLE trong khoảng thời gian này
             field.createTimeSlots(bookingStartTime, bookingEndTime);
             fieldRepository.save(field);
@@ -373,11 +382,16 @@ public class BookingServiceImpl implements BookingService {
 
             BookingResponse response = bookingMapper.convertToResponse(canceledBooking);
             log.info("Đã huỷ booking " + canceledBooking.getId());
+
+            // hoàn tiền
+            currentUser.setAccountBalance(currentUser.getAccountBalance() + booking.getPrice());
+            userRepository.save(currentUser);
+
             // send mail
             sendMailCancelBooking(currentUser, response);
 
             return ResponseEntity.ok(
-                    new BaseResponse("Huỷ đặt sân thành công", HttpStatus.OK.value(), response)
+                    new BaseResponse("Huỷ đặt sân thành công, đã hoàn tiền vào số dư của bạn.", HttpStatus.OK.value(), response)
             );
 
         } else {
@@ -460,9 +474,10 @@ public class BookingServiceImpl implements BookingService {
             String bookingDate = bookingDateInVietnam.format(formatter);
             String startTime = startTimeInVietnam.format(formatter);
             String endTime = endTimeInVietnam.format(formatter);
+            String price = canceledBooking.getTotalPrice().toString();
 
             // Gọi hàm gửi email
-            mailService.sendMailCancelBooking(email, fullName, bookingDate, startTime, endTime);
+            mailService.sendMailCancelBooking(email, fullName, bookingDate, startTime, endTime, price);
 
         } catch (Exception e) {
             throw new CustomException("Lỗi khi gửi mail huỷ booking: " + e.getMessage(),
