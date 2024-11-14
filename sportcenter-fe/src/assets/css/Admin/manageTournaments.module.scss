@@ -1,3 +1,5 @@
+@import '../variables';
+
 .manageTournaments {
     padding: 1rem;
     overflow-x: hidden; /* Ngăn cuộn ngang nếu không cần thiết */
@@ -54,6 +56,7 @@
 
 .prizesContainer {
     margin-top: 1rem;
+    max-width: 1000px;
 }
 
 .prizesContainer .prizeItem {
@@ -84,7 +87,7 @@
 }
 
 .tournamentsTable thead {
-    background-color: #007bff;
+    background-color: $blue-prime;
     color: white;
 }
 

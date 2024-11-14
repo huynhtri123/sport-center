@@ -47,7 +47,8 @@ function PaymentModal({ isOpen, onClose, onSubmit, price }) {
                 console.log(balancePaymentResponse);
 
                 // thanh toán phần còn lại bằng thẻ: gọi api thanh toán với số tiền remainingAmount
-                toast.info('Phần còn lại: ' + remainingAmount);
+                //trung: thanh toán số tiền = remainingAmount
+                toast.info('Trung thanh toán phần này: ' + remainingAmount);
                 console.log('Phần còn lại: ', remainingAmount);
                 // nếu thanh toán ko thành công thì huỷ booking
 
@@ -59,6 +60,7 @@ function PaymentModal({ isOpen, onClose, onSubmit, price }) {
     };
 
     const handlePaymentByCard = (price) => {
+        //trung
         toast.info('Gọi api thanh toán bằng thẻ: ' + price);
     };
 

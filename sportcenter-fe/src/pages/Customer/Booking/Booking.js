@@ -113,17 +113,16 @@ function Booking() {
             const startDateTimeString = `${selectedDate}T${startTime}:00+00:00`;
             const startTimeUTC = new Date(startDateTimeString).toISOString();
 
-
-// thêm phần chuyển qua trang payment sau khi booking
-//             navigate('/payments', {
-//                 state: {
-//                     field: field,
-//                     selectedDate: selectedDate,
-//                     startTime: startTime,
-//                     numberOfHours: numberOfHours,
-//                     totalPrice: field.price * numberOfHours,
-//                 },
-//             });
+            // thêm phần chuyển qua trang payment sau khi booking
+            //             navigate('/payments', {
+            //                 state: {
+            //                     field: field,
+            //                     selectedDate: selectedDate,
+            //                     startTime: startTime,
+            //                     numberOfHours: numberOfHours,
+            //                     totalPrice: field.price * numberOfHours,
+            //                 },
+            //             });
 
             const request = {
                 fieldId: field.id,

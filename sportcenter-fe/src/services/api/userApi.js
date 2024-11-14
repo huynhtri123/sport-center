@@ -45,18 +45,18 @@ const userApi = {
     // Payment
     addPaymentInfo(newPayment, userId) {
         const url = `/user/addPayment/${userId}`;
-        return axiosClient.put(url, newPayment);  // Use PUT for adding payment info
+        return axiosClient.put(url, newPayment); // Use PUT for adding payment info
     },
 
     updatePaymentInfo(updatedPayment, userId, paymentId) {
-        const url = `/user/updatePayment/${userId}/${paymentId}`;  // Include userId and paymentId in the URL
-        return axiosClient.put(url, updatedPayment);  // Sending updated payment data in the body
+        const url = `/user/updatePayment/${userId}/${paymentId}`; // Include userId and paymentId in the URL
+        return axiosClient.put(url, updatedPayment); // Sending updated payment data in the body
     },
     deletePaymentInfo(userId, paymentId) {
         const url = `/user/deletePayment/${userId}/${paymentId}`;
-        return axiosClient.delete(url);  // Use DELETE for removing payment info
-    }
-    
+        return axiosClient.delete(url); // Use DELETE for removing payment info
+    },
+
     getAccountBalance() {
         const url = '/user/getAccountBalance';
         return axiosClient.get(url);
@@ -65,7 +65,6 @@ const userApi = {
         const url = `/user/makePaymentByBalance?amountToPay=${amountToPay}`;
         return axiosClient.patch(url);
     },
-
 };
 
 export default userApi;
