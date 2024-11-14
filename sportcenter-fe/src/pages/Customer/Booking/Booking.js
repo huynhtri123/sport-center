@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { toast } from 'react-toastify';
 import clsx from 'clsx';
+import { useNavigate } from 'react-router-dom';
 import styles from '../../../assets/css/Booking/Booking.module.scss';
 import bookingApi from '../../../services/api/booking/bookingApi';
 import { Loading } from '../../../components/Loading/Loading';
@@ -17,7 +18,8 @@ function Booking() {
     const [numberOfHours, setNumberOfHours] = useState(0);
     const [startTime, setStartTime] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const startTimeRef = useRef();
+    const startTimeRef = useRef(); // để canh ô input startTime của booking có trống ko
+    const navigate = useNavigate();
     const [interval, setInterval] = useState(RecurringIntervalType.WEEKLY);
     const [duration, setDuration] = useState(1);
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
@@ -110,6 +112,18 @@ function Booking() {
             setIsLoading(true);
             const startDateTimeString = `${selectedDate}T${startTime}:00+00:00`;
             const startTimeUTC = new Date(startDateTimeString).toISOString();
+
+
+// thêm phần chuyển qua trang payment sau khi booking
+//             navigate('/payments', {
+//                 state: {
+//                     field: field,
+//                     selectedDate: selectedDate,
+//                     startTime: startTime,
+//                     numberOfHours: numberOfHours,
+//                     totalPrice: field.price * numberOfHours,
+//                 },
+//             });
 
             const request = {
                 fieldId: field.id,

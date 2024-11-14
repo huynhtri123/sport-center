@@ -17,6 +17,7 @@ function AdminDashboard() {
 
     const sections = [
         { name: 'Dashboard', icon: 'fa-solid fa-chart-line' },
+        { name: 'Manage Users', icon: 'fa-solid fa-users' },
         { name: 'Manage Fields', icon: 'fa-solid fa-money-bill' },
         { name: 'Manage Sports', icon: 'fa-solid fa-basketball-ball' },
         { name: 'Manage Bookings', icon: 'fa-solid fa-calendar-check' },
@@ -112,6 +113,8 @@ function AdminDashboard() {
                         </div>
                     </div>
                 );
+            case 'Manage Users':
+                return <ManageUsers />;
             case 'Manage Fields':
                 return <ManageFields />;
             case 'Manage Sports':

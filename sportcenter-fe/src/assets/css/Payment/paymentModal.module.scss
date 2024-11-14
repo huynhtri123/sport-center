@@ -1,0 +1,156 @@
+@import '../variables';
+
+// Apply box-sizing globally to prevent shifts
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modalContent {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 500px; /* Slightly wider for better spacing */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Modal header */
+.modalContent h3 {
+    font-size: 1.8rem;
+    color: $blue-prime-hover;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+/* Form styling */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem; /* Space between form fields */
+    width: 100%; /* Ensure form takes full width */
+}
+
+/* Label styling */
+form label {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 0.5rem;
+    display: block; /* Ensure label is a block element for better alignment */
+}
+
+/* Input fields styling */
+form input {
+    width: 430px;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease;
+    margin-bottom: 1rem; /* Space below each input */
+}
+
+/* Input focus effect */
+form input:focus {
+    border-color: #007bff; /* Blue border on focus */
+    background-color: #ffffff; /* White background on focus */
+}
+
+/* Modal Actions - Save/Cancel Buttons */
+.modalActions {
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 1rem;
+}
+
+.modalActions button {
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    background-color: $yellow-prime;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    min-width: 120px; /* Ensure button width is consistent */
+}
+
+.modalActions button:hover {
+    background-color: darken($yellow-prime, 10%);
+}
+
+.modalActions button:focus {
+    outline: none;
+}
+
+.modalActions .cancelBtn {
+    background-color: #d3d3d3;
+    color: $dark-sage;
+    min-width: 120px;
+}
+
+.modalActions .cancelBtn:hover {
+    background-color: darken(#d3d3d3, 10%);
+}
+/* Nút Lưu */
+.saveBtn {
+    background-color: #4CAF50; /* Màu xanh lá cho nút Lưu */
+    color: white; /* Chữ trắng */
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    min-width: 120px;
+}
+
+.saveBtn:hover {
+    background-color: darken(#4CAF50, 10%);
+    transform: translateY(-2px); /* Hiệu ứng nổi lên */
+}
+
+.saveBtn:focus {
+    outline: none;
+}
+
+/* Nút Hủy */
+.cancelBtn {
+    background-color: #f44336; /* Màu đỏ cho nút Hủy */
+    color: white; /* Chữ trắng */
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    min-width: 120px;
+}
+
+.cancelBtn:hover {
+    background-color: darken(#f44336, 10%);
+    transform: translateY(-2px); /* Hiệu ứng nổi lên */
+}
+
+.cancelBtn:focus {
+    outline: none;
+}
+
+
