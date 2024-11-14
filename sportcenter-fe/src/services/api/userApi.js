@@ -33,6 +33,29 @@ const userApi = {
         const url = '/team/myTeams';
         return axiosClient.get(url);
     },
+    getAllActive() {
+        return axiosClient.get('/user/getAllActive');
+    },
+
+    // Soft delete a user by ID
+    softDelete(userId) {
+        return axiosClient.delete(`/user/softDelete/${userId}`);
+    },
+    // Payment
+    addPaymentInfo(newPayment, userId) {
+        const url = `/user/addPayment/${userId}`;
+        return axiosClient.put(url, newPayment);  // Use PUT for adding payment info
+    },
+
+    updatePaymentInfo(updatedPayment, userId, paymentId) {
+        const url = `/user/updatePayment/${userId}/${paymentId}`;  // Include userId and paymentId in the URL
+        return axiosClient.put(url, updatedPayment);  // Sending updated payment data in the body
+    },
+    deletePaymentInfo(userId, paymentId) {
+        const url = `/user/deletePayment/${userId}/${paymentId}`;
+        return axiosClient.delete(url);  // Use DELETE for removing payment info
+    }
+    
 };
 
 export default userApi;

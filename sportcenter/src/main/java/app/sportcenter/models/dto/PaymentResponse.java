@@ -1,20 +1,15 @@
-package app.sportcenter.models.entities;
+package app.sportcenter.models.dto;
 
 import lombok.*;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.ZonedDateTime;
 
-@Document(collection = "PaymentInfo")
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @EqualsAndHashCode(callSuper = false)
-public class PaymentInfo extends BaseEntity {
-    @Id
-    private String id;
+public class PaymentResponse {
     private String bankName;
     private String cardNumber;
     private String cardHolderName;

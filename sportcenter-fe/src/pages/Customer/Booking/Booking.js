@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { toast } from 'react-toastify';
 import clsx from 'clsx';
+import { useNavigate } from 'react-router-dom';
 import styles from '../../../assets/css/Booking/Booking.module.scss';
 import bookingApi from '../../../services/api/booking/bookingApi';
 import { Loading } from '../../../components/Loading/Loading';
@@ -15,6 +16,8 @@ function Booking() {
     const [startTime, setStartTime] = useState(''); // Thời gian bắt đầu của timeSlot được chọn
     const [isLoading, setIsLoading] = useState(false);
     const startTimeRef = useRef(); // để canh ô input startTime của booking có trống ko
+    const navigate = useNavigate();
+    
 
     useEffect(() => {
         window.scrollTo(0, 0); // Scroll to the top of the page when the component mounts
@@ -75,16 +78,26 @@ function Booking() {
             const startTimeUTC = new Date(startDateTimeString).toISOString();
             // console.log(startTimeUTC)
 
-            const bookingRequest = {
-                fieldId: field.id,
-                startTime: startTimeUTC,
-                numberOfHours: numberOfHours,
-            };
+            // const bookingRequest = {
+            //     fieldId: field.id,
+            //     startTime: startTimeUTC,
+            //     numberOfHours: numberOfHours,
+            // };
             // console.log('create: ', bookingRequest);
 
-            const response = await bookingApi.createBooking(bookingRequest);
-            fetchTimeSlots(selectedDate); // nạp lại danh sách timeSlot
-            toast.success(response.message);
+            // const response = await bookingApi.createBooking(bookingRequest);
+            // fetchTimeSlots(selectedDate); // nạp lại danh sách timeSlot
+            // toast.success(response.message);
+// thêm phần chuyển qua trang payment sau khi booking
+            navigate('/payments', {
+                state: {
+                    field: field,
+                    selectedDate: selectedDate,
+                    startTime: startTime,
+                    numberOfHours: numberOfHours,
+                    totalPrice: field.price * numberOfHours,
+                },
+            });
         } catch (err) {
             console.error(err);
             toast.error(err);

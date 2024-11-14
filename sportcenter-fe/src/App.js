@@ -19,6 +19,10 @@ import FieldList from './pages/Customer/Field/FieldList';
 import SportList from './pages/Customer/Sport/SportList';
 import DynamicSportHome from './pages/Customer/Sport/SportHome/DynamicSportHome';
 import Profile from './pages/Customer/Profile/Profile';
+import Payments from './pages/Customer/Payment/Payments';
+import PaymentConfirmation from './pages/Customer/Payment/PaymentConfirmation';
+
+
 
 import AdminDashBoard from './pages/Admin/AdminDashBoard';
 import { useCleanupStorage } from './customs/hooks';
@@ -67,6 +71,10 @@ function App() {
 
                             <Route path='/courses' element={<CourseList />} />
                             <Route path='/courses/:courseId' element={<CourseLesson />} />
+
+                            <Route path='/payments' element={<Payments />} />
+                            <Route path='/payment-confirmation' element={<PaymentConfirmation />} />
+
                         </Routes>
                     </div>
 
