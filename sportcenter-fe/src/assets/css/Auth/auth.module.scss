@@ -16,25 +16,27 @@
 .signupBox {
     width: 500px;
     max-width: 80%;
-    height: 700px;
+    height: 740px;
     background-color: white;
     text-align: center;
     margin: 16px;
     border-radius: 5px;
     padding: 24px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    align-items: center;
 }
 
 // sign in
 .signinBox {
     width: 500px;
     max-width: 80%;
-    height: 560px;
+    height: 580px;
     background-color: white;
     text-align: center;
     border-radius: 5px;
     padding: 24px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    align-items: center;
 }
 
 // fotgot-password

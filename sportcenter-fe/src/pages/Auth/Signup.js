@@ -147,7 +147,7 @@ function Signup() {
                     <span className='font-cera-round-pro-black font-size-32px'>Create Your Account</span>
                 </div>
 
-                <div className={`input-box d-flex flex-column mt-4 ${styles.inputGroup}`}>
+                <div className={`input-box d-flex flex-column ${styles.inputGroup}`}>
                     <div className={styles.inputBox}>
                         <label htmlFor='fullname' className='font-cera-round-pro-bold ms-2'>
                             Full Name
@@ -213,7 +213,7 @@ function Signup() {
                     </div>
                 </div>
 
-                <Button className={clsx('font-size-20px mt-3')} type='submit'>
+                <Button className={clsx('font-size-20px')} type='submit'>
                     {isLoading ? (
                         'Signing up...'
                     ) : (
@@ -224,7 +224,7 @@ function Signup() {
                     )}
                 </Button>
 
-                <div className='font-cera-round-pro-regular mt-2'>
+                <div className='font-cera-round-pro-regular'>
                     Already have an account?
                     <Link to={'/sign-in'} className='text-underline ms-2'>
                         Log in here
