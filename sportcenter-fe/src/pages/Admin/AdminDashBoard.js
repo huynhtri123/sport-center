@@ -1,5 +1,5 @@
 // src/pages/Admin/AdminDashBoard.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from '../../assets/css/admin.module.scss';
 import { Pie, Bar } from 'react-chartjs-2';
 import ManageFields from './ManageFields';
@@ -9,11 +9,79 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import ManageCourses from './ManageCourses';
 import ManageTournaments from './ManageTournaments';
 import ManageBookings from './ManageBookings';
+import revenueApi from '../../services/api/revenueApi';
+import { RecurringIntervalType } from '../../utils/enums/RecurringIntervalType';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
 function AdminDashboard() {
-    const [selectedSection, setSelectedSection] = useState('dashboard');
+    const [selectedSection, setSelectedSection] = useState('Dashboard');
+    const [pieChartData, setPieChartData] = useState({
+        labels: ['Single Bookings', 'Daily Recurring', 'Weekly Recurring', 'Monthly Recurring'],
+        datasets: [
+            {
+                data: [0, 0, 0, 0],
+                backgroundColor: [
+                    'rgba(255, 206, 86, 0.6)',
+                    'rgba(75, 192, 192, 0.6)',
+                    'rgba(153, 102, 255, 0.6)',
+                    'rgba(255, 99, 132, 0.6)',
+                ],
+                borderColor: [
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 99, 132, 1)',
+                ],
+                borderWidth: 1,
+            },
+        ],
+    });
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const countSingleBooking = await revenueApi.countSingleBooking();
+                const dailyRecurringBooking = await revenueApi.countRecurringBookingByType(RecurringIntervalType.DAILY);
+                const weeklyRecurringBooking = await revenueApi.countRecurringBookingByType(
+                    RecurringIntervalType.WEEKLY
+                );
+                const monthlyRecurringBooking = await revenueApi.countRecurringBookingByType(
+                    RecurringIntervalType.MONTHLY
+                );
+
+                const totalBookings =
+                    countSingleBooking.data +
+                    dailyRecurringBooking.data +
+                    weeklyRecurringBooking.data +
+                    monthlyRecurringBooking.data;
+
+                const normalizedData =
+                    totalBookings > 0
+                        ? [
+                              (countSingleBooking.data / totalBookings) * 100,
+                              (dailyRecurringBooking.data / totalBookings) * 100,
+                              (weeklyRecurringBooking.data / totalBookings) * 100,
+                              (monthlyRecurringBooking.data / totalBookings) * 100,
+                          ]
+                        : [0, 0, 0, 0];
+
+                setPieChartData((prev) => ({
+                    ...prev,
+                    datasets: [
+                        {
+                            ...prev.datasets[0],
+                            data: normalizedData,
+                        },
+                    ],
+                }));
+            } catch (error) {
+                console.error('Failed to fetch booking data:', error);
+            }
+        };
+
+        fetchData();
+    }, []);
 
     const sections = [
         { name: 'Dashboard', icon: 'fa-solid fa-chart-line' },
@@ -53,22 +121,9 @@ function AdminDashboard() {
         ],
     };
 
-    const pieData = {
-        labels: ['Online Bookings', 'In-Person Bookings', 'Memberships'],
-        datasets: [
-            {
-                label: 'Booking Distribution',
-                data: [60, 30, 10],
-                backgroundColor: ['rgba(255, 206, 86, 0.6)', 'rgba(75, 192, 192, 0.6)', 'rgba(153, 102, 255, 0.6)'],
-                borderColor: ['rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'],
-                borderWidth: 1,
-            },
-        ],
-    };
-
     const renderContent = () => {
         switch (selectedSection) {
-            case 'dashboard':
+            case 'Dashboard':
                 return (
                     <div className={styles.dashboardExpanded}>
                         <h2>Dashboard Overview</h2>
@@ -95,7 +150,7 @@ function AdminDashboard() {
                             <div className={`${styles.chartWrapper} ${styles.smallChartWrapper}`}>
                                 <h3>Booking Distribution</h3>
                                 <Pie
-                                    data={pieData}
+                                    data={pieChartData}
                                     options={{
                                         responsive: true,
                                         plugins: {
