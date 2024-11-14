@@ -71,7 +71,7 @@ function Home() {
                     </div>
                     <div className={styles.serviceCard}>
                         <i className='fa-solid fa-dumbbell'></i>
-                        <h3>Đăng ký Lớp Học</h3>
+                        <h3>Khoá học miễn phí</h3>
                         <p>Tham gia các lớp học từ cơ bản đến nâng cao.</p>
                     </div>
                     <div className={styles.serviceCard}>

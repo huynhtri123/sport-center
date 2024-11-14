@@ -4,6 +4,7 @@ import styles from '../../../assets/css/Profile/myPayments.module.scss';
 import userApi from '../../../services/api/userApi';
 import { Loading } from '../../../components/Loading/Loading';
 import PaymentModal from './PaymentModal';
+import formatCurrency from '../../../utils/formatCurrency';
 
 function MyPaymentInfo() {
     const [payments, setPayments] = useState([]);
@@ -11,6 +12,20 @@ function MyPaymentInfo() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedPayment, setSelectedPayment] = useState(null);
     const [userId, setUserId] = useState(null);
+  
+    const [accountBalance, setAccountBalance] = useState(0);
+    const fetchAccountBalance = async () => {
+        try {
+            const response = await userApi.getAccountBalance();
+            setAccountBalance(response.data || 0);
+            console.log(response);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+    useEffect(() => {
+        fetchAccountBalance();
+    }, []);
 
     useEffect(() => {
         const fetchUserProfile = async () => {
@@ -111,6 +126,7 @@ function MyPaymentInfo() {
 
     return (
         <div className={styles.myPaymentInfoContainer}>
+            <p className={styles.price}>Số dư hiện có: {formatCurrency(accountBalance)}</p>
             {isLoading && <Loading />}
             <button onClick={handleAddPayment} className={styles.addPaymentButton}>
                 Thêm Payment

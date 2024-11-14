@@ -24,7 +24,7 @@ const sportData = [
                 alt: 'Training Courses',
                 title: 'Khóa học đào tạo',
                 description: 'Tham gia các khóa học bóng đá với những huấn luyện viên chuyên nghiệp.',
-                linkTo: '/sport/football/training',
+                linkTo: '/courses',
             },
             {
                 image: 'https://images.pexels.com/photos/3764065/pexels-photo-3764065.jpeg?auto=compress&cs=tinysrgb&w=600',
@@ -65,7 +65,7 @@ const sportData = [
                 alt: 'Training Courses',
                 title: 'Khóa học đào tạo',
                 description: 'Tham gia các khóa học cầu lông với những huấn luyện viên chuyên nghiệp.',
-                linkTo: '/sport/badminton/training',
+                linkTo: '/courses',
             },
             {
                 image: 'https://img.freepik.com/free-vector/badminton-tournament-flat-horizontal-poster-with-male-player-motion-hitting-shuttlecock-with-racquet-across-net-vector-illustration_1284-71470.jpg',
@@ -106,7 +106,7 @@ const sportData = [
                 alt: 'Training Courses',
                 title: 'Khóa học đào tạo',
                 description: 'Tham gia các khóa học quần vợt với những huấn luyện viên chuyên nghiệp.',
-                linkTo: '/sport/tennis/training',
+                linkTo: '/courses',
             },
             {
                 image: 'https://images.pexels.com/photos/5739223/pexels-photo-5739223.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
@@ -140,7 +140,7 @@ const sportData = [
                 alt: 'Yoga Classes',
                 title: 'Các lớp yoga',
                 description: 'Tham gia các lớp học yoga từ cơ bản đến nâng cao để cải thiện sức khỏe và tâm trí.',
-                linkTo: '/sport/yoga/classes',
+                linkTo: '/courses',
             },
             {
                 image: 'https://images.pexels.com/photos/866023/pexels-photo-866023.jpeg?auto=compress&cs=tinysrgb&w=600',

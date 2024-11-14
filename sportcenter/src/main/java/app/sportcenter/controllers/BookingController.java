@@ -3,16 +3,13 @@ package app.sportcenter.controllers;
 import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.models.dto.BookingRequest;
 import app.sportcenter.models.dto.OnDayScheduleRequest;
-import app.sportcenter.models.entities.User;
+import app.sportcenter.models.dto.RecurringBookingRequest;
 import app.sportcenter.services.BookingService;
-import jakarta.servlet.ServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
@@ -29,6 +26,35 @@ public class BookingController {
     public ResponseEntity<BaseResponse> createBooking(@Valid @RequestBody BookingRequest bookingRequest) {
         return bookingService.createBooking(bookingRequest);
     }
+
+    @PreAuthorize("hasAnyAuthority('CUSTOMER')")
+    @PostMapping("/booking/createRecurring")
+    public ResponseEntity<BaseResponse> createRecurringBooking(
+            @Valid @RequestBody RecurringBookingRequest recurringBookingRequest) {
+        return bookingService.createRecurringBooking(recurringBookingRequest);
+    }
+
+    // lấy giá đặt sân lẻ
+    @PreAuthorize("hasAnyAuthority('CUSTOMER')")
+    @PostMapping("/booking/getBookingPrice")
+    public ResponseEntity<BaseResponse> getBookingPrice(@Valid @RequestBody BookingRequest bookingRequest) {
+        Double price = bookingService.getBookingPrice(bookingRequest);
+        return ResponseEntity.ok(
+                new BaseResponse("Lấy giá booking thành công!", HttpStatus.OK.value(), price)
+        );
+    }
+
+    // lấy giá đặt sân theo lịch cứng
+    @PreAuthorize("hasAnyAuthority('CUSTOMER')")
+    @PostMapping("/booking/getRecurringBookingPrice")
+    public ResponseEntity<BaseResponse> getRecurringBookingPrice(
+            @Valid @RequestBody RecurringBookingRequest recurringBookingRequest) {
+        Double price = bookingService.getRecurringBookingPrice(recurringBookingRequest);
+        return ResponseEntity.ok(
+                new BaseResponse("Lấy giá recurring booking thành công!", HttpStatus.OK.value(), price)
+        );
+    }
+
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/booking/{bookingId}")

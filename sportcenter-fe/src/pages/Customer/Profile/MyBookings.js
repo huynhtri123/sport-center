@@ -81,7 +81,7 @@ function BookingCard({ booking, handleCancelBookingSubmit }) {
             </button>
             {isModalOpen && (
                 <ConfirmModal
-                    title={'Bạn có chắc muốn huỷ booking? Hành động này sẽ không được hoàn tiền và không thể hoàn tác!'}
+                    title={'Bạn có chắc muốn huỷ booking? Số tiền đặt sân sẽ được hoàn vào số dư!'}
                     isOpen={isModalOpen}
                     onClose={toggleModalOpen}
                     onSubmit={() => handleCancelBookingSubmit(booking.id)}

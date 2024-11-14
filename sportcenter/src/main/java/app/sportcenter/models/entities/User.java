@@ -36,7 +36,8 @@ public class User extends BaseEntity implements UserDetails {
     @DBRef(lazy = true)
     private List<PaymentInfo> paymentInfos;     // danh sách thông tin thanh toán
     private Verify verify;                      // gửi qua mail khi đăng ký tài khoản
-    private Boolean isEmailVerified = false;            // trạng thái tài khoản đã được xác thực chưa
+    private Boolean isEmailVerified = false;    // trạng thái tài khoản đã được xác thực chưa
+    private Double accountBalance = 0.0;        // số dư
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

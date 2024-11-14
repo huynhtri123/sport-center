@@ -1,11 +1,12 @@
 @import '../variables';
 
 .bookingContainer {
+    margin: 24px;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 20px;
-    background-color: #f0f2f5; /* Thêm màu nền nhẹ để phân biệt */
+    background-color: #f0f2f5;
 }
 
 .fieldDetailSection {
@@ -14,107 +15,110 @@
     align-items: flex-start;
     margin-bottom: 30px;
     width: 100%;
-    max-width: 1200px; /* Giới hạn chiều rộng để đẹp hơn trên màn hình lớn */
-    background-color: #ffffff; /* Thêm màu nền trắng */
+    max-width: 1200px;
+    background-color: #ffffff;
     border: 1px solid #ccc;
     border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Tạo hiệu ứng nổi */
-    overflow: hidden; /* Để tránh nội dung tràn ra */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
 }
 
 .fieldImage {
     width: 50%;
-    overflow: hidden; /* Đảm bảo ảnh không bị tràn */
+    overflow: hidden;
 
     img {
         width: 100%;
         height: 100%;
-        object-fit: cover; /* Đảm bảo ảnh vừa khít và không bị kéo dãn */
-        border-radius: 10px 0 0 10px; /* Bo góc một phần */
+        object-fit: cover;
+        border-radius: 10px 0 0 10px;
     }
 }
 
 .fieldInfo {
     width: 50%;
-    padding: 20px 30px; /* Tăng padding để nội dung thoải mái hơn */
+    padding: 20px 30px;
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Đảm bảo nội dung được căn giữa theo chiều dọc */
+    justify-content: center;
 
     h1 {
         font-size: 2.2em;
         margin-bottom: 15px;
-        color: #333; /* Màu chữ tối hơn */
-        font-weight: bold; /* Làm chữ đậm hơn */
+        color: #333;
+        font-weight: bold;
     }
 
     p {
         margin-bottom: 15px;
         font-size: 1.1em;
-        color: #555; /* Màu xám đậm hơn để dễ đọc */
-        line-height: 1.6; /* Tăng khoảng cách dòng để dễ đọc hơn */
+        color: #555;
+        line-height: 1.6;
+    }
+
+    .price {
+        color: $price-color;
     }
 }
 
 .bookingSection {
     width: 80%;
-    max-width: 900px; /* Giới hạn chiều rộng */
+    max-width: 900px;
     padding: 25px;
-    background-color: #ffffff; /* Màu nền trắng */
+    background-color: #ffffff;
     border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Tạo hiệu ứng nổi */
-    margin-bottom: 40px; /* Thêm khoảng cách với phần trên */
-    text-align: center; /* Căn giữa các tiêu đề */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 40px;
+    text-align: center;
 
     h2 {
         margin-bottom: 25px;
         font-size: 2em;
-        color: #333; /* Màu đậm hơn */
-        font-weight: bold; /* Làm tiêu đề đậm */
+        color: $blue-prime;
+        font-weight: bold;
     }
 
     .timeSlotGrid {
-        margin: 50px;
         display: grid;
-        grid-template-columns: repeat(4, 1fr); /* Giảm số cột để tăng kích thước mỗi ô */
-        gap: 15px; /* Tăng khoảng cách giữa các ô */
-        margin-bottom: 30px; /* Tăng khoảng cách với phần dưới */
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        margin-bottom: 30px;
     }
 
     .timeSlot {
         padding: 12px;
         text-align: center;
-        border-radius: 8px; /* Bo góc mềm mại hơn */
+        border-radius: 8px;
         cursor: pointer;
         font-weight: bold;
         color: white;
-        transition: transform 0.2s, box-shadow 0.2s; /* Thêm hiệu ứng khi hover */
+        transition: transform 0.2s, box-shadow 0.2s;
 
         &:hover {
-            transform: translateY(-3px); /* Hiệu ứng nâng lên khi hover */
+            transform: translateY(-3px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
     }
 
     .available {
-        background-color: #43a047; /* Màu xanh cho các slot trống */
-        border: 1px solid #337357; /* Thêm viền để nổi bật */
+        background-color: #43a047;
+        border: 1px solid #337357;
     }
 
     .inUse {
-        background-color: #c62828; /* Màu đỏ cho các slot đã được đặt */
-        border: 1px solid #b8001f; /* Thêm viền để nổi bật */
-        cursor: not-allowed; /* Con trỏ không được phép */
+        background-color: #c62828;
+        border: 1px solid #b8001f;
+        cursor: not-allowed;
     }
 
     .bookingForm {
         display: flex;
         flex-direction: column;
-        align-items: center; /* Căn giữa các phần tử */
+        align-items: center;
     }
 
     .formGroup {
-        width: 100%; /* Cho phần tử form chiếm toàn bộ chiều ngang */
+        width: 100%;
         margin-bottom: 20px;
         display: flex;
         flex-direction: column;
@@ -126,7 +130,8 @@
             color: #333;
         }
 
-        input {
+        input,
+        select {
             width: 100%;
             padding: 10px;
             font-size: 1em;
@@ -135,7 +140,7 @@
             transition: border-color 0.3s;
 
             &:focus {
-                border-color: #007bff; /* Màu khi focus */
+                border-color: #007bff;
                 outline: none;
             }
         }
@@ -143,5 +148,9 @@
 
     .bookingButton {
         font-weight: 700;
+    }
+
+    .price {
+        color: $price-color;
     }
 }
