@@ -2,12 +2,15 @@ package app.sportcenter.models.dto;
 
 import app.sportcenter.commons.FieldStatus;
 import app.sportcenter.commons.FieldType;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -25,9 +28,10 @@ public class FieldRequest extends BaseRequestDTO {
     @NotBlank(message = "Bạn chưa nhập mô tả cho sân!")
     private String description;
 
-    @NotNull(message = "Bạn chưa nhập giá cho sân!")
-    private Double price;
-
     @NotBlank(message = "Bạn chưa nhập đường dẫn ảnh cho sân!")
     private String imageUrl;
+
+    @Valid
+    @NotNull(message = "Bạn chưa nhập danh sách chính sách giá!")
+    private List<PricePolicyRequest> pricePolicies;
 }

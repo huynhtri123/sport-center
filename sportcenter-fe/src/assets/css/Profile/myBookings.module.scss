@@ -23,6 +23,16 @@
     margin-top: 1.5rem;
 }
 
+.bookingCard.recurring {
+    background-color: #f9f7d9;
+    border: 1px solid #f7e34d;
+}
+
+.bookingCard.nonRecurring {
+    background-color: $xanh-nhat;
+    border: 1px solid #5bc0de;
+}
+
 .bookingCard {
     background-color: #fff;
     border: 1px solid $yellow-hover;
@@ -62,6 +72,7 @@
         cursor: pointer;
         margin-top: auto;
         transition: background-color 0.3s;
+        margin: 8px;
 
         &:hover {
             background-color: darken(#ccc, 10%);

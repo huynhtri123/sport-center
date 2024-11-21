@@ -108,6 +108,46 @@ public class MailServiceImpl implements MailService {
         }
     }
 
+    @Override
+    public void sendMailRecurringBookingCancel(String toEmail, String fullName, String fieldName,
+                                               String startDate, String startTime, String endDate,
+                                               String endTime, String interval, String numberOfHours,
+                                               Double price, Double refund, String duration) {
+        try {
+            MimeMessagePreparator preparator = new MimeMessagePreparator() {
+                public void prepare(MimeMessage mimeMessage) throws Exception {
+                    MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+                    messageHelper.setTo(toEmail);
+                    messageHelper.setSubject("Sport Center - Recurring Booking Cancellation Confirmation");
+
+                    // Khởi tạo các biến cho template email
+                    Context context = new Context();
+                    context.setVariable("fullName", fullName);
+                    context.setVariable("fieldName", fieldName);
+                    context.setVariable("startDate", startDate);
+                    context.setVariable("startTime", startTime);
+                    context.setVariable("endDate", endDate);
+                    context.setVariable("endTime", endTime);
+                    context.setVariable("interval", interval);
+                    context.setVariable("numberOfHours", numberOfHours);
+                    context.setVariable("price", price);
+                    context.setVariable("refund", refund);
+                    context.setVariable("duration", duration);
+
+                    // Render template email với Thymeleaf
+                    String content = templateEngine.process("RecurringBookingCancelTemplate", context);
+                    messageHelper.setText(content, true);
+                }
+            };
+            mailSender.send(preparator);
+
+        } catch (Exception e) {
+            throw new CustomException("Lỗi khi gửi mail hủy đặt sân định kỳ: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+    }
+
+
 
     @Override
     public void sendMailCancelBooking(String toEmail, String fullName,

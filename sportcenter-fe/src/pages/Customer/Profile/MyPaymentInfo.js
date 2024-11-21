@@ -12,7 +12,7 @@ function MyPaymentInfo() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedPayment, setSelectedPayment] = useState(null);
     const [userId, setUserId] = useState(null);
-  
+
     const [accountBalance, setAccountBalance] = useState(0);
     const fetchAccountBalance = async () => {
         try {
@@ -26,6 +26,8 @@ function MyPaymentInfo() {
     useEffect(() => {
         fetchAccountBalance();
     }, []);
+
+    // console.log(accountBalance);
 
     useEffect(() => {
         const fetchUserProfile = async () => {
@@ -97,9 +99,7 @@ function MyPaymentInfo() {
     const updatePaymentInfo = async (updatedPayment, paymentId) => {
         try {
             const response = await userApi.updatePaymentInfo(updatedPayment, updatedPayment.userId, paymentId);
-            setPayments((prevPayments) =>
-                prevPayments.map((p) => (p.id === paymentId ? response.data : p))
-            );
+            setPayments((prevPayments) => prevPayments.map((p) => (p.id === paymentId ? response.data : p)));
             toast.success('Payment updated successfully');
         } catch (error) {
             toast.error('Failed to update payment.');
@@ -115,9 +115,7 @@ function MyPaymentInfo() {
             // Call your API to delete the payment, passing both userId and paymentId
             await userApi.deletePaymentInfo(userId, paymentId);
             // Remove the deleted payment from the state
-            setPayments((prevPayments) =>
-                prevPayments.filter((payment) => payment.id !== paymentId)
-            );
+            setPayments((prevPayments) => prevPayments.filter((payment) => payment.id !== paymentId));
             toast.success('Payment deleted successfully');
         } catch (error) {
             toast.error('Failed to delete payment.');
@@ -126,7 +124,7 @@ function MyPaymentInfo() {
 
     return (
         <div className={styles.myPaymentInfoContainer}>
-            <p className={styles.price}>Số dư hiện có: {formatCurrency(accountBalance)}</p>
+            <p className={styles.price}>Số dư hiện có: {formatCurrency(accountBalance) || 0}</p>
             {isLoading && <Loading />}
             <button onClick={handleAddPayment} className={styles.addPaymentButton}>
                 Thêm Payment
@@ -169,8 +167,13 @@ function PaymentCard({ payment, onEdit, onDelete }) {
             <p>
                 <span>Issue Date:</span> {new Date(payment.issueDate).toLocaleDateString()}
             </p>
-            <button onClick={onEdit} className={`${styles.updateButton} ${styles.updateButtonCustom}`}>Cập nhật</button>
-            <button onClick={onDelete} className={styles.deleteButton}>Xóa</button> {/* Delete button */}
+            <button onClick={onEdit} className={`${styles.updateButton} ${styles.updateButtonCustom}`}>
+                Cập nhật
+            </button>
+            <button onClick={onDelete} className={styles.deleteButton}>
+                Xóa
+            </button>{' '}
+            {/* Delete button */}
         </div>
     );
 }

@@ -24,8 +24,34 @@ public class Field extends BaseEntity {
     private FieldType fieldType;
     private String fieldName;
     private String description;
-    private Double price;
     private String imageUrl;
+    private Double defaultPrice = 0.0;
+    private List<PricePolicy> pricePolicies;
+
+    /* demo pricePolicies:
+    [
+      {
+        "id": "1",
+        "fieldId": "f1",
+        "price": 500000,
+        "daysOfWeek": [1, 2, 3, 4, 5]
+      },
+      {
+        "id": "2",
+        "fieldId": "f1",
+        "price": 700000,
+        "daysOfWeek": [6, 7]
+      }
+    ]
+    */
+
+    public Double getPriceForDay(int dayOfWeek) {
+        return pricePolicies.stream()
+                .filter(policy -> policy.getDaysOfWeek().contains(dayOfWeek))
+                .map(PricePolicy::getPrice)
+                .findFirst()
+                .orElse(defaultPrice);
+    }
 
     // danh sách trạng thái theo khung giờ
     private List<TimeSlot> timeSlots;
@@ -80,6 +106,5 @@ public class Field extends BaseEntity {
             }
         }
     }
-
 
 }
