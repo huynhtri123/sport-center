@@ -10,6 +10,7 @@ import { useGetField } from '../../../customs/hooks';
 import { RecurringIntervalType } from '../../../utils/enums/RecurringIntervalType';
 import PaymentModal from '../../../components/Modal/PaymentModal';
 import formatCurrency from '../../../utils/formatCurrency';
+import { faL } from '@fortawesome/free-solid-svg-icons';
 
 function Booking() {
     const [field, setField] = useGetField();
@@ -60,16 +61,21 @@ function Booking() {
         const date = e.target.value;
         setSelectedDate(date);
         fetchTimeSlots(date);
+        if (startTime && numberOfHours > 0) {
+            getPrice(true, date);
+            getPrice(false, date);
+            console.log(date);
+        }
     };
 
-    const getPrice = async (isRecurring) => {
+    const getPrice = async (isRecurring, date) => {
         if (!startTimeRef.current.value) {
             toast.warn('Please pick start time!');
             return;
         }
         try {
             setIsLoading(true);
-            const startDateTimeString = `${selectedDate}T${startTime}:00+00:00`;
+            const startDateTimeString = `${date}T${startTime}:00+00:00`;
             const startTimeUTC = new Date(startDateTimeString).toISOString();
 
             const request = {
@@ -180,15 +186,18 @@ function Booking() {
     };
 
     useEffect(() => {
-        if (numberOfHours && numberOfHours >= 1) {
-            getPrice(true);
+        if (selectedDate && startTime && numberOfHours && numberOfHours > 0) {
+            getPrice(true, selectedDate);
+            getPrice(false, selectedDate);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [numberOfHours, interval, duration]);
+    }, [numberOfHours, interval, duration, selectedDate, startTime]);
+
+    const dayNames = ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ nhật'];
 
     return (
         <div className={styles.bookingContainer}>
-            {isLoading && <Loading />}
+            {isLoading && <Loading></Loading>}
             <section className={styles.fieldDetailSection}>
                 <div className={styles.fieldImage}>
                     <img src={field.imageUrl} alt={field.fieldName} />
@@ -196,8 +205,27 @@ function Booking() {
                 <div className={styles.fieldInfo}>
                     <h1>{field.fieldName}</h1>
                     <p>{field.description}</p>
-                    <p className={styles.price}>Giá thuê: {formatCurrency(field.price)}/giờ</p>
                 </div>
+            </section>
+
+            <section className={styles.pricePoliciesSection}>
+                <h2>Chính sách giá</h2>
+                <ul className={styles.pricePolicyList}>
+                    {field.pricePolicies &&
+                        field.pricePolicies.map((policy, index) => (
+                            <li key={index} className={styles.pricePolicyItem}>
+                                <p>
+                                    <strong>Giá:</strong> {formatCurrency(policy.price)}/giờ
+                                </p>
+                                <p>
+                                    <strong>Áp dụng vào:</strong>{' '}
+                                    {policy.daysOfWeek
+                                        .map((day) => dayNames[day - 1]) // Chuyển từ số sang tên ngày
+                                        .join(', ')}
+                                </p>
+                            </li>
+                        ))}
+                </ul>
             </section>
 
             <section className={styles.bookingSection}>
@@ -260,13 +288,13 @@ function Booking() {
                             required
                         />
                     </div>
-                    <p className={styles.price}>Price: {formatCurrency(field.price * numberOfHours)}</p>
+                    <p className={styles.price}>Price: {formatCurrency(bookingPrice)}</p>
                     <Button type='submit' className={clsx('font-cera-round-pro-medium mb-4', styles.bookingButton)}>
                         Book Now
                     </Button>
                     {isBookingModalOpen && (
                         <PaymentModal
-                            price={field.price * numberOfHours}
+                            price={bookingPrice}
                             isOpen={isBookingModalOpen}
                             onClose={() => setIsBookingModalOpen(false)}
                             onSubmit={() => handleSubmit(false)}

@@ -7,6 +7,7 @@ import app.sportcenter.models.entities.User;
 import lombok.*;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -25,7 +26,8 @@ public class RecurringBookingResponse extends BaseResponseDTO {
     private RecurringIntervalType interval;
     private Integer numberOfHours;
     private Integer packageDurationMonths;
+    private List<String> bookingIds = new ArrayList<>();
     private Double price;
 //    private List<ZonedDateTime> recurringDates;
-    private List<TimeSlot> recurringTimeSlots;
+//    private List<TimeSlot> recurringTimeSlots;
 }

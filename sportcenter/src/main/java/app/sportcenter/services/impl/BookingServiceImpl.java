@@ -30,6 +30,8 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -98,7 +100,7 @@ public class BookingServiceImpl implements BookingService {
 
             BookingResponse response = bookingMapper.convertToResponse(savedBooking);
             // Gửi mail thông báo
-            sendMailBooking(currentUser, response);
+//            sendMailBooking(currentUser, response);
 
             return ResponseEntity.ok(
                     new BaseResponse("Đặt sân thành công!", HttpStatus.OK.value(), response)
@@ -166,12 +168,13 @@ public class BookingServiceImpl implements BookingService {
         }
         fieldRepository.save(field);
         bookingRepository.saveAll(bookingsToSave);
+        recurringBooking.setBookingIds(bookingsToSave.stream().map(Booking::getId).collect(Collectors.toList()));
 
         RecurringBooking savedRecurringBooking = recurringBookingRepository.save(recurringBooking);
         RecurringBookingResponse response = recurringBookingMapper.convertToDTO(savedRecurringBooking);
 
         //send mail
-        sendMailRecurringBooking(currentUser, response);
+//        sendMailRecurringBooking(currentUser, response);
 
         String message = "Đặt sân theo lịch cứng (" + recurringBooking.getInterval() + "/" + recurringBooking.getPackageDurationMonths() + " months) thành công!";
         return ResponseEntity.ok(
@@ -202,6 +205,18 @@ public class BookingServiceImpl implements BookingService {
         RecurringBooking recurringBooking = recurringBookingMapper.convertToEntity(recurringBookingRequest, field, currentUser);
 
         return recurringBooking.getPrice();
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse> getRecurringBookingByContainBookingId(String bookingId) {
+        RecurringBooking recurringBooking = recurringBookingRepository.getByContainBookingId(bookingId);
+        if (recurringBooking == null) {
+            throw new NotFoundException("Không tìm thấy RecurringBooking nào chứa bookingId: " + bookingId);
+        }
+        RecurringBookingResponse response = recurringBookingMapper.convertToDTO(recurringBooking);
+        return ResponseEntity.ok(
+                new BaseResponse("Tìm thấy RecurringBooking", HttpStatus.OK.value(), response)
+        );
     }
 
     @Override
@@ -387,24 +402,87 @@ public class BookingServiceImpl implements BookingService {
             BookingResponse response = bookingMapper.convertToResponse(canceledBooking);
             log.info("Đã huỷ booking " + canceledBooking.getId());
 
-            // hoàn tiền
+            // hoàn tiền nếu là đặt lẻ
             User owner = userRepository.findById(booking.getUser().getId())
-                            .orElseThrow(() -> new NotFoundException("Không tìm thấy chủ sở hữu booking này"));
-
-            owner.setAccountBalance(owner.getAccountBalance() + booking.getPrice());
-            userRepository.save(owner);
+                    .orElseThrow(() -> new NotFoundException("Không tìm thấy chủ sở hữu booking này"));
+            if (!booking.isRecurring()) {
+                owner.setAccountBalance(owner.getAccountBalance() + booking.getPrice());
+                userRepository.save(owner);
+            }
 
             // send mail
-            sendMailCancelBooking(owner, response);
+//            sendMailCancelBooking(owner, response);
 
             return ResponseEntity.ok(
-                    new BaseResponse("Huỷ đặt sân thành công, đã hoàn tiền vào số dư của bạn.", HttpStatus.OK.value(), response)
+                    new BaseResponse("Huỷ đặt sân thành công.", HttpStatus.OK.value(), response)
             );
 
         } else {
-            throw new CustomException("Bạn không có quyền huỷ đặt sân của người khác", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("Bạn không có quyền huỷ đặt sân của người khác", HttpStatus.FORBIDDEN.value());
         }
 
+    }
+
+    @Transactional
+    @Override
+    public ResponseEntity<BaseResponse> cancelRecurringByBookingId(String bookingId) {
+        RecurringBooking recurrParent = recurringBookingRepository.getByContainBookingId(bookingId);
+        if (recurrParent == null) {
+            throw new NotFoundException("Không tìm thấy Recurring nào chứa bookingId này!");
+        }
+
+        // xác thực
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User currUser = (User) auth.getPrincipal();
+        if (currUser.getRole() != Role.ADMIN && !currUser.getId().equals(recurrParent.getUser().getId())) {
+            throw new CustomException("Bạn không có quyền huỷ cứng recurring của người khác!", HttpStatus.FORBIDDEN.value());
+        }
+
+        // cancel
+        // 1. xử lý bookings liên quan
+        List<Booking> relevantBooking = recurrParent.getBookingIds()
+                .stream()
+                .map(id -> bookingRepository.findById(id)
+                        .orElse(null))
+                .filter(Objects::nonNull)
+                .toList();
+        List<Field> fieldsToSave = new ArrayList<>();
+        List<Booking> bookingsToSave = new ArrayList<>();
+        if (!relevantBooking.isEmpty()) {
+            for (Booking booking : relevantBooking) {
+                ZonedDateTime startTime = booking.getStartTime();
+                ZonedDateTime endTime = booking.getEndTime();
+                Field field = booking.getField();
+
+                field.createTimeSlots(startTime, endTime);  // reset fields status -> AVAILABLE
+                booking.setIsActive(false);                 // tắt hoạt động
+                fieldsToSave.add(field);
+                bookingsToSave.add(booking);
+            }
+            fieldRepository.saveAll(fieldsToSave);
+            bookingRepository.saveAll(bookingsToSave);
+        }
+        // 2. xử lý recurringBooking
+        recurrParent.setIsActive(false);
+        RecurringBooking caneledRecurring = recurringBookingRepository.save(recurrParent);
+        RecurringBookingResponse response = recurringBookingMapper.convertToDTO(caneledRecurring);
+
+        // 3. hoàn tiền 50%
+        Double price = recurrParent.getPrice();
+        Double refund = price / 2;
+        String ownerId = recurrParent.getUser().getId();
+        User owner = userRepository.findById(ownerId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy chủ nhân của recurringBooking này"));
+        owner.setAccountBalance(owner.getAccountBalance() + refund);
+        userRepository.save(owner);
+
+        // 4. gửi mail
+//        sendMailRecurringBookingCancel(owner, response);
+
+        return ResponseEntity.ok(
+                new BaseResponse("Huỷ cứng recurringBooking thành công, 50% số tiền đã hoàn vào số dư.",
+                        HttpStatus.OK.value(), response)
+        );
     }
 
     private void sendMailBooking(User user, BookingResponse bookingResponse) {
@@ -466,6 +544,42 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
+    public void sendMailRecurringBookingCancel(User user, RecurringBookingResponse recurringBookingResponse) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z");
+        try {
+            String email = user.getEmail();
+            String fullName = user.getFullName();
+            String fieldName = recurringBookingResponse.getField().getFieldName();
+
+            // Chuyển thời gian sang múi giờ Việt Nam (GMT+7)
+            String startDate = recurringBookingResponse.getStartDate()
+                    .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
+                    .format(formatter);
+            String startTime = recurringBookingResponse.getStartTime()
+                    .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
+                    .format(formatter);
+            String endDate = recurringBookingResponse.getEndDate()
+                    .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
+                    .format(formatter);
+            String endTime = recurringBookingResponse.getEndTime()
+                    .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
+                    .format(formatter);
+
+            String interval = recurringBookingResponse.getInterval().name(); // DAILY, WEEKLY, MONTHLY
+            String numberOfHours = recurringBookingResponse.getNumberOfHours().toString();
+            Double price = recurringBookingResponse.getPrice();
+            String duration = recurringBookingResponse.getPackageDurationMonths().toString();
+            Double refund = price / 2;
+
+            // Gọi phương thức gửi mail với các thông tin đã được định dạng
+            mailService.sendMailRecurringBookingCancel(email, fullName, fieldName, startDate,
+                    startTime, endDate, endTime, interval, numberOfHours, price, refund, duration);
+
+        } catch (Exception e) {
+            throw new CustomException("Lỗi khi gửi mail hủy đặt sân định kỳ: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+    }
 
 
     private void sendMailCancelBooking(User user, BookingResponse canceledBooking) {

@@ -281,7 +281,7 @@ function Profile() {
                     <span className='ms-3'>Bookings</span>
                 </h3>
                 <p>Check your current bookings field.</p>
-                {showBookings && <MyBookings bookings={myBooking}></MyBookings>}
+                {showBookings && <MyBookings bookings={myBooking} setMyBookings={setMyBookings}></MyBookings>}
             </div>
 
             <div className={styles.section}>

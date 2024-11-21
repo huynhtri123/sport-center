@@ -7,6 +7,7 @@ import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
 import app.sportcenter.models.dto.FieldRequest;
 import app.sportcenter.models.dto.FieldResponse;
+import app.sportcenter.models.dto.PricePolicyRequest;
 import app.sportcenter.models.entities.Booking;
 import app.sportcenter.models.entities.Field;
 import app.sportcenter.repositories.BookingRepository;
@@ -23,7 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -43,14 +46,31 @@ public class FieldServiceImpl implements FieldService {
     @Transactional
     @Override
     public ResponseEntity<BaseResponse> create(FieldRequest fieldRequest) {
+        // kiểm tra trùng lặp ngày trong các pricePolicies
+        if (hasDuplicateDays(fieldRequest.getPricePolicies())) {
+            throw new CustomException("Thất bại vì có ngày bị trùng lặp trong các chính sách giá!", HttpStatus.BAD_REQUEST.value());
+        }
         Field field = fieldMapper.convertToEntity(fieldRequest);
         if (field == null) {
-            throw new CustomException("Inputs are null!", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("Map fieldRequest to entity thất bại!", HttpStatus.BAD_REQUEST.value());
         }
         FieldResponse responseField = fieldMapper.convertToDTO(fieldRepository.save(field));
         return ResponseEntity.status(HttpStatus.CREATED.value()).body(
                 new BaseResponse("Tạo mới sân (field) thành công!", HttpStatus.CREATED.value(), responseField)
         );
+    }
+
+    private boolean hasDuplicateDays(List<PricePolicyRequest> pricePolicies) {
+        Set<Integer> allDays = new HashSet<>(); // Sử dụng HashSet để tránh trùng
+        for (PricePolicyRequest pricePolicy : pricePolicies) {
+            for (Integer day : pricePolicy.getDaysOfWeek()) {
+                // Nếu ngày đã có trong set thì có sự trùng lặp
+                if (!allDays.add(day)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
@@ -96,6 +116,10 @@ public class FieldServiceImpl implements FieldService {
     @Transactional
     @Override
     public ResponseEntity<BaseResponse> updateById(String fieldId, FieldRequest newField) {
+        // kiểm tra trùng lặp ngày trong các pricePolicies
+        if (hasDuplicateDays(newField.getPricePolicies())) {
+            throw new CustomException("Thất bại vì có ngày bị trùng lặp trong các chính sách giá!", HttpStatus.BAD_REQUEST.value());
+        }
         Field field = fieldRepository.findById(fieldId).orElseThrow(() ->
                 new NotFoundException("Không tìm thấy Field!"));
 

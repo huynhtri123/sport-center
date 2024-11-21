@@ -12,7 +12,7 @@ const bookingApi = {
         return axiosClient.post(url, bookingRequest);
     },
     cancelBooking(bookingId) {
-        const url = `/booking/cancelBooking/${bookingId}`;
+        const url = `/booking/cancel/${bookingId}`;
         return axiosClient.put(url);
     },
 
@@ -34,6 +34,14 @@ const bookingApi = {
     getAllActive() {
         const url = '/booking/getAllActive';
         return axiosClient.get(url);
+    },
+    getRecurringByBookingId(bookingId) {
+        const url = `/recurring/getByBookingId?bookingId=${bookingId}`;
+        return axiosClient.get(url);
+    },
+    cancelRecurring(bookingId) {
+        const url = `/recurring/cancel/${bookingId}`;
+        return axiosClient.put(url);
     },
 };
 

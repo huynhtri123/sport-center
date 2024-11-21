@@ -4,6 +4,7 @@ import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.models.dto.BookingRequest;
 import app.sportcenter.models.dto.OnDayScheduleRequest;
 import app.sportcenter.models.dto.RecurringBookingRequest;
+import app.sportcenter.models.dto.TimeRequest;
 import app.sportcenter.services.BookingService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +56,13 @@ public class BookingController {
         );
     }
 
+    // lấy RecurringBooking nào có chứa bookingId (tìm chủ nhân của booking kiểu recurring)
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
+    @GetMapping("/recurring/getByBookingId")
+    public ResponseEntity<BaseResponse> getRecurringBookingByContainBookingId(
+            @RequestParam("bookingId") String bookingId) {
+        return bookingService.getRecurringBookingByContainBookingId(bookingId);
+    }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/booking/{bookingId}")
@@ -123,9 +131,15 @@ public class BookingController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @PutMapping("/booking/cancelBooking/{bookingId}")
+    @PutMapping("/booking/cancel/{bookingId}")
     public ResponseEntity<BaseResponse> cancelBooking(@PathVariable("bookingId") String bookingId) {
         return bookingService.cancelBooking(bookingId);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
+    @PutMapping("/recurring/cancel/{bookingId}")
+    public ResponseEntity<BaseResponse> cancelRecurringByBookingId(@PathVariable("bookingId") String bookingId) {
+        return bookingService.cancelRecurringByBookingId(bookingId);
     }
 
 }

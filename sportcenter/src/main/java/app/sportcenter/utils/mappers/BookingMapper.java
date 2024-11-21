@@ -59,6 +59,7 @@ public class BookingMapper {
         bookingResponse.setStartTime(booking.getStartTime());           // Thời gian bắt đầu tính giờ
         bookingResponse.setEndTime(booking.getEndTime());               // Thời gian kết thúc
         bookingResponse.setTotalPrice(booking.getPrice());
+        bookingResponse.setRecurring(booking.isRecurring());
         // các thuộc tính từ BaseEntity
         bookingResponse.setCreatedAt(booking.getCreatedAt());
         bookingResponse.setUpdatedAt(booking.getUpdatedAt());

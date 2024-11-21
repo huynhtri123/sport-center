@@ -26,7 +26,9 @@ public class Booking extends BaseEntity implements PricedItem {
 
     @Override
     public Double getPrice() {
-        return this.field.getPrice() * numberOfHours;
+        ZonedDateTime startTimeVietnam = this.startTime;
+        int day = startTimeVietnam.getDayOfWeek().getValue();
+        return this.field.getPriceForDay(day) * numberOfHours;
     }
 
     // tính thời gian kết thúc dựa trên số giờ đặt

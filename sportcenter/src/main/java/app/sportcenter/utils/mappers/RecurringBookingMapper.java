@@ -50,13 +50,14 @@ public class RecurringBookingMapper {
         response.setIsDeleted(recurringBooking.getIsDeleted());
         response.setCreatedAt(recurringBooking.getCreatedAt());
         response.setUpdatedAt(recurringBooking.getUpdatedAt());
+        response.setBookingIds(recurringBooking.getBookingIds());
 
         // Thiết lập giá trị tính toán
         response.setEndDate(recurringBooking.getEndDate());
         response.setEndTime(recurringBooking.getEndTime());
         response.setPrice(recurringBooking.getPrice());
 //        response.setRecurringDates(recurringBooking.generateRecurringDates());
-        response.setRecurringTimeSlots(recurringBooking.generateTimeSlots());
+//        response.setRecurringTimeSlots(recurringBooking.generateTimeSlots());
 
         return response;
     }

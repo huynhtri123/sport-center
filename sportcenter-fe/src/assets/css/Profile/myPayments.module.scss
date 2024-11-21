@@ -1,5 +1,9 @@
 @import '../variables';
 
+.price {
+    color: $price-color;
+}
+
 .myPaymentInfoContainer {
     padding: 20px;
     display: flex;
@@ -36,7 +40,9 @@
 }
 
 /* Button styles for Add, Edit, Delete */
-.addPaymentButton, .editButton, .deleteButton {
+.addPaymentButton,
+.editButton,
+.deleteButton {
     padding: 10px 20px;
     border: none;
     border-radius: 5px;
@@ -104,4 +110,3 @@
 }
 
 /* Modal styling for consistency */
-
