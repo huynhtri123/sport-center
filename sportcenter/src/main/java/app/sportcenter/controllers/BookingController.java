@@ -96,8 +96,10 @@ public class BookingController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/booking/getAllActive")
-    public ResponseEntity<BaseResponse> getBookingsByStartTime() {
-        return bookingService.getAllBookings();
+    public ResponseEntity<BaseResponse> getBookingsByStartTime(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        return bookingService.getAllBookings(page, size);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")

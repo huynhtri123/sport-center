@@ -29,8 +29,10 @@ public class TournamentController {
 
     // public
     @GetMapping("/public/tounament/getAllActive")
-    public ResponseEntity<BaseResponse> getAllActive() {
-        return tournamentService.getAllActive();
+    public ResponseEntity<BaseResponse> getAllActive(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        return tournamentService.getAllActive(page, size);
     }
 
     // public

@@ -84,30 +84,94 @@
     }
 
     .editButton,
-    .deleteButton {
-        color: white;
-        padding: 6px 12px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.875rem;
-        transition: background-color 0.3s;
+.deleteButton {
+    width: 100px;
+    padding: 6px 12px; // Padding for the buttons
+    border: none; // Remove default border
+    border-radius: 4px; // Rounded corners
+    font-size: 0.875rem; // Font size
+    cursor: pointer; // Pointer cursor on hover
+    transition: background-color 0.3s, transform 0.2s; // Smooth transition effects
 
-        &.editButton {
-            background-color: $blue-prime;
-            margin-right: 10px;
+    &.editButton {
+        background-color: $blue-prime; // Primary color for edit button
+        color: white; // Text color
 
-            &:hover {
-                background-color: darken($blue-prime, 10%);
-            }
+        &:hover {
+            background-color: darken($blue-prime, 10%); // Darker shade on hover
+            transform: scale(1.05); // Slightly enlarge on hover
         }
+    }
 
-        &.deleteButton {
-            background-color: #dc3545;
+    &.deleteButton {
+        background-color: #dc3545; // Bootstrap danger color for delete button
+        color: white; // Text color
 
-            &:hover {
-                background-color: darken(#dc3545, 10%);
-            }
+        &:hover {
+            background-color: darken(#dc3545, 10%); // Darker shade on hover
+            transform: scale(1.05); // Slightly enlarge on hover
+        }
+    }
+}
+}
+.searchContainer {
+    margin-bottom: 20px;
+}
+
+.searchInput {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    max-width: 400px; // Optional: Limit width
+}
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 10px; /* Space between buttons */
+}
+
+.pagination button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff; /* Bootstrap primary color */
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.pagination button:disabled {
+    background-color: #ccc; /* Disabled button color */
+    cursor: not-allowed;
+}
+
+.pagination button:hover:not(:disabled) {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+.pagination span {
+    font-weight: bold;
+    color: #333; /* Color for the page number text */
+}
+
+.buttonContainer {
+    display: flex;
+    justify-content: flex-start; // Align buttons to the start
+    margin-top: 10px; // Add some spacing above the buttons
+
+    .addButton {
+        margin-right: 10px; // Space between the buttons
+    }
+
+    .cancelButton {
+        background-color: #dc3545; // Optional: a different color for the cancel button
+        color: white;
+
+        &:hover {
+            background-color: darken(#dc3545, 10%);
         }
     }
 }

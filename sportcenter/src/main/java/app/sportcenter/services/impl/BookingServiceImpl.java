@@ -2,6 +2,7 @@ package app.sportcenter.services.impl;
 
 import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.commons.FieldStatus;
+import app.sportcenter.commons.PaginatedResponse;
 import app.sportcenter.commons.Role;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
@@ -18,6 +19,8 @@ import app.sportcenter.utils.mappers.FieldMapper;
 import app.sportcenter.utils.mappers.RecurringBookingMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -296,17 +299,28 @@ public class BookingServiceImpl implements BookingService {
         );
     }
 
+
     @Transactional
     @Override
-    public ResponseEntity<BaseResponse> getAllBookings() {
-        List<Booking> bookingList = bookingRepository.getAllActive();
-        if (bookingList.isEmpty()) {
+    public ResponseEntity<BaseResponse> getAllBookings(int page, int size) {
+        Page<Booking> bookingPage = bookingRepository.findAllActive(PageRequest.of(page, size));
+
+        if (bookingPage.isEmpty()) {
             throw new CustomException("Không tìm thấy Booking nào đang hoạt động!", HttpStatus.NOT_FOUND.value());
         }
 
-        List<BookingResponse> responseList = bookingList.stream().map(bookingMapper::convertToResponse).toList();
+        List<BookingResponse> responseList = bookingPage.getContent().stream()
+                .map(bookingMapper::convertToResponse)
+                .toList();
+
+        PaginatedResponse<BookingResponse> paginatedResponse = new PaginatedResponse<>(
+                responseList,
+                bookingPage.getTotalPages(),
+                bookingPage.getTotalElements()
+        );
+
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy danh sách Booking đang hoạt động.", HttpStatus.OK.value(), responseList)
+                new BaseResponse("Tìm thấy danh sách Booking đang hoạt động.", HttpStatus.OK.value(), paginatedResponse)
         );
     }
 

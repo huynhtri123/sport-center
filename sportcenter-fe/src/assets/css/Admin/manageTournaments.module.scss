@@ -159,3 +159,51 @@
     border-radius: 5px;
     width: 100%;
 }
+.searchContainer {
+    margin-bottom: 20px;
+}
+
+.searchInput {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    max-width: 400px; // Optional: Limit width
+}
+.filterSelect {
+    margin-right: 10px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 10px; /* Space between buttons */
+}
+
+.pagination button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff; /* Bootstrap primary color */
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.pagination button:disabled {
+    background-color: #ccc; /* Disabled button color */
+    cursor: not-allowed;
+}
+
+.pagination button:hover:not(:disabled) {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+.pagination span {
+    font-weight: bold;
+    color: #333; /* Color for the page number text */
+}

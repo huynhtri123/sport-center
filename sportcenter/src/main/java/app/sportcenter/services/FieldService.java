@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 public interface FieldService {
     public ResponseEntity<BaseResponse> create(FieldRequest fieldRequest);
 
-    public ResponseEntity<BaseResponse> getAllActive();
+    public ResponseEntity<BaseResponse> getAllActive(int page, int size);
     public ResponseEntity<BaseResponse> getById(String fieldId);
     public ResponseEntity<BaseResponse> getAllSoftDeleted();
 

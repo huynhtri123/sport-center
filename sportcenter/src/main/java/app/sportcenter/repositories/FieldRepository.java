@@ -3,6 +3,8 @@ package app.sportcenter.repositories;
 import app.sportcenter.commons.FieldStatus;
 import app.sportcenter.commons.FieldType;
 import app.sportcenter.models.entities.Field;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -29,5 +31,8 @@ public interface FieldRepository extends MongoRepository<Field, String> {
     // search by fieldStatus
     @Query("{ 'fieldStatus': ?0, 'isDeleted': false, 'isActive': true }")
     List<Field> findByFieldStatus(FieldStatus fieldStatus);
+
+    @Query("{ 'isDeleted': false, 'isActive': true }")
+    Page<Field> findAllActive(Pageable pageable);
 
 }

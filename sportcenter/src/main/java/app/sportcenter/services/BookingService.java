@@ -16,7 +16,7 @@ public interface BookingService {
     public ResponseEntity<BaseResponse> getCurrentBookingsOfCurrentUser(String userId);
     public ResponseEntity<BaseResponse> getBookingByFieldId(String fieldId);
     public ResponseEntity<BaseResponse> getBookingsByStartTime(ZonedDateTime startTime);
-    public ResponseEntity<BaseResponse> getAllBookings();
+    public ResponseEntity<BaseResponse> getAllBookings(int page, int size);
     // lấy tất cả booking theo khoảng thời gian cụ thể. Ví dụ theo ngày (7:00 ngày 1/1/2024 - 22:00 ngày 1/1/2024)
     public ResponseEntity<BaseResponse> getFieldSchedule(String fieldId, ZonedDateTime startOfDay, ZonedDateTime endOfDay);
 
