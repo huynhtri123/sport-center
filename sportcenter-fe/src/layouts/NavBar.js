@@ -67,7 +67,7 @@ function NavBar() {
                             }`}
                             to='/sports'
                         >
-                            <span className={styles.leftNavBarItems}>Sports</span>
+                            <span className={styles.leftNavBarItems}>Booking</span>
                         </Link>
                         <Link
                             className={`${styles.leftItemsBox} font-cera-round-pro-regular ${

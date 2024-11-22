@@ -22,8 +22,6 @@ import Profile from './pages/Customer/Profile/Profile';
 import Payments from './pages/Customer/Payment/Payments';
 import PaymentConfirmation from './pages/Customer/Payment/PaymentConfirmation';
 
-
-
 import AdminDashBoard from './pages/Admin/AdminDashBoard';
 import { useCleanupStorage } from './customs/hooks';
 import TournamentHome from './pages/Customer/Tournament/TournamentHome';
@@ -74,7 +72,6 @@ function App() {
 
                             <Route path='/payments' element={<Payments />} />
                             <Route path='/payment-confirmation' element={<PaymentConfirmation />} />
-
                         </Routes>
                     </div>
 

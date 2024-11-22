@@ -18,6 +18,8 @@ public class BookingResponse extends BaseResponseDTO {
     private FieldResponse fieldResponse;
     private String userId;                      // ID người dùng
     private String userName;                    // Tên người dùng
+    private String userFullName;
+    private String userPhoneNumber;
     private ZonedDateTime bookingDate;          // Ngày đặt sân
     private Integer numberOfHours;              // Số giờ đặt sân
     private ZonedDateTime startTime;            // Thời gian bắt đầu tính giờ

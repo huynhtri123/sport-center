@@ -72,10 +72,10 @@
         color: #555;
     }
 
-    p:last-child {
-        font-weight: 600;
-        color: #dd0f00;
-    }
+    // p:last-child {
+    //     font-weight: 600;
+    //     color: #dd0f00;
+    // }
 }
 
 @media (max-width: 768px) {
@@ -99,5 +99,9 @@
 
     .card p {
         font-size: 0.9rem;
+    }
+
+    .description {
+        color: $blue-prime;
     }
 }

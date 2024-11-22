@@ -261,7 +261,6 @@ function ManageFields() {
                         <th>Field Name</th>
                         <th>Field Type</th>
                         <th>Description</th>
-                        <th>Price</th>
                         <th>Price Policies</th>
                         <th>Image</th>
                         <th>Actions</th>
@@ -275,7 +274,6 @@ function ManageFields() {
                                 <td>{field.fieldName}</td>
                                 <td>{field.fieldType}</td>
                                 <td title={field.description}>{field.description}</td>
-                                <td>${field.price}</td>
                                 <td>
                                     {field.pricePolicies.map((policy, policyIndex) => (
                                         <div key={policyIndex} className={styles.policyContainer}>
