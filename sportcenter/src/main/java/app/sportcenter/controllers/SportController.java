@@ -41,8 +41,10 @@ public class SportController {
 
     // api này public được nên ko cần xác thực
     @GetMapping("/public/sport/getAllActive")
-    public ResponseEntity<BaseResponse> getAll() {
-        return sportService.getAll();
+    public ResponseEntity<BaseResponse> getAllActive(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        return sportService.getAllActive(page, size);
     }
 
     @PatchMapping("/sport/restore/{sportId}")

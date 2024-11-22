@@ -9,6 +9,6 @@ public interface SportService {
     public ResponseEntity<BaseResponse> getById(String id);
     public ResponseEntity<BaseResponse> update(String id, SportRequest sportRequest);
     public ResponseEntity<BaseResponse> softDelete(String id);
-    public ResponseEntity<BaseResponse> getAll();
+    public ResponseEntity<BaseResponse> getAllActive(int page, int size);
     public ResponseEntity<BaseResponse> restore(String id);
 }

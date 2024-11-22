@@ -1,88 +1,201 @@
-import React, { useState, useEffect } from 'react';
-import sportApi from '../../services/api/sportApi';
-import styles from '../../assets/css/Admin/manageSports.module.scss';
+import React, { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import styles from '../../assets/css/Admin/manageSports.module.scss';
+import sportApi from '../../services/api/sportApi';
+import { Loading } from '../../components/Loading/Loading';
+import ConfirmModal from '../../components/Modal/ConfirmModal';
 
 function ManageSports() {
-    const [sports, setSports] = useState([]); // Initialize as an empty array
-    const [newSport, setNewSport] = useState({ sportName: '', description: '', imageUrl: '' });
+    const [sports, setSports] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [deleteSportId, setDeleteSportId] = useState(null);
+    const [formData, setFormData] = useState({
+        sportName: '',
+        description: '',
+        imageUrl: '',
+    });
     const [editingSport, setEditingSport] = useState(null);
-    const [isFormVisible, setIsFormVisible] = useState(false); // State for form visibility
+    const [isEditing, setIsEditing] = useState(false);
+    const [showInputForm, setShowInputForm] = useState(false);
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(0);
+    const [pageSize, setPageSize] = useState(5); // Set page size to 5
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
+
+    const toggleModalOpen = (sportId = null) => {
+        setDeleteSportId(sportId);
+        setIsModalOpen(!isModalOpen);
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        if (isEditing) {
+            setEditingSport((prevData) => ({ ...prevData, [name]: value }));
+        } else {
+            setFormData((prevData) => ({ ...prevData, [name]: value }));
+        }
+    };
+
+    const handleAddSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            setIsLoading(true);
+            const createResponse = await sportApi.create(formData);
+            toast.success(createResponse.message);
+            fetchSports(); // Refresh the sports list
+            resetFormData();
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleEditSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            setIsLoading(true);
+            const editResponse = await sportApi.update(editingSport.id, editingSport);
+            toast.success(editResponse.message);
+            fetchSports(); // Refresh the sports list
+            setIsEditing(false);
+            setEditingSport(null);
+            resetFormData();
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const resetFormData = () => {
+        setFormData({
+            sportName: '',
+            description: '',
+            imageUrl: '',
+        });
+        setShowInputForm(false);
+    };
+
+    const handleToggleShowAddSport = () => {
+        setShowInputForm(!showInputForm);
+        if (isEditing) {
+            setIsEditing(false);
+            setEditingSport(null);
+            resetFormData();
+        }
+    };
+
+    const fetchSports = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            const response = await sportApi.getAllActive(currentPage, pageSize);
+            setSports(response.data.content);
+            setTotalPages(response.data.totalPages);
+            setTotalElements(response.data.totalElements);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [currentPage, pageSize]);
 
     useEffect(() => {
         fetchSports();
-    }, []);
+    }, [fetchSports]);
 
-    async function fetchSports() {
+    const handleSoftDelete = async () => {
+        if (!deleteSportId) return;
         try {
-            const response = await sportApi.getAllActive();
-            setSports(response.data || []); // Ensure data is an array even if null
-        } catch (error) {
-            console.error('Failed to fetch sports:', error);
-            toast.error('Failed to fetch sports. Please try again.');
-        }
-    }
-
-    const handleAddSport = async () => {
-        try {
-            const response = await sportApi.create(newSport);
-            setSports([...sports, response.data]);
-            toast.success('Sport added successfully!');
-            setNewSport({ sportName: '', description: '', imageUrl: '' });
-            setIsFormVisible(false); // Hide form after adding
-        } catch (error) {
-            console.error('Failed to add sport:', error.response || error);
-            toast.error('Failed to add sport. Please try again.');
+            setIsLoading(true);
+            const deleteResponse = await sportApi.softDelete(deleteSportId);
+            toast.success(deleteResponse.message);
+            fetchSports(); // Refresh the sports list
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+            setIsModalOpen(false);
         }
     };
 
-    const handleEditSport = (sport) => {
+    const handleEditClick = (sport) => {
+        setIsEditing(true);
         setEditingSport(sport);
-        setIsFormVisible(true); // Show form when editing
+        setShowInputForm(true);
     };
 
-    const handleUpdateSport = async () => {
-        try {
-            const response = await sportApi.update(editingSport.id, editingSport);
-            setSports(sports.map((sport) => (sport.id === editingSport.id ? response.data : sport)));
-            toast.success('Sport updated successfully!');
-            setEditingSport(null);
-            setIsFormVisible(false); // Hide form after updating
-        } catch (error) {
-            console.error('Failed to update sport:', error.response ? error.response.data : error.message);
-            toast.error('Failed to update sport. Please try again.');
-        }
-    };
-
-    const handleDeleteSport = async (sportId) => {
-        try {
-            await sportApi.softDelete(sportId);
-            setSports(sports.filter((sport) => sport.id !== sportId));
-            toast.success('Sport deleted successfully!');
-        } catch (error) {
-            console.error('Failed to delete sport:', error.response || error);
-            toast.error('Failed to delete sport. Please try again.');
-        }
-    };
+    const filteredSports = sports.filter(sport =>
+        sport.sportName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     return (
         <div className={styles.manageSports}>
-            <h2>Manage Sports</h2>
-            {sports && sports.length > 0 ? ( // Check if sports has data
-                <table className={styles.sportsTable}>
-                    <thead>
-                        <tr>
-                            <th>STT</th>
-                            <th>Sport Name</th>
-                            <th>Description</th>
-                            <th>Image</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {sports.map((sport, index) => (
+            {isLoading && <Loading />}
+            <button className={`btn ${styles.addButton}`} onClick={handleToggleShowAddSport}>
+                {isEditing ? 'Hủy chỉnh sửa' : 'Thêm môn thể thao mới'}
+            </button>
+
+            <div className={styles.searchContainer}>
+                <input
+                    type="text"
+                    placeholder="Tìm kiếm theo tên môn thể thao..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className={styles.searchInput}
+                />
+            </div>
+
+            {(showInputForm || isEditing) && (
+                <form onSubmit={isEditing ? handleEditSubmit : handleAddSubmit} className={styles.inputForm}>
+                    <div className={styles.formContainer}>
+                        <input
+                            type='text'
+                            name='sportName'
+                            placeholder='Tên Môn Thể Thao'
+                            value={isEditing ? editingSport.sportName : formData.sportName}
+                            onChange={handleChange}
+                        />
+                        <input
+                            type='text'
+                            name='description'
+                            placeholder='Mô Tả'
+                            value={isEditing ? editingSport.description : formData.description}
+                            onChange={handleChange}
+                        />
+                        <input
+                            type='text'
+                            name='imageUrl'
+                            placeholder='URL Ảnh'
+                            value={isEditing ? editingSport.imageUrl : formData.imageUrl}
+                            onChange={handleChange}
+                        />
+                        <button type="submit" className={`btn ${styles.addButton}`}>
+                            {isEditing ? 'Cập nhật môn thể thao' : 'Thêm môn thể thao'}
+                        </button>
+                    </div>
+                </form>
+            )}
+
+            <table className={`mt-4 ${styles.sportsTable}`}>
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Tên Môn Thể Thao</th>
+                        <th>Mô Tả</th>
+                        <th>Ảnh</th>
+                        <th>Thao Tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {filteredSports.length > 0 ? (
+                        filteredSports.map((sport, index) => (
                             <tr key={sport.id}>
-                                <td>{index + 1}</td>
+                                <td>{index + 1 + currentPage * pageSize}</td>
                                 <td>{sport.sportName}</td>
                                 <td>{sport.description}</td>
                                 <td>
@@ -91,75 +204,50 @@ function ManageSports() {
                                 <td>
                                     <button
                                         className={`btn ${styles.editButton}`}
-                                        onClick={() => handleEditSport(sport)}
+                                        onClick={() => handleEditClick(sport)}
                                     >
-                                        Edit
+                                        Chỉnh sửa
                                     </button>
                                     <button
                                         className={`btn ${styles.deleteButton}`}
-                                        onClick={() => handleDeleteSport(sport.id)}
+                                        onClick={() => toggleModalOpen(sport.id)}
                                     >
-                                        Delete
+                                        Xóa
                                     </button>
+                                    {isModalOpen && deleteSportId === sport.id && (
+                                        <ConfirmModal
+                                            title='Bạn có chắc chắn muốn xóa môn thể thao này không?'
+                                            isOpen={isModalOpen}
+                                            onClose={() => toggleModalOpen(null)}
+                                            onSubmit={handleSoftDelete}
+                                        />
+                                    )}
                                 </td>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            ) : (
-                <p>No sports available. Please add a new sport.</p>
-            )}
-
-            <button className={`btn ${styles.addButton}`} onClick={() => setIsFormVisible((prev) => !prev)}>
-                {isFormVisible ? 'Cancel' : 'Add New Sport'}
-            </button>
-
-            {isFormVisible && ( // Conditional rendering of the form
-                <div className={styles.formContainer}>
-                    <h3>{editingSport ? 'Edit Sport' : 'Add New Sport'}</h3>
-                    <input
-                        type='text'
-                        placeholder='Sport Name'
-                        value={editingSport ? editingSport.sportName : newSport.sportName}
-                        onChange={(e) =>
-                            editingSport
-                                ? setEditingSport({ ...editingSport, sportName: e.target.value })
-                                : setNewSport({ ...newSport, sportName: e.target.value })
-                        }
-                    />
-                    <input
-                        type='text'
-                        placeholder='Description'
-                        value={editingSport ? editingSport.description : newSport.description}
-                        onChange={(e) =>
-                            editingSport
-                                ? setEditingSport({ ...editingSport, description: e.target.value })
-                                : setNewSport({ ...newSport, description: e.target.value })
-                        }
-                    />
-                    <input
-                        type='text'
-                        placeholder='Image URL'
-                        value={editingSport ? editingSport.imageUrl : newSport.imageUrl}
-                        onChange={(e) =>
-                            editingSport
-                                ? setEditingSport({ ...editingSport, imageUrl: e.target.value })
-                                : setNewSport({ ...newSport, imageUrl: e.target.value })
-                        }
-                    />
-                    <button
-                        className={`btn ${styles.addButton}`}
-                        onClick={editingSport ? handleUpdateSport : handleAddSport}
-                    >
-                        {editingSport ? 'Update Sport' : 'Add Sport'}
-                    </button>
-                    {editingSport && (
-                        <button className='btn' onClick={() => setEditingSport(null)}>
-                            Cancel Edit
-                        </button>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan='5'>Không có môn thể thao nào.</td>
+                        </tr>
                     )}
-                </div>
-            )}
+                </tbody>
+            </table>
+
+            <div className={styles.pagination}>
+                <button
+                    disabled={currentPage === 0}
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                >
+                    Previous
+                </button>
+                <span>{`Page ${currentPage + 1} of ${totalPages}`}</span>
+                <button
+                    disabled={currentPage >= totalPages - 1}
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                >
+                    Next
+                </button>
+            </div>
         </div>
     );
 }
