@@ -103,9 +103,29 @@ function ManageCourses() {
     };
 
     // Filter courses based on search query
-    const filteredCourses = courses.filter(course =>
+    const filteredCourses = courses.filter((course) =>
         course.courseName.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
+    const handleLessonChange = (index, field, value) => {
+        const updatedLessons = [...newCourse.lessons];
+        updatedLessons[index] = { ...updatedLessons[index], [field]: value };
+        setNewCourse({ ...newCourse, lessons: updatedLessons });
+    };
+
+    const handleAddLessonFields = () => {
+        const lessons = [];
+        for (let i = 0; i < lessonCount; i++) {
+            lessons.push({
+                courseSportType: '',
+                lessonName: '',
+                description: '',
+                levelLesson: '',
+                videoId: '',
+            });
+        }
+        setNewCourse({ ...newCourse, lessons });
+    };
 
     return (
         <div className={styles.manageCourses}>
@@ -195,6 +215,51 @@ function ManageCourses() {
                         value={newCourse.imageUrl}
                         onChange={(e) => setNewCourse({ ...newCourse, imageUrl: e.target.value })}
                     />
+
+                    <input
+                        type='number'
+                        placeholder='Number of Lessons'
+                        value={lessonCount}
+                        onChange={(e) => setLessonCount(Number(e.target.value))}
+                        onBlur={handleAddLessonFields}
+                    />
+
+                    {newCourse.lessons.map((lesson, index) => (
+                        <div key={index} className={styles.lessonContainer}>
+                            <h4>{`Lesson ${index + 1}`}</h4>
+                            <input
+                                type='text'
+                                placeholder='Course Sport Type'
+                                value={lesson.courseSportType}
+                                onChange={(e) => handleLessonChange(index, 'courseSportType', e.target.value)}
+                            />
+                            <input
+                                type='text'
+                                placeholder='Lesson Name'
+                                value={lesson.lessonName}
+                                onChange={(e) => handleLessonChange(index, 'lessonName', e.target.value)}
+                            />
+                            <input
+                                type='text'
+                                placeholder='Description'
+                                value={lesson.description}
+                                onChange={(e) => handleLessonChange(index, 'description', e.target.value)}
+                            />
+                            <input
+                                type='text'
+                                placeholder='Level'
+                                value={lesson.levelLesson}
+                                onChange={(e) => handleLessonChange(index, 'levelLesson', e.target.value)}
+                            />
+                            <input
+                                type='text'
+                                placeholder='Video ID'
+                                value={lesson.videoId}
+                                onChange={(e) => handleLessonChange(index, 'videoId', e.target.value)}
+                            />
+                        </div>
+                    ))}
+
                     <button
                         className={`btn ${styles.addButton}`}
                         onClick={editingCourse ? handleUpdateCourse : handleAddCourse}
@@ -205,17 +270,11 @@ function ManageCourses() {
             )}
 
             <div className={styles.pagination}>
-                <button
-                    disabled={currentPage === 0}
-                    onClick={() => setCurrentPage(currentPage - 1)}
-                >
+                <button disabled={currentPage === 0} onClick={() => setCurrentPage(currentPage - 1)}>
                     Previous
                 </button>
                 <span>{`Page ${currentPage + 1} of ${totalPages}`}</span>
-                <button
-                    disabled={currentPage >= totalPages - 1}
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                >
+                <button disabled={currentPage >= totalPages - 1} onClick={() => setCurrentPage(currentPage + 1)}>
                     Next
                 </button>
             </div>
