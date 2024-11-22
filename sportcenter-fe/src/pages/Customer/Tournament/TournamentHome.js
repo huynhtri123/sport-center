@@ -20,7 +20,7 @@ const TournamentHome = () => {
     const getTournaments = async () => {
         try {
             const tournamentsResponse = await tournamentApi.getAllActive();
-            setTournaments(tournamentsResponse.data);
+            setTournaments(tournamentsResponse.data.content);
         } catch (err) {
             console.error(err);
             toast.error('Failed to load tournaments');

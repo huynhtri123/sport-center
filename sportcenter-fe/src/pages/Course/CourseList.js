@@ -12,7 +12,7 @@ function CourseList() {
         const fetchCourses = async () => {
             try {
                 const response = await courseApi.getAllActive();
-                setCourses(response.data);
+                setCourses(response.data.content);
             } catch (error) {
                 console.error('Error fetching courses:', error);
             }

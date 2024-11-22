@@ -219,8 +219,9 @@ function ManageFields() {
     // Filter fields based on search query and selected field type
     const filteredFields = fields.filter((field) => {
         const matchesName = field.fieldName.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesType = field.fieldType === selectedFieldType;
-        return matchesName && matchesType;
+        // const matchesType = field.fieldType === selectedFieldType;
+        // return matchesName && matchesType;
+        return matchesName;
     });
 
     return (
@@ -234,7 +235,7 @@ function ManageFields() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className={styles.searchInput}
                 />
-                <select
+                {/* <select
                     value={selectedFieldType}
                     onChange={(e) => setSelectedFieldType(e.target.value)}
                     className={styles.fieldTypeSelect}
@@ -243,7 +244,7 @@ function ManageFields() {
                     <option value={FieldType.TENNIS}>Tennis</option>
                     <option value={FieldType.BADMINTON}>Badminton</option>
                     <option value={FieldType.YOGA}>Yoga</option>
-                </select>
+                </select> */}
             </div>
             <button className={`btn ${styles.addButton}`} onClick={handleToggleShowAddField}>
                 {isEditing ? 'Cancel Edit' : 'Add New Field'}
@@ -285,8 +286,8 @@ function ManageFields() {
                             >
                                 <option value={FieldType.FOOTBALL}>Football</option>
                                 <option value={FieldType.TENNIS}>Tennis</option>
-                                <option value={FieldType.BADMINTON}>Tennis</option>
-                                <option value={FieldType.YOGA}>Tennis</option>
+                                <option value={FieldType.BADMINTON}>Badminton</option>
+                                <option value={FieldType.YOGA}>Yoga</option>
                             </select>
                             <input
                                 type='text'
