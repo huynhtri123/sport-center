@@ -2,6 +2,7 @@ package app.sportcenter.services.impl;
 
 import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.commons.CourseSportType;
+import app.sportcenter.commons.PaginatedResponse;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
 import app.sportcenter.models.dto.CourseRequest;
@@ -13,11 +14,15 @@ import app.sportcenter.services.CourseService;
 import app.sportcenter.utils.mappers.CourseMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CourseServiceImpl implements CourseService {
@@ -41,17 +46,35 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public ResponseEntity<BaseResponse> getAllActive() {
-        List<Course> courseList = courseRepository.getCourseByIsDeletedFalseAndIsActiveTrue();
-        if (courseList.isEmpty()) {
-            return ResponseEntity.ok(
-                    new BaseResponse("No active courses found.", HttpStatus.OK.value(), null)
+    public ResponseEntity<BaseResponse> getAllActive(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Course> activeCoursesPage = courseRepository.findAllActive(pageable);
+
+        if (activeCoursesPage.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    new BaseResponse("Không tìm thấy khóa học nào đang hoạt động", HttpStatus.NOT_FOUND.value(), null)
             );
         }
 
-        List<CourseResponse> responseCourses = courseList.stream().map(courseMapper::convertToDTO).toList();
+        List<CourseResponse> response = activeCoursesPage.getContent()
+                .stream()
+                .map(courseMapper::convertToDTO)
+                .collect(Collectors.toList());
+
+        // Create a PaginatedResponse object
+        PaginatedResponse<CourseResponse> paginatedResponse = new PaginatedResponse<>(
+                response,
+                activeCoursesPage.getTotalPages(),
+                activeCoursesPage.getTotalElements()
+        );
+
+        // Return the BaseResponse with paginated data
         return ResponseEntity.ok(
-                new BaseResponse("Active courses found.", HttpStatus.OK.value(), responseCourses)
+                new BaseResponse(
+                        "Tìm thấy danh sách khóa học đang hoạt động",
+                        HttpStatus.OK.value(),
+                        paginatedResponse
+                )
         );
     }
 

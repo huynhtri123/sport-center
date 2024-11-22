@@ -1,6 +1,8 @@
 package app.sportcenter.repositories;
 
 import app.sportcenter.models.entities.Booking;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -42,4 +44,7 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
     // tìm booking theo loại (đặt lẻ hay cứng)
     @Query("{ 'isRecurring':  ?0, 'isDeleted':  false}")
     public List<Booking> findByBookingType(boolean isRecurring);
+
+    @Query("{ 'isActive': true, 'isDeleted': false }")
+    Page<Booking> findAllActive(Pageable pageable);
 }

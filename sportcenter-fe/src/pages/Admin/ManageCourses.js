@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import courseApi from '../../services/api/courseApi';
-import styles from '../../assets/css/Admin/manageCourses.module.scss';
+import React, { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import styles from '../../assets/css/Admin/manageCourses.module.scss';
+import courseApi from '../../services/api/courseApi';
+import { Loading } from '../../components/Loading/Loading';
 
 function ManageCourses() {
     const [courses, setCourses] = useState([]);
@@ -15,20 +16,33 @@ function ManageCourses() {
     const [editingCourse, setEditingCourse] = useState(null);
     const [lessonCount, setLessonCount] = useState(0);
     const [isFormVisible, setIsFormVisible] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(0);
+    const [pageSize, setPageSize] = useState(5); // Set page size to 5
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         fetchCourses();
-    }, []);
+    }, [currentPage, pageSize]);
 
-    async function fetchCourses() {
+    const fetchCourses = useCallback(async () => {
+        setIsLoading(true);
         try {
-            const response = await courseApi.getAllActive();
-            setCourses(response.data || []); // Set to empty array if response.data is null or undefined
+            const response = await courseApi.getAllActive(currentPage, pageSize);
+            setCourses(response.data.content);
+            setTotalPages(response.data.totalPages);
+            setTotalElements(response.data.totalElements);
         } catch (error) {
             console.error('Failed to fetch courses:', error);
             toast.error('Failed to fetch courses. Please try again.');
+        } finally {
+            setIsLoading(false);
         }
-    }
+    }, [currentPage, pageSize]);
 
     const handleAddCourse = async () => {
         try {
@@ -36,8 +50,9 @@ function ManageCourses() {
             setCourses([...courses, response.data]);
             toast.success('Course added successfully!');
             resetForm();
+            fetchCourses(); // Refresh the course list
         } catch (error) {
-            console.error('Failed to add course:', error.response || error);
+            console.error('Failed to add course:', error);
             toast.error('Failed to add course. Please try again.');
         }
     };
@@ -61,8 +76,9 @@ function ManageCourses() {
             setCourses(courses.map((course) => (course.id === editingCourse.id ? response.data : course)));
             toast.success('Course updated successfully!');
             resetForm();
+            fetchCourses(); // Refresh the course list
         } catch (error) {
-            console.error('Failed to update course:', error.response ? error.response.data : error.message);
+            console.error('Failed to update course:', error);
             toast.error('Failed to update course. Please try again.');
         }
     };
@@ -72,30 +88,11 @@ function ManageCourses() {
             await courseApi.softDelete(courseId);
             setCourses(courses.filter((course) => course.id !== courseId));
             toast.success('Course deleted successfully!');
+            fetchCourses(); // Refresh the course list
         } catch (error) {
-            console.error('Failed to delete course:', error.response || error);
+            console.error('Failed to delete course:', error);
             toast.error('Failed to delete course. Please try again.');
         }
-    };
-
-    const handleLessonChange = (index, field, value) => {
-        const updatedLessons = [...newCourse.lessons];
-        updatedLessons[index] = { ...updatedLessons[index], [field]: value };
-        setNewCourse({ ...newCourse, lessons: updatedLessons });
-    };
-
-    const handleAddLessonFields = () => {
-        const lessons = [];
-        for (let i = 0; i < lessonCount; i++) {
-            lessons.push({
-                courseSportType: '',
-                lessonName: '',
-                description: '',
-                levelLesson: '',
-                videoId: '',
-            });
-        }
-        setNewCourse({ ...newCourse, lessons });
     };
 
     const resetForm = () => {
@@ -105,15 +102,31 @@ function ManageCourses() {
         setIsFormVisible(false);
     };
 
+    // Filter courses based on search query
+    const filteredCourses = courses.filter(course =>
+        course.courseName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     return (
         <div className={styles.manageCourses}>
+            {isLoading && <Loading />}
             <h2>Manage Courses</h2>
+
+            <div className={styles.searchContainer}>
+                <input
+                    type='text'
+                    placeholder='Search by course name...'
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className={styles.searchInput}
+                />
+            </div>
+
             <button className={`btn ${styles.addButton}`} onClick={() => setIsFormVisible((prev) => !prev)}>
                 {isFormVisible ? 'Cancel' : 'Add New Course'}
             </button>
 
-            {/* Display message if there are no courses */}
-            {courses.length === 0 ? (
+            {filteredCourses.length === 0 ? (
                 <p>No courses available.</p>
             ) : (
                 <table className={styles.coursesTable}>
@@ -127,9 +140,9 @@ function ManageCourses() {
                         </tr>
                     </thead>
                     <tbody>
-                        {courses.map((course, index) => (
+                        {filteredCourses.map((course, index) => (
                             <tr key={course.id}>
-                                <td>{index + 1}</td>
+                                <td>{index + 1 + currentPage * pageSize}</td>
                                 <td>{course.courseName}</td>
                                 <td>{course.description}</td>
                                 <td>
@@ -182,64 +195,30 @@ function ManageCourses() {
                         value={newCourse.imageUrl}
                         onChange={(e) => setNewCourse({ ...newCourse, imageUrl: e.target.value })}
                     />
-
-                    <input
-                        type='number'
-                        placeholder='Number of Lessons'
-                        value={lessonCount}
-                        onChange={(e) => setLessonCount(Number(e.target.value))}
-                        onBlur={handleAddLessonFields}
-                    />
-
-                    {newCourse.lessons.map((lesson, index) => (
-                        <div key={index} className={styles.lessonContainer}>
-                            <h4>{`Lesson ${index + 1}`}</h4>
-                            <input
-                                type='text'
-                                placeholder='Course Sport Type'
-                                value={lesson.courseSportType}
-                                onChange={(e) => handleLessonChange(index, 'courseSportType', e.target.value)}
-                            />
-                            <input
-                                type='text'
-                                placeholder='Lesson Name'
-                                value={lesson.lessonName}
-                                onChange={(e) => handleLessonChange(index, 'lessonName', e.target.value)}
-                            />
-                            <input
-                                type='text'
-                                placeholder='Description'
-                                value={lesson.description}
-                                onChange={(e) => handleLessonChange(index, 'description', e.target.value)}
-                            />
-                            <input
-                                type='text'
-                                placeholder='Level'
-                                value={lesson.levelLesson}
-                                onChange={(e) => handleLessonChange(index, 'levelLesson', e.target.value)}
-                            />
-                            <input
-                                type='text'
-                                placeholder='Video ID'
-                                value={lesson.videoId}
-                                onChange={(e) => handleLessonChange(index, 'videoId', e.target.value)}
-                            />
-                        </div>
-                    ))}
-
                     <button
                         className={`btn ${styles.addButton}`}
                         onClick={editingCourse ? handleUpdateCourse : handleAddCourse}
                     >
                         {editingCourse ? 'Update Course' : 'Add Course'}
                     </button>
-                    {editingCourse && (
-                        <button className='btn' onClick={resetForm}>
-                            Cancel
-                        </button>
-                    )}
                 </div>
             )}
+
+            <div className={styles.pagination}>
+                <button
+                    disabled={currentPage === 0}
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                >
+                    Previous
+                </button>
+                <span>{`Page ${currentPage + 1} of ${totalPages}`}</span>
+                <button
+                    disabled={currentPage >= totalPages - 1}
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                >
+                    Next
+                </button>
+            </div>
         </div>
     );
 }

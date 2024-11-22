@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 public interface CourseService {
     public ResponseEntity<BaseResponse> create(CourseRequest courseRequest);
 
-    public ResponseEntity<BaseResponse> getAllActive();
+    public ResponseEntity<BaseResponse> getAllActive(int page, int size);
     public ResponseEntity<BaseResponse> getById(String fieldId);
     public ResponseEntity<BaseResponse> updateById(String courseId, CourseRequest newCourse);
     public ResponseEntity<BaseResponse> softDelete(String courseId);

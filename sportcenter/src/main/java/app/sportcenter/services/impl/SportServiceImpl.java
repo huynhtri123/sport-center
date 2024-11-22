@@ -1,6 +1,7 @@
 package app.sportcenter.services.impl;
 
 import app.sportcenter.commons.BaseResponse;
+import app.sportcenter.commons.PaginatedResponse;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.models.dto.SportRequest;
 import app.sportcenter.models.dto.SportResponse;
@@ -10,11 +11,15 @@ import app.sportcenter.repositories.TournamentRepository;
 import app.sportcenter.services.SportService;
 import app.sportcenter.utils.mappers.SportMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SportServiceImpl implements SportService {
@@ -107,16 +112,35 @@ public class SportServiceImpl implements SportService {
 
 
     @Override
-    public ResponseEntity<BaseResponse> getAll() {
-        List<Sport> sportList = sportRepository.getSportByIsActiveTrueAndIsDeletedFalse();
-        if(sportList.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.OK).body(
-                    new BaseResponse("Khong tim thay sport", HttpStatus.OK.value(),null)
+    public ResponseEntity<BaseResponse> getAllActive(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Sport> activeSportsPage = sportRepository.findAllActive(pageable);
+
+        if (activeSportsPage.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    new BaseResponse("Không tìm thấy môn thể thao nào đang hoạt động", HttpStatus.NOT_FOUND.value(), null)
             );
         }
-        List<SportResponse> sportResponseList = sportList.stream().map(sportMapper::convertToDTO).toList();
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("Danh sach sport", HttpStatus.OK.value(),sportResponseList)
+
+        List<SportResponse> response = activeSportsPage.getContent()
+                .stream()
+                .map(sportMapper::convertToDTO) // Convert Sport to SportResponse DTO
+                .collect(Collectors.toList());
+
+        // Create a PaginatedResponse object
+        PaginatedResponse<SportResponse> paginatedResponse = new PaginatedResponse<>(
+                response,
+                activeSportsPage.getTotalPages(),
+                activeSportsPage.getTotalElements()
+        );
+
+        // Return the BaseResponse with paginated data
+        return ResponseEntity.ok(
+                new BaseResponse(
+                        "Tìm thấy danh sách môn thể thao đang hoạt động",
+                        HttpStatus.OK.value(),
+                        paginatedResponse
+                )
         );
     }
 

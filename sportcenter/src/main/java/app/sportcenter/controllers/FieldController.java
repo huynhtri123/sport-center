@@ -25,8 +25,10 @@ public class FieldController {
 
     // public - Lấy tất cả Field đang hoạt động (active & not deleted)
     @GetMapping("/public/field/getAllActive")
-    public ResponseEntity<BaseResponse> getAll() {
-        return fieldService.getAllActive();
+    public ResponseEntity<BaseResponse> getAllActive(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        return fieldService.getAllActive(page, size);
     }
 
     // public

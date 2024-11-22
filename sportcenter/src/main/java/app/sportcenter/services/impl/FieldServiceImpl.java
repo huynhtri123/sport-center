@@ -2,6 +2,7 @@ package app.sportcenter.services.impl;
 
 import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.commons.FieldType;
+import app.sportcenter.commons.PaginatedResponse;
 import app.sportcenter.configs.AppConfig;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
@@ -17,6 +18,9 @@ import app.sportcenter.services.FieldService;
 import app.sportcenter.utils.mappers.FieldMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -27,6 +31,7 @@ import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -74,17 +79,29 @@ public class FieldServiceImpl implements FieldService {
     }
 
     @Override
-    public ResponseEntity<BaseResponse> getAllActive() {
-        List<Field> fieldList = fieldRepository.getFieldByIsDeletedFalseAndIsActiveTrue();
-        if (fieldList.isEmpty()) {
+    public ResponseEntity<BaseResponse> getAllActive(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Field> fieldPage = fieldRepository.findAllActive(pageable);
+
+        if (fieldPage.isEmpty()) {
             return ResponseEntity.ok(
                     new BaseResponse("Không có sân nào được tìm thấy.", HttpStatus.OK.value(), null)
             );
         }
 
-        List<FieldResponse> responseFields = fieldList.stream().map(fieldMapper::convertToDTO).toList();
+        List<FieldResponse> responseFields = fieldPage.getContent()
+                .stream()
+                .map(fieldMapper::convertToDTO)
+                .collect(Collectors.toList());
+
+        PaginatedResponse<FieldResponse> paginatedResponse = new PaginatedResponse<>(
+                responseFields,
+                fieldPage.getTotalPages(),
+                fieldPage.getTotalElements()
+        );
+
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy danh sách sân.", HttpStatus.OK.value(), responseFields)
+                new BaseResponse("Tìm thấy danh sách sân.", HttpStatus.OK.value(), paginatedResponse)
         );
     }
 

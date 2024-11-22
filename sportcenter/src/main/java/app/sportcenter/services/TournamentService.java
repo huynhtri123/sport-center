@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 public interface TournamentService {
     public ResponseEntity<BaseResponse> create(TournamentRequest tournamentRequest);
 
-    public ResponseEntity<BaseResponse> getAllActive();
+    public ResponseEntity<BaseResponse> getAllActive(int page, int size);
     public ResponseEntity<BaseResponse> getById(String id);
     public ResponseEntity<BaseResponse> getBySportId(String sportId);
     public ResponseEntity<BaseResponse> getRegistedTeams(String tournamentId);

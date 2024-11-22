@@ -23,8 +23,10 @@ public class CourseController {
     }
 
     @GetMapping("/public/course/getAllActive")
-    public ResponseEntity<BaseResponse> getAllActive() {
-        return courseService.getAllActive();
+    public ResponseEntity<BaseResponse> getAllActive(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return courseService.getAllActive(page, size);
     }
 
     @GetMapping("/public/course/getById/{courseId}")

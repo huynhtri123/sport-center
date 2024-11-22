@@ -1,6 +1,7 @@
 package app.sportcenter.services.impl;
 
 import app.sportcenter.commons.BaseResponse;
+import app.sportcenter.commons.PaginatedResponse;
 import app.sportcenter.commons.Role;
 import app.sportcenter.configs.AppConfig;
 import app.sportcenter.exceptions.CustomException;
@@ -19,6 +20,9 @@ import app.sportcenter.utils.mappers.TeamMapper;
 import app.sportcenter.utils.mappers.TournamentMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -79,16 +83,35 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
-    public ResponseEntity<BaseResponse> getAllActive() {
-        List<Tournament> activeTournaments = tournamentRepository.getTournamentByIsActiveTrueAndIsDeletedFalse();
-        if (activeTournaments.isEmpty()) {
+    public ResponseEntity<BaseResponse> getAllActive(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Tournament> activeTournamentsPage = tournamentRepository.findAllActive(pageable);
+
+        if (activeTournamentsPage.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     new BaseResponse("Không tìm thấy Tournament nào đang hoạt động", HttpStatus.NOT_FOUND.value(), null)
             );
         }
-        List<TournamentResponse> response = activeTournaments.stream().map(tournamentMapper::convertToDTO).toList();
+
+        List<TournamentResponse> response = activeTournamentsPage.getContent()
+                .stream()
+                .map(tournamentMapper::convertToDTO)
+                .collect(Collectors.toList());
+
+        // Create a PaginatedResponse object
+        PaginatedResponse<TournamentResponse> paginatedResponse = new PaginatedResponse<>(
+                response,
+                activeTournamentsPage.getTotalPages(),
+                activeTournamentsPage.getTotalElements()
+        );
+
+        // Return the BaseResponse with paginated data
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy danh sách Tournament đang hoạt động", HttpStatus.OK.value(), response)
+                new BaseResponse(
+                        "Tìm thấy danh sách Tournament đang hoạt động",
+                        HttpStatus.OK.value(),
+                        paginatedResponse
+                )
         );
     }
 
