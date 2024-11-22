@@ -69,6 +69,7 @@
     }
 
     .addButton {
+        margin-bottom: 16px;
         margin-top: 10px;
         background-color: $blue-prime;
         color: white;
@@ -83,36 +84,40 @@
         }
     }
 
+    button {
+        margin: 0 4px;
+    }
+
     .editButton,
-.deleteButton {
-    width: 100px;
-    padding: 6px 12px; // Padding for the buttons
-    border: none; // Remove default border
-    border-radius: 4px; // Rounded corners
-    font-size: 0.875rem; // Font size
-    cursor: pointer; // Pointer cursor on hover
-    transition: background-color 0.3s, transform 0.2s; // Smooth transition effects
+    .deleteButton {
+        width: 100px;
+        padding: 6px 12px; // Padding for the buttons
+        border: none; // Remove default border
+        border-radius: 4px; // Rounded corners
+        font-size: 0.875rem; // Font size
+        cursor: pointer; // Pointer cursor on hover
+        transition: background-color 0.3s, transform 0.2s; // Smooth transition effects
 
-    &.editButton {
-        background-color: $blue-prime; // Primary color for edit button
-        color: white; // Text color
+        &.editButton {
+            background-color: $blue-prime; // Primary color for edit button
+            color: white; // Text color
 
-        &:hover {
-            background-color: darken($blue-prime, 10%); // Darker shade on hover
-            transform: scale(1.05); // Slightly enlarge on hover
+            &:hover {
+                background-color: darken($blue-prime, 10%); // Darker shade on hover
+                transform: scale(1.05); // Slightly enlarge on hover
+            }
+        }
+
+        &.deleteButton {
+            background-color: #dc3545; // Bootstrap danger color for delete button
+            color: white; // Text color
+
+            &:hover {
+                background-color: darken(#dc3545, 10%); // Darker shade on hover
+                transform: scale(1.05); // Slightly enlarge on hover
+            }
         }
     }
-
-    &.deleteButton {
-        background-color: #dc3545; // Bootstrap danger color for delete button
-        color: white; // Text color
-
-        &:hover {
-            background-color: darken(#dc3545, 10%); // Darker shade on hover
-            transform: scale(1.05); // Slightly enlarge on hover
-        }
-    }
-}
 }
 .searchContainer {
     margin-bottom: 20px;

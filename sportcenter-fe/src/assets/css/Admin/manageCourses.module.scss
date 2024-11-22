@@ -16,7 +16,9 @@
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         text-align: left;
 
-        th, td {
+        th,
+        td {
+            text-align: center;
             padding: 12px;
             border: 1px solid #ddd;
         }
@@ -83,6 +85,7 @@
     }
 
     .addButton {
+        margin-bottom: 16px;
         margin-top: 10px;
         background-color: $blue-prime;
         color: white;
@@ -97,7 +100,8 @@
         }
     }
 
-    .editButton, .deleteButton {
+    .editButton,
+    .deleteButton {
         color: white;
         padding: 6px 12px;
         border: none;
@@ -122,7 +126,6 @@
                 background-color: darken(#dc3545, 10%);
             }
         }
-        
     }
 }
 .searchContainer {
