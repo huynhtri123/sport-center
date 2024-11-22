@@ -320,8 +320,7 @@ function ManageFields() {
                         <th>Field Name</th>
                         <th>Field Type</th>
                         <th>Description</th>
-                        <th>Price</th>
-                        <th>Price Policies</th> {/* Thêm cột Price Policies */}
+                        <th>Price Policies</th>
                         <th>Image</th>
                         <th>Actions</th>
                     </tr>
@@ -334,7 +333,6 @@ function ManageFields() {
                                 <td>{field.fieldName}</td>
                                 <td>{field.fieldType}</td>
                                 <td title={field.description}>{field.description}</td>
-                                <td>${field.price}</td>
 
                                 {/* Cột Price Policies */}
                                 <td>

@@ -54,6 +54,8 @@ public class BookingMapper {
         bookingResponse.setFieldResponse(fieldResponse);
         bookingResponse.setUserId(booking.getUser().getId());           // ID người dùng
         bookingResponse.setUserName(booking.getUser().getUsername());   // Tên người dùng
+        bookingResponse.setUserFullName(booking.getUser().getFullName());
+        bookingResponse.setUserPhoneNumber(booking.getUser().getPhoneNumber());
         bookingResponse.setBookingDate(booking.getBookingDate());       // Ngày đặt sân
         bookingResponse.setNumberOfHours(booking.getNumberOfHours());   // Số giờ đặt sân
         bookingResponse.setStartTime(booking.getStartTime());           // Thời gian bắt đầu tính giờ

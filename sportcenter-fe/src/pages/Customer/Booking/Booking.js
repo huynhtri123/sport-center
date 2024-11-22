@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { toast } from 'react-toastify';
 import clsx from 'clsx';
-import { useNavigate } from 'react-router-dom';
 import styles from '../../../assets/css/Booking/Booking.module.scss';
 import bookingApi from '../../../services/api/booking/bookingApi';
 import { Loading } from '../../../components/Loading/Loading';
@@ -10,7 +9,7 @@ import { useGetField } from '../../../customs/hooks';
 import { RecurringIntervalType } from '../../../utils/enums/RecurringIntervalType';
 import PaymentModal from '../../../components/Modal/PaymentModal';
 import formatCurrency from '../../../utils/formatCurrency';
-import { faL } from '@fortawesome/free-solid-svg-icons';
+import Video from '../../../components/Video/Video';
 
 function Booking() {
     const [field, setField] = useGetField();
@@ -20,7 +19,6 @@ function Booking() {
     const [startTime, setStartTime] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const startTimeRef = useRef(); // để canh ô input startTime của booking có trống ko
-    const navigate = useNavigate();
     const [interval, setInterval] = useState(RecurringIntervalType.WEEKLY);
     const [duration, setDuration] = useState(1);
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
@@ -205,6 +203,10 @@ function Booking() {
                 <div className={styles.fieldInfo}>
                     <h1>{field.fieldName}</h1>
                     <p>{field.description}</p>
+                    <Video
+                        src={'https://cdn.pixabay.com/video/2024/03/22/205193-926528071_large.mp4'}
+                        title={'Video hướng dẫn vào sân'}
+                    ></Video>
                 </div>
             </section>
 
@@ -214,9 +216,7 @@ function Booking() {
                     {field.pricePolicies &&
                         field.pricePolicies.map((policy, index) => (
                             <li key={index} className={styles.pricePolicyItem}>
-                                <p>
-                                    <strong>Giá:</strong> {formatCurrency(policy.price)}/giờ
-                                </p>
+                                <p className={styles.price}>Giá: {formatCurrency(policy.price)}/giờ</p>
                                 <p>
                                     <strong>Áp dụng vào:</strong>{' '}
                                     {policy.daysOfWeek

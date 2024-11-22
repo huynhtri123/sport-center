@@ -75,7 +75,6 @@ const FieldList = () => {
                             <img src={fieldMap.imageUrl} alt={fieldMap.name} />
                             <h3>{fieldMap.fieldName}</h3>
                             <p>Mô tả: {fieldMap.description}</p>
-                            <p style={{ color: '#dd0f00' }}>Giá: {fieldMap.price}</p>
                         </Link>
                     );
                 })}

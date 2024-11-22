@@ -16,45 +16,55 @@
 .fieldDetailSection {
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
+    justify-content: space-between; /* Căn đều giữa ảnh và video */
+    align-items: center; /* Căn giữa ảnh và video theo chiều dọc */
     margin-bottom: 30px;
     width: 100%;
     background-color: #ffffff;
     border-radius: 12px;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
     overflow: hidden;
+    padding: 20px;
+}
 
-    .fieldImage {
-        flex: 1;
-        overflow: hidden;
+.fieldImage {
+    flex: 1;
+    display: flex;
+    justify-content: center; /* Căn giữa ảnh theo chiều ngang */
+    align-items: center; /* Căn giữa ảnh theo chiều dọc */
+    overflow: hidden;
+    margin-left: 16px;
+    position: relative;
+    background-color: #ddd; /* Nếu cần, bạn có thể cho một màu nền */
+    border-radius: 12px;
+}
 
-        img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+.fieldImage img {
+    width: 100%; /* Chiếm toàn bộ chiều rộng */
+    height: 100%; /* Chiếm toàn bộ chiều cao */
+    object-fit: cover; /* Đảm bảo ảnh không bị kéo dãn hoặc méo */
+    object-position: center; /* Căn giữa ảnh nếu ảnh bị cắt bớt */
+    border-radius: 12px; /* Bo góc ảnh nếu cần */
+}
+
+.fieldInfo {
+    flex: 1;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: left;
+
+    h1 {
+        font-size: 2.4em;
+        color: #2c3e50;
+        font-weight: 700;
     }
 
-    .fieldInfo {
-        flex: 1;
-        padding: 30px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-
-        h1 {
-            font-size: 2.4em;
-            margin-bottom: 20px;
-            color: #2c3e50;
-            font-weight: 700;
-        }
-
-        p {
-            margin-bottom: 15px;
-            font-size: 1.2em;
-            color: #7f8c8d;
-            line-height: 1.6;
-        }
+    p {
+        font-size: 1.2em;
+        color: #7f8c8d;
+        line-height: 1.6;
     }
 }
 
@@ -90,6 +100,11 @@
         text-align: left;
         width: 100%;
         max-width: 300px;
+
+        .price {
+            color: $price-color;
+            font-weight: 700;
+        }
     }
 }
 

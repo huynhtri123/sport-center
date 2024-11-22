@@ -261,12 +261,12 @@ public class BookingServiceImpl implements BookingService {
         // lấy danh sách booking của user hiện tại, còn hiệu lực
         List<Booking> bookingList = bookingRepository.getCurrentBookingsOfCurrentUser(userId, now, FieldStatus.IN_USE.name());
         if (bookingList.isEmpty()) {
-            throw new CustomException("Không tìm thấy Booking nào của user này!", HttpStatus.NOT_FOUND.value());
+            throw new CustomException("Bạn chưa có booking nào!", HttpStatus.NOT_FOUND.value());
         }
 
         List<BookingResponse> responseList = bookingList.stream().map(bookingMapper::convertToResponse).toList();
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy danh sách Booking của user này.", HttpStatus.OK.value(), responseList)
+                new BaseResponse("Tìm thấy danh sách booking.", HttpStatus.OK.value(), responseList)
         );
     }
 

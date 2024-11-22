@@ -55,7 +55,7 @@ function MyPaymentInfo() {
         };
 
         fetchUserProfile();
-    }, []);
+    }, [payments.length]);
 
     const handleAddPayment = () => {
         setSelectedPayment(null);
