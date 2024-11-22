@@ -20,7 +20,7 @@ function ManageFields() {
         fieldType: FieldType.FOOTBALL,
         description: '',
         imageUrl: defaultIcon,
-        pricePolicies: [{ price: '', daysOfWeek: [] }],
+        pricePolicies: [{ price: '', daysOfWeek: [] }], // Default days
     });
     const [editFieldId, setEditFieldId] = useState(null);
     const [editFormData, setEditFormData] = useState(formData);
@@ -76,7 +76,13 @@ function ManageFields() {
             const createFieldResponse = await fieldApi.create(formData);
             toast.success(createFieldResponse.message);
             getFields();
-            resetFormData();
+            setFormData({
+                fieldName: '',
+                fieldType: FieldType.FOOTBALL,
+                description: '',
+                imageUrl: defaultIcon,
+                pricePolicies: [{ price: '', daysOfWeek: [] }], // Default days
+            });
         } catch (err) {
             console.error(err);
         } finally {
@@ -93,22 +99,12 @@ function ManageFields() {
             getFields();
             setIsEditing(false);
             setEditFieldId(null);
-            resetFormData();
+            setEditFormData(formData);
         } catch (err) {
             console.error(err);
         } finally {
             setIsLoading(false);
         }
-    };
-
-    const resetFormData = () => {
-        setFormData({
-            fieldName: '',
-            fieldType: FieldType.FOOTBALL,
-            description: '',
-            imageUrl: defaultIcon,
-            pricePolicies: [{ price: '', daysOfWeek: [] }],
-        });
     };
 
     const handleToggleShowAddField = () => {
@@ -163,6 +159,61 @@ function ManageFields() {
             pricePolicies: field.pricePolicies || [{ price: '', daysOfWeek: [] }],
         });
         setShowInputForm(true);
+    };
+
+    const handlePricePolicyChange = (e, index) => {
+        const { name, value } = e.target;
+        const updatedPricePolicies = [...(isEditing ? editFormData.pricePolicies : formData.pricePolicies)];
+        updatedPricePolicies[index] = { ...updatedPricePolicies[index], [name]: value };
+        if (isEditing) {
+            setEditFormData((prevState) => ({ ...prevState, pricePolicies: updatedPricePolicies }));
+        } else {
+            setFormData((prevState) => ({ ...prevState, pricePolicies: updatedPricePolicies }));
+        }
+    };
+
+    const handleAddPricePolicy = () => {
+        const newPricePolicy = { price: '', daysOfWeek: [] };
+        if (isEditing) {
+            setEditFormData((prevState) => ({
+                ...prevState,
+                pricePolicies: [...prevState.pricePolicies, newPricePolicy],
+            }));
+        } else {
+            setFormData((prevState) => ({
+                ...prevState,
+                pricePolicies: [...prevState.pricePolicies, newPricePolicy],
+            }));
+        }
+    };
+
+    const handleRemovePricePolicy = (index) => {
+        const updatedPricePolicies = (isEditing ? editFormData.pricePolicies : formData.pricePolicies).filter(
+            (_, i) => i !== index
+        );
+        if (isEditing) {
+            setEditFormData((prevState) => ({ ...prevState, pricePolicies: updatedPricePolicies }));
+        } else {
+            setFormData((prevState) => ({ ...prevState, pricePolicies: updatedPricePolicies }));
+        }
+    };
+
+    const handleDayOfWeekChange = (e, index) => {
+        const { value, checked } = e.target;
+        const updatedPricePolicies = [...(isEditing ? editFormData.pricePolicies : formData.pricePolicies)];
+        const selectedDay = parseInt(value, 10);
+        if (checked) {
+            updatedPricePolicies[index].daysOfWeek.push(selectedDay);
+        } else {
+            updatedPricePolicies[index].daysOfWeek = updatedPricePolicies[index].daysOfWeek.filter(
+                (day) => day !== selectedDay
+            );
+        }
+        if (isEditing) {
+            setEditFormData((prevState) => ({ ...prevState, pricePolicies: updatedPricePolicies }));
+        } else {
+            setFormData((prevState) => ({ ...prevState, pricePolicies: updatedPricePolicies }));
+        }
     };
 
     // Filter fields based on search query and selected field type
@@ -234,8 +285,8 @@ function ManageFields() {
                             >
                                 <option value={FieldType.FOOTBALL}>Football</option>
                                 <option value={FieldType.TENNIS}>Tennis</option>
-                                <option value={FieldType.BADMINTON}>Badminton</option>
-                                <option value={FieldType.YOGA}>Yoga</option>
+                                <option value={FieldType.BADMINTON}>Tennis</option>
+                                <option value={FieldType.YOGA}>Tennis</option>
                             </select>
                             <input
                                 type='text'
@@ -245,8 +296,55 @@ function ManageFields() {
                                 onChange={handleChange}
                                 required
                             />
-                            {/* Price policies handling */}
-                            {/* Your existing price policies code here */}
+                            {(isEditing ? editFormData.pricePolicies : formData.pricePolicies).map((policy, index) => (
+                                <div key={index} className={styles.pricePolicyContainer}>
+                                    <input
+                                        type='number'
+                                        name='price'
+                                        value={policy.price}
+                                        placeholder='Price'
+                                        onChange={(e) => handlePricePolicyChange(e, index)}
+                                        required
+                                    />
+                                    <div className={styles.dayOfWeekContainer}>
+                                        {Array.from({ length: 7 }).map((_, dayIndex) => (
+                                            <label key={dayIndex} className={styles.dayOfWeekLabel}>
+                                                <input
+                                                    type='checkbox'
+                                                    value={dayIndex + 1}
+                                                    checked={policy.daysOfWeek.includes(dayIndex + 1)}
+                                                    onChange={(e) => handleDayOfWeekChange(e, index)}
+                                                />
+                                                {
+                                                    [
+                                                        'Monday',
+                                                        'Tuesday',
+                                                        'Wednesday',
+                                                        'Thursday',
+                                                        'Friday',
+                                                        'Sartuday',
+                                                        'Sunday',
+                                                    ][dayIndex]
+                                                }
+                                            </label>
+                                        ))}
+                                    </div>
+                                    <button
+                                        type='button'
+                                        className={`btn ${styles.removePolicyButton}`}
+                                        onClick={() => handleRemovePricePolicy(index)}
+                                    >
+                                        Remove Policy
+                                    </button>
+                                </div>
+                            ))}
+                            <button
+                                type='button'
+                                className={`btn ${styles.addPolicyButton}`}
+                                onClick={handleAddPricePolicy}
+                            >
+                                More Price Policy
+                            </button>
                         </div>
                     </div>
                     <Button type='submit' className={`btn ${styles.submitButton}`}>
@@ -274,15 +372,24 @@ function ManageFields() {
                                 <td>{field.fieldName}</td>
                                 <td>{field.fieldType}</td>
                                 <td title={field.description}>{field.description}</td>
+
+                                {/* Cột Price Policies */}
                                 <td>
-                                    {field.pricePolicies.map((policy, policyIndex) => (
-                                        <div key={policyIndex} className={styles.policyContainer}>
-                                            <span>{`Price: $${policy.price}`}</span>
-                                            <br />
-                                            <span>{`Days: ${policy.daysOfWeek.join(', ')}`}</span>
-                                        </div>
-                                    ))}
+                                    {field.pricePolicies.map((policy, policyIndex) => {
+                                        // Hiển thị giá và các ngày trong tuần
+                                        const daysOfWeek = policy.daysOfWeek
+                                            .map((day) => ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][day - 1])
+                                            .join(', '); // Chuyển đổi từ số thành tên ngày
+                                        return (
+                                            <div key={policyIndex} className={styles.policyContainer}>
+                                                <span>{`Price: $${policy.price}`}</span>
+                                                <br />
+                                                <span>{`Days: ${daysOfWeek}`}</span>
+                                            </div>
+                                        );
+                                    })}
                                 </td>
+
                                 <td>
                                     <img src={field.imageUrl} alt={field.fieldName} className={styles.fieldImage} />
                                 </td>
@@ -314,23 +421,17 @@ function ManageFields() {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan='8'>No fields available.</td>
+                            <td colSpan='8'>No fields available.</td> {/* Thêm colSpan cho bảng có 8 cột */}
                         </tr>
                     )}
                 </tbody>
             </table>
             <div className={styles.pagination}>
-                <button
-                    disabled={currentPage === 0}
-                    onClick={() => setCurrentPage(currentPage - 1)}
-                >
+                <button disabled={currentPage === 0} onClick={() => setCurrentPage(currentPage - 1)}>
                     Previous
                 </button>
                 <span>{`Page ${currentPage + 1} of ${totalPages}`}</span>
-                <button
-                    disabled={currentPage >= totalPages - 1}
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                >
+                <button disabled={currentPage >= totalPages - 1} onClick={() => setCurrentPage(currentPage + 1)}>
                     Next
                 </button>
             </div>

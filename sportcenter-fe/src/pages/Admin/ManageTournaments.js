@@ -25,7 +25,7 @@ function ManageTournaments() {
     const [editFormData, setEditFormData] = useState(formData);
     const [isEditing, setIsEditing] = useState(false);
     const [showInputForm, setShowInputForm] = useState(false);
-    
+
     // Pagination state
     const [currentPage, setCurrentPage] = useState(0);
     const [pageSize, setPageSize] = useState(5); // Set page size to 5
@@ -156,7 +156,7 @@ function ManageTournaments() {
         setShowInputForm(true);
     };
 
-    const filteredTournaments = tournaments.filter(tournament =>
+    const filteredTournaments = tournaments.filter((tournament) =>
         tournament.tournamentName.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
@@ -169,8 +169,8 @@ function ManageTournaments() {
 
             <div className={styles.searchContainer}>
                 <input
-                    type="text"
-                    placeholder="Tìm kiếm theo tên giải đấu..."
+                    type='text'
+                    placeholder='Tìm kiếm theo tên giải đấu...'
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className={styles.searchInput}
@@ -179,9 +179,7 @@ function ManageTournaments() {
 
             {(showInputForm || isEditing) && (
                 <form onSubmit={isEditing ? handleEditSubmit : handleAddSubmit} className={styles.inputForm}>
-                    <div className={styles.formContainer}>
-                        {/* Form fields go here */}
-                    </div>
+                    <div className={styles.formContainer}>{/* Form fields go here */}</div>
                 </form>
             )}
 
@@ -252,17 +250,11 @@ function ManageTournaments() {
             </table>
 
             <div className={styles.pagination}>
-                <button
-                    disabled={currentPage === 0}
-                    onClick={() => setCurrentPage(currentPage - 1)}
-                >
+                <button disabled={currentPage === 0} onClick={() => setCurrentPage(currentPage - 1)}>
                     Previous
                 </button>
                 <span>{`Page ${currentPage + 1} of ${totalPages}`}</span>
-                <button
-                    disabled={currentPage >= totalPages - 1}
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                >
+                <button disabled={currentPage >= totalPages - 1} onClick={() => setCurrentPage(currentPage + 1)}>
                     Next
                 </button>
             </div>

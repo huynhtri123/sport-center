@@ -31,8 +31,8 @@ const bookingApi = {
         const url = '/booking/getRecurringBookingPrice';
         return axiosClient.post(url, recurringBookingRequest);
     },
-    getAllActive() {
-        const url = '/booking/getAllActive';
+    getAllActive(page = 0, size = 3) {
+        const url = `/booking/getAllActive?page=${page}&size=${size}`;
         return axiosClient.get(url);
     },
     getRecurringByBookingId(bookingId) {

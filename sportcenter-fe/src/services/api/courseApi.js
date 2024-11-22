@@ -27,8 +27,8 @@ const courseApi = {
     },
 
     // Get all active courses
-    getAllActive() {
-        return axiosClient.get('/public/course/getAllActive');
+    getAllActive(page = 0, size = 3) {
+        return axiosClient.get(`/public/course/getAllActive?page=${page}&size=${size}`);
     },
 
     // Search courses by name

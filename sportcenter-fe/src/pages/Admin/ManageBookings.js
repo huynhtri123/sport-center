@@ -43,6 +43,7 @@ function ManageBookings() {
             setIsLoading(true);
             const response = await bookingApi.getAllActive(currentPage, pageSize);
             setBookings(response.data.content);
+            // console.log(response);
             setTotalPages(response.data.totalPages);
             setTotalElements(response.data.totalElements);
         } catch (err) {
@@ -108,14 +109,16 @@ function ManageBookings() {
         return matchesCancellation && matchesSearch;
     });
 
+    // console.log('Original Bookings:', bookings);
+    // console.log('Filtered Bookings:', filteredBookings);
 
     return (
         <div className={styles.manageBookingsContainer}>
             {isLoading && <Loading />}
             <div className={styles.searchContainer}>
                 <input
-                    type="text"
-                    placeholder="Search by field name..."
+                    type='text'
+                    placeholder='Search by field name...'
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className={styles.searchInput}
@@ -220,17 +223,11 @@ function ManageBookings() {
 
             {/* Pagination controls */}
             <div className={styles.pagination}>
-                <button
-                    disabled={currentPage === 0}
-                    onClick={() => setCurrentPage(currentPage - 1)}
-                >
+                <button disabled={currentPage === 0} onClick={() => setCurrentPage(currentPage - 1)}>
                     Previous
                 </button>
                 <span>{`Page ${currentPage + 1} of ${totalPages}`}</span>
-                <button
-                    disabled={currentPage >= totalPages - 1}
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                >
+                <button disabled={currentPage >= totalPages - 1} onClick={() => setCurrentPage(currentPage + 1)}>
                     Next
                 </button>
             </div>

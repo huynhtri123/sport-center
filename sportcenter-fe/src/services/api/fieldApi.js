@@ -8,8 +8,8 @@ const fieldApi = {
     },
 
     // Lấy tất cả các sân đang hoạt động (active & not deleted)
-    getAllActive() {
-        const url = '/public/field/getAllActive';
+    getAllActive(page = 0, size = 3) {
+        const url = `/public/field/getAllActive?page=${page}&size=${size}`;
         return axiosClient.get(url);
     },
 

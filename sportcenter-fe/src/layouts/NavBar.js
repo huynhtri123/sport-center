@@ -33,8 +33,8 @@ function NavBar() {
     // lấy danh sách sports lưu vào context
     const getSports = async () => {
         try {
-            const sportsResponse = await sportApi.getAllActive();
-            setSports(sportsResponse.data);
+            const sportsResponse = await sportApi.getAllActive(0, 100);
+            setSports(sportsResponse.data.content);
         } catch (err) {
             console.error(err);
         }
