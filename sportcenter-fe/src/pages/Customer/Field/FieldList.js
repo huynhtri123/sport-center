@@ -26,7 +26,7 @@ const FieldList = () => {
         return (
             <div className={styles.container}>
                 <h2 className={styles.title}>Chưa có sân</h2>
-                <Link to={'/'}>Chọn môn thể thao khác</Link>
+                <Link to={'/sport-center'}>Chọn môn thể thao khác</Link>
             </div>
         );
     }

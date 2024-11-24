@@ -56,7 +56,7 @@ function Signin() {
             if (currentRole === Role.ADMIN) {
                 navigate('/admin');
             } else {
-                navigate('/');
+                navigate('/sport-center');
             }
         } catch (error) {
             // Thông báo đã được cài trong axiosClient rồi nên ở đây khỏi

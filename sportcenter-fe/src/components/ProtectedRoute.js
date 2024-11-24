@@ -5,7 +5,7 @@ function ProtectedRoute({ children, requiredRole }) {
     const role = handleLocalStorage.getCurrentRole();
     // nếu là requiredRole (ADMIN) mới cho vào, không thì chuyển về trang home
     if (role !== requiredRole) {
-        return <Navigate to={'/'} replace />;
+        return <Navigate to={'/sport-center'} replace />;
     }
 
     return children;

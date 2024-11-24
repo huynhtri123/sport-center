@@ -46,7 +46,7 @@ const SportList = () => {
         return (
             <div className={styles.container}>
                 <h2 className={styles.title}>Chưa có môn thể thao nào.</h2>
-                <Link to={'/'}>Back to Home</Link>
+                <Link to={'/sport-center'}>Back to Home</Link>
             </div>
         );
     }

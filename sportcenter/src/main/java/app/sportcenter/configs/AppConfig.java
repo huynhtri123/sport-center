@@ -23,9 +23,9 @@ public class AppConfig {
     @Value("10")
     private Integer logRounds;
 
-    @Value(("http://localhost:3001"))
+    @Value(("${client.url}"))
     private String clientUrl;
 
-    @Value(("https://png.pngtree.com/png-vector/20190226/ourlarge/pngtree-question-mark-vector-icon-png-image_706042.jpg"))
+    @Value(("${default.icon}"))
     private String defaultIcon;
 }

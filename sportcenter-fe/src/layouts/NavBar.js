@@ -48,8 +48,12 @@ function NavBar() {
             <div className='container-fluid d-flex justify-content-between align-items-center'>
                 {/* Left - Brand Logo and Icons */}
                 <div className='d-flex align-items-center'>
-                    <Link className={`navbar-brand ${styles.appNameBox} font-cera-round-pro-medium`} to='/'>
-                        <img className='logo-icon' src='/logo.png' alt='logo' />
+                    <Link className={`navbar-brand ${styles.appNameBox} font-cera-round-pro-medium`} to='/sport-center'>
+                        <img
+                            className='logo-icon'
+                            src='https://res.cloudinary.com/dftznqjsj/image/upload/v1732351740/logo_d8m7pt.png'
+                            alt='logo'
+                        />
                         <span className={styles.appName}>Sport Center</span>
                     </Link>
                     <div className={`d-flex align-items-center ${styles.leftBox}`}>

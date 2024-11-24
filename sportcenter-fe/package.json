@@ -1,4 +1,5 @@
 {
+    "homepage": "https://huynhtri123.github.io/sport-center",
     "name": "sportcenter-fe",
     "version": "0.1.0",
     "private": true,
@@ -28,6 +29,8 @@
     },
     "scripts": {
         "start": "set PORT=3001 && react-scripts start",
+        "predeploy": "npm run build",
+        "deploy": "gh-pages -d build",
         "build": "react-scripts build",
         "test": "react-scripts test",
         "eject": "react-scripts eject"
@@ -53,6 +56,7 @@
     "devDependencies": {
         "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
         "@fortawesome/fontawesome-free": "^6.6.0",
+        "gh-pages": "^6.2.0",
         "sass": "^1.79.4",
         "sass-loader": "^16.0.2"
     }
