@@ -20,7 +20,7 @@ function Signout() {
         handleLocalStorage.clearToken();
         setIsSignedIn(false);
         toast.info('Log out successfully!');
-        navigate('/sport-center');
+        navigate('/');
     };
 
     return (

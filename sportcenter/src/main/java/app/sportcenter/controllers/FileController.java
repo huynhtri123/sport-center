@@ -24,7 +24,7 @@ public class FileController {
     @PostMapping("/image/upload")
     public ResponseEntity<BaseResponse> uploadImage(@RequestParam(name = "file", required = true)
                                                         MultipartFile file) throws CustomException {
-        FileUploadUtil.assertAllowed(file, FileUploadUtil.IMAGE_PATTERN);
+        FileUploadUtil.assertAllowedImage(file);
         final String fileName = FileUploadUtil.getFileName(file.getOriginalFilename());
         final CloudinaryResponse response = cloudinaryService.uploadFile(file, fileName);
 
@@ -45,6 +45,19 @@ public class FileController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new BaseResponse("Lỗi hệ thống. Vui lòng thử lại.", HttpStatus.INTERNAL_SERVER_ERROR.value(), null));
         }
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
+    @PostMapping("/video/upload")
+    public ResponseEntity<BaseResponse> uploadIVideo(@RequestParam(name = "file", required = true)
+                                                    MultipartFile file) throws CustomException {
+        FileUploadUtil.assertAllowedVideo(file);
+        final String fileName = FileUploadUtil.getFileName(file.getOriginalFilename());
+        final CloudinaryResponse response = cloudinaryService.uploadVideo(file, fileName);
+
+        return ResponseEntity.ok(
+                new BaseResponse("Tải video lên Coudinary thành công.", HttpStatus.OK.value(), response)
+        );
     }
 
 }

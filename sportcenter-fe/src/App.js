@@ -52,7 +52,7 @@ function App() {
                                     </ProtectedRoute>
                                 }
                             />
-                            <Route path='/sport-center' element={<Home />} />
+                            <Route path='/' element={<Home />} />
                             <Route path='/profile' element={<Profile />} />
                             <Route path='/sign-up' element={<Signup />} />
                             <Route path='/sign-in' element={<Signin />} />

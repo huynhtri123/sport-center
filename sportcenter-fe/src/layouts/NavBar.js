@@ -48,7 +48,7 @@ function NavBar() {
             <div className='container-fluid d-flex justify-content-between align-items-center'>
                 {/* Left - Brand Logo and Icons */}
                 <div className='d-flex align-items-center'>
-                    <Link className={`navbar-brand ${styles.appNameBox} font-cera-round-pro-medium`} to='/sport-center'>
+                    <Link className={`navbar-brand ${styles.appNameBox} font-cera-round-pro-medium`} to='/'>
                         <img
                             className='logo-icon'
                             src='https://res.cloudinary.com/dftznqjsj/image/upload/v1732351740/logo_d8m7pt.png'

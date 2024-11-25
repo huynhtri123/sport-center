@@ -69,7 +69,7 @@ function RenewPasswordModal({ isModalOpen, onClose, email, getVerifyResponse }) 
                 resetPasswordCode: formData.resetPasswordCode,
             });
             toast.success(renewPasswordResponse.message);
-            navigate('/sport-center');
+            navigate('/');
         } catch (apiErr) {
             inputCodeRef.current.focus();
             setErrors('');

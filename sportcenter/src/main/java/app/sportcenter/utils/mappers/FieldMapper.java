@@ -44,6 +44,7 @@ public class FieldMapper {
                         .map(pricePolicyMapper::convertToEntity).toList();
         oldField.setPricePolicies(pricePolicyEntity);
         oldField.setImageUrl(newField.getImageUrl());
+        oldField.setVideoUrl(newField.getVideoUrl());
 
         return oldField;
     }

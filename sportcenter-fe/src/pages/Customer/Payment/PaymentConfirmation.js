@@ -11,7 +11,7 @@ export default function PaymentConfirmation() {
             <h1>Payment and Booking Confirmed!</h1>
             <p>Your booking and payment were successful. Thank you!</p>
 
-            <Button className={styles.backButton} onClick={() => navigate('/sport-center')}>
+            <Button className={styles.backButton} onClick={() => navigate('/')}>
                 Back to Home
             </Button>
         </div>
