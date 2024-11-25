@@ -8,6 +8,7 @@ import java.io.IOException;
 
 public interface CloudinaryService {
     public CloudinaryResponse uploadFile(MultipartFile file, String fileName) throws CustomException;
+    public CloudinaryResponse uploadVideo(MultipartFile file, String fileName) throws CustomException;
     public boolean deleteFileById(String publicId) throws CustomException;
     public void deleteByUrl(String url) throws IOException;
 }

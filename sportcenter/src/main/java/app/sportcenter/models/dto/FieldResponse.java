@@ -24,6 +24,7 @@ public class FieldResponse extends BaseResponseDTO {
     private String description;
     private Double defaultPrice;
     private String imageUrl;
+    private String videoUrl;
     private List<PricePolicyResponse> pricePolicies;
 
     // danh sách trạng thái theo khung giờ

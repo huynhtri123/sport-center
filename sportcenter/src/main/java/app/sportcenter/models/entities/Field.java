@@ -25,6 +25,7 @@ public class Field extends BaseEntity {
     private String fieldName;
     private String description;
     private String imageUrl;
+    private String videoUrl;
     private Double defaultPrice = 0.0;
     private List<PricePolicy> pricePolicies;
 

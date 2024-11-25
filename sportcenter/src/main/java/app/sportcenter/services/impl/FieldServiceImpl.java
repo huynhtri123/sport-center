@@ -55,6 +55,15 @@ public class FieldServiceImpl implements FieldService {
         if (hasDuplicateDays(fieldRequest.getPricePolicies())) {
             throw new CustomException("Thất bại vì có ngày bị trùng lặp trong các chính sách giá!", HttpStatus.BAD_REQUEST.value());
         }
+
+        // set ảnh và video mặc định
+        if (fieldRequest.getImageUrl() == null || fieldRequest.getImageUrl().isEmpty()) {
+            fieldRequest.setImageUrl(appConfig.getDefaultIcon());
+        }
+        if (fieldRequest.getVideoUrl() == null || fieldRequest.getVideoUrl().isEmpty()) {
+            fieldRequest.setVideoUrl(appConfig.getDefaultIcon());
+        }
+
         Field field = fieldMapper.convertToEntity(fieldRequest);
         if (field == null) {
             throw new CustomException("Map fieldRequest to entity thất bại!", HttpStatus.BAD_REQUEST.value());

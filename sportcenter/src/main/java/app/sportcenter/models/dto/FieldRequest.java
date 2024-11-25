@@ -31,6 +31,8 @@ public class FieldRequest extends BaseRequestDTO {
     @NotBlank(message = "Bạn chưa nhập đường dẫn ảnh cho sân!")
     private String imageUrl;
 
+    private String videoUrl;
+
     @Valid
     @NotNull(message = "Bạn chưa nhập danh sách chính sách giá!")
     private List<PricePolicyRequest> pricePolicies;

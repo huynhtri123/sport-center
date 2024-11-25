@@ -42,6 +42,30 @@ public class CloudinaryServiceImpl implements CloudinaryService {
 
     @Transactional
     @Override
+    public CloudinaryResponse uploadVideo(MultipartFile file, String fileName) throws CustomException {
+        try {
+            // Upload video lên Cloudinary
+            final Map<String, Object> result = cloudinary.uploader().upload(
+                    file.getBytes(),
+                    Map.of("public_id", "sportcenter/videos/" + fileName, "resource_type", "video"));
+
+            // Lấy URL và publicId của video sau khi upload
+            final String url = (String) result.get("secure_url");
+            final String publicId = (String) result.get("public_id");
+
+            return CloudinaryResponse.builder()
+                    .publicId(publicId)
+                    .url(url)
+                    .build();
+
+        } catch (Exception e) {
+            throw new CustomException("Failed to upload video, " + e.getMessage(), HttpStatus.BAD_REQUEST.value());
+        }
+    }
+
+
+    @Transactional
+    @Override
     public boolean deleteFileById(String publicId) throws CustomException {
         try {
             Map result = cloudinary.uploader().destroy(publicId, Map.of());
