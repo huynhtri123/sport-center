@@ -4,78 +4,6 @@
     padding: 20px;
     flex-grow: 1;
 
-    .fieldsTable {
-        width: 100%;
-        border-collapse: collapse;
-        background-color: #ffffff;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        text-align: left;
-        table-layout: fixed; // Đảm bảo chiều rộng của các cột được cố định
-
-        th,
-        td {
-            padding: 8px;
-            border: 1px solid #ddd;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            white-space: nowrap;
-            text-align: center;
-        }
-
-        th:nth-child(1),  // Đảm bảo header của cột STT cũng có quy tắc riêng
-        td:nth-child(1) {
-            // Cột STT
-            width: 80px; // Giảm chiều rộng cột STT
-            padding: 4px; // Giảm padding để cột nhỏ lại
-        }
-
-        td:nth-child(5) {
-            /* Cột Price Policies */
-            white-space: normal; /* Cho phép nội dung xuống dòng */
-            word-wrap: break-word; /* Xuống dòng khi từ quá dài */
-            overflow-wrap: break-word; /* Tương tự word-wrap nhưng hỗ trợ nhiều trình duyệt */
-            max-width: 250px; /* Đặt giới hạn chiều rộng */
-            margin: 0 8px; /* Giữ khoảng cách từ nội dung đến viền cột */
-            text-align: center; /* Căn trái nội dung để dễ đọc */
-        }
-
-        td {
-            vertical-align: middle;
-
-            &:nth-child(even) {
-                background-color: #f8f9fa;
-            }
-
-            &:nth-child(odd) {
-                background-color: #ffffff;
-            }
-
-            &:nth-child(4) {
-                max-width: 200px; // Giảm chiều rộng của cột này
-                width: 200px;
-                overflow: hidden;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-            }
-
-            .fieldImage {
-                width: 120px; // Giảm kích thước hình ảnh
-                height: 80px;
-                object-fit: cover;
-                border-radius: 4px;
-                border: 2px solid $blue-prime;
-            }
-        }
-
-        .actionButtons {
-            align-items: center;
-            gap: 8px;
-            button {
-                margin: 0 4px;
-            }
-        }
-    }
-
     .pricePolicyContainer {
         display: flex;
         flex-direction: column;
@@ -170,14 +98,24 @@
 
         .formContainer {
             display: flex;
+            flex-direction: column; /* Căn theo chiều dọc */
+            align-items: center; /* Căn giữa */
             margin-bottom: 20px;
+        }
+
+        .mediaContainer {
+            display: flex;
+            flex-direction: row; /* Sắp xếp ảnh và video theo chiều dọc */
+            align-items: center; /* Căn giữa */
+            margin-bottom: 20px; /* Khoảng cách bên dưới media container */
+            gap: 24px;
         }
 
         .avatarContainer {
             width: 180px;
             height: 180px;
             position: relative;
-            margin-right: 20px;
+            margin-bottom: 10px; /* Khoảng cách giữa ảnh và video */
         }
 
         .avatar {
@@ -187,9 +125,24 @@
             border-radius: 4px;
         }
 
+        .videoContainer {
+            width: 360px; /* Cố định chiều ngang để đồng nhất với ảnh */
+            position: relative; /* Để label được định vị tương đối với video */
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Đảm bảo label căn giữa */
+            margin-bottom: 10px; /* Khoảng cách giữa video và phần dưới */
+        }
+
+        .video {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+
         .uploadLabel {
             position: absolute;
-            bottom: 10px;
+            bottom: -20px; /* Đặt label dưới video, bạn có thể tùy chỉnh giá trị này */
             left: 50%;
             transform: translateX(-50%);
             background-color: rgba(0, 0, 0, 0.7);
@@ -198,40 +151,42 @@
             border-radius: 20px;
             cursor: pointer;
             font-size: 12px;
+            text-align: center;
+            white-space: nowrap; /* Giữ label không bị xuống dòng */
         }
 
         .fileInput {
             display: none;
         }
+    }
 
-        .inputsContainer {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
+    .inputsContainer {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
 
-            input {
-                padding: 10px;
-                margin-bottom: 10px;
-                border: 1px solid #ddd;
-                border-radius: 4px;
-            }
-        }
-
-        select {
+        input {
             padding: 10px;
-            margin: 10px 0;
-        }
-
-        .submitButton {
-            background-color: $blue-prime;
-            color: white;
-            border: none;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
             border-radius: 4px;
-            cursor: pointer;
+        }
+    }
 
-            &:hover {
-                background-color: darken($blue-prime, 10%);
-            }
+    select {
+        padding: 10px;
+        margin: 10px 0;
+    }
+
+    .submitButton {
+        background-color: $blue-prime;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+
+        &:hover {
+            background-color: darken($blue-prime, 10%);
         }
     }
 }

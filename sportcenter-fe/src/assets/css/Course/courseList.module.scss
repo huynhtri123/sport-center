@@ -1,67 +1,168 @@
 @import '../variables';
 
 .container {
-    width: 100%; // Set the width to 100% to occupy the full width of the screen
-    height: auto; // Set an explicit height for the container (adjust this value as needed)
-    padding: 24px; // Keep the padding for spacing around content
-    box-sizing: border-box; // Ensure padding is included in the width and height calculation
-    text-align: center;
-}
-
-.title {
-    margin-bottom: 20px;
-    color: white;
-}
-
-.courseList {
-    list-style: none;
+    width: 100%;
     padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif; /* Chọn font chữ thanh lịch */
+}
+
+/* Banner Section with Parallax */
+/* Banner Section */
+.banner {
+    position: relative;
+    width: 100%;
+    height: 320px; /* Tăng chiều cao của banner */
+    background: url('https://images.pexels.com/photos/1103829/pexels-photo-1103829.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')
+        no-repeat center center fixed; /* Background parallax */
+    background-size: cover;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-align: center;
+    padding: 0 20px;
+
+    /* Lớp phủ nền mờ để làm nổi bật chữ */
+    .bannerOverlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.4); /* Điều chỉnh opacity cho lớp phủ */
+        z-index: 0;
+    }
+
+    h1 {
+        font-size: 3.5rem;
+        margin-bottom: 15px;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: white;
+        letter-spacing: 2px; /* Thêm khoảng cách giữa các chữ để dễ nhìn hơn */
+        text-shadow: 6px 6px 40px rgba(255, 255, 255, 1); /* Tạo hiệu ứng ánh sáng mờ dần cho tiêu đề */
+        z-index: 1;
+    }
+
+    p {
+        font-size: 1.4rem;
+        margin-bottom: 30px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.9); /* Giữ màu chữ sáng nhưng giảm độ mờ */
+        text-shadow: 2px 2px 25px rgba(255, 255, 255, 0.8);
+        max-width: 80%; /* Giới hạn chiều rộng để tạo cảm giác không quá rộng */
+        line-height: 1.5;
+        z-index: 1;
+    }
+
+    .ctaButton {
+        padding: 14px 35px;
+        font-size: 1.2rem;
+        background-color: $blue-prime;
+        color: white;
+        border: none;
+        border-radius: 50px; /* Tạo nút bo tròn đẹp mắt */
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+
+        &:hover {
+            background-color: darken($blue-prime, 10%);
+            transform: scale(1.1);
+        }
+    }
+}
+
+.bannerOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.2); /* Tạo lớp phủ mờ tối để làm nổi bật nội dung */
+    z-index: 0;
+}
+
+/* Course List */
+.courseList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Cột linh hoạt và đẹp mắt */
+    gap: 24px;
+    padding: 40px 20px;
+    margin-top: -60px; /* Đưa phần danh sách khóa học lên trên một chút */
 }
 
 .courseItem {
-    margin: 20px 0;
     cursor: pointer;
     display: flex;
-    background-color: $blue-prime; // Ensure the background is set to white
-    border-radius: 8px;
-    transition: transform 0.2s, box-shadow 0.2s; // Add transition for box-shadow
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); // Add shadow
+    flex-direction: column;
+    align-items: center;
+    background-color: white;
+    border-radius: 15px; /* Góc bo mềm mại cho mỗi item */
+    overflow: hidden;
+    padding: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1); /* Thêm bóng nhẹ cho mỗi item */
+    position: relative;
 
     &:hover {
-        transform: scale(1.05);
-        box-shadow: 0 8px 20px $blue-prime; // Enhance shadow on hover
+        transform: translateY(-10px); /* Tạo hiệu ứng dâng lên khi hover */
+        box-shadow: 0 12px 50px rgba(0, 0, 0, 0.15);
     }
 }
 
 .courseLink {
-    display: flex;
-    align-items: flex-start;
-    text-decoration: none; // Remove underline from links
-    color: white; // Use the inherited color
-    width: 100%; // Ensure the link takes full width of the item
-    height: 330px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.imageContainer {
+    position: relative;
+    height: 200px;
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); /* Thêm hiệu ứng bóng mờ cho ảnh */
 }
 
 .courseImage {
-    width: 488px; // Increase the width of course images (adjust as needed)
-    height: 300px; // Increase the height of course images (adjust as needed)
-    border-radius: 8px;
-    margin-right: 20px;
-    padding-top: 20px;
-    padding-left: 20px;
-    
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease; /* Hiệu ứng khi hover ảnh */
+    border-radius: 10px;
+}
+
+.courseItem:hover .courseImage {
+    transform: scale(1.1); /* Phóng to ảnh khi hover */
 }
 
 .courseInfo {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    text-align: left;
     padding: 20px;
-    color: white; // Set text color to white for course information
+    background: #f9f9f9;
+    color: #333;
+    text-align: center;
 
-    h3, p {
-        color: white; // Ensure all text is white within course info
+    h3 {
+        font-size: 1.6rem;
+        color: $blue-prime;
+        font-weight: 600;
+        margin-bottom: 15px;
+        text-transform: capitalize;
+        letter-spacing: 1px;
+    }
+
+    p {
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #444;
+        margin-bottom: 10px;
+    }
+
+    strong {
+        font-weight: 700;
+        color: #333;
     }
 }

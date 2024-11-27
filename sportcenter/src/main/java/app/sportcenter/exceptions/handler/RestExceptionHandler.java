@@ -32,16 +32,56 @@ public class RestExceptionHandler {
         );
     }
 
+//    @ExceptionHandler(MethodArgumentNotValidException.class)
+//    public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+//        Map<String, String> errors = new HashMap<>();
+//        ex.getBindingResult().getAllErrors().forEach((error) -> {
+//            String fieldName = ((FieldError) error).getField();
+//            String errorMessage = error.getDefaultMessage();
+//            errors.put(fieldName, errorMessage);
+//        });
+//
+//        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+//    }
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+    public ResponseEntity<BaseResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+        // Tạo Map để lưu các lỗi theo định dạng field -> message
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
+        String specificErrorMessage = ""; // Biến để lưu thông báo lỗi cụ thể
 
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        // Lặp qua các lỗi của BindingResult
+        for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
+            String fieldName = fieldError.getField(); // Lấy tên trường lỗi
+            String errorMessage = fieldError.getDefaultMessage(); // Lấy thông báo lỗi mặc định
+
+            // Kiểm tra nếu lỗi liên quan đến @Future (Ngày phải trong tương lai)
+            if (fieldError.getCode() != null && fieldError.getCode().contains("Future")) {
+                // Nếu là lỗi về ngày không phải trong tương lai, tạo thông báo chi tiết cho lỗi này
+                errorMessage = "Trường '" + fieldName + "' phải là một ngày trong tương lai.";
+                specificErrorMessage = "Ngày bắt đầu phải là một ngày trong tương lai."; // Thông báo lỗi cụ thể cho trường hợp này
+            }
+
+            // Thêm lỗi vào Map (field -> message)
+            errors.put(fieldName, errorMessage);
+        }
+
+        // Nếu có lỗi specific (lỗi Future), gán message là thông báo lỗi cụ thể
+        if (!specificErrorMessage.isEmpty()) {
+            // Nếu có lỗi về ngày trong tương lai, gán message cụ thể vào response
+            BaseResponse response = new BaseResponse();
+            response.setMessage(specificErrorMessage); // Lỗi cụ thể cho ngày
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
+            response.setData(errors); // Gán lỗi vào data
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+        // Trường hợp còn lại, lỗi không phải Future
+        BaseResponse response = new BaseResponse();
+        response.setMessage("Dữ liệu không hợp lệ");
+        response.setStatus(HttpStatus.BAD_REQUEST.value());
+        response.setData(errors); // Gán lỗi vào data
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     @ExceptionHandler(Exception.class)

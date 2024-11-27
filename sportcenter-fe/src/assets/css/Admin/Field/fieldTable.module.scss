@@ -1,0 +1,160 @@
+@import '../../variables';
+
+.fieldsTable {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: left;
+    table-layout: fixed; // Đảm bảo chiều rộng của các cột được cố định
+
+    th,
+    td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        text-align: center;
+    }
+
+    th:nth-child(1),  // Đảm bảo header của cột STT cũng có quy tắc riêng
+        td:nth-child(1) {
+        // Cột STT
+        width: 80px; // Giảm chiều rộng cột STT
+        padding: 4px; // Giảm padding để cột nhỏ lại
+    }
+
+    td:nth-child(5) {
+        /* Cột Price Policies */
+        white-space: normal; /* Cho phép nội dung xuống dòng */
+        word-wrap: break-word; /* Xuống dòng khi từ quá dài */
+        overflow-wrap: break-word; /* Tương tự word-wrap nhưng hỗ trợ nhiều trình duyệt */
+        max-width: 250px; /* Đặt giới hạn chiều rộng */
+        margin: 0 8px; /* Giữ khoảng cách từ nội dung đến viền cột */
+        text-align: center; /* Căn trái nội dung để dễ đọc */
+    }
+
+    td {
+        vertical-align: middle;
+
+        &:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        &:nth-child(odd) {
+            background-color: #ffffff;
+        }
+
+        &:nth-child(4) {
+            max-width: 200px; // Giảm chiều rộng của cột này
+            width: 200px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .fieldImage {
+            width: 120px; // Giảm kích thước hình ảnh
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 2px solid $blue-prime;
+        }
+    }
+
+    .actionButtons {
+        align-items: center;
+        gap: 8px;
+        button {
+            margin: 0 4px;
+        }
+    }
+}
+
+.pricePolicyContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 5px 0;
+}
+
+.dayOfWeekContainer {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Chia thành 2 cột đều nhau */
+    gap: 10px; /* Khoảng cách giữa các ô */
+}
+
+.dayOfWeekLabel {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Khoảng cách giữa checkbox và text */
+    padding: 5px;
+    font-size: 1em;
+    font-weight: 500;
+    text-align: left;
+    width: 100%; /* Đảm bảo label chiếm đủ chiều ngang */
+    white-space: nowrap; /* Đảm bảo text không bị xuống dòng */
+}
+
+input[type='checkbox'] {
+    margin: 0;
+    flex-shrink: 0; /* Đảm bảo checkbox không co lại */
+}
+
+.addButton {
+    background-color: $blue-prime;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: darken($blue-prime, 10%);
+    }
+}
+
+.removePolicyButton {
+    background-color: #ccc;
+    width: fit-content;
+    margin: 24px;
+    color: white;
+
+    &:hover {
+        background-color: darken(darken(#ccc, 10%), 10%);
+    }
+}
+.addPolicyButton {
+    background-color: #ccc;
+    color: white;
+    &:hover {
+        background-color: darken(darken(#ccc, 10%), 10%);
+    }
+}
+
+.editButton {
+    background-color: darken($blue-prime, 10%);
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: darken(darken($blue-prime, 10%), 10%);
+    }
+}
+
+.deleteButton {
+    background-color: #dc3545;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: darken(#dc3545, 10%);
+    }
+}
