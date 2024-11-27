@@ -60,7 +60,7 @@ function App() {
 
                             <Route path='/sport/:sportName' element={<DynamicSportHome />} />
                             <Route path='/sport/fields' element={<FieldList />} />
-                            <Route path='/booking' element={<SportList />} />
+                            <Route path='/bookings' element={<SportList />} />
 
                             <Route path='/booking' element={<Booking />} />
                             <Route path='/tournaments' element={<TournamentHome />} />
