@@ -67,11 +67,11 @@ function NavBar() {
                         </Link>
                         <Link
                             className={`${styles.leftItemsBox} font-cera-round-pro-regular ${
-                                location.pathname === '/booking' ? styles.active : ''
+                                location.pathname === '/bookings' ? styles.active : ''
                             }`}
-                            to='/booking'
+                            to='/bookings'
                         >
-                            <span className={styles.leftNavBarItems}>Booking</span>
+                            <span className={styles.leftNavBarItems}>Bookings</span>
                         </Link>
                         <Link
                             className={`${styles.leftItemsBox} font-cera-round-pro-regular ${
