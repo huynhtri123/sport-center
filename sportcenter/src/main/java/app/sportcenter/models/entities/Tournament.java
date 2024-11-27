@@ -28,4 +28,6 @@ public class Tournament extends BaseEntity {
     private ZonedDateTime registrationDeadline;                     // hạn chót đăng ký tham gia
     private List<Prize> prizes;                                     // danh sách giải thưởng cho từng vị trí (hạng 1,2,3)
     private String thumUrl;
+    private Double registrationFee;                                 // phí tham gia giải đấu
+    private List<String> rules = new ArrayList<>();                 // danh sách quy định giải đấu
 }

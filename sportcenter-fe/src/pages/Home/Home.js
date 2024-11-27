@@ -39,7 +39,7 @@ function Home() {
                 <div className={styles.heroContent}>
                     <h1>Tận hưởng thể thao cùng chúng tôi!</h1>
                     <p>Đặt sân, tham gia lớp học và giải đấu ngay hôm nay</p>
-                    <Link to='/sports' className={`btn ${styles.heroButton}`}>
+                    <Link to='/booking' className={`btn ${styles.heroButton}`}>
                         Khám phá ngay
                     </Link>
                 </div>

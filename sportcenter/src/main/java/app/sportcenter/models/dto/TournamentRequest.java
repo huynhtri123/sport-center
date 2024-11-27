@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -44,5 +45,11 @@ public class TournamentRequest extends BaseRequestDTO {
     private List<Prize> prizes;
 
     private String thumUrl;
+
+    @NotNull(message = "Bạn chưa nhập phí tham gia giải đấu!")
+    private Double registrationFee;                                 // phí tham gia giải đấu
+
+    @NotNull(message = "Bạn chưa nhập danh sách quy định giải đấu!")
+    private List<String> rules;                                     // danh sách quy định giải đấu
 }
 

@@ -203,10 +203,7 @@ function Booking() {
                 <div className={styles.fieldInfo}>
                     <h1>{field.fieldName}</h1>
                     <p>{field.description}</p>
-                    <Video
-                        src={'https://cdn.pixabay.com/video/2024/03/22/205193-926528071_large.mp4'}
-                        title={'Video hướng dẫn vào sân'}
-                    ></Video>
+                    <Video src={field.videoUrl} title={'Video hướng dẫn vào sân'}></Video>
                 </div>
             </section>
 

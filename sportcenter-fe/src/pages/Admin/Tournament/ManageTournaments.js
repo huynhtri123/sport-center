@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import styles from '../../assets/css/Admin/manageTournaments.module.scss';
-import tournamentApi from '../../services/api/tournamentApi';
-import { Loading } from '../../components/Loading/Loading';
-import ConfirmModal from '../../components/Modal/ConfirmModal';
+import styles from '../../../assets/css/Admin/manageTournaments.module.scss';
+import tournamentApi from '../../../services/api/tournamentApi';
+import { Loading } from '../../../components/Loading/Loading';
+import Button from '../../../components/Button/Button';
+import TournamentTable from './TournamentTable';
 
 function ManageTournaments() {
     const [tournaments, setTournaments] = useState([]);
@@ -20,6 +21,8 @@ function ManageTournaments() {
         registrationDeadline: '',
         prizes: [],
         thumUrl: '',
+        registrationFee: 0,
+        rules: [],
     });
     const [editTournamentId, setEditTournamentId] = useState(null);
     const [editFormData, setEditFormData] = useState(formData);
@@ -31,6 +34,40 @@ function ManageTournaments() {
     const [pageSize, setPageSize] = useState(5); // Set page size to 5
     const [totalPages, setTotalPages] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
+
+    // xử lý phần phí tham gia và quy định
+    const handleRuleChange = (index, value) => {
+        const updatedRules = [...(isEditing ? editFormData.rules : formData.rules)];
+        updatedRules[index] = value;
+        if (isEditing) {
+            setEditFormData({ ...editFormData, rules: updatedRules });
+        } else {
+            setFormData({ ...formData, rules: updatedRules });
+        }
+    };
+
+    const handleAddRule = (e) => {
+        e.preventDefault();
+        const currentRules = (isEditing ? editFormData.rules : formData.rules) || []; // Nếu null hoặc undefined, đặt là []
+        const updatedRules = [...currentRules, ''];
+
+        if (isEditing) {
+            setEditFormData({ ...editFormData, rules: updatedRules });
+        } else {
+            setFormData({ ...formData, rules: updatedRules });
+        }
+    };
+
+    const handleRemoveRule = (e, index) => {
+        e.preventDefault();
+        const updatedRules = [...(isEditing ? editFormData.rules : formData.rules)];
+        updatedRules.splice(index, 1);
+        if (isEditing) {
+            setEditFormData({ ...editFormData, rules: updatedRules });
+        } else {
+            setFormData({ ...formData, rules: updatedRules });
+        }
+    };
 
     const toggleModalOpen = (tournamentId = null) => {
         setDeleteTournamentId(tournamentId);
@@ -64,6 +101,7 @@ function ManageTournaments() {
             getTournaments();
             resetFormData();
         } catch (err) {
+            toast.error(err);
             console.error(err);
         } finally {
             setIsLoading(false);
@@ -152,6 +190,8 @@ function ManageTournaments() {
             registrationDeadline: tournament.registrationDeadline,
             prizes: tournament.prizes,
             thumUrl: tournament.thumUrl,
+            registrationFee: tournament.registrationFee,
+            rules: tournament.rules,
         });
         setShowInputForm(true);
     };
@@ -160,7 +200,8 @@ function ManageTournaments() {
         tournament.tournamentName.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const handleAddPrize = () => {
+    const handleAddPrize = (e) => {
+        e.preventDefault();
         const newPrize = { position: '', description: '', reward: '' };
         if (isEditing) {
             setEditFormData((prevData) => ({
@@ -185,7 +226,8 @@ function ManageTournaments() {
         }
     };
 
-    const handleRemovePrize = (index) => {
+    const handleRemovePrize = (e, index) => {
+        e.preventDefault();
         const prizes = isEditing ? [...editFormData.prizes] : [...formData.prizes];
         prizes.splice(index, 1);
         if (isEditing) {
@@ -198,19 +240,19 @@ function ManageTournaments() {
     return (
         <div className={styles.manageTournaments}>
             {isLoading && <Loading />}
-            <button className={`btn ${styles.addButton}`} onClick={handleToggleShowAddTournament}>
-                {isEditing ? 'Hủy chỉnh sửa' : 'Thêm giải đấu mới'}
-            </button>
-
             <div className={styles.searchContainer}>
                 <input
                     type='text'
-                    placeholder='Tìm kiếm theo tên giải đấu...'
+                    placeholder='Search tournament by name...'
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className={styles.searchInput}
                 />
             </div>
+
+            <Button className={`btn ${styles.addButton}`} onClick={handleToggleShowAddTournament}>
+                {isEditing ? 'Cancel Edit' : 'Add new tournament'}
+            </Button>
 
             {(showInputForm || isEditing) && (
                 <form onSubmit={isEditing ? handleEditSubmit : handleAddSubmit} className={styles.inputForm}>
@@ -323,126 +365,124 @@ function ManageTournaments() {
                             />
                         </div>
 
-                        <div className={styles.prizesContainer}>
-                            <h4>Giải Thưởng</h4>
-                            {(isEditing ? editFormData.prizes : formData.prizes).map((prize, index) => (
-                                <div key={index} className={styles.prizeItem}>
-                                    <label htmlFor={`position-${index}`} className='me-3'>
-                                        Vị trí
-                                    </label>
-                                    <input
-                                        id={`position-${index}`}
-                                        type='number'
-                                        placeholder='Vị trí'
-                                        value={prize.position}
-                                        onChange={(e) => handlePrizeChange(index, 'position', e.target.value)}
-                                        required
-                                    />
-                                    <label htmlFor={`description-${index}`} className='me-3'>
-                                        Mô tả
-                                    </label>
-                                    <input
-                                        id={`description-${index}`}
-                                        type='text'
-                                        placeholder='Mô tả'
-                                        value={prize.description}
-                                        onChange={(e) => handlePrizeChange(index, 'description', e.target.value)}
-                                        required
-                                    />
-                                    <label htmlFor={`reward-${index}`} className='me-3'>
-                                        Giải (USD)
-                                    </label>
-                                    <input
-                                        id={`reward-${index}`}
-                                        type='number'
-                                        step='0.01'
-                                        placeholder='Giải (USD)'
-                                        value={prize.reward}
-                                        onChange={(e) => handlePrizeChange(index, 'reward', e.target.value)}
-                                        required
-                                    />
-                                    <button type='button' onClick={() => handleRemovePrize(index)}>
-                                        Xóa
-                                    </button>
-                                </div>
-                            ))}
-                            <button type='button' onClick={handleAddPrize} className={`btn ${styles.addPrizeButton}`}>
-                                Thêm giải thưởng
-                            </button>
-                        </div>
+                        {/* Khối: Phí - Quy định - Giải thưởng */}
+                        <div className={styles.inputGroup}>
+                            {/* Khối nhập phí đăng ký */}
+                            <label htmlFor='registrationFee' className='me-3'>
+                                Phí đăng ký tham gia (VND)
+                            </label>
+                            <input
+                                className={styles.fee}
+                                id='registrationFee'
+                                type='number'
+                                min={0}
+                                step={1000}
+                                name='registrationFee'
+                                value={isEditing ? editFormData.registrationFee : formData.registrationFee}
+                                placeholder='Phí đăng ký (USD)'
+                                onChange={handleChange}
+                                required
+                            />
 
+                            {/* Khối nhập quy định giải đấu */}
+                            <div className={styles.rulesContainer}>
+                                <h4>Quy định giải đấu</h4>
+                                {(isEditing ? editFormData.rules || [] : formData.rules || []).map((rule, index) => (
+                                    <div key={index} className={styles.ruleItem}>
+                                        <input
+                                            type='text'
+                                            placeholder={`Quy định ${index + 1}`}
+                                            value={rule}
+                                            onChange={(e) => handleRuleChange(index, e.target.value)}
+                                            required
+                                        />
+                                        <button type='button' onClick={(e) => handleRemoveRule(e, index)}>
+                                            Delete
+                                        </button>
+                                    </div>
+                                ))}
+                                <Button type='button' onClick={handleAddRule} className={`btn ${styles.addRuleButton}`}>
+                                    Add new rule
+                                </Button>
+                            </div>
+
+                            {/* Khối nhập giải thưởng */}
+                            <div className={styles.prizesContainer}>
+                                <h4>Giải Thưởng</h4>
+                                {(isEditing ? editFormData.prizes : formData.prizes).map((prize, index) => (
+                                    <div key={index} className={styles.prizeItem}>
+                                        <label htmlFor={`position-${index}`} className='ms-3'>
+                                            Vị trí
+                                        </label>
+                                        <input
+                                            id={`position-${index}`}
+                                            type='number'
+                                            placeholder='Vị trí'
+                                            value={prize.position}
+                                            onChange={(e) => handlePrizeChange(index, 'position', e.target.value)}
+                                            required
+                                        />
+                                        <label htmlFor={`description-${index}`} className='ms-3'>
+                                            Mô tả
+                                        </label>
+                                        <input
+                                            id={`description-${index}`}
+                                            type='text'
+                                            placeholder='Mô tả'
+                                            value={prize.description}
+                                            onChange={(e) => handlePrizeChange(index, 'description', e.target.value)}
+                                            required
+                                        />
+                                        <label htmlFor={`reward-${index}`} className='ms-3'>
+                                            Thưởng (VND)
+                                        </label>
+                                        <input
+                                            id={`reward-${index}`}
+                                            type='number'
+                                            min={0}
+                                            placeholder='Giải (USD)'
+                                            value={prize.reward}
+                                            onChange={(e) => handlePrizeChange(index, 'reward', e.target.value)}
+                                            required
+                                        />
+                                        <Button
+                                            type='button'
+                                            className={styles.btnDelete}
+                                            onClick={(e) => handleRemovePrize(e, index)}
+                                        >
+                                            Delete
+                                        </Button>
+                                    </div>
+                                ))}
+                                <Button
+                                    type='button'
+                                    onClick={handleAddPrize}
+                                    className={`btn ${styles.addPrizeButton}`}
+                                >
+                                    New prize
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                    {/* Nút submit (tạo giải đấu) */}
+                    <div className={styles.inputGroup}>
                         <button type='submit' className={`btn ${styles.submitButton}`}>
-                            {isEditing ? 'Lưu thay đổi' : 'Tạo giải đấu'}
+                            {isEditing ? 'Save changes' : 'Create tournament'}
                         </button>
                     </div>
                 </form>
             )}
 
-            <table className={`mt-4 ${styles.tournamentsTable}`}>
-                <thead>
-                    <tr>
-                        <th>STT</th>
-                        <th>Tên Giải đấu</th>
-                        <th>Môn Thể Thao</th>
-                        <th>Ngày bắt đầu</th>
-                        <th>Ngày kết thúc</th>
-                        <th>Số đội tối đa</th>
-                        <th>Hạn đăng ký</th>
-                        <th>Ảnh</th>
-                        <th>Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {filteredTournaments.length > 0 ? (
-                        filteredTournaments.map((tournament, index) => (
-                            <tr key={tournament.id}>
-                                <td>{index + 1 + currentPage * pageSize}</td>
-                                <td>{tournament.tournamentName}</td>
-                                <td>{tournament.sport.id}</td>
-                                <td>{tournament.startDate}</td>
-                                <td>{tournament.endDate}</td>
-                                <td>{tournament.maxTeams}</td>
-                                <td>{tournament.registrationDeadline}</td>
-                                <td>
-                                    <img
-                                        src={tournament.thumUrl}
-                                        alt={tournament.tournamentName}
-                                        className={styles.tournamentImage}
-                                    />
-                                </td>
-                                <td>
-                                    <div className={styles.actionButtons}>
-                                        <button
-                                            className={`btn ${styles.editButton}`}
-                                            onClick={() => handleEditClick(tournament)}
-                                        >
-                                            Chỉnh sửa
-                                        </button>
-                                        <button
-                                            className={`btn ${styles.deleteButton}`}
-                                            onClick={() => toggleModalOpen(tournament.id)}
-                                        >
-                                            Xóa
-                                        </button>
-                                        {isModalOpen && deleteTournamentId === tournament.id && (
-                                            <ConfirmModal
-                                                title='Bạn có chắc chắn muốn xóa giải đấu này không?'
-                                                isOpen={isModalOpen}
-                                                onClose={() => toggleModalOpen(null)}
-                                                onSubmit={handleSoftDelete}
-                                            />
-                                        )}
-                                    </div>
-                                </td>
-                            </tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td colSpan='9'>Không có giải đấu nào.</td>
-                        </tr>
-                    )}
-                </tbody>
-            </table>
+            <TournamentTable
+                filteredTournaments={filteredTournaments}
+                currentPage={currentPage}
+                pageSize={pageSize}
+                handleEditClick={handleEditClick}
+                toggleModalOpen={toggleModalOpen}
+                isModalOpen={isModalOpen}
+                deleteTournamentId={deleteTournamentId}
+                handleSoftDelete={handleSoftDelete}
+            ></TournamentTable>
 
             <div className={styles.pagination}>
                 <button disabled={currentPage === 0} onClick={() => setCurrentPage(currentPage - 1)}>

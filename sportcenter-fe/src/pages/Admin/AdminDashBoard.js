@@ -2,12 +2,12 @@
 import React, { useEffect, useState } from 'react';
 import styles from '../../assets/css/admin.module.scss';
 import { Pie, Bar } from 'react-chartjs-2';
-import ManageFields from './ManageFields';
+import ManageFields from './Field/ManageFields';
 import ManageSports from './ManageSports';
 import Signout from '../Auth/Signout';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import ManageCourses from './ManageCourses';
-import ManageTournaments from './ManageTournaments';
+import ManageTournaments from './Tournament/ManageTournaments';
 import ManageBookings from './ManageBookings';
 import revenueApi from '../../services/api/revenueApi';
 import { RecurringIntervalType } from '../../utils/enums/RecurringIntervalType';

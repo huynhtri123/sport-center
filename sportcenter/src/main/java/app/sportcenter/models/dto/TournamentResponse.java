@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -26,4 +27,6 @@ public class TournamentResponse extends BaseResponseDTO {
     private ZonedDateTime registrationDeadline;
     private List<Prize> prizes;
     private String thumUrl;
+    private Double registrationFee;
+    private List<String> rules;
 }

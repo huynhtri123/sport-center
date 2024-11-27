@@ -1,18 +1,35 @@
 @import '../variables';
 
 .footerStyle {
-    height: 70px;
-    background-color: $blue-prime;
+    background-color: $blue-prime; /* Màu nền tối */
+    color: #fff; /* Màu chữ trắng */
+    padding: 40px 0;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    border-top: 1px solid #dee2e6;
-    position: relative;
-    bottom: 0;
-    width: 100%;
+    border-top: 2px solid #333;
 }
 
+/* Footer Content */
 .footerContentStyle {
+    width: 100%;
+    max-width: 1200px; /* Giới hạn chiều rộng */
     text-align: center;
-    color: white;
+}
+
+/* Footer Title */
+.footerTitle {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #f1f1f1; /* Màu sáng hơn cho tên */
+    margin-bottom: 10px;
+}
+
+/* Copyright Section */
+.copyright {
+    font-size: 0.9rem;
+    color: #bbb; /* Màu sáng nhạt cho bản quyền */
+    margin-top: 10px;
 }

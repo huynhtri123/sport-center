@@ -67,9 +67,9 @@ function NavBar() {
                         </Link>
                         <Link
                             className={`${styles.leftItemsBox} font-cera-round-pro-regular ${
-                                location.pathname === '/sports' ? styles.active : ''
+                                location.pathname === '/booking' ? styles.active : ''
                             }`}
-                            to='/sports'
+                            to='/booking'
                         >
                             <span className={styles.leftNavBarItems}>Booking</span>
                         </Link>
