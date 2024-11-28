@@ -5,6 +5,7 @@ import GetFieldsContext from '../contexts/Field/GetFieldsContext';
 import SportContext from '../contexts/Sport/SportContext';
 import CourseContext from '../contexts/Course/CourseContext';
 import TournamentContext from '../contexts/Tournament/TournamentContext';
+import UserContext from '../contexts/UserContext/UserContext';
 
 export const useCheckSignedIn = () => {
     const [isSignedIn, setIsSignedIn] = useContext(AuthContext);
@@ -54,4 +55,9 @@ export const useGetCourses = () => {
 export const useTournament = () => {
     const [tournament, setTournament] = useContext(TournamentContext);
     return [tournament, setTournament];
+};
+
+export const useUser = () => {
+    const [user, setUser] = useContext(UserContext);
+    return [user, setUser];
 };

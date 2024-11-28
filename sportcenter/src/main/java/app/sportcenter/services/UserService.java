@@ -3,6 +3,7 @@ package app.sportcenter.services;
 import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.models.dto.PaymentRequest;
 import app.sportcenter.models.dto.UserRequest;
+import app.sportcenter.models.dto.UserResponse;
 import app.sportcenter.models.entities.PaymentInfo;
 import app.sportcenter.models.entities.User;
 import org.springframework.http.ResponseEntity;
@@ -21,5 +22,7 @@ public interface UserService {
     public ResponseEntity<BaseResponse> getAccountBalance();
     public ResponseEntity<BaseResponse> makePaymentByBalance(Double amountToPay);
     public boolean refund(User user, Double price);
+
+    public UserResponse getCurrentUser();
 
 }

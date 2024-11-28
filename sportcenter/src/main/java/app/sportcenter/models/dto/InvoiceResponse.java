@@ -1,30 +1,28 @@
-package app.sportcenter.models.entities;
+package app.sportcenter.models.dto;
 
 import app.sportcenter.commons.PaymentMethod;
 import app.sportcenter.commons.PaymentStatus;
 import app.sportcenter.commons.PricedItem;
 import app.sportcenter.commons.TransactionType;
+import app.sportcenter.models.entities.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
-@Document(collection = "Invoice")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class Invoice extends BaseEntity {
-    @Id
+public class InvoiceResponse extends BaseResponseDTO {
     private String id;
-    private User user;
-    private Double totalAmount;                     // tổng số tiền của hoá đơn
+    private String userEmail;
+    private String userFullName;
+    private Double totalAmount;
     private PaymentStatus paymentStatus;
     private PaymentMethod paymentMethod;
     private TransactionType transactionType;
-//    private List<Object> items;                 // Các items được thanh toán, có thể là Booking, Order,...
+//    private List<Object> items;
 }

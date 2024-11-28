@@ -85,7 +85,7 @@ function TournamentRegister() {
         let createdTeamId = null;
 
         if (!validateInputs()) {
-            return false;
+            return;
         }
 
         try {
@@ -109,7 +109,7 @@ function TournamentRegister() {
             toast.success(registerResponse.message);
             localStorage.setItem('selectedTournament', JSON.stringify(registerResponse.data));
             navigate('/tournament/detail');
-            return true;
+            return registerResponse.data;
         } catch (error) {
             console.error('Đăng ký thất bại:', error);
             setErrorMessage('Có lỗi xảy ra, vui lòng thử lại!');
@@ -121,7 +121,7 @@ function TournamentRegister() {
                     console.error(err);
                 }
             }
-            return false;
+            return null;
         } finally {
             setIsLoading(false);
             setIsModalOpen(false);
@@ -198,6 +198,8 @@ function TournamentRegister() {
                     onClose={toggleModalOpen}
                     onSubmit={() => handleRegister()}
                     price={tournament.registrationFee}
+                    isBookingPayment={false}
+                    isRegistrationPayment={true}
                 ></PaymentModal>
             )}
         </div>

@@ -160,6 +160,19 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public UserResponse getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // Kiểm tra nếu authentication null hoặc không xác thực
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new SecurityException("Không có người dùng nào đang đăng nhập.");
+        }
+
+        User currUser = (User) authentication.getPrincipal();
+        return userMapper.convertToDTO(currUser);
+    }
+
 
 //    @Override
 //    public ResponseEntity<BaseResponse> getById(String id) {

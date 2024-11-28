@@ -7,6 +7,8 @@ import app.sportcenter.models.entities.PaymentInfo;
 import app.sportcenter.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpCookie;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -68,6 +70,16 @@ public class UserController {
     @PatchMapping("/makePaymentByBalance")
     public ResponseEntity<BaseResponse> makePaymentByBalance(@RequestParam Double amountToPay) {
         return userService.makePaymentByBalance(amountToPay);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
+    @GetMapping("/getCurrentUser")
+    public ResponseEntity<BaseResponse> getCurrentUser() {
+        return ResponseEntity.ok(
+                new BaseResponse("Lấy thông tin người dùng hiện tại thành công",
+                        HttpStatus.OK.value(),
+                        userService.getCurrentUser())
+        );
     }
 
 }

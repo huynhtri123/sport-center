@@ -146,11 +146,11 @@ function Booking() {
             fetchTimeSlots(selectedDate);
             toast.success(response.message);
 
-            return true;
+            return response.data;
         } catch (err) {
             console.error(err);
             toast.error(err.message);
-            return false;
+            return null;
         } finally {
             setIsLoading(false);
             isRecurring ? setIsRecurringBookingModalOpen(false) : setIsBookingModalOpen(false);
@@ -295,6 +295,8 @@ function Booking() {
                             isOpen={isBookingModalOpen}
                             onClose={() => setIsBookingModalOpen(false)}
                             onSubmit={() => handleSubmit(false)}
+                            isBookingPayment={true}
+                            isRegistrationPayment={false}
                         />
                     )}
                 </form>
@@ -327,6 +329,8 @@ function Booking() {
                             isOpen={isRecurringModalOpen}
                             onClose={() => setIsRecurringBookingModalOpen(false)}
                             onSubmit={() => handleSubmit(true)}
+                            isBookingPayment={true}
+                            isRegistrationPayment={false}
                         />
                     )}
                 </form>
