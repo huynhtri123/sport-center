@@ -3,6 +3,7 @@ import SportProvider from './Sport/SportProvider';
 import CourseProvider from './Course/CourseProvider';
 import TournamentProvider from './Tournament/TournamentProvider';
 import GetFieldsProvider from './Field/GetFieldsProvider';
+import UserProvider from './UserContext/UserProvider';
 
 function AllProviders({ children }) {
     return (
@@ -10,7 +11,9 @@ function AllProviders({ children }) {
             <SportProvider>
                 <CourseProvider>
                     <TournamentProvider>
-                        <GetFieldsProvider>{children}</GetFieldsProvider>
+                        <UserProvider>
+                            <GetFieldsProvider>{children}</GetFieldsProvider>
+                        </UserProvider>
                     </TournamentProvider>
                 </CourseProvider>
             </SportProvider>

@@ -65,6 +65,10 @@ const userApi = {
         const url = `/user/makePaymentByBalance?amountToPay=${amountToPay}`;
         return axiosClient.patch(url);
     },
+    getCurrentUser() {
+        const url = '/user/getCurrentUser';
+        return axiosClient.get(url);
+    },
 };
 
 export default userApi;
