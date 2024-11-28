@@ -14,6 +14,7 @@ import app.sportcenter.repositories.RecurringBookingRepository;
 import app.sportcenter.repositories.UserRepository;
 import app.sportcenter.services.BookingService;
 import app.sportcenter.services.MailService;
+import app.sportcenter.services.UserService;
 import app.sportcenter.utils.mappers.BookingMapper;
 import app.sportcenter.utils.mappers.FieldMapper;
 import app.sportcenter.utils.mappers.RecurringBookingMapper;
@@ -53,6 +54,8 @@ public class BookingServiceImpl implements BookingService {
     private UserRepository userRepository;
     @Autowired
     private MailService mailService;
+    @Autowired
+    private UserService userService;
     @Autowired
     private FieldMapper fieldMapper;
 
@@ -420,8 +423,7 @@ public class BookingServiceImpl implements BookingService {
             User owner = userRepository.findById(booking.getUser().getId())
                     .orElseThrow(() -> new NotFoundException("Không tìm thấy chủ sở hữu booking này"));
             if (!booking.isRecurring()) {
-                owner.setAccountBalance(owner.getAccountBalance() + booking.getPrice());
-                userRepository.save(owner);
+                userService.refund(owner, booking.getPrice());
             }
 
             // send mail
@@ -487,8 +489,7 @@ public class BookingServiceImpl implements BookingService {
         String ownerId = recurrParent.getUser().getId();
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy chủ nhân của recurringBooking này"));
-        owner.setAccountBalance(owner.getAccountBalance() + refund);
-        userRepository.save(owner);
+        userService.refund(owner, refund);
 
         // 4. gửi mail
 //        sendMailRecurringBookingCancel(owner, response);

@@ -2,70 +2,222 @@
 
 .tournamentDetailContainer {
     max-width: 1200px; /* Giới hạn chiều rộng tối đa */
-    margin: 24px; /* Căn giữa container */
-    padding: 20px;
+    margin: 24px auto; /* Căn giữa container với margin tự động */
+    padding: 20px 30px; /* Tăng padding ngang cho dễ nhìn hơn */
     font-family: 'Arial', sans-serif;
-    color: back;
-    background-color: white; /* Nền sáng cho dễ nhìn */
-    border-radius: 10px; /* Bo góc cho container */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Đổ bóng cho container */
+    color: #333; /* Màu chữ tối hơn để dễ đọc */
+    background-color: #fff; /* Nền sáng cho dễ nhìn */
+    border-radius: 10px; /* Bo góc nhẹ */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); /* Tăng độ rõ của đổ bóng */
 }
 
 .infoSection {
-    display: flex; /* Sử dụng grid để lấp đầy không gian */
-    gap: 100px; /* Khoảng cách giữa các phần tử */
-    align-items: flex-start; /* Căn chỉnh các phần tử theo chiều dọc */
+    display: flex; /* Căn chỉnh thông tin theo chiều ngang */
+    gap: 60px; /* Giảm khoảng cách giữa các phần tử để chặt chẽ hơn */
+    align-items: flex-start; /* Căn chỉnh phần tử theo chiều dọc */
     margin-bottom: 40px;
-    padding: 20px; /* Thêm padding để có không gian thoải mái hơn */
-    background-color: $blue-prime; /* Nền trắng cho phần thông tin */
-    border-radius: 8px; /* Bo góc cho phần thông tin */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Đổ bóng cho phần thông tin */
+    padding: 20px;
+    background-color: $blue-prime;
+    border-radius: 10px; /* Bo góc lớn hơn để tạo cảm giác mềm mại */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12); /* Làm nhẹ đổ bóng */
 
     @media (max-width: 768px) {
-        grid-template-columns: 1fr; /* Chuyển sang dạng cột trên màn hình nhỏ */
-        align-items: center; /* Căn giữa cho phần tử */
+        flex-direction: column; /* Chuyển từ hàng sang cột trên màn hình nhỏ */
+        gap: 20px; /* Giảm khoảng cách giữa các phần tử */
+        align-items: center; /* Căn giữa nội dung */
     }
 }
 
 .tournamentInfo {
+    flex: 1; /* Tự động chiếm không gian còn lại */
     padding-right: 20px;
-    color: white;
+    color: #fff;
 
     h1 {
         font-size: 2rem;
         color: $yellow-hover;
-        margin-bottom: 10px;
+        margin-bottom: 15px; /* Tăng khoảng cách giữa tiêu đề và nội dung */
+        display: flex;
+        align-items: center; /* Căn biểu tượng với text */
     }
 
-    strong {
-        color: $yellow-prime;
+    i {
+        margin-right: 10px; /* Khoảng cách giữa biểu tượng và chữ */
+    }
+
+    div {
+        margin-bottom: 10px; /* Tăng khoảng cách giữa các dòng thông tin */
+    }
+
+    span {
+        font-weight: bold; /* Làm nổi bật nhãn thông tin */
     }
 
     button.registerButton {
-        margin-top: 15px;
-        padding: 10px 20px;
+        margin-top: 20px; /* Khoảng cách trên nút rõ hơn */
+        padding: 12px 24px; /* Tăng kích thước nút */
+        background-color: $yellow-prime; /* Màu nền nút nổi bật */
+        color: #333; /* Màu chữ tối hơn */
+        font-weight: bold;
         border: none;
-        border-radius: 5px;
+        border-radius: 6px;
         cursor: pointer;
+        transition: background-color 0.3s ease;
 
         &:hover {
             background-color: $yellow-hover;
         }
     }
+
+    .registrationFee {
+        color: rgb(255, 24, 24); /* Màu đỏ nổi bật */
+        font-weight: bold; /* Làm chữ đậm */
+        margin-left: 5px; /* Khoảng cách giữa nhãn và giá */
+    }
+}
+
+.rulesSection {
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #e7f3ff; /* Nền sáng hơn để phân biệt */
+    border-radius: 10px; /* Bo góc nhẹ */
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+    color: #333; /* Màu chữ chính */
+}
+
+.rulesSection h2 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: $blue-prime; /* Màu tiêu đề nổi bật */
+    border-bottom: 2px solid #007bff; /* Đường viền dưới tiêu đề */
+    padding-bottom: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.rulesSection h2 i {
+    margin-right: 10px; /* Khoảng cách giữa biểu tượng và chữ */
+}
+
+.rulesList {
+    list-style-type: none; /* Loại bỏ ký hiệu mặc định */
+    padding: 0; /* Loại bỏ padding mặc định */
+    margin: 0; /* Loại bỏ margin mặc định */
+}
+
+.ruleItem {
+    display: flex; /* Căn ngang biểu tượng và nội dung */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    background-color: #fff; /* Màu nền trắng */
+    padding: 10px 15px; /* Khoảng cách bên trong */
+    border-radius: 8px; /* Bo góc nhẹ */
+    margin-bottom: 10px; /* Khoảng cách giữa các mục */
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+    transition: background-color 0.2s ease, transform 0.2s ease; /* Hiệu ứng hover */
+}
+
+.ruleItem i {
+    color: #28a745; /* Màu biểu tượng xanh lá nổi bật */
+    font-size: 1.2rem; /* Kích thước biểu tượng lớn hơn */
+    margin-right: 10px; /* Khoảng cách giữa biểu tượng và chữ */
+}
+
+.ruleItem span {
+    font-size: 1rem; /* Kích thước chữ dễ đọc */
+    color: #333; /* Màu chữ chính */
+}
+
+.ruleItem:hover {
+    background-color: #c4d4e4; /* Đổi nền khi hover */
+    color: #fff; /* Đổi màu chữ khi hover */
+    transform: scale(1.02); /* Phóng to nhẹ */
+}
+
+.noRules {
+    color: #888; /* Màu chữ xám nhẹ */
+    font-style: italic; /* In nghiêng để nhấn mạnh */
+    text-align: center; /* Căn giữa nội dung */
 }
 
 .thumbnailContainer {
-    display: flex; /* Căn giữa hình ảnh */
-    justify-content: center; /* Căn giữa hình ảnh */
-    align-items: center; /* Căn giữa hình ảnh */
-    border: 3px solid white;
-    border-radius: 5px;
+    flex: 1; /* Để phần thumbnail chiếm đều không gian */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 3px solid #fff;
+    border-radius: 10px; /* Bo góc lớn hơn cho hình ảnh */
+    overflow: hidden; /* Ẩn các phần vượt khỏi container */
 }
 
 .thumbnail {
-    width: 500px;
-    height: 500px;
+    width: 100%; /* Đảm bảo hình ảnh co dãn theo container */
+    max-width: 500px; /* Giới hạn kích thước tối đa */
+    height: 100%;
+    max-height: 500px; /* Giới hạn chiều cao tối đa */
     border-radius: 8px;
+    object-fit: cover;
+}
+
+.prizes {
+    margin-bottom: 30px; /* Khoảng cách phía dưới giữa các section */
+    padding: 20px; /* Tăng padding bên trong để thoáng hơn */
+    background-color: #f8f9fa; /* Nền xám nhạt để phân biệt */
+    border-radius: 10px; /* Bo góc nhẹ */
+    box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1); /* Đổ bóng mềm mại */
+}
+
+.prizes h2 {
+    font-size: 1.8rem; /* Tăng kích thước tiêu đề */
+    margin-bottom: 15px; /* Tăng khoảng cách dưới tiêu đề */
+    color: #ff9800; /* Màu vàng cam nổi bật */
+    display: flex;
+    align-items: center; /* Căn biểu tượng với chữ theo chiều dọc */
+    border-bottom: 2px solid #ffc107; /* Viền dưới vàng nhạt */
+    padding-bottom: 10px; /* Khoảng cách giữa chữ và viền dưới */
+}
+
+.prizes h2 i {
+    margin-right: 10px; /* Khoảng cách giữa biểu tượng và chữ */
+    color: #ffc107; /* Màu biểu tượng phù hợp với viền */
+}
+
+.prizes ul {
+    list-style: none; /* Loại bỏ ký hiệu mặc định */
+    padding: 0; /* Loại bỏ padding mặc định */
+    margin: 0; /* Loại bỏ margin mặc định */
+}
+
+.prizes ul li {
+    display: flex; /* Căn ngang nội dung */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    padding: 12px 15px; /* Khoảng cách bên trong cho từng mục */
+    background-color: #fff; /* Nền trắng cho mục */
+    border-radius: 8px; /* Bo góc nhẹ */
+    margin-bottom: 10px; /* Khoảng cách giữa các mục */
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.08); /* Đổ bóng nhẹ */
+    transition: transform 0.2s ease, background-color 0.2s ease; /* Hiệu ứng hover */
+}
+
+.prizes ul li:hover {
+    background-color: #f5f7ff; /* Nền vàng nhạt khi hover */
+    transform: scale(1.02); /* Phóng to nhẹ */
+}
+
+.prizes ul li strong {
+    font-size: 1rem; /* Làm nổi bật vị trí */
+    color: $blue-prime; /* Màu vàng cam nổi bật */
+    margin-right: 8px; /* Khoảng cách với phần mô tả */
+}
+
+.prizes ul li span {
+    color: #555; /* Màu chữ trung tính cho phần mô tả */
+}
+
+.prizes p {
+    color: #888; /* Màu xám nhạt cho thông báo */
+    font-style: italic; /* In nghiêng để tạo sự nhấn mạnh */
+    text-align: center; /* Căn giữa thông báo */
+    margin-top: 10px;
 }
 
 .prizes,

@@ -9,19 +9,46 @@ import { useTournament } from '../../../customs/hooks';
 import fileApi from '../../../services/api/fileApi';
 import teamApi from '../../../services/api/teamApi';
 import { Loading } from '../../../components/Loading/Loading';
+import PaymentModal from '../../../components/Modal/PaymentModal';
+import { defaultIcon } from '../../../utils/defaultIcon';
 
 function TournamentRegister() {
     const [tournament] = useTournament();
     const [teamName, setTeamName] = useState('');
-    const [teamLogoUrl, setTeamLogoUrl] = useState('https://via.placeholder.com/150'); // URL mặc định cho logo
+    const [teamLogoUrl, setTeamLogoUrl] = useState(defaultIcon); // URL mặc định cho logo
     const [numPlayers, setNumPlayers] = useState(1);
     const [players, setPlayers] = useState([{ name: '', position: '', number: '' }]);
     const [errorMessage, setErrorMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
 
+    const toggleModalOpen = () => {
+        setIsModalOpen(!isModalOpen);
+    };
+
+    const handleRegisterClick = () => {
+        if (validateInputs()) {
+            toggleModalOpen(); // Chỉ mở modal nếu hợp lệ
+        }
+    };
+
+    const validateInputs = () => {
+        if (!teamName) {
+            setErrorMessage('Bạn chưa nhập tên cho đội!');
+            return false;
+        }
+        const allPlayersValid = players.every((player) => player.name.trim() !== '');
+        if (!allPlayersValid) {
+            setErrorMessage('Tất cả các thành viên cần có tên!');
+            return false;
+        }
+        setErrorMessage(''); // Xóa lỗi nếu hợp lệ
+        return true;
+    };
+
     const handleNumPlayersChange = (e) => {
-        const count = parseInt(e.target.value, 10);
+        const count = parseInt(e.target.value, 10) || 0;
         setNumPlayers(count);
         const updatedPlayers = [...players];
         while (updatedPlayers.length < count) {
@@ -55,17 +82,11 @@ function TournamentRegister() {
     };
 
     const handleRegister = async () => {
-        if (!teamName) {
-            setErrorMessage('Bạn chưa nhập tên cho đội!');
-            return;
-        }
-        const allPlayersValid = players.every((player) => player.name.trim() !== '');
-        if (!allPlayersValid) {
-            setErrorMessage('Tất cả các thành viên cần có tên!');
-            return;
-        }
-
         let createdTeamId = null;
+
+        if (!validateInputs()) {
+            return false;
+        }
 
         try {
             setIsLoading(true);
@@ -85,9 +106,10 @@ function TournamentRegister() {
                 teamId: teamResponse.data.id,
             };
             const registerResponse = await tournamentApi.register(registerRequest);
-            toast(registerResponse.message);
+            toast.success(registerResponse.message);
             localStorage.setItem('selectedTournament', JSON.stringify(registerResponse.data));
             navigate('/tournament/detail');
+            return true;
         } catch (error) {
             console.error('Đăng ký thất bại:', error);
             setErrorMessage('Có lỗi xảy ra, vui lòng thử lại!');
@@ -99,8 +121,10 @@ function TournamentRegister() {
                     console.error(err);
                 }
             }
+            return false;
         } finally {
             setIsLoading(false);
+            setIsModalOpen(false);
         }
     };
 
@@ -161,13 +185,21 @@ function TournamentRegister() {
             </div>
             {errorMessage && <p className={styles.error}>{errorMessage}</p>}
             <div className={styles.actions}>
-                <Button onClick={handleRegister} className={styles.registerBtn}>
+                <Button onClick={handleRegisterClick} className={styles.registerBtn}>
                     Đăng ký
                 </Button>
                 <Button onClick={handleBack} className={styles.cancelButton}>
                     Quay lại
                 </Button>
             </div>
+            {isModalOpen && (
+                <PaymentModal
+                    isOpen={isModalOpen}
+                    onClose={toggleModalOpen}
+                    onSubmit={() => handleRegister()}
+                    price={tournament.registrationFee}
+                ></PaymentModal>
+            )}
         </div>
     );
 }
