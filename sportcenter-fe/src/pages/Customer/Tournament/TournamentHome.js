@@ -36,7 +36,7 @@ const TournamentHome = () => {
     };
 
     const handleViewDetails = async (tournamentId) => {
-        toast.info(`Viewing details for tournament ID: ${tournamentId}`);
+        // toast.info(`Viewing details for tournament ID: ${tournamentId}`);
         try {
             const tournamentResponse = await tournamentApi.getById(tournamentId);
             // console.log(tournamentResponse);

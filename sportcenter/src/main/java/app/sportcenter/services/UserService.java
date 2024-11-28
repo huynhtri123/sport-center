@@ -20,5 +20,6 @@ public interface UserService {
     ResponseEntity<BaseResponse> updatePaymentInfoForUser(String userId, String paymentInfoId, PaymentRequest paymentRequest);
     public ResponseEntity<BaseResponse> getAccountBalance();
     public ResponseEntity<BaseResponse> makePaymentByBalance(Double amountToPay);
+    public boolean refund(User user, Double price);
 
 }

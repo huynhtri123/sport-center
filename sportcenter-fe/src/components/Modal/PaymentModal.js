@@ -24,9 +24,9 @@ function PaymentModal({ isOpen, onClose, onSubmit, price }) {
 
     const handleBalancePaymentAndSubmit = async () => {
         try {
-            // gọi hàm tạo booking
-            const bookingSuccess = await onSubmit();
-            if (bookingSuccess) {
+            // gọi hàm subnit từ cha (booking || register tournament)
+            const submitSuccess = await onSubmit();
+            if (submitSuccess) {
                 const balancePaymentResponse = await userApi.makePaymentByBalance(price);
                 // console.log(balancePaymentResponse);
                 toast.success(balancePaymentResponse.message);
@@ -39,9 +39,9 @@ function PaymentModal({ isOpen, onClose, onSubmit, price }) {
     // thanh toán bằng cả số dư và thẻ
     const handleRemainingPaymentAndSubmit = async (remainingAmount) => {
         try {
-            // gọi hàm tạo booking
-            const bookingSuccess = await onSubmit();
-            if (bookingSuccess) {
+            // gọi hàm subnit từ cha (booking || register tournament)
+            const submitSuccess = await onSubmit();
+            if (submitSuccess) {
                 // thanh toán bằng toàn bộ số dư
                 const balancePaymentResponse = await userApi.makePaymentByBalance(accountBalance);
                 console.log(balancePaymentResponse);

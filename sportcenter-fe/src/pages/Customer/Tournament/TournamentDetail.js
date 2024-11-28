@@ -4,6 +4,8 @@ import { useTournament } from '../../../customs/hooks';
 import Button from '../../../components/Button/Button';
 import tournamentApi from '../../../services/api/tournamentApi';
 import { useNavigate } from 'react-router-dom';
+import formatCurrency from '../../../utils/formatCurrency';
+import { defaultIcon } from '../../../utils/defaultIcon';
 
 const TournamentDetail = () => {
     const [tournament, setTournament] = useTournament();
@@ -65,6 +67,31 @@ const TournamentDetail = () => {
                     <div>
                         <span>Max Teams:</span> {tournament.maxTeams}
                     </div>
+                    <div>
+                        <span>Registration Fee:</span>
+                        <span className={styles.registrationFee}>
+                            {formatCurrency(tournament.registrationFee || 0)}
+                        </span>
+                    </div>
+                    <div className={styles.rulesSection}>
+                        <h2>
+                            <i className='fa-solid fa-book me-3'></i>
+                            Rules
+                        </h2>
+                        <ul className={styles.rulesList}>
+                            {tournament.rules && tournament.rules.length > 0 ? (
+                                tournament.rules.map((rule, index) => (
+                                    <li key={index} className={styles.ruleItem}>
+                                        <i className='fa-solid fa-check-circle'></i>
+                                        <span>{rule}</span>
+                                    </li>
+                                ))
+                            ) : (
+                                <p className={styles.noRules}>No rules available for this tournament.</p>
+                            )}
+                        </ul>
+                    </div>
+
                     <Button className={styles.registerButton} onClick={handleRegister}>
                         Register for Tournament
                     </Button>
@@ -88,7 +115,8 @@ const TournamentDetail = () => {
                     <ul>
                         {prizes.map((prize, index) => (
                             <li key={index}>
-                                <strong>Position {prize.position}:</strong> {prize.description} - ${prize.reward}
+                                <strong>Position {prize.position}:</strong> {prize.description} - $
+                                <strong>{formatCurrency(prize.reward || 0)}</strong>
                             </li>
                         ))}
                     </ul>

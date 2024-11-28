@@ -14,6 +14,7 @@ import app.sportcenter.repositories.UserRepository;
 import app.sportcenter.services.UserService;
 import app.sportcenter.utils.mappers.UserMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.swing.text.html.HTML;
 import java.util.ArrayList;
@@ -31,6 +33,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -121,6 +124,41 @@ public class UserServiceImpl implements UserService {
         );
     }
 
+    @Transactional
+    @Override
+    public boolean refund(User owner, Double price) {
+        try {
+            // Kiểm tra đầu vào
+            if (owner == null) {
+                log.error("Người dùng không hợp lệ (null).");
+                return false;
+            }
+            if (price == null || price < 0) {
+                log.error("Số tiền refund không hợp lệ: {}", price);
+                return false;
+            }
+
+            // Cập nhật số dư
+            Double currentBalance = owner.getAccountBalance();
+            if (currentBalance == null) {
+                log.error("Số dư hiện tại của người dùng {} không hợp lệ (null).", owner.getFullName());
+                return false;
+            }
+
+            owner.setAccountBalance(currentBalance + price);
+            userRepository.save(owner);
+            log.warn("Vừa refund cho {} số tiền {}", owner.getFullName(), price);
+
+            return true;
+        } catch (Exception ex) {
+            log.error("Lỗi xảy ra khi thực hiện refund cho {} số tiền {}: {}",
+                    owner != null ? owner.getFullName() : "null",
+                    price,
+                    ex.getMessage(),
+                    ex);
+            return false;
+        }
+    }
 
 
 //    @Override

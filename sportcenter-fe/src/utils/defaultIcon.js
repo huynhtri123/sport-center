@@ -1,2 +1,2 @@
 export const defaultIcon =
-    'https://png.pngtree.com/png-vector/20190226/ourlarge/pngtree-question-mark-vector-icon-png-image_706042.jpg';
+    'https://res.cloudinary.com/dftznqjsj/image/upload/v1732778656/default-placeholder-300x300_g2ygvg.png';
