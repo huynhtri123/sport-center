@@ -11,6 +11,10 @@ const bookingApi = {
         const url = '/booking/create';
         return axiosClient.post(url, bookingRequest);
     },
+    confirm(bookingId) {
+        const url = `/booking/confirm/${bookingId}`;
+        return axiosClient.put(url);
+    },
     cancelBooking(bookingId) {
         const url = `/booking/cancel/${bookingId}`;
         return axiosClient.put(url);

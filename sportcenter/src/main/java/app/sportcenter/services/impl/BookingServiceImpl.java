@@ -1,22 +1,18 @@
 package app.sportcenter.services.impl;
 
-import app.sportcenter.commons.BaseResponse;
-import app.sportcenter.commons.FieldStatus;
-import app.sportcenter.commons.PaginatedResponse;
-import app.sportcenter.commons.Role;
+import app.sportcenter.commons.*;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
 import app.sportcenter.models.dto.*;
 import app.sportcenter.models.entities.*;
-import app.sportcenter.repositories.BookingRepository;
-import app.sportcenter.repositories.FieldRepository;
-import app.sportcenter.repositories.RecurringBookingRepository;
-import app.sportcenter.repositories.UserRepository;
+import app.sportcenter.repositories.*;
 import app.sportcenter.services.BookingService;
+import app.sportcenter.services.InvoiceService;
 import app.sportcenter.services.MailService;
 import app.sportcenter.services.UserService;
 import app.sportcenter.utils.mappers.BookingMapper;
 import app.sportcenter.utils.mappers.FieldMapper;
+import app.sportcenter.utils.mappers.InvoiceMapper;
 import app.sportcenter.utils.mappers.RecurringBookingMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +53,12 @@ public class BookingServiceImpl implements BookingService {
     @Autowired
     private UserService userService;
     @Autowired
+    private InvoiceService invoiceService;
+    @Autowired
+    private InvoiceRepository invoiceRepository;
+    @Autowired
+    private InvoiceMapper invoiceMapper;
+    @Autowired
     private FieldMapper fieldMapper;
 
     // đặt lẻ
@@ -77,18 +79,14 @@ public class BookingServiceImpl implements BookingService {
         // do đó cần trừ đi 7 múi để lưu vào db chính xác, khi get ra thì sẽ là +7 là vừa
         ZonedDateTime startTime = bookingRequest.getStartTime().minusHours(7);
         ZonedDateTime endTime = startTime.plusHours(bookingRequest.getNumberOfHours());
-        //log.info((startTime+ "/" + endTime));
 
-        // tìm danh sách booking có timeSlots có trạng thái IN_USE trong khoảng thời gian này
-        // nếu sân trống thì list này = 0
-        List<Booking> inUseBookingList = bookingRepository.findInUseTimeSlotsByFieldAndTimeRange(field.getId(),
-                startTime, endTime);
+        boolean isAvailableField = checkAvailableField(field.getId(), startTime, endTime);
         // nếu có nghĩa là kẹt lịch, out
-        if (inUseBookingList.isEmpty()) {
+        if (isAvailableField) {
             // tạo ra các timeSlot AVAILABLE cho khoảng tgian đặt (ví dụ 7-9h -> tạo 2 timeSlot AVAILABLE
             field.createTimeSlots(startTime, endTime);
 
-            // Đổi trạng thái của các TimeSlot liên quan đến booking thành IN_USE
+            // đổi trạng thái của các TimeSlot liên quan đến booking thành IN_USE
             for (TimeSlot slot : field.getTimeSlots()) {
                 if (slot.getStartTime().isBefore(endTime) &&
                         slot.getEndTime().isAfter(startTime)) {
@@ -102,6 +100,8 @@ public class BookingServiceImpl implements BookingService {
             bookingRequest.setStartTime(startTime);
             Booking booking = bookingMapper.convertToEntity(bookingRequest, field, currentUser);
             booking.setRecurring(false);        // đánh dấu đây là đặt lẻ
+//            // tắt trạng thái active, chờ thanh toán
+//            booking.setIsActive(false);
             Booking savedBooking = bookingRepository.save(booking);
 
             BookingResponse response = bookingMapper.convertToResponse(savedBooking);
@@ -109,12 +109,77 @@ public class BookingServiceImpl implements BookingService {
 //            sendMailBooking(currentUser, response);
 
             return ResponseEntity.ok(
-                    new BaseResponse("Đặt sân thành công!", HttpStatus.OK.value(), response)
+                    new BaseResponse("Thành công, vui lòng thanh toán để chốt đặt sân!", HttpStatus.OK.value(), response)
             );
         }
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
                 new BaseResponse("Sân không trống trong thời gian này!", HttpStatus.CONFLICT.value(), null)
+        );
+    }
+
+    // kiểm tra xem trong khoảng thời gian nhất định, sân đó có trống không
+    private boolean checkAvailableField(String fieldId, ZonedDateTime startTime, ZonedDateTime endTime) {
+        // tìm danh sách booking có timeSlots có trạng thái IN_USE trong khoảng thời gian này
+        // nếu sân trống thì list này = 0
+        List<Booking> inUseBookingList = bookingRepository.findInUseTimeSlotsByFieldAndTimeRange(fieldId,
+                startTime, endTime);
+        return inUseBookingList.isEmpty();
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse> confirmBooking(String bookingId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy booking cần chốt"));
+
+        // kiểm tra coi booking này có thật sự cần được xác nhận không (ko hđ hoặc chưa bị xoá mới đc)
+        if (booking.getIsActive() || booking.getIsDeleted()) {
+            throw new CustomException("Booing này không đủ điều kiên để được xác nhận", HttpStatus.BAD_REQUEST.value());
+        }
+
+        // kiem tra quyen
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currUser = (User) authentication.getPrincipal();
+        if (!currUser.getId().equals(booking.getUser().getId()) && !currUser.getRole().equals(Role.ADMIN)) {
+            throw new CustomException("Bạn không có quyền xác nhận booking này", HttpStatus.BAD_REQUEST.value());
+        }
+
+        // kiểm tra sân có còn trống không
+        ZonedDateTime startTime = booking.getStartTime();
+        ZonedDateTime endTime = startTime.plusHours(booking.getNumberOfHours());
+        boolean isAvailableField = checkAvailableField(booking.getField().getId(), startTime, endTime);
+        // nếu sân không còn trống -> hoàn tiền, tạo hoá đơn
+        if (!isAvailableField) {
+            // xoá booking đó để tránh việc nó đc hoàn tiền nhiều lần
+            booking.setIsDeleted(true);
+            bookingRepository.save(booking);
+            // hoàn tiền
+            User owner = userRepository.findById(booking.getUser().getId())
+                            .orElseThrow(() -> new NotFoundException("Không tìm thấy chủ nhân của booking này để hoàn tiền"));
+            userService.refund(owner, booking.getPrice());
+            // tạo hoá đơn
+            InvoiceRequest invoiceRequest = new InvoiceRequest();
+            invoiceRequest.setUserId(booking.getUser().getId());
+            invoiceRequest.setTotalAmount(booking.getPrice());
+            invoiceRequest.setPaymentMethod(PaymentMethod.ACCOUNT_BALANCE);
+            invoiceRequest.setPaymentStatus(PaymentStatus.PAID);
+            invoiceRequest.setTransactionType(TransactionType.REFUND);
+            Invoice invoice = invoiceMapper.convertToEntity(invoiceRequest);
+            InvoiceResponse invoiceResponse = invoiceMapper.convertToResponse(invoiceRepository.save(invoice));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new BaseResponse("Sân không còn trống, bạn đã được hoàn tiền vào số dư!",
+                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                            invoiceResponse)
+            );
+        }
+
+        // ok -> thực hiện xác nhận
+        // bật active lên
+        booking.setIsActive(true);
+        Booking activeBooking = bookingRepository.save(booking);
+        BookingResponse response = bookingMapper.convertToResponse(activeBooking);
+        return ResponseEntity.ok(
+                new BaseResponse("Xác nhận đặt sân thành công", HttpStatus.OK.value(), response)
         );
     }
 

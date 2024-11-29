@@ -28,6 +28,13 @@ public class BookingController {
         return bookingService.createBooking(bookingRequest);
     }
 
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
+    @PutMapping("/booking/confirm/{bookingId}")
+    public ResponseEntity<BaseResponse> confirmBooking(@PathVariable("bookingId") String bookingId) {
+        return bookingService.confirmBooking(bookingId);
+    }
+
+
     @PreAuthorize("hasAnyAuthority('CUSTOMER')")
     @PostMapping("/booking/createRecurring")
     public ResponseEntity<BaseResponse> createRecurringBooking(
