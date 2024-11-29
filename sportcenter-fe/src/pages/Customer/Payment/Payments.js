@@ -1,103 +1,85 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useUser } from '../../../customs/hooks';
 import bookingApi from '../../../services/api/booking/bookingApi';
 import Button from '../../../components/Button/Button';
 import styles from '../../../assets/css/Payment/payments.module.scss';
 import userApi from '../../../services/api/userApi';
+import { useGetBookings } from '../../../customs/hooks'; // Importing context
 
 export default function Payments() {
-    const location = useLocation();
     const navigate = useNavigate();
+    const [user, setUser] = useUser();
+    const [bookingData, setBookingData] = useGetBookings(); // Getting booking data from context
     const [isProcessing, setIsProcessing] = useState(false);
     const [userInfo, setUserInfo] = useState({ email: '', fullName: '' });
-    const [savedPaymentInfo, setSavedPaymentInfo] = useState(null);
-    
-    // Card payment details
-    const [cardNumber, setCardNumber] = useState('');
-    const [issueDate, setIssueDate] = useState('');
-    const [cardName, setCardName] = useState('');
+    const [selectedPaymentIndex, setSelectedPaymentIndex] = useState(0); // State to track selected payment
 
-    const { field, selectedDate, startTime, numberOfHours, totalPrice } = location.state || {};
-  
-    // Redirect if data is missing
+    // Extract booking details from context
+    const { field, selectedDate, startTime, numberOfHours, price } = bookingData || {};
+
     useEffect(() => {
-        if (!field || !selectedDate || !startTime) {
-            // Điều hướng nếu dữ liệu bị thiếu
-            navigate('/payment-confirmation'); // Điều hướng về trang booking để người dùng có thể chọn lại dữ liệu.
+        if (!bookingData) {
+            navigate('/booking'); // Redirect if data is missing
             return;
         }
-    
-        // Tiếp tục fetch thông tin người dùng nếu tất cả dữ liệu cần thiết đã có
+
+        // Fetch user profile details
         const fetchUserProfile = async () => {
             try {
                 const response = await userApi.myProfile();
-                const { email, fullName, paymentInfos } = response.data;
+                const { email, fullName } = response.data;
                 setUserInfo({ email, fullName });
-    
-                // Set thông tin thanh toán nếu có
-                if (paymentInfos && paymentInfos.length > 0) {
-                    setSavedPaymentInfo(paymentInfos[0]);
-    
-                    // Set giá trị mặc định cho form nếu thông tin thanh toán đã có
-                    setCardNumber(paymentInfos[0].cardNumber || '');
-                    setIssueDate(paymentInfos[0].issueDate || '');
-                    setCardName(paymentInfos[0].cardHolderName || '');
-                }
             } catch (err) {
                 console.error('Error fetching user info:', err);
                 toast.error('Failed to load user payment information.');
             }
         };
-    
         fetchUserProfile();
-    }, [field, selectedDate, startTime, navigate]);
-    
+    }, [bookingData, navigate]);
 
-        
-
+    // Handle payment submission
     const handlePayment = async () => {
         try {
             setIsProcessing(true); // Start processing
 
-            // Ensure card details are filled
-            if (!cardNumber || !issueDate || !cardName) {
-                toast.error('Please enter valid card details.');
+            // Ensure user info is present
+            if (!userInfo.email || !userInfo.fullName) {
+                toast.error('User information is incomplete.');
                 setIsProcessing(false);
                 return;
             }
 
-            // Format start time into UTC string
-            const startDateTimeString = `${selectedDate}T${startTime}:00+00:00`;
-            const startTimeUTC = new Date(startDateTimeString).toISOString();
-
             // Prepare booking request data
             const bookingRequest = {
                 fieldId: field.id,
-                startTime: startTimeUTC,
+                startTime: new Date(`${selectedDate}T${startTime}:00`).toISOString(),
                 numberOfHours: numberOfHours,
             };
 
+            // Log the request to ensure all data is correct
+            console.log('Booking Request:', bookingRequest);
+
             // Call the booking API
             const response = await bookingApi.createBooking(bookingRequest);
+            console.log('API Response:', response); // Log the response
 
             // Check if the booking was successful
             if (response?.status === 200 && response?.data?.message) {
-                // Show success toast
                 toast.success(response.data.message);
-
-                // Redirect to payment confirmation
                 navigate('/payment-confirmation', {
                     state: {
-                        field: field,
-                        selectedDate: selectedDate,
-                        startTime: startTime,
-                        numberOfHours: numberOfHours,
-                        totalPrice: field.price * numberOfHours,
+                        field,
+                        selectedDate,
+                        startTime,
+                        numberOfHours,
+                        totalPrice: price,
                     },
-                    replace: true, // Prevent back navigation
+                    replace: true,
                 });
             } else {
+                console.error('Error creating booking:', response?.data?.message || 'Unknown error');
                 toast.error('Booking failed!');
             }
         } catch (error) {
@@ -113,11 +95,19 @@ export default function Payments() {
         return <div>Loading...</div>; // Or redirect to booking if data is missing
     }
 
+    // Handle payment method selection
+    const handlePaymentSelection = (event) => {
+        setSelectedPaymentIndex(event.target.value); // Update the selected payment index
+    };
+
+    // Get the currently selected payment info
+    const selectedPayment = user?.paymentInfos?.[selectedPaymentIndex] || {};
+
     return (
         <div className={styles.paymentContainer}>
             <div className={styles.fieldSummary}>
                 <h1>{field.fieldName}</h1>
-                <h2>{totalPrice} VND</h2>
+                <h2>{price} VND</h2>
                 <p>{field.description}</p>
                 <div className={styles.fieldImageContainer}>
                     <img src={field.imageUrl} alt={field.fieldName} className={styles.fieldImage} />
@@ -128,60 +118,62 @@ export default function Payments() {
             <div className={styles.paymentFormContainer}>
                 <h2>Pay with card</h2>
                 <form className={styles.paymentForm}>
+                    {/* Dropdown to select payment method */}
                     <div className={styles.formGroup}>
-                        <label htmlFor='cardNumber'>Card number:</label>
+                        <label htmlFor="paymentMethod">Select Payment Method:</label>
+                        <select
+                            id="paymentMethod"
+                            value={selectedPaymentIndex}
+                            onChange={handlePaymentSelection}
+                        >
+                            {user?.paymentInfos?.map((payment, index) => (
+                                <option key={index} value={index}>
+                                    {payment.cardHolderName} - {payment.cardNumber}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Display selected payment details */}
+                    <div className={styles.formGroup}>
+                        <label htmlFor="cardNumber">Card number:</label>
                         <input
-                            type='text'
-                            id='cardNumber'
-                            placeholder='Enter card number'
-                            value={cardNumber}
-                            onChange={(e) => setCardNumber(e.target.value)}
-                            required
+                            type="text"
+                            id="cardNumber"
+                            placeholder={selectedPayment.cardNumber || 'Enter card number'}
+                            value={selectedPayment.cardNumber || ''}
+                            readOnly
                         />
                     </div>
                     <div className={styles.formGroup}>
-                        <label htmlFor='issueDate'>Issue date:</label>
+                        <label htmlFor="issueDate">Issue date:</label>
                         <input
-                            type='text'
-                            id='issueDate'
-                            placeholder='MM/YY'
-                            value={issueDate}
-                            onChange={(e) => setIssueDate(e.target.value)}
-                            required
+                            type="text"
+                            id="issueDate"
+                            placeholder="MM/YY"
+                            value={selectedPayment.issueDate || ''}
+                            readOnly
                         />
                     </div>
                     <div className={styles.formGroup}>
-                        <label htmlFor='cardName'>Name on card:</label>
+                        <label htmlFor="cardName">Name on card:</label>
                         <input
-                            type='text'
-                            id='cardName'
-                            placeholder='Enter cardholder name'
-                            value={cardName}
-                            onChange={(e) => setCardName(e.target.value)}
-                            required
+                            type="text"
+                            id="cardName"
+                            placeholder="Enter cardholder name"
+                            value={selectedPayment.cardHolderName || ''}
+                            readOnly
                         />
                     </div>
 
                     <Button
-                        type='button'
+                        type="button"
                         onClick={handlePayment}
                         disabled={isProcessing}
                         className={styles.paymentButton}
                     >
                         {isProcessing ? 'Processing...' : 'Pay Now'}
                     </Button>
-                    <div className={styles.logoContainer}>
-                        <img 
-                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQefI6pAZDTEXZqfmgJTghDkO1wpT39ZsuR8A&s" 
-                            alt="Visa Logo" 
-                            className={styles.paymentLogo} 
-                        />
-                        <img 
-                            src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Logo_BIDV.svg/2560px-Logo_BIDV.svg.png" 
-                            alt="Banking Logo" 
-                            className={styles.paymentLogo} 
-                        />
-                    </div>
                 </form>
             </div>
         </div>

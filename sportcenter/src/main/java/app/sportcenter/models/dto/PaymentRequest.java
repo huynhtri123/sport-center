@@ -26,4 +26,5 @@ public class PaymentRequest {
 
     @NotBlank(message = "Bạn chưa id chủ thẻ!")
     private String userId;
+
 }

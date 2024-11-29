@@ -297,6 +297,10 @@ function Booking() {
                             onSubmit={() => handleSubmit(false)}
                             isBookingPayment={true}
                             isRegistrationPayment={false}
+                            field={field} // Pass field details
+                            selectedDate={selectedDate} // Pass selected date
+                            startTime={startTime} // Pass start time
+                            numberOfHours={numberOfHours} // Pass number of hours
                         />
                     )}
                 </form>
