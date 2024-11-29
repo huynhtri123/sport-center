@@ -1,3 +1,4 @@
+// src/components/PaymentModal.js
 import styles from './paymentModal.module.scss';
 import userApi from '../../services/api/userApi';
 import { useEffect, useState } from 'react';
@@ -6,25 +7,27 @@ import { useUser } from '../../customs/hooks';
 import { PaymentMethod } from '../../utils/enums/PaymentMethod';
 import { PaymentStatus } from '../../utils/enums/PaymentStatus';
 import { TransactionType } from '../../utils/enums/TransactionType';
+import { useNavigate } from 'react-router-dom';
+import { useGetBookings } from '../../customs/hooks';
 import invoiceApi from '../../services/api/invoiceApi';
 
-function PaymentModal({ isOpen, onClose, onSubmit, price, isBookingPayment, isRegistrationPayment }) {
+function PaymentModal({ isOpen, onClose, onSubmit, price, isBookingPayment, isRegistrationPayment, field, selectedDate, startTime, numberOfHours }) {
     const [accountBalance, setAccountBalance] = useState(0);
     const [user, setUser] = useUser();
+    const navigate = useNavigate();
+    const [bookingData, setBookingData] = useGetBookings(); // Destructure bookings and setBookings
 
     const fetchUser = async () => {
         try {
             const userResponse = await userApi.getCurrentUser();
-            // console.log(userResponse);
             setUser(userResponse.data);
         } catch (err) {
-            console.error(err);
+            console.error('Error fetching user:', err);
         }
     };
 
     useEffect(() => {
         fetchUser();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const getAccountBalance = async () => {
@@ -32,7 +35,7 @@ function PaymentModal({ isOpen, onClose, onSubmit, price, isBookingPayment, isRe
             const response = await userApi.getAccountBalance();
             setAccountBalance(response.data);
         } catch (err) {
-            console.error(err);
+            console.error('Error fetching account balance:', err);
         }
     };
 
@@ -40,22 +43,20 @@ function PaymentModal({ isOpen, onClose, onSubmit, price, isBookingPayment, isRe
         getAccountBalance();
     }, []);
 
-    // Tính số tiền còn lại cần thanh toán sau khi trừ số dư
     const remainingAmount = Math.max(price - accountBalance, 0);
 
     const handleBalancePaymentAndSubmit = async () => {
         try {
-            // gọi hàm subnit từ cha (booking || register tournament)
             const submitResponse = await onSubmit();
             if (submitResponse) {
                 const balancePaymentResponse = await userApi.makePaymentByBalance(price);
-                // có data nghĩa là thành công
                 if (balancePaymentResponse.data) {
                     toast.success(balancePaymentResponse.message);
 
                     const transactionType = isBookingPayment
                         ? TransactionType.BOOKING
                         : TransactionType.REGISTRATION_FEE;
+
                     const invoiceRequest = {
                         userId: user.id,
                         totalAmount: price,
@@ -64,7 +65,6 @@ function PaymentModal({ isOpen, onClose, onSubmit, price, isBookingPayment, isRe
                         transactionType: transactionType,
                     };
                     const invoiceResponse = await invoiceApi.create(invoiceRequest);
-                    // console.log(invoiceResponse);
                     if (invoiceResponse.data) {
                         toast.info(invoiceResponse.message);
                     } else {
@@ -73,38 +73,30 @@ function PaymentModal({ isOpen, onClose, onSubmit, price, isBookingPayment, isRe
                 }
             }
         } catch (err) {
-            console.error(err);
+            console.error('Error during balance payment:', err);
         }
     };
 
-    // thanh toán bằng cả số dư và thẻ
     const handleRemainingPaymentAndSubmit = async (remainingAmount) => {
         try {
-            // gọi hàm submit từ cha (booking || register tournament)
             const submitResponse = await onSubmit();
             if (submitResponse) {
-                // thanh toán 1 phần bằng số dư
                 const balancePaymentResponse = await userApi.makePaymentByBalance(accountBalance);
-                // có data nghĩa là thành công
                 if (balancePaymentResponse.data) {
                     toast.success(balancePaymentResponse.message);
-                    // phần còn lại thanh toán bằng thẻ
                     if (remainingAmount > 0) {
-                        // Gọi API thanh toán bằng thẻ với số tiền còn lại
-                        //trung: thanh toán số tiền = remainingAmount
-                        toast.info('Trung thanh toán phần này: ' + remainingAmount);
-                        // nếu thanh toán ko thành công thì huỷ booking****
+                        toast.info('Thanh toán phần này: ' + remainingAmount);
                     }
-                    // Sau khi thanh toán xong, tạo hóa đơn
+
                     const transactionType = isBookingPayment
                         ? TransactionType.BOOKING
                         : TransactionType.REGISTRATION_FEE;
 
                     const invoiceRequest = {
                         userId: user.id,
-                        totalAmount: price, // Tổng số tiền (là số dư + phần còn lại)
+                        totalAmount: price,
                         paymentStatus: PaymentStatus.PAID,
-                        paymentMethod: PaymentMethod.ACCOUNT_BALANCE, // Hoặc bạn có thể kết hợp PaymentMethod nếu thanh toán bằng thẻ
+                        paymentMethod: PaymentMethod.ACCOUNT_BALANCE,
                         transactionType: transactionType,
                     };
                     const invoiceResponse = await invoiceApi.create(invoiceRequest);
@@ -118,13 +110,26 @@ function PaymentModal({ isOpen, onClose, onSubmit, price, isBookingPayment, isRe
                 }
             }
         } catch (err) {
-            console.error(err);
+            console.error('Error during remaining payment:', err);
         }
     };
 
-    const handlePaymentByCard = (price) => {
-        //trung
-        toast.info('Gọi api thanh toán bằng thẻ: ' + price);
+    const handlePaymentByCard = async () => {
+        const bookingData = {
+            price,
+            userId: user.id,
+            remainingAmount,
+            field,
+            selectedDate,
+            startTime,
+            numberOfHours,
+        };
+        console.log(bookingData);
+
+        // Update bookings state
+        setBookingData(bookingData);
+
+        navigate('/payments');
     };
 
     return (
@@ -150,8 +155,7 @@ function PaymentModal({ isOpen, onClose, onSubmit, price, isBookingPayment, isRe
 
                 <div className={styles.buttonContainer}>
                     {accountBalance === 0 ? (
-                        // Nếu số dư = 0, chỉ hiển thị nút thanh toán bằng thẻ
-                        <button className={styles.cardButton} onClick={() => handlePaymentByCard(price)}>
+                        <button className={styles.cardButton} onClick={handlePaymentByCard}>
                             Thanh toán toàn bộ bằng thẻ
                         </button>
                     ) : remainingAmount > 0 ? (
@@ -162,12 +166,12 @@ function PaymentModal({ isOpen, onClose, onSubmit, price, isBookingPayment, isRe
                             >
                                 Sử dụng số dư và thanh toán {remainingAmount} VND bằng thẻ
                             </button>
-                            <button className={styles.cardButton} onClick={() => handlePaymentByCard(price)}>
+                            <button className={styles.cardButton} onClick={handlePaymentByCard}>
                                 Thanh toán toàn bộ bằng thẻ
                             </button>
                         </>
                     ) : (
-                        <button className={styles.balanceButton} onClick={() => handleBalancePaymentAndSubmit()}>
+                        <button className={styles.balanceButton} onClick={handleBalancePaymentAndSubmit}>
                             Thanh toán bằng số dư
                         </button>
                     )}
