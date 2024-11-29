@@ -11,6 +11,7 @@ import java.time.ZonedDateTime;
 
 public interface BookingService {
     public ResponseEntity<BaseResponse> createBooking(BookingRequest bookingRequest);
+    public ResponseEntity<BaseResponse> confirmBooking(String bookingId);
     public ResponseEntity<BaseResponse> getBookingById(String id);
     public ResponseEntity<BaseResponse> getBookingByUserId(String userId);
     public ResponseEntity<BaseResponse> getCurrentBookingsOfCurrentUser(String userId);
