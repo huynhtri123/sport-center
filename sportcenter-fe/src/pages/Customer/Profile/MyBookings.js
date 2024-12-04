@@ -7,7 +7,7 @@ import ConfirmModal from '../../../components/Modal/ConfirmModal';
 import { Loading } from '../../../components/Loading/Loading';
 import formatCurrency from '../../../utils/formatCurrency';
 
-function MyBookings({ bookings, setMyBookings }) {
+function MyBookings({ bookings, setMyBookings, getMyProfile }) {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleCancelBookingSubmit = async (bookingId) => {
@@ -18,6 +18,7 @@ function MyBookings({ bookings, setMyBookings }) {
             toast.info(cancelResponse.message);
             // refetch bookings
             setMyBookings((prevBookings) => prevBookings.filter((booking) => booking.id !== bookingId));
+            getMyProfile();
         } catch (err) {
             console.error(err);
         } finally {

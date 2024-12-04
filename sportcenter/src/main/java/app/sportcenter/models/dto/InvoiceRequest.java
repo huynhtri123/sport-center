@@ -4,6 +4,7 @@ import app.sportcenter.commons.PaymentMethod;
 import app.sportcenter.commons.PaymentStatus;
 import app.sportcenter.commons.PricedItem;
 import app.sportcenter.commons.TransactionType;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -20,8 +21,8 @@ public class InvoiceRequest extends BaseRequestDTO {
     private String userId;
 
     @NotNull(message = "Bạn chưa nhập giá tiền của hoá đơn")
-    @Positive(message = "Giá tiền của hoá đơn phải là số dương")
-    private Double totalAmount;
+    @Min(value = 0, message = "Giá tiền của hoá đơn phải là số không âm")
+    private Double amount;
 
     @NotNull(message = "Bạn chưa nhập trạng thái thanh toán")
     private PaymentStatus paymentStatus;

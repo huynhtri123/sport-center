@@ -1,4 +1,6 @@
 .confirmationContainer {
+    border-radius: 10px;
+    margin: 36px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -6,6 +8,7 @@
     min-height: 80vh; // Ensures the page content is centered vertically
     padding: 20px;
     text-align: center;
+    width: 80%;
     background-color: #f9f9f9;
 
     h1 {

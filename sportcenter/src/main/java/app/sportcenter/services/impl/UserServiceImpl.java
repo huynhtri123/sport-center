@@ -120,7 +120,7 @@ public class UserServiceImpl implements UserService {
 
         return ResponseEntity.ok(
                 new BaseResponse("Thanh toán bằng số dư thành công!", HttpStatus.OK.value(),
-                        currentUser.getAccountBalance())
+                        amountToPay)
         );
     }
 
@@ -253,6 +253,10 @@ public class UserServiceImpl implements UserService {
         paymentInfo.setCardHolderName(paymentRequest.getCardHolderName());
         paymentInfo.setIssueDate(paymentRequest.getIssueDate());
         paymentInfo.setUserId(userId); // Lưu ID của user vào paymentInfo
+
+        if (user.getPaymentInfos() == null) {
+            user.setPaymentInfos(new ArrayList<>()); // Khởi tạo danh sách mới nếu cần
+        }
 
         // Lưu PaymentInfo vào cơ sở dữ liệu
         user.getPaymentInfos().add(paymentInfo);

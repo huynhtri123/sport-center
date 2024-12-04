@@ -1,7 +1,7 @@
 package app.sportcenter.commons;
 
 public enum PaymentMethod {
-    VNPAY,
+    CARD,
     ACCOUNT_BALANCE,
-    VNPAY_AND_ACCOUNT_BALANCE
+    CARD_AND_ACCOUNT_BALANCE
 }

@@ -8,12 +8,12 @@ import fileApi from '../../../services/api/fileApi';
 import { formatDateToZoneDateTime } from '../../../utils/DateTimeConverter';
 import { Loading } from '../../../components/Loading/Loading';
 import Signout from '../../Auth/Signout';
-
 import MyBookings from './MyBookings';
 import MyCart from './MyCart';
 import MyPaymentInfo from './MyPaymentInfo';
 import MyTournaments from './MyTournaments';
 import MyTeam from './MyTeams';
+import formatCurrency from '../../../utils/formatCurrency';
 
 function Profile() {
     const [profile, setProfile] = useState({}); // để chứa data lấy từ api
@@ -32,6 +32,7 @@ function Profile() {
     const [myBooking, setMyBookings] = useState([]);
     const [tournaments, setTournaments] = useState([]);
     const [teams, setTeams] = useState([]);
+    const [accountBalance, setAccountBalance] = useState(0);
     // handles
     const handleToggleCart = () => setShowCart(!showCart);
     const handleTogglePaymentInfo = () => setShowPaymentInfo(!showPaymentInfo);
@@ -87,7 +88,9 @@ function Profile() {
     const getMyProfile = async () => {
         try {
             const profileResponse = await userApi.myProfile();
+            // console.log(profileResponse);
             setProfile(profileResponse.data);
+            setAccountBalance(profileResponse.data.accountBalance || 0);
         } catch (err) {
             console.error(err);
         }
@@ -249,6 +252,7 @@ function Profile() {
                             <p>Phone: {userInfo.phoneNumber}</p>
                             <p>Address: {userInfo.address}</p>
                             <p>Date of Birth: {new Date(userInfo.dateOfBirth).toLocaleDateString()}</p>
+                            <p className={styles.price}>Số dư hiện có: {formatCurrency(accountBalance || 0)}</p>
                             <Button onClick={handleEditToggle} className={styles.editButton}>
                                 Edit
                             </Button>
@@ -281,7 +285,13 @@ function Profile() {
                     <span className='ms-3'>Bookings</span>
                 </h3>
                 <p>Check your current bookings field.</p>
-                {showBookings && <MyBookings bookings={myBooking} setMyBookings={setMyBookings}></MyBookings>}
+                {showBookings && (
+                    <MyBookings
+                        bookings={myBooking}
+                        setMyBookings={setMyBookings}
+                        getMyProfile={getMyProfile}
+                    ></MyBookings>
+                )}
             </div>
 
             <div className={styles.section}>

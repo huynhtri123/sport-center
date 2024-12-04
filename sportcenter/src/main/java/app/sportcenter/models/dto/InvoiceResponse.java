@@ -20,7 +20,7 @@ public class InvoiceResponse extends BaseResponseDTO {
     private String id;
     private String userEmail;
     private String userFullName;
-    private Double totalAmount;
+    private Double amount;
     private PaymentStatus paymentStatus;
     private PaymentMethod paymentMethod;
     private TransactionType transactionType;

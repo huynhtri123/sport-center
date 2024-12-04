@@ -25,6 +25,10 @@ const bookingApi = {
         const url = '/booking/createRecurring';
         return axiosClient.post(url, recurringBookingRequest);
     },
+    confirmRecurring(recurringBookingId) {
+        const url = `/booking/confirmRecurring/${recurringBookingId}`;
+        return axiosClient.put(url);
+    },
 
     // lấy giá tiền trước khi đặt
     getBookingPrice(bookingRequest) {

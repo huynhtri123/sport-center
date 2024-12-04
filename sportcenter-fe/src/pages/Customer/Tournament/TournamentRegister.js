@@ -84,10 +84,6 @@ function TournamentRegister() {
     const handleRegister = async () => {
         let createdTeamId = null;
 
-        if (!validateInputs()) {
-            return;
-        }
-
         try {
             setIsLoading(true);
             const teamRequest = {
@@ -115,8 +111,9 @@ function TournamentRegister() {
             setErrorMessage('Có lỗi xảy ra, vui lòng thử lại!');
             if (createdTeamId) {
                 try {
+                    // eslint-disable-next-line no-unused-vars
                     const forceDeleteResponse = await teamApi.forceDelete(createdTeamId);
-                    console.log(forceDeleteResponse);
+                    // console.log(forceDeleteResponse);
                 } catch (err) {
                     console.error(err);
                 }
@@ -197,7 +194,7 @@ function TournamentRegister() {
                     isOpen={isModalOpen}
                     onClose={toggleModalOpen}
                     onSubmit={() => handleRegister()}
-                    price={tournament.registrationFee}
+                    price={tournament.registrationFee || 0.0}
                     isBookingPayment={false}
                     isRegistrationPayment={true}
                 ></PaymentModal>

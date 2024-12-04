@@ -25,4 +25,5 @@ public class UserResponse extends BaseResponseDTO {
     private Role role;
     private List<LineItem> cart;
     private List<PaymentInfo> paymentInfos;
+    private Double accountBalance;
 }

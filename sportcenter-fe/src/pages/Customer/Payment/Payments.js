@@ -1,181 +1,219 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { useUser } from '../../../customs/hooks';
-import bookingApi from '../../../services/api/booking/bookingApi';
+/* eslint-disable no-unused-vars */
+import React, { useState } from 'react';
 import Button from '../../../components/Button/Button';
 import styles from '../../../assets/css/Payment/payments.module.scss';
-import userApi from '../../../services/api/userApi';
-import { useGetBookings } from '../../../customs/hooks'; // Importing context
+import { usePaymentData } from '../../../customs/hooks';
+import { useNavigate } from 'react-router-dom';
+import { Loading } from '../../../components/Loading/Loading';
+import { useUser } from '../../../customs/hooks';
+import formatCurrency from '../../../utils/formatCurrency';
+import { TransactionType } from '../../../utils/enums/TransactionType';
+import { PaymentMethod } from '../../../utils/enums/PaymentMethod';
+import ConfirmModal from '../../../components/Modal/ConfirmModal';
 
+// cải tiến: trưởng hợp thanh toán CARD thất bại
 export default function Payments() {
-    const navigate = useNavigate();
+    const [paymentData] = usePaymentData(); // nạp dữ liệu payment được set từ PaymentModal (gồm có các hàm,...)
     const [user, setUser] = useUser();
-    const [bookingData, setBookingData] = useGetBookings(); // Getting booking data from context
-    const [isProcessing, setIsProcessing] = useState(false);
-    const [userInfo, setUserInfo] = useState({ email: '', fullName: '' });
-    const [selectedPaymentIndex, setSelectedPaymentIndex] = useState(0); // State to track selected payment
+    const { amount, onSubmit, type, createInvoice, confirmBooking, makePaymentByBalance, amountByBalance } =
+        paymentData || {};
+    const [selectedPaymentIndex, setSelectedPaymentIndex] = useState(0);
+    const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const toggleModal = () => {
+        setIsModalOpen(!isModalOpen);
+    };
 
-    // Extract booking details from context
-    const { field, selectedDate, startTime, numberOfHours, price } = bookingData || {};
+    // console.log('check user', user);
+    // console.log('check ammout by balance:', amountByBalance);
 
-    useEffect(() => {
-        if (!bookingData) {
-            navigate('/booking'); // Redirect if data is missing
-            return;
-        }
+    // Kiểm tra xem user có thông tin paymentInfos không
+    const hasPaymentInfos = user?.paymentInfos?.length > 0;
+    // Nếu không có paymentInfos, hiển thị thông báo yêu cầu người dùng thêm thông tin thanh toán
+    if (!hasPaymentInfos) {
+        return (
+            <div className={styles.noPaymentInfo}>
+                <p
+                    onClick={() => navigate('/profile')}
+                    style={{
+                        cursor: 'pointer',
+                        color: '#007bff', // Màu của liên kết
+                        textDecoration: 'underline', // Gạch chân
+                        fontWeight: 'bold', // Tăng độ nổi bật
+                    }}
+                    onMouseEnter={(e) => {
+                        // Tạo hiệu ứng khi hover
+                        e.target.style.color = '#0056b3';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.target.style.color = '#007bff';
+                    }}
+                >
+                    You currently have no payment methods. Please add one.
+                </p>
+            </div>
+        );
+    }
 
-        // Fetch user profile details
-        const fetchUserProfile = async () => {
-            try {
-                const response = await userApi.myProfile();
-                const { email, fullName } = response.data;
-                setUserInfo({ email, fullName });
-            } catch (err) {
-                console.error('Error fetching user info:', err);
-                toast.error('Failed to load user payment information.');
-            }
-        };
-        fetchUserProfile();
-    }, [bookingData, navigate]);
+    const handlePaymentSelection = (event) => {
+        setSelectedPaymentIndex(event.target.value);
+    };
 
-    // Handle payment submission
-    const handlePayment = async () => {
+    const selectedPayment = user?.paymentInfos?.[selectedPaymentIndex] || {};
+
+    const cardPaymentForBooking = async () => {
         try {
-            setIsProcessing(true); // Start processing
+            // buoc 1
+            const bookingResponse = await onSubmit(); // booking || recurringBooking
+            // console.log(bookingResponse);
+            if (!bookingResponse) return;
 
-            // Ensure user info is present
-            if (!userInfo.email || !userInfo.fullName) {
-                toast.error('User information is incomplete.');
-                setIsProcessing(false);
+            // thanh toan
+            const transactionType = TransactionType.BOOKING;
+            // 1. kiem tra neu có amountByBalance nghia la thanh toan lon xon
+            if (amountByBalance) {
+                const balancePaymentResponse = await makePaymentByBalance(amountByBalance);
+                // console.log(amountByBalance);
+                // console.log(balancePaymentResponse);
+                if (!balancePaymentResponse) return;
+
+                // tao hoa don balance
+                await createInvoice(user.id, amountByBalance, transactionType, PaymentMethod.ACCOUNT_BALANCE);
+            }
+            // toast.success('Thanh toán thành công');
+
+            // thanh toán thành công -> gọi api đặt sân bước 2
+            // console.log(bookingResponse);
+            const bookingId = bookingResponse.id;
+            const confirmResponse = await confirmBooking(bookingId);
+            if (!confirmResponse) return;
+
+            // đặt sân bước 2 thành công -> tạo hoá đơn
+            const invoiceAmount = amountByBalance ? amount - amountByBalance : amount;
+            await createInvoice(user.id, invoiceAmount, transactionType, PaymentMethod.CARD);
+            navigate('/payment-confirmation');
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const cardPaymentForTournament = async () => {
+        try {
+            // buoc 1
+            const registerTournamentResponse = await onSubmit(); // register tournament
+            // console.log(registerTournamentResponse);
+            if (!registerTournamentResponse) {
+                navigate('/tournaments');
                 return;
             }
 
-            // Prepare booking request data
-            const bookingRequest = {
-                fieldId: field.id,
-                startTime: new Date(`${selectedDate}T${startTime}:00`).toISOString(),
-                numberOfHours: numberOfHours,
-            };
-
-            // Log the request to ensure all data is correct
-            console.log('Booking Request:', bookingRequest);
-
-            // Call the booking API
-            const response = await bookingApi.createBooking(bookingRequest);
-            console.log('API Response:', response); // Log the response
-
-            // Check if the booking was successful
-            if (response?.status === 200 && response?.data?.message) {
-                toast.success(response.data.message);
-                navigate('/payment-confirmation', {
-                    state: {
-                        field,
-                        selectedDate,
-                        startTime,
-                        numberOfHours,
-                        totalPrice: price,
-                    },
-                    replace: true,
-                });
-            } else {
-                console.error('Error creating booking:', response?.data?.message || 'Unknown error');
-                toast.error('Booking failed!');
+            // thanh toan
+            const transactionType = TransactionType.REGISTRATION_FEE;
+            // 1. kiem tra neu có amountByBalance nghia la thanh toan lon xon
+            if (amountByBalance) {
+                const balancePaymentResponse = await makePaymentByBalance(amountByBalance);
+                // console.log(amountByBalance);
+                // console.log(balancePaymentResponse);
+                if (!balancePaymentResponse) {
+                    // huy dki
+                    return;
+                }
+                // tao hoa don balance
+                await createInvoice(user.id, amountByBalance, transactionType, PaymentMethod.ACCOUNT_BALANCE);
             }
-        } catch (error) {
-            console.error('Error during booking:', error);
-            toast.error('Failed to create booking after payment.');
-        } finally {
-            setIsProcessing(false); // End processing
+            // toast.success('Thanh toán thành công');
+            // thanh toán không thành công thì gọi hàm huỷ register
+
+            // tạo hoá đơn
+            const invoiceAmount = amountByBalance ? amount - amountByBalance : amount;
+            await createInvoice(user.id, invoiceAmount, transactionType, PaymentMethod.CARD);
+            navigate('/payment-confirmation');
+        } catch (err) {
+            console.error(err);
         }
     };
 
-    // Fallback in case of missing required data
-    if (!field || !selectedDate || !startTime) {
-        return <div>Loading...</div>; // Or redirect to booking if data is missing
-    }
-
-    // Handle payment method selection
-    const handlePaymentSelection = (event) => {
-        setSelectedPaymentIndex(event.target.value); // Update the selected payment index
+    const handlePayment = async (e) => {
+        e.preventDefault();
+        try {
+            setIsLoading(true);
+            if (type === TransactionType.BOOKING) {
+                await cardPaymentForBooking();
+            } else if (type === TransactionType.REGISTRATION_FEE) {
+                await cardPaymentForTournament();
+            }
+        } catch (err) {
+            console.error(err);
+            // navigate('/tournaments');
+        } finally {
+            setIsLoading(false);
+        }
     };
-
-    // Get the currently selected payment info
-    const selectedPayment = user?.paymentInfos?.[selectedPaymentIndex] || {};
 
     return (
         <div className={styles.paymentContainer}>
-            <div className={styles.fieldSummary}>
-                <h1>{field.fieldName}</h1>
-                <h2>{price} VND</h2>
-                <p>{field.description}</p>
-                <div className={styles.fieldImageContainer}>
-                    <img src={field.imageUrl} alt={field.fieldName} className={styles.fieldImage} />
-                </div>
-                <p><strong>Number of hours booked:</strong> {numberOfHours}</p>
-            </div>
+            {isLoading && <Loading></Loading>}
+            <section className={styles.userDetails}>
+                <h1>Payment Details</h1>
+                <p>
+                    <strong>Name:</strong> {user?.fullName}
+                </p>
+                <p>
+                    <strong>Email:</strong> {user?.email}
+                </p>
+                <p>
+                    <strong>Phone:</strong> {user?.phoneNumber}
+                </p>
+                <p>
+                    <strong>Total Amount:</strong> {formatCurrency(amount)}
+                </p>
+                <p>
+                    <strong>Transaction Type:</strong> {type}
+                </p>
+            </section>
 
-            <div className={styles.paymentFormContainer}>
-                <h2>Pay with card</h2>
+            <section className={styles.paymentSection}>
+                <h2>Select Payment Method</h2>
+
                 <form className={styles.paymentForm}>
-                    {/* Dropdown to select payment method */}
                     <div className={styles.formGroup}>
-                        <label htmlFor="paymentMethod">Select Payment Method:</label>
-                        <select
-                            id="paymentMethod"
-                            value={selectedPaymentIndex}
-                            onChange={handlePaymentSelection}
-                        >
+                        <label htmlFor='paymentMethod'>Payment Method</label>
+                        <select id='paymentMethod' value={selectedPaymentIndex} onChange={handlePaymentSelection}>
                             {user?.paymentInfos?.map((payment, index) => (
                                 <option key={index} value={index}>
-                                    {payment.cardHolderName} - {payment.cardNumber}
+                                    {payment.cardHolderName} - {payment.cardNumber.slice(-4)}
                                 </option>
                             ))}
                         </select>
                     </div>
 
-                    {/* Display selected payment details */}
-                    <div className={styles.formGroup}>
-                        <label htmlFor="cardNumber">Card number:</label>
-                        <input
-                            type="text"
-                            id="cardNumber"
-                            placeholder={selectedPayment.cardNumber || 'Enter card number'}
-                            value={selectedPayment.cardNumber || ''}
-                            readOnly
-                        />
-                    </div>
-                    <div className={styles.formGroup}>
-                        <label htmlFor="issueDate">Issue date:</label>
-                        <input
-                            type="text"
-                            id="issueDate"
-                            placeholder="MM/YY"
-                            value={selectedPayment.issueDate || ''}
-                            readOnly
-                        />
-                    </div>
-                    <div className={styles.formGroup}>
-                        <label htmlFor="cardName">Name on card:</label>
-                        <input
-                            type="text"
-                            id="cardName"
-                            placeholder="Enter cardholder name"
-                            value={selectedPayment.cardHolderName || ''}
-                            readOnly
-                        />
+                    <div className={styles.paymentDetails}>
+                        <p>
+                            <strong>Card Number:</strong> {selectedPayment.cardNumber}
+                        </p>
+                        <p>
+                            <strong>Issue Date:</strong> {selectedPayment.issueDate}
+                        </p>
+                        <p>
+                            <strong>Name on Card:</strong> {selectedPayment.cardHolderName}
+                        </p>
                     </div>
 
-                    <Button
-                        type="button"
-                        onClick={handlePayment}
-                        disabled={isProcessing}
-                        className={styles.paymentButton}
-                    >
-                        {isProcessing ? 'Processing...' : 'Pay Now'}
+                    <Button type='button' onClick={() => toggleModal()} className={styles.payButton}>
+                        Pay Now
                     </Button>
+
+                    {isModalOpen && (
+                        <ConfirmModal
+                            title={'Bạn có chắc muốn thực hiện thanh toán?'}
+                            isOpen={isModalOpen}
+                            onClose={toggleModal}
+                            onSubmit={handlePayment}
+                        ></ConfirmModal>
+                    )}
                 </form>
-            </div>
+            </section>
         </div>
     );
 }
