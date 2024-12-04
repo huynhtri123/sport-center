@@ -42,6 +42,12 @@ public class BookingController {
         return bookingService.createRecurringBooking(recurringBookingRequest);
     }
 
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
+    @PutMapping("/booking/confirmRecurring/{recurringBookingId}")
+    public ResponseEntity<BaseResponse> confirmRecurring(@PathVariable("recurringBookingId") String recurringBookingId) {
+        return bookingService.confirmRecurringBooking(recurringBookingId);
+    }
+
     // lấy giá đặt sân lẻ
     @PreAuthorize("hasAnyAuthority('CUSTOMER')")
     @PostMapping("/booking/getBookingPrice")

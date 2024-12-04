@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // src/components/PaymentModal.js
 import styles from './paymentModal.module.scss';
 import userApi from '../../services/api/userApi';
@@ -8,14 +9,24 @@ import { PaymentMethod } from '../../utils/enums/PaymentMethod';
 import { PaymentStatus } from '../../utils/enums/PaymentStatus';
 import { TransactionType } from '../../utils/enums/TransactionType';
 import { useNavigate } from 'react-router-dom';
-import { useGetBookings } from '../../customs/hooks';
 import invoiceApi from '../../services/api/invoiceApi';
+import bookingApi from '../../services/api/booking/bookingApi';
+import { usePaymentData } from '../../customs/hooks';
 
-function PaymentModal({ isOpen, onClose, onSubmit, price, isBookingPayment, isRegistrationPayment, field, selectedDate, startTime, numberOfHours }) {
+function PaymentModal({
+    isOpen,
+    onClose,
+    onSubmit,
+    price,
+    isBookingPayment,
+    isRegistrationPayment,
+    fetchTimeSlots,
+    isRecurring,
+}) {
     const [accountBalance, setAccountBalance] = useState(0);
     const [user, setUser] = useUser();
     const navigate = useNavigate();
-    const [bookingData, setBookingData] = useGetBookings(); // Destructure bookings and setBookings
+    const [paymentData, setPaymenData] = usePaymentData();
 
     const fetchUser = async () => {
         try {
@@ -28,6 +39,7 @@ function PaymentModal({ isOpen, onClose, onSubmit, price, isBookingPayment, isRe
 
     useEffect(() => {
         fetchUser();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const getAccountBalance = async () => {
@@ -45,89 +57,144 @@ function PaymentModal({ isOpen, onClose, onSubmit, price, isBookingPayment, isRe
 
     const remainingAmount = Math.max(price - accountBalance, 0);
 
-    const handleBalancePaymentAndSubmit = async () => {
+    const makePaymentByBalance = async (price) => {
         try {
-            const submitResponse = await onSubmit();
-            if (submitResponse) {
-                const balancePaymentResponse = await userApi.makePaymentByBalance(price);
-                if (balancePaymentResponse.data) {
-                    toast.success(balancePaymentResponse.message);
-
-                    const transactionType = isBookingPayment
-                        ? TransactionType.BOOKING
-                        : TransactionType.REGISTRATION_FEE;
-
-                    const invoiceRequest = {
-                        userId: user.id,
-                        totalAmount: price,
-                        paymentStatus: PaymentStatus.PAID,
-                        paymentMethod: PaymentMethod.ACCOUNT_BALANCE,
-                        transactionType: transactionType,
-                    };
-                    const invoiceResponse = await invoiceApi.create(invoiceRequest);
-                    if (invoiceResponse.data) {
-                        toast.info(invoiceResponse.message);
-                    } else {
-                        toast.error('Tạo hóa đơn thất bại!');
-                    }
-                }
+            const balancePaymentResponse = await userApi.makePaymentByBalance(price);
+            if (balancePaymentResponse?.data) {
+                // console.log(balancePaymentResponse);
+                // toast.success(balancePaymentResponse.message);
+                return true;
             }
+            toast.error('Payment by balance failed!');
+            return false;
+        } catch (err) {
+            console.error(err);
+            return false;
+        }
+    };
+
+    const confirmBooking = async (bookingId) => {
+        try {
+            // console.log(isRecurring);
+            const response = isRecurring
+                ? await bookingApi.confirmRecurring(bookingId)
+                : await bookingApi.confirm(bookingId);
+            if (response) {
+                toast.success(response.message);
+                fetchTimeSlots();
+                return true;
+            }
+            toast.error('Failed to confirm booking!');
+            return false;
+        } catch (err) {
+            console.error(err);
+            return false;
+        }
+    };
+
+    const createInvoice = async (userId, price, transactionType, paymentMethod) => {
+        const invoiceRequest = {
+            userId: userId,
+            amount: price,
+            paymentStatus: PaymentStatus.PAID,
+            paymentMethod: paymentMethod,
+            transactionType: transactionType,
+        };
+
+        try {
+            const response = await invoiceApi.create(invoiceRequest);
+            if (response?.data) {
+                // toast.info(response.message);
+                return true;
+            }
+            toast.error('Failed to create invoice!');
+            return false;
+        } catch (err) {
+            console.error(err);
+            return false;
+        }
+    };
+
+    const balancePaymentForBooking = async () => {
+        try {
+            // gọi api đặt sân bước 1 ko thành công thì out luôn
+            const bookingResponse = await onSubmit(); // booking || recurringBooking
+            // console.log(bookingResponse);
+            if (!bookingResponse) return;
+
+            // đặt sân bước 1 thành công -> thanh toán
+            const balancePaymentResponse = await makePaymentByBalance(price);
+            if (!balancePaymentResponse) return;
+
+            // thanh toán thành công -> gọi api đặt sân bước 2
+            // console.log(bookingResponse);
+            const bookingId = bookingResponse.id;
+            const confirmResponse = await confirmBooking(bookingId);
+            if (!confirmResponse) return;
+
+            // đặt sân bước 2 thành công -> tạo hoá đơn
+            const transactionType = TransactionType.BOOKING;
+            await createInvoice(user.id, price, transactionType, PaymentMethod.ACCOUNT_BALANCE);
         } catch (err) {
             console.error('Error during balance payment:', err);
         }
     };
 
-    const handleRemainingPaymentAndSubmit = async (remainingAmount) => {
+    const balancePaymentForTournament = async () => {
         try {
-            const submitResponse = await onSubmit();
-            if (submitResponse) {
-                const balancePaymentResponse = await userApi.makePaymentByBalance(accountBalance);
-                if (balancePaymentResponse.data) {
-                    toast.success(balancePaymentResponse.message);
-                    if (remainingAmount > 0) {
-                        toast.info('Thanh toán phần này: ' + remainingAmount);
-                    }
+            // gọi hàm đăng kí giải đấu từ cha
+            const registerResponse = await onSubmit();
+            // console.log(registerResponse);
+            if (!registerResponse) return;
 
-                    const transactionType = isBookingPayment
-                        ? TransactionType.BOOKING
-                        : TransactionType.REGISTRATION_FEE;
+            // đăng kí bước 1 thành công -> thanh toán
+            const balancePaymentResponse = await makePaymentByBalance(price);
+            if (!balancePaymentResponse) return;
 
-                    const invoiceRequest = {
-                        userId: user.id,
-                        totalAmount: price,
-                        paymentStatus: PaymentStatus.PAID,
-                        paymentMethod: PaymentMethod.ACCOUNT_BALANCE,
-                        transactionType: transactionType,
-                    };
-                    const invoiceResponse = await invoiceApi.create(invoiceRequest);
-                    if (invoiceResponse.data) {
-                        toast.info(invoiceResponse.message);
-                    } else {
-                        toast.error('Tạo hóa đơn thất bại!');
-                    }
-                } else {
-                    toast.error('Thanh toán số dư không thành công!');
-                }
-            }
+            // thanh toán thành công -> đăng ký bước 2
+
+            // đăng ký bước 2 thành công -> tạo hoá đơn
+            const transactionType = TransactionType.REGISTRATION_FEE;
+            await createInvoice(user.id, price, transactionType, PaymentMethod.ACCOUNT_BALANCE);
         } catch (err) {
-            console.error('Error during remaining payment:', err);
+            console.error('Error during balance payment:', err);
         }
     };
 
-    const handlePaymentByCard = async () => {
-        const bookingData = {
-            price,
-            userId: user.id,
-            remainingAmount,
-            field,
-            selectedDate,
-            startTime,
-            numberOfHours,
-        };
-        console.log(bookingData);
+    // thanh toán toàn bộ bằng số dư
+    const handleBalancePaymentAndSubmit = async () => {
+        if (isBookingPayment) {
+            await balancePaymentForBooking();
+        } else if (isRegistrationPayment) {
+            await balancePaymentForTournament();
+        }
+    };
 
-        // Update bookings state
-        setBookingData(bookingData);
+    const handleRemainingPaymentAndSubmit = async (remainingAmount) => {
+        // toast.info('thanh toán nửa nạc nửa mỡ: ', remainingAmount);
+        const paymentData = {
+            amount: price,
+            onSubmit: onSubmit,
+            type: isBookingPayment ? TransactionType.BOOKING : TransactionType.REGISTRATION_FEE,
+            createInvoice,
+            confirmBooking,
+            makePaymentByBalance,
+            amountByBalance: price - remainingAmount, // số tiền cần thanh toán bằng số dư
+        };
+        setPaymenData(paymentData);
+
+        navigate('/payments');
+    };
+
+    const handlePaymentByCard = async () => {
+        const paymentData = {
+            amount: price,
+            onSubmit: onSubmit,
+            type: isBookingPayment ? TransactionType.BOOKING : TransactionType.REGISTRATION_FEE,
+            createInvoice,
+            confirmBooking,
+        };
+        setPaymenData(paymentData);
 
         navigate('/payments');
     };

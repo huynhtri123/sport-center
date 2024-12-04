@@ -100,14 +100,15 @@ public class BookingServiceImpl implements BookingService {
             bookingRequest.setStartTime(startTime);
             Booking booking = bookingMapper.convertToEntity(bookingRequest, field, currentUser);
             booking.setRecurring(false);        // đánh dấu đây là đặt lẻ
-//            // tắt trạng thái active, chờ thanh toán
-//            booking.setIsActive(false);
+            // tắt trạng thái active, chờ thanh toán
+            booking.setIsActive(false);
             Booking savedBooking = bookingRepository.save(booking);
 
             BookingResponse response = bookingMapper.convertToResponse(savedBooking);
             // Gửi mail thông báo
 //            sendMailBooking(currentUser, response);
 
+            log.info("Đặt sân bước 1 thành công" + response.getId());
             return ResponseEntity.ok(
                     new BaseResponse("Thành công, vui lòng thanh toán để chốt đặt sân!", HttpStatus.OK.value(), response)
             );
@@ -132,7 +133,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy booking cần chốt"));
 
-        // kiểm tra coi booking này có thật sự cần được xác nhận không (ko hđ hoặc chưa bị xoá mới đc)
+        // kiểm tra coi booking này có thật sự cần được xác nhận không (chua duoc active va chưa bị xoá mới đc)
         if (booking.getIsActive() || booking.getIsDeleted()) {
             throw new CustomException("Booing này không đủ điều kiên để được xác nhận", HttpStatus.BAD_REQUEST.value());
         }
@@ -160,12 +161,13 @@ public class BookingServiceImpl implements BookingService {
             // tạo hoá đơn
             InvoiceRequest invoiceRequest = new InvoiceRequest();
             invoiceRequest.setUserId(booking.getUser().getId());
-            invoiceRequest.setTotalAmount(booking.getPrice());
+            invoiceRequest.setAmount(booking.getPrice());
             invoiceRequest.setPaymentMethod(PaymentMethod.ACCOUNT_BALANCE);
             invoiceRequest.setPaymentStatus(PaymentStatus.PAID);
             invoiceRequest.setTransactionType(TransactionType.REFUND);
-            Invoice invoice = invoiceMapper.convertToEntity(invoiceRequest);
-            InvoiceResponse invoiceResponse = invoiceMapper.convertToResponse(invoiceRepository.save(invoice));
+
+            InvoiceResponse invoiceResponse = invoiceService.create(invoiceRequest);
+            log.info("Sân không còn trống, bạn đã được hoàn tiền vào số dư! " + bookingId);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                     new BaseResponse("Sân không còn trống, bạn đã được hoàn tiền vào số dư!",
                             HttpStatus.INTERNAL_SERVER_ERROR.value(),
@@ -178,6 +180,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setIsActive(true);
         Booking activeBooking = bookingRepository.save(booking);
         BookingResponse response = bookingMapper.convertToResponse(activeBooking);
+        log.info("Đặt sân bước 2 thành công! " + bookingId);
         return ResponseEntity.ok(
                 new BaseResponse("Xác nhận đặt sân thành công", HttpStatus.OK.value(), response)
         );
@@ -200,15 +203,10 @@ public class BookingServiceImpl implements BookingService {
         recurringBooking.setStartTime(recurringBooking.getStartTime().minusHours(7));
 
         List<TimeSlot> recurringTimeSlots = recurringBooking.generateTimeSlots();
-        for (TimeSlot timeSlot : recurringTimeSlots) {
-            // tìm danh sách booking có timeSlots có trạng thái IN_USE trong khoảng thời gian này
-            // nếu sân trống thì list này = 0
-            List<Booking> inUseBookingList = bookingRepository.findInUseTimeSlotsByFieldAndTimeRange(field.getId(),
-                    timeSlot.getStartTime(), timeSlot.getEndTime());
-            if (!inUseBookingList.isEmpty()) {
-                throw new CustomException("Thất bại! Có ít nhất 1 timeSlot không trống ở khung giờ này trong tương lai",
-                        HttpStatus.NOT_FOUND.value());
-            }
+        boolean isAvailableRecurring = checkAvailableRecurring(field.getId(), recurringTimeSlots);
+        if (!isAvailableRecurring) {
+            throw new CustomException("Thất bại! Có ít nhất 1 timeSlot không trống ở khung giờ này trong tương lai",
+                    HttpStatus.NOT_FOUND.value());
         }
 
         // thoát ra đây được nghĩa là toàn bộ timeSLot 'sẽ chiếm' đều trống trong tương lai
@@ -235,11 +233,13 @@ public class BookingServiceImpl implements BookingService {
 
             Booking booking = bookingMapper.convertToEntity(bookingRequest, field, currentUser);
             booking.setRecurring(true);         // đánh dấu đây là đặt cứng
+            booking.setIsActive(false);         // tắt trạng thái active, chờ thanh toán
             bookingsToSave.add((booking));
         }
         fieldRepository.save(field);
         bookingRepository.saveAll(bookingsToSave);
         recurringBooking.setBookingIds(bookingsToSave.stream().map(Booking::getId).collect(Collectors.toList()));
+        recurringBooking.setIsActive(false);    // tắt trạng thái active, chờ thanh toán
 
         RecurringBooking savedRecurringBooking = recurringBookingRepository.save(recurringBooking);
         RecurringBookingResponse response = recurringBookingMapper.convertToDTO(savedRecurringBooking);
@@ -247,11 +247,94 @@ public class BookingServiceImpl implements BookingService {
         //send mail
 //        sendMailRecurringBooking(currentUser, response);
 
-        String message = "Đặt sân theo lịch cứng (" + recurringBooking.getInterval() + "/" + recurringBooking.getPackageDurationMonths() + " months) thành công!";
+        log.info("Đặt sân (recurring) bước 1 thành công " + response.getId());
+        return ResponseEntity.ok(
+                new BaseResponse("Thành công, vui lòng thanh toán để chốt đặt sân!", HttpStatus.OK.value(), response)
+        );
+
+    }
+
+    private boolean checkAvailableRecurring(String fieldId, List<TimeSlot> recurringTimeSlots) {
+        for (TimeSlot timeSlot : recurringTimeSlots) {
+            // tìm danh sách booking có timeSlots có trạng thái IN_USE trong khoảng thời gian này
+            // nếu sân trống thì list này = 0
+            List<Booking> inUseBookingList = bookingRepository.findInUseTimeSlotsByFieldAndTimeRange(fieldId,
+                    timeSlot.getStartTime(), timeSlot.getEndTime());
+            if (!inUseBookingList.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse> confirmRecurringBooking(String recurringId) {
+        // lấy thông tin RecurringBooking
+        RecurringBooking recurringBooking = recurringBookingRepository.findById(recurringId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy RecurringBooking với id này"));
+        Field recuringField = recurringBooking.getField();
+        List<TimeSlot> recurringTimeSlots = recurringBooking.generateTimeSlots();
+        List<Booking> relatedBookings = bookingRepository.findAllById(recurringBooking.getBookingIds());
+
+        // kiểm tra quyền thực hiện
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currUser = (User) authentication.getPrincipal();
+        if (!currUser.getId().equals(recurringBooking.getUser().getId()) && !currUser.getRole().equals(Role.ADMIN)) {
+            throw new CustomException("Bạn không có quyền xác nhận RecurringBooking này", HttpStatus.BAD_REQUEST.value());
+        }
+
+        // kiểm tra trạng thái recurring
+        if (recurringBooking.getIsActive() || recurringBooking.getIsDeleted()) {
+            throw new CustomException("RecurringBooing này không đủ điều kiên để được xác nhận", HttpStatus.BAD_REQUEST.value());
+        }
+
+        // kiểm tra tình trạng sân
+        boolean isAvailableRecurring = checkAvailableRecurring(recuringField.getId(), recurringTimeSlots);
+        if (!isAvailableRecurring) {
+            // sân đã bị chiếm -> hoàn tiền và xoá dữ liệu
+            // 1. xoá recurringBooking và các booking liên quan
+            recurringBooking.setIsDeleted(true);
+            for (Booking booking : relatedBookings) {
+                booking.setIsDeleted(true);
+            }
+            recurringBookingRepository.save(recurringBooking);
+            bookingRepository.saveAll(relatedBookings);
+
+            // 2. hoàn tiền
+            User owner = userRepository.findById(recurringBooking.getUser().getId())
+                    .orElseThrow(() -> new NotFoundException("Không tìm thấy chủ nhân của RecurringBooking này để hoàn tiền"));
+            userService.refund(owner, recurringBooking.getPrice());
+            // 3. tạo hoá đơn
+            InvoiceRequest invoiceRequest = new InvoiceRequest();
+            invoiceRequest.setUserId(recurringBooking.getUser().getId());
+            invoiceRequest.setAmount(recurringBooking.getPrice());
+            invoiceRequest.setPaymentMethod(PaymentMethod.ACCOUNT_BALANCE);
+            invoiceRequest.setPaymentStatus(PaymentStatus.PAID);
+            invoiceRequest.setTransactionType(TransactionType.REFUND);
+
+            InvoiceResponse invoiceResponse = invoiceService.create(invoiceRequest);
+            log.info("Đặt sân (recurring) bước 2 không thành công, đã hoàn tiền," + recurringId);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new BaseResponse("Thất bại, có ít nhất 1 timeSlot không trống ở khung giờ này trong tương lai, bạn đã được hoàn tiền vào số dư!",
+                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                            invoiceResponse)
+            );
+        }
+        // sân trống, có thể xác nhận recurring
+        recurringBooking.setIsActive(true);
+        for (Booking booking : relatedBookings) {
+            booking.setIsActive(true);
+        }
+        bookingRepository.saveAll(relatedBookings);
+        RecurringBooking confirmedRecurring = recurringBookingRepository.save(recurringBooking);
+        RecurringBookingResponse response = recurringBookingMapper.convertToDTO(confirmedRecurring);
+
+        String message = "Xác nhận đặt sân theo lịch cứng (" + recurringBooking.getInterval() + "/"
+                + recurringBooking.getPackageDurationMonths() + " months) thành công!";
+        log.info("Đặt sân (recurring) bước 2 thành công," + recurringId);
         return ResponseEntity.ok(
                 new BaseResponse(message, HttpStatus.OK.value(), response)
         );
-
     }
 
     @Override
@@ -479,6 +562,7 @@ public class BookingServiceImpl implements BookingService {
             // huỷ -> tắt isActive
             booking.setField(field);
             booking.setIsActive(false);
+            booking.setIsDeleted(true);
             Booking canceledBooking = bookingRepository.save(booking);
 
             BookingResponse response = bookingMapper.convertToResponse(canceledBooking);

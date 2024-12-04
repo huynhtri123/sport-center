@@ -101,6 +101,11 @@ function Booking() {
 
     const toggleModal = (isRecurring, e) => {
         e.preventDefault();
+        // Kiểm tra nếu startTimeRef không có giá trị
+        if (!startTimeRef.current.value) {
+            toast.warn('Please pick start time!');
+            return;
+        }
         isRecurring
             ? setIsRecurringBookingModalOpen(!isRecurringModalOpen)
             : setIsBookingModalOpen(!isBookingModalOpen);
@@ -108,25 +113,10 @@ function Booking() {
     };
 
     const handleSubmit = async (isRecurring) => {
-        if (!startTimeRef.current.value) {
-            toast.warn('Please pick start time!');
-            return;
-        }
         try {
             setIsLoading(true);
             const startDateTimeString = `${selectedDate}T${startTime}:00+00:00`;
             const startTimeUTC = new Date(startDateTimeString).toISOString();
-
-            // thêm phần chuyển qua trang payment sau khi booking
-            //             navigate('/payments', {
-            //                 state: {
-            //                     field: field,
-            //                     selectedDate: selectedDate,
-            //                     startTime: startTime,
-            //                     numberOfHours: numberOfHours,
-            //                     totalPrice: field.price * numberOfHours,
-            //                 },
-            //             });
 
             const request = {
                 fieldId: field.id,
@@ -144,7 +134,7 @@ function Booking() {
                 : await bookingApi.createBooking(request);
 
             fetchTimeSlots(selectedDate);
-            toast.success(response.message);
+            // toast.success(response.message);
 
             return response.data;
         } catch (err) {
@@ -297,10 +287,8 @@ function Booking() {
                             onSubmit={() => handleSubmit(false)}
                             isBookingPayment={true}
                             isRegistrationPayment={false}
-                            field={field} // Pass field details
-                            selectedDate={selectedDate} // Pass selected date
-                            startTime={startTime} // Pass start time
-                            numberOfHours={numberOfHours} // Pass number of hours
+                            fetchTimeSlots={() => fetchTimeSlots(selectedDate)}
+                            isRecurring={false}
                         />
                     )}
                 </form>
@@ -335,6 +323,8 @@ function Booking() {
                             onSubmit={() => handleSubmit(true)}
                             isBookingPayment={true}
                             isRegistrationPayment={false}
+                            fetchTimeSlots={() => fetchTimeSlots(selectedDate)}
+                            isRecurring={true}
                         />
                     )}
                 </form>

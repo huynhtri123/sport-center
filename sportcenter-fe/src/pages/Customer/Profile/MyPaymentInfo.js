@@ -1,10 +1,11 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import styles from '../../../assets/css/Profile/myPayments.module.scss';
 import userApi from '../../../services/api/userApi';
 import { Loading } from '../../../components/Loading/Loading';
 import PaymentModal from './PaymentModal';
-import formatCurrency from '../../../utils/formatCurrency';
+import ConfirmModal from '../../../components/Modal/ConfirmModal';
 
 function MyPaymentInfo() {
     const [payments, setPayments] = useState([]);
@@ -13,21 +14,8 @@ function MyPaymentInfo() {
     const [selectedPayment, setSelectedPayment] = useState(null);
     const [userId, setUserId] = useState(null);
 
-    const [accountBalance, setAccountBalance] = useState(0);
-    const fetchAccountBalance = async () => {
-        try {
-            const response = await userApi.getAccountBalance();
-            setAccountBalance(response.data || 0);
-            console.log(response);
-        } catch (err) {
-            console.error(err);
-        }
-    };
-    useEffect(() => {
-        fetchAccountBalance();
-    }, []);
-
-    // console.log(accountBalance);
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false); // Quản lý trạng thái ConfirmModal
+    const [paymentToDelete, setPaymentToDelete] = useState(null); // Lưu payment cần xóa
 
     useEffect(() => {
         const fetchUserProfile = async () => {
@@ -71,7 +59,7 @@ function MyPaymentInfo() {
         setIsModalOpen(false);
     };
 
-    const handleSavePayment = (updatedPayment) => {
+    const handleSavePayment = async (updatedPayment) => {
         if (!userId) {
             toast.error('User ID is required.');
             return;
@@ -79,9 +67,9 @@ function MyPaymentInfo() {
 
         const paymentData = { ...updatedPayment, userId }; // Pass userId here
         if (selectedPayment) {
-            updatePaymentInfo(paymentData, selectedPayment.id); // Pass paymentId if updating
+            await updatePaymentInfo(paymentData, selectedPayment.id); // Pass paymentId if updating
         } else {
-            addPaymentInfo(paymentData); // Pass userId here as well
+            await addPaymentInfo(paymentData); // Pass userId here as well
         }
         setIsModalOpen(false);
     };
@@ -106,28 +94,33 @@ function MyPaymentInfo() {
         }
     };
 
-    const deletePaymentInfo = async (paymentId) => {
-        if (!userId) {
-            toast.error('User ID is required.');
+    const handleDeletePayment = (paymentId) => {
+        setPaymentToDelete(paymentId); // Lưu payment cần xóa
+        setIsConfirmModalOpen(true); // Mở modal xác nhận
+    };
+
+    const confirmDeletePayment = async () => {
+        if (!userId || !paymentToDelete) {
+            toast.error('User ID or Payment ID is required.');
             return;
         }
         try {
-            // Call your API to delete the payment, passing both userId and paymentId
-            await userApi.deletePaymentInfo(userId, paymentId);
-            // Remove the deleted payment from the state
-            setPayments((prevPayments) => prevPayments.filter((payment) => payment.id !== paymentId));
+            await userApi.deletePaymentInfo(userId, paymentToDelete);
+            setPayments((prevPayments) => prevPayments.filter((payment) => payment.id !== paymentToDelete));
             toast.success('Payment deleted successfully');
         } catch (error) {
             toast.error('Failed to delete payment.');
+        } finally {
+            setIsConfirmModalOpen(false); // Đóng modal
+            setPaymentToDelete(null); // Xóa thông tin payment cần xóa
         }
     };
 
     return (
         <div className={styles.myPaymentInfoContainer}>
-            <p className={styles.price}>Số dư hiện có: {formatCurrency(accountBalance) || 0}</p>
             {isLoading && <Loading />}
             <button onClick={handleAddPayment} className={styles.addPaymentButton}>
-                Thêm Payment
+                Thêm Payment Info
             </button>
             {payments.length > 0 ? (
                 payments.map((payment, index) => (
@@ -135,7 +128,7 @@ function MyPaymentInfo() {
                         key={index}
                         payment={payment}
                         onEdit={() => handleEditPayment(payment)}
-                        onDelete={() => deletePaymentInfo(payment.id)} // Pass the delete function
+                        onDelete={() => handleDeletePayment(payment.id)} // Truyền hàm xử lý xóa
                     />
                 ))
             ) : (
@@ -148,6 +141,15 @@ function MyPaymentInfo() {
                     onClose={handleCloseModal}
                     onSave={handleSavePayment}
                     userId={userId} // Pass userId to the modal
+                />
+            )}
+
+            {isConfirmModalOpen && (
+                <ConfirmModal
+                    title='Bạn có chắc chắn muốn xóa thông tin thanh toán này?'
+                    isOpen={isConfirmModalOpen}
+                    onClose={() => setIsConfirmModalOpen(false)} // Đóng modal nếu hủy
+                    onSubmit={confirmDeletePayment} // Xóa khi xác nhận
                 />
             )}
         </div>
@@ -172,8 +174,7 @@ function PaymentCard({ payment, onEdit, onDelete }) {
             </button>
             <button onClick={onDelete} className={styles.deleteButton}>
                 Xóa
-            </button>{' '}
-            {/* Delete button */}
+            </button>
         </div>
     );
 }

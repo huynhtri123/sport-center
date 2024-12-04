@@ -7,6 +7,7 @@ import CourseContext from '../contexts/Course/CourseContext';
 import TournamentContext from '../contexts/Tournament/TournamentContext';
 import UserContext from '../contexts/UserContext/UserContext';
 import BookingPaymentContext from '../contexts/Booking/BookingPaymentContext';
+import PaymentContext from '../contexts/Payment/PaymentContext';
 
 export const useCheckSignedIn = () => {
     const [isSignedIn, setIsSignedIn] = useContext(AuthContext);
@@ -62,7 +63,13 @@ export const useUser = () => {
     const [user, setUser] = useContext(UserContext);
     return [user, setUser];
 };
+
 export const useGetBookings = () => {
     const [bookingData, setBookingData] = useContext(BookingPaymentContext);
     return [bookingData, setBookingData];
+};
+
+export const usePaymentData = () => {
+    const [paymentData, setPaymenData] = useContext(PaymentContext);
+    return [paymentData, setPaymenData];
 };

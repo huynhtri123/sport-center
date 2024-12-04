@@ -1,8 +1,6 @@
 package app.sportcenter.services.impl;
 
-import app.sportcenter.commons.BaseResponse;
-import app.sportcenter.commons.PaginatedResponse;
-import app.sportcenter.commons.Role;
+import app.sportcenter.commons.*;
 import app.sportcenter.configs.AppConfig;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
@@ -14,8 +12,10 @@ import app.sportcenter.repositories.SportRepository;
 import app.sportcenter.repositories.TeamRepository;
 import app.sportcenter.repositories.TournamentRepository;
 import app.sportcenter.repositories.UserRepository;
+import app.sportcenter.services.InvoiceService;
 import app.sportcenter.services.MailService;
 import app.sportcenter.services.TournamentService;
+import app.sportcenter.services.UserService;
 import app.sportcenter.utils.mappers.TeamMapper;
 import app.sportcenter.utils.mappers.TournamentMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +50,10 @@ public class TournamentServiceImpl implements TournamentService {
     private TeamRepository teamRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private InvoiceService invoiceService;
     @Autowired
     private MailService mailService;
     @Autowired
@@ -300,12 +304,13 @@ public class TournamentServiceImpl implements TournamentService {
         Team team = teamRepository.findById(request.getTeamId()).orElseThrow(
                 () -> new NotFoundException("Không tìm thấy Team để gửi mail")
         );
-        sendRegistrationEmail(tournament, team);
+//        sendRegistrationEmail(tournament, team);
 
         return ResponseEntity.ok(new BaseResponse(
                 "Đăng ký tham gia giải đấu thành công.", HttpStatus.OK.value(), response)
         );
     }
+
 
     @Override
     public void checkRegistrationEligibility(String tournamentId, String teamId, User currentUser) {
@@ -334,7 +339,7 @@ public class TournamentServiceImpl implements TournamentService {
             Optional<Team> registeredTeam = teamRepository.findById(registeredTeamId);
             if (registeredTeam.isPresent()) {
                 if (registeredTeam.get().getUserId().equals(currentUser.getId())) {
-                    throw new CustomException("Bạn đã đăng kí tham gia giải này trước đó rồi", HttpStatus.BAD_REQUEST.value());
+                    throw new CustomException("Thất bại, bạn đã đăng kí tham gia giải này trước đó rồi", HttpStatus.BAD_REQUEST.value());
                 }
             }
         }

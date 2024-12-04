@@ -22,7 +22,7 @@ public class Invoice extends BaseEntity {
     @Id
     private String id;
     private User user;
-    private Double totalAmount;                     // tổng số tiền của hoá đơn
+    private Double amount;                     // tổng số tiền của hoá đơn
     private PaymentStatus paymentStatus;
     private PaymentMethod paymentMethod;
     private TransactionType transactionType;

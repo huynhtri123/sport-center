@@ -31,6 +31,7 @@ public interface BookingService {
 
     // đặt theo lịch
     public ResponseEntity<BaseResponse> createRecurringBooking(RecurringBookingRequest recurringBookingRequest);
+    public ResponseEntity<BaseResponse> confirmRecurringBooking(String recurringId);
 
     public Double getBookingPrice(BookingRequest bookingRequest);
     public Double getRecurringBookingPrice(RecurringBookingRequest recurringBookingRequest);
