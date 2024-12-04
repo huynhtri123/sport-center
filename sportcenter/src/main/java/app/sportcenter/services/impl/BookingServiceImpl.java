@@ -555,11 +555,11 @@ public class BookingServiceImpl implements BookingService {
                 throw new CustomException("Booking này đã hết hạn, không thể huỷ!", HttpStatus.BAD_REQUEST.value());
             }
 
-            // tạo timeSlot AVAILABLE trong khoảng thời gian này
+            // 1. tạo timeSlot AVAILABLE trong khoảng thời gian này
             field.createTimeSlots(bookingStartTime, bookingEndTime);
             fieldRepository.save(field);
 
-            // huỷ -> tắt isActive
+            // 2. huỷ -> tắt isActive
             booking.setField(field);
             booking.setIsActive(false);
             booking.setIsDeleted(true);
@@ -568,14 +568,23 @@ public class BookingServiceImpl implements BookingService {
             BookingResponse response = bookingMapper.convertToResponse(canceledBooking);
             log.info("Đã huỷ booking " + canceledBooking.getId());
 
-            // hoàn tiền nếu là đặt lẻ
+            // 3. hoàn tiền nếu là đặt lẻ
             User owner = userRepository.findById(booking.getUser().getId())
                     .orElseThrow(() -> new NotFoundException("Không tìm thấy chủ sở hữu booking này"));
             if (!booking.isRecurring()) {
-                userService.refund(owner, booking.getPrice());
+                Double refundAmount = booking.getPrice();
+                userService.refund(owner, refundAmount);
+                // tạo hoá đơn
+                InvoiceRequest invoiceRequest = new InvoiceRequest();
+                invoiceRequest.setUserId(owner.getId());
+                invoiceRequest.setAmount(refundAmount);
+                invoiceRequest.setPaymentMethod(PaymentMethod.ACCOUNT_BALANCE);
+                invoiceRequest.setPaymentStatus(PaymentStatus.PAID);
+                invoiceRequest.setTransactionType(TransactionType.REFUND);
+                InvoiceResponse invoiceResponse = invoiceService.create(invoiceRequest);
             }
 
-            // send mail
+            // 4. send mail
 //            sendMailCancelBooking(owner, response);
 
             return ResponseEntity.ok(
@@ -588,6 +597,43 @@ public class BookingServiceImpl implements BookingService {
 
     }
 
+    private List<Booking> getRelevantActiveBookings(String bookingId) {
+        RecurringBooking recurrParent = recurringBookingRepository.getByContainBookingId(bookingId);
+        if (recurrParent == null) {
+            throw new NotFoundException("Không tìm thấy Recurring nào chứa bookingId này!");
+        }
+        // xác thực
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User currUser = (User) auth.getPrincipal();
+        if (currUser.getRole() != Role.ADMIN && !currUser.getId().equals(recurrParent.getUser().getId())) {
+            throw new CustomException("Bạn không có quyền truy cập recurring của người khác!", HttpStatus.FORBIDDEN.value());
+        }
+        return recurrParent.getBookingIds()
+                .stream()
+                .map(id -> bookingRepository.findById(id).orElse(null))
+                .filter(Objects::nonNull)
+                .filter(booking -> booking.getIsActive() && !booking.getIsDeleted())
+                .toList();
+    }
+
+    @Override
+    public Double getRemainingAmountOfRecurringByBookingId(String bookingId) {
+        Double remainingAmount = 0.0;
+        // 1. tìm bookings liên quan
+        List<Booking> relevantBooking = getRelevantActiveBookings(bookingId);
+        if (!relevantBooking.isEmpty()) {
+            for (Booking booking : relevantBooking) {
+                // lấy tổng giá tiền của những booking còn hiệu lực
+                if (booking.getIsActive() && !booking.getIsDeleted()) {
+                    Double bookingPrice = booking.getPrice();
+                    //log.error("gia booking le trong cung: " + bookingPrice);
+                    remainingAmount += bookingPrice;
+                }
+            }
+        }
+        return remainingAmount;
+    }
+
     @Transactional
     @Override
     public ResponseEntity<BaseResponse> cancelRecurringByBookingId(String bookingId) {
@@ -596,25 +642,21 @@ public class BookingServiceImpl implements BookingService {
             throw new NotFoundException("Không tìm thấy Recurring nào chứa bookingId này!");
         }
 
-        // xác thực
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User currUser = (User) auth.getPrincipal();
-        if (currUser.getRole() != Role.ADMIN && !currUser.getId().equals(recurrParent.getUser().getId())) {
-            throw new CustomException("Bạn không có quyền huỷ cứng recurring của người khác!", HttpStatus.FORBIDDEN.value());
-        }
+        Double remainingAmount = 0.0;
 
         // cancel
         // 1. xử lý bookings liên quan
-        List<Booking> relevantBooking = recurrParent.getBookingIds()
-                .stream()
-                .map(id -> bookingRepository.findById(id)
-                        .orElse(null))
-                .filter(Objects::nonNull)
-                .toList();
+        List<Booking> relevantBooking = getRelevantActiveBookings(bookingId);
         List<Field> fieldsToSave = new ArrayList<>();
         List<Booking> bookingsToSave = new ArrayList<>();
         if (!relevantBooking.isEmpty()) {
             for (Booking booking : relevantBooking) {
+                // lấy tổng giá tiền của những booking còn hiệu lực
+                if (booking.getIsActive() && !booking.getIsDeleted()) {
+                    Double bookingPrice = booking.getPrice();
+                    //log.error("gia booking le trong cung: " + bookingPrice);
+                    remainingAmount += bookingPrice;
+                }
                 ZonedDateTime startTime = booking.getStartTime();
                 ZonedDateTime endTime = booking.getEndTime();
                 Field field = booking.getField();
@@ -632,15 +674,23 @@ public class BookingServiceImpl implements BookingService {
         RecurringBooking caneledRecurring = recurringBookingRepository.save(recurrParent);
         RecurringBookingResponse response = recurringBookingMapper.convertToDTO(caneledRecurring);
 
-        // 3. hoàn tiền 50%
-        Double price = recurrParent.getPrice();
-        Double refund = price / 2;
+        // 3. hoàn tiền 50% của tổng số booking còn hiệu lực
+        //log.error("check price: " + remainingAmount);
+        Double refund = remainingAmount / 2;
         String ownerId = recurrParent.getUser().getId();
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy chủ nhân của recurringBooking này"));
         userService.refund(owner, refund);
+        // 4. tạo hoá đơn
+        InvoiceRequest invoiceRequest = new InvoiceRequest();
+        invoiceRequest.setUserId(owner.getId());
+        invoiceRequest.setAmount(refund);
+        invoiceRequest.setPaymentMethod(PaymentMethod.ACCOUNT_BALANCE);
+        invoiceRequest.setPaymentStatus(PaymentStatus.PAID);
+        invoiceRequest.setTransactionType(TransactionType.REFUND);
+        InvoiceResponse invoiceResponse = invoiceService.create(invoiceRequest);
 
-        // 4. gửi mail
+        // 5. gửi mail
 //        sendMailRecurringBookingCancel(owner, response);
 
         return ResponseEntity.ok(

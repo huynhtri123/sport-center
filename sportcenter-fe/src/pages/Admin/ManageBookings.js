@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import styles from '../../assets/css/Admin/manageBookings.module.scss';
@@ -15,12 +16,16 @@ function ManageBookings() {
     const [bookingToCancel, setBookingToCancel] = useState(null); // Store the booking to be canceled
     const [recurringBooking, setRecurringBooking] = useState({});
     const [isCancelRecurringModalOpen, setIsCancelRecurringModalOpen] = useState(false);
+    const [remainingAmout, setRemainingAmount] = useState(0);
 
     const toggleCancelRecurringModalOpen = async (bookingId) => {
         if (!isCancelRecurringModalOpen) {
             try {
                 const getRecurring = await bookingApi.getRecurringByBookingId(bookingId);
                 setRecurringBooking(getRecurring.data);
+                const remainingAmoutResponse = await bookingApi.getRemainingAmout(bookingId);
+                // console.log(remainingAmoutResponse);
+                setRemainingAmount(remainingAmoutResponse.data);
                 // console.log(getRecurring);
             } catch (err) {
                 console.error(err);
@@ -182,8 +187,8 @@ function ManageBookings() {
                                             {isCancelRecurringModalOpen && (
                                                 <ConfirmModal
                                                     title={`Chủ sỡ hữu sẽ được hoàn ${formatCurrency(
-                                                        recurringBooking.price / 2
-                                                    )} (50% booking price)! Bạn vẫn chắc muôn huỷ lịch cứng?`}
+                                                        remainingAmout / 2
+                                                    )} (50% của số booking còn lại)! Bạn vẫn chắc muôn huỷ lịch cứng?`}
                                                     isOpen={isCancelRecurringModalOpen}
                                                     onClose={toggleCancelRecurringModalOpen}
                                                     onSubmit={() => handleCancelRecurring(booking.id)}

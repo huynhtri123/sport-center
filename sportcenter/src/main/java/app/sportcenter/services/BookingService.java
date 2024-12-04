@@ -35,6 +35,9 @@ public interface BookingService {
 
     public Double getBookingPrice(BookingRequest bookingRequest);
     public Double getRecurringBookingPrice(RecurringBookingRequest recurringBookingRequest);
+    // lấy giá tiền còn lại của recuring theo id của booking con
+    // (vd: đặt cứng có 5 booking, mà đã có 1 booking trong quá khứ, thì hàm này trả về giá của tổng 4 cái còn lại)
+    public Double getRemainingAmountOfRecurringByBookingId(String bookingId);
 
     public ResponseEntity<BaseResponse> getRecurringBookingByContainBookingId(String bookingId);
 }

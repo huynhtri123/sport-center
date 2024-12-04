@@ -157,4 +157,13 @@ public class BookingController {
         return bookingService.cancelRecurringByBookingId(bookingId);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
+    @GetMapping("/recurring/getRemainingPrice/{bookingId}")
+    public ResponseEntity<BaseResponse> getRemainingAmountOfRecurringByBookingId(@PathVariable("bookingId") String bookingId) {
+        return ResponseEntity.ok(
+                new BaseResponse("Lấy giá còn lại của Recurring thành công", HttpStatus.OK.value(),
+                        bookingService.getRemainingAmountOfRecurringByBookingId(bookingId))
+        );
+    }
+
 }

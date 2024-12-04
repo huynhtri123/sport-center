@@ -69,7 +69,8 @@ function MyBookings({ bookings, setMyBookings, getMyProfile }) {
 function BookingCard({ booking, handleCancelBookingSubmit, handleCancelRecurring }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isCancelRecurringModalOpen, setIsCancelRecurringModalOpen] = useState(false);
-    const [recurringBooking, setRecurringBooking] = useState({});
+    // const [recurringBooking, setRecurringBooking] = useState({});
+    const [remainingAmout, setRemainingAmount] = useState(0);
     const toggleModalOpen = () => {
         setIsModalOpen(!isModalOpen);
     };
@@ -77,8 +78,11 @@ function BookingCard({ booking, handleCancelBookingSubmit, handleCancelRecurring
     const toggleCancelRecurringModalOpen = async () => {
         if (!isCancelRecurringModalOpen) {
             try {
-                const getRecurring = await bookingApi.getRecurringByBookingId(booking.id);
-                setRecurringBooking(getRecurring.data);
+                // const getRecurring = await bookingApi.getRecurringByBookingId(booking.id);
+                // setRecurringBooking(getRecurring.data);
+                const remainingAmoutResponse = await bookingApi.getRemainingAmout(booking.id);
+                // console.log(remainingAmoutResponse);
+                setRemainingAmount(remainingAmoutResponse.data);
                 // console.log(getRecurring);
             } catch (err) {
                 console.error(err);
@@ -132,8 +136,8 @@ function BookingCard({ booking, handleCancelBookingSubmit, handleCancelRecurring
                     {isCancelRecurringModalOpen && (
                         <ConfirmModal
                             title={`Bạn sẽ được hoàn ${formatCurrency(
-                                recurringBooking.price / 2
-                            )} (50% booking price)! Bạn vẫn chắc muôn huỷ lịch cứng?`}
+                                remainingAmout / 2
+                            )} (50% của số booking còn lại)! Bạn vẫn chắc muôn huỷ lịch cứng?`}
                             onClose={toggleCancelRecurringModalOpen}
                             onSubmit={() => handleCancelRecurring(booking.id)}
                             isOpen={isCancelRecurringModalOpen}

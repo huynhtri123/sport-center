@@ -51,6 +51,10 @@ const bookingApi = {
         const url = `/recurring/cancel/${bookingId}`;
         return axiosClient.put(url);
     },
+    getRemainingAmout(bookingId) {
+        const url = `/recurring/getRemainingPrice/${bookingId}`;
+        return axiosClient.get(url);
+    },
 };
 
 export default bookingApi;
