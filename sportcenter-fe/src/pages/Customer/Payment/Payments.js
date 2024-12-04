@@ -21,7 +21,8 @@ export default function Payments() {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const toggleModal = () => {
+    const toggleModal = (e) => {
+        e.preventDefault();
         setIsModalOpen(!isModalOpen);
     };
 
@@ -151,6 +152,8 @@ export default function Payments() {
         }
     };
 
+    const invoiceAmount = amountByBalance ? amount - amountByBalance : amount;
+
     return (
         <div className={styles.paymentContainer}>
             {isLoading && <Loading></Loading>}
@@ -166,7 +169,7 @@ export default function Payments() {
                     <strong>Phone:</strong> {user?.phoneNumber}
                 </p>
                 <p>
-                    <strong>Total Amount:</strong> {formatCurrency(amount)}
+                    <strong>Total Amount:</strong> {formatCurrency(invoiceAmount)}
                 </p>
                 <p>
                     <strong>Transaction Type:</strong> {type}
@@ -200,7 +203,7 @@ export default function Payments() {
                         </p>
                     </div>
 
-                    <Button type='button' onClick={() => toggleModal()} className={styles.payButton}>
+                    <Button type='button' onClick={(e) => toggleModal(e)} className={styles.payButton}>
                         Pay Now
                     </Button>
 
