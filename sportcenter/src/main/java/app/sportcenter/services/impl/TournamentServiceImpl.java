@@ -30,6 +30,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,9 +62,35 @@ public class TournamentServiceImpl implements TournamentService {
     @Autowired
     private TeamMapper teamMapper;
 
+    private void checkFutureDate(ZonedDateTime startDate, ZonedDateTime endDate, ZonedDateTime deadlineDate) {
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
+        // 1. các ngày trong input phải là trong tương lai
+        if (startDate.isBefore(now) || startDate.isEqual(now)) {
+            throw new CustomException("Ngày bắt đầu phải là ngày trong tương lai", HttpStatus.BAD_REQUEST.value());
+        }
+        if (endDate.isBefore(now) || endDate.isEqual(now)) {
+            throw new CustomException("Ngày kết thúc phải là ngày trong tương lai", HttpStatus.BAD_REQUEST.value());
+        }
+        if (deadlineDate.isBefore(now) || deadlineDate.isEqual(now)) {
+            throw new CustomException("Hạn đăng ký phải là ngày trong tương lai", HttpStatus.BAD_REQUEST.value());
+        }
+        // 2. ngày kết thúc phải sau ngày bắt đầu
+        if (endDate.isBefore(startDate) || endDate.isEqual(startDate)) {
+            throw new CustomException("Ngày kết thúc phải sau ngày bắt đầu", HttpStatus.BAD_REQUEST.value());
+        }
+
+        // 3. ngày deadline phải trước ngày bắt đầu
+        if (deadlineDate.isAfter(startDate) || deadlineDate.isEqual(startDate)) {
+            throw new CustomException("Hạn đăng ký phải trước ngày bắt đầu", HttpStatus.BAD_REQUEST.value());
+        }
+    }
+
     @Transactional
     @Override
     public ResponseEntity<BaseResponse> create(TournamentRequest tournamentRequest) {
+        // check date input
+        checkFutureDate(tournamentRequest.getStartDate(), tournamentRequest.getEndDate(), tournamentRequest.getRegistrationDeadline());
+
         if (tournamentRequest.getThumUrl() == null || tournamentRequest.getThumUrl().isEmpty()) {
             tournamentRequest.setThumUrl(appConfig.getDefaultIcon());
         }

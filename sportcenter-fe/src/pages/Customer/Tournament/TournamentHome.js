@@ -19,7 +19,7 @@ const TournamentHome = () => {
 
     const getTournaments = async () => {
         try {
-            const tournamentsResponse = await tournamentApi.getAllActive();
+            const tournamentsResponse = await tournamentApi.getAllActive(0, 100);
             setTournaments(tournamentsResponse.data.content);
         } catch (err) {
             console.error(err);

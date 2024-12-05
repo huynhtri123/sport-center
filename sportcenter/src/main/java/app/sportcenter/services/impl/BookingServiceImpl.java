@@ -559,7 +559,7 @@ public class BookingServiceImpl implements BookingService {
             field.createTimeSlots(bookingStartTime, bookingEndTime);
             fieldRepository.save(field);
 
-            // 2. huỷ -> tắt isActive
+            // 2. huỷ -> tắt isActive. bật isDeleted
             booking.setField(field);
             booking.setIsActive(false);
             booking.setIsDeleted(true);
@@ -663,6 +663,7 @@ public class BookingServiceImpl implements BookingService {
 
                 field.createTimeSlots(startTime, endTime);  // reset fields status -> AVAILABLE
                 booking.setIsActive(false);                 // tắt hoạt động
+                booking.setIsDeleted(true);
                 fieldsToSave.add(field);
                 bookingsToSave.add(booking);
             }
@@ -671,6 +672,7 @@ public class BookingServiceImpl implements BookingService {
         }
         // 2. xử lý recurringBooking
         recurrParent.setIsActive(false);
+        recurrParent.setIsDeleted(true);
         RecurringBooking caneledRecurring = recurringBookingRepository.save(recurrParent);
         RecurringBookingResponse response = recurringBookingMapper.convertToDTO(caneledRecurring);
 

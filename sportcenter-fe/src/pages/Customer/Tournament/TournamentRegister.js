@@ -159,7 +159,7 @@ function TournamentRegister() {
                             <h4>Thành viên {index + 1}</h4>
                             <input
                                 type='text'
-                                placeholder='Tên cầu thủ'
+                                placeholder='Tên thành viên'
                                 value={player.name}
                                 onChange={(e) => handlePlayerChange(index, 'name', e.target.value)}
                                 required

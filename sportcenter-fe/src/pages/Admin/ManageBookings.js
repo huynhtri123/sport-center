@@ -200,7 +200,7 @@ function ManageBookings() {
                                             className={`btn ${styles.cancelButton}`}
                                             onClick={() => handleCancelBooking(booking)}
                                         >
-                                            Cancel Booking 2
+                                            Cancel Booking
                                         </Button>
                                     )}
                                 </td>

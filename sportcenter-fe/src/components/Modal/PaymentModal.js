@@ -60,8 +60,9 @@ function PaymentModal({
     const makePaymentByBalance = async (price) => {
         try {
             const balancePaymentResponse = await userApi.makePaymentByBalance(price);
-            if (balancePaymentResponse?.data) {
-                // console.log(balancePaymentResponse);
+            console.log(price);
+            if (balancePaymentResponse && balancePaymentResponse.data != null) {
+                console.log(balancePaymentResponse);
                 // toast.success(balancePaymentResponse.message);
                 return true;
             }

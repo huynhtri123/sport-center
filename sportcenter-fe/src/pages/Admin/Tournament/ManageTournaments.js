@@ -92,11 +92,20 @@ function ManageTournaments() {
         }
     };
 
+    const convertToLocal = (isoDate) => {
+        if (!isoDate) return ''; // Trường hợp không có dữ liệu
+        const localDate = new Date(isoDate);
+        localDate.setMinutes(localDate.getMinutes() - localDate.getTimezoneOffset()); // Bù trừ múi giờ
+        return localDate.toISOString().slice(0, 16); // Cắt bỏ phần giây và Z
+    };
+
     const handleAddSubmit = async (e) => {
         e.preventDefault();
+        // console.log(formData);
         try {
             setIsLoading(true);
             const createResponse = await tournamentApi.create(formData);
+            // console.log(createResponse);
             toast.success(createResponse.message);
             getTournaments();
             resetFormData();
@@ -311,8 +320,10 @@ function ManageTournaments() {
                                 type='datetime-local'
                                 name='startDate'
                                 value={
-                                    isEditing ? editFormData.startDate.slice(0, 16) : formData.startDate.slice(0, 16)
-                                } // Chuyển đổi ngày thành định dạng datetime-local
+                                    isEditing
+                                        ? convertToLocal(editFormData.startDate) // Hiển thị thời gian theo +7
+                                        : convertToLocal(formData.startDate) // Hiển thị thời gian theo +7
+                                }
                                 onChange={handleChange}
                                 required
                             />
@@ -326,7 +337,11 @@ function ManageTournaments() {
                                 id='endDate'
                                 type='datetime-local'
                                 name='endDate'
-                                value={isEditing ? editFormData.endDate.slice(0, 16) : formData.endDate.slice(0, 16)} // Chuyển đổi ngày thành định dạng datetime-local
+                                value={
+                                    isEditing
+                                        ? convertToLocal(editFormData.endDate) // Hiển thị thời gian theo +7
+                                        : convertToLocal(formData.endDate) // Hiển thị thời gian theo +7
+                                } // Chuyển đổi ngày thành định dạng datetime-local
                                 onChange={handleChange}
                                 required
                             />
@@ -357,9 +372,9 @@ function ManageTournaments() {
                                 name='registrationDeadline'
                                 value={
                                     isEditing
-                                        ? editFormData.registrationDeadline.slice(0, 16)
-                                        : formData.registrationDeadline.slice(0, 16)
-                                } // Chuyển đổi ngày thành định dạng datetime-local
+                                        ? convertToLocal(editFormData.registrationDeadline) // Hiển thị thời gian theo +7
+                                        : convertToLocal(formData.registrationDeadline) // Hiển thị thời gian theo +7
+                                }
                                 onChange={handleChange}
                                 required
                             />

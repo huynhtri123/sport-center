@@ -26,11 +26,11 @@ public class TournamentRequest extends BaseRequestDTO {
     private String tournamentName;
 
     @NotNull(message = "Bạn chưa nhập ngày bắt đầu giải đấu")
-    @Future(message = "Ngày bắt đầu phải là ngày trong tương lai")
+//    @Future(message = "Ngày bắt đầu phải là ngày trong tương lai")
     private ZonedDateTime startDate;
 
     @NotNull(message = "Bạn chưa nhập ngày kết thúc giải đấu")
-    @Future(message = "Ngày kết thúc phải là ngày trong tương lai")
+//    @Future(message = "Ngày kết thúc phải là ngày trong tương lai")
     private ZonedDateTime endDate;
 
     @NotNull(message = "Bạn chưa nhập số lượng đội tham gia tối đa")
@@ -39,7 +39,7 @@ public class TournamentRequest extends BaseRequestDTO {
     private List<String> registeredTeamIds;
 
     @NotNull(message = "Bạn chưa nhập ngày hạn chót đăng ký tham gia giải đấu")
-    @Future(message = "Ngày hạn chót phải là ngày trong tương lai")
+//    @Future(message = "Ngày hạn chót phải là ngày trong tương lai")
     private ZonedDateTime registrationDeadline;
 
     private List<Prize> prizes;
@@ -49,7 +49,6 @@ public class TournamentRequest extends BaseRequestDTO {
     @NotNull(message = "Bạn chưa nhập phí tham gia giải đấu!")
     private Double registrationFee;                                 // phí tham gia giải đấu
 
-    @NotNull(message = "Bạn chưa nhập danh sách quy định giải đấu!")
     private List<String> rules;                                     // danh sách quy định giải đấu
 }
 
