@@ -58,9 +58,9 @@ function Signup2Modal({ isOpen, onClose, onSubmit, signupEmail, isError }) {
                         Send again
                     </span>
                 </p>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} className={styles.verifyForm}>
                     <Input
-                        className={clsx('mb-3', { [styles.error]: isError })}
+                        className={clsx('mb-3', styles.inputCode, { [styles.error]: isError })}
                         type='text'
                         placeholder='Enter the 6-digit code...'
                         width='300px'

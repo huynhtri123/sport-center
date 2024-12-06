@@ -105,7 +105,8 @@ public class BookingServiceImpl implements BookingService {
             Booking savedBooking = bookingRepository.save(booking);
 
             BookingResponse response = bookingMapper.convertToResponse(savedBooking);
-            // Gửi mail thông báo
+
+//            // send mail
 //            sendMailBooking(currentUser, response);
 
             log.info("Đặt sân bước 1 thành công" + response.getId());
@@ -181,6 +182,10 @@ public class BookingServiceImpl implements BookingService {
         Booking activeBooking = bookingRepository.save(booking);
         BookingResponse response = bookingMapper.convertToResponse(activeBooking);
         log.info("Đặt sân bước 2 thành công! " + bookingId);
+
+        // send mail
+        sendMailBooking(currUser, response);
+
         return ResponseEntity.ok(
                 new BaseResponse("Xác nhận đặt sân thành công", HttpStatus.OK.value(), response)
         );
@@ -328,6 +333,9 @@ public class BookingServiceImpl implements BookingService {
         bookingRepository.saveAll(relatedBookings);
         RecurringBooking confirmedRecurring = recurringBookingRepository.save(recurringBooking);
         RecurringBookingResponse response = recurringBookingMapper.convertToDTO(confirmedRecurring);
+
+        //send mail
+        sendMailRecurringBooking(currUser, response);
 
         String message = "Xác nhận đặt sân theo lịch cứng (" + recurringBooking.getInterval() + "/"
                 + recurringBooking.getPackageDurationMonths() + " months) thành công!";
@@ -585,7 +593,7 @@ public class BookingServiceImpl implements BookingService {
             }
 
             // 4. send mail
-//            sendMailCancelBooking(owner, response);
+            sendMailCancelBooking(owner, response);
 
             return ResponseEntity.ok(
                     new BaseResponse("Huỷ đặt sân thành công.", HttpStatus.OK.value(), response)
@@ -693,7 +701,7 @@ public class BookingServiceImpl implements BookingService {
         InvoiceResponse invoiceResponse = invoiceService.create(invoiceRequest);
 
         // 5. gửi mail
-//        sendMailRecurringBookingCancel(owner, response);
+        sendMailRecurringBookingCancel(owner, response);
 
         return ResponseEntity.ok(
                 new BaseResponse("Huỷ cứng recurringBooking thành công, 50% số tiền đã hoàn vào số dư.",

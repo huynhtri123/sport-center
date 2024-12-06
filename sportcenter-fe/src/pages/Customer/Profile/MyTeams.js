@@ -103,9 +103,7 @@ function MyTeam({ teams }) {
 
                     {isConfirmModalOpen && (
                         <ConfirmModal
-                            title={
-                                'Team này cũng sẽ bị loại khỏi danh sách các giải đấu hiện tham gia. Bạn có chắc vẫn muốn xoá?'
-                            }
+                            title={'Bạn có chắc vẫn muốn xoá Team này?'}
                             isOpen={isConfirmModalOpen}
                             onClose={handleToggleConfirmModal}
                             onSubmit={handleDeleteTeam}

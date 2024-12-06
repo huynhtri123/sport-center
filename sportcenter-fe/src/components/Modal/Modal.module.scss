@@ -37,3 +37,12 @@ h4 {
 .error {
     border: red solid 1px;
 }
+
+.verifyForm {
+    justify-content: center;
+    align-items: center;
+    button {
+        width: 300px;
+        height: 48px;
+    }
+}
