@@ -61,9 +61,10 @@ axiosClient.interceptors.response.use(
 
         if (error.response) {
             const { status, data } = error.response;
+            // console.log(status, data);
 
-            // Xử lý lỗi 401 (Unauthorized)
             if (status === 401 && !originalRequest._retry) {
+                // Xử lý lỗi 401 (Unauthorized)
                 originalRequest._retry = true; // Đánh dấu là đã thử lại một lần
 
                 const refreshToken = localStorage.getItem('refreshToken');
@@ -93,8 +94,9 @@ axiosClient.interceptors.response.use(
                         } catch (refreshError) {
                             // Nếu làm mới token thất bại, xóa token và yêu cầu đăng nhập lại
                             console.error('Refresh token failed: ', refreshError);
-                            toast.error('Refresh token failed: ', refreshError);
+                            // toast.error('Refresh token failed: ', refreshError);
                             handleLocalStorage.clearToken();
+                            redirectToLogin();
                             return Promise.reject(refreshError);
                         }
                     }
@@ -110,6 +112,7 @@ axiosClient.interceptors.response.use(
                     // Không có refresh token => yêu cầu đăng nhập lại
                     // toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
                     handleLocalStorage.clearToken();
+                    redirectToLogin();
                 }
             }
 
@@ -135,5 +138,9 @@ axiosClient.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
+function redirectToLogin() {
+    window.location.href = '/#/sign-in'; // Chuyển hướng trang đăng nhập
+}
 
 export default axiosClient;

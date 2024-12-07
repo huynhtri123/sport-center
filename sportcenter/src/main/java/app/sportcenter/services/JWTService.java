@@ -11,5 +11,6 @@ public interface JWTService {
     public String generateRefreshToken(Map<String, Object> extraClaims, UserDetails userDetails);
     public SecretKey getSigninKey();
     public String extractUserName(String token);
+    public boolean isExpiredToken(String token);
     public boolean isValidToken(String token, UserDetails userDetails);
 }

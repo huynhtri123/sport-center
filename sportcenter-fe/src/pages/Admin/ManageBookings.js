@@ -47,6 +47,7 @@ function ManageBookings() {
         try {
             setIsLoading(true);
             const response = await bookingApi.getAllActive(currentPage, pageSize);
+            // console.log(response);
             setBookings(response.data.content);
             // console.log(response);
             setTotalPages(response.data.totalPages);

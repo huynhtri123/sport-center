@@ -224,8 +224,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     new BaseResponse("Refresh token successfully", HttpStatus.OK.value(), jwtAuthResponse)
             );
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                new BaseResponse("Invalid refresh token", HttpStatus.UNAUTHORIZED.value(), null)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                // invalid refreshToken (refreshToken het han thi nem ra)
+                new BaseResponse("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại", HttpStatus.BAD_REQUEST.value(), null)
         );
     }
 

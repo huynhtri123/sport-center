@@ -9,7 +9,7 @@ const tournamentApi = {
         const url = `/tounament/update/${tournamentId}`;
         return axiosClient.put(url, formData);
     },
-    getAllActive(page = 0, size = 5) {
+    getAllActive(page, size) {
         const url = `/public/tounament/getAllActive?page=${page}&size=${size}`;
         return axiosClient.get(url);
     },

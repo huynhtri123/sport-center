@@ -48,11 +48,19 @@ public class JWTServiceImpl implements JWTService {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(getSigninKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        try {
+            return Jwts.parser()
+                    .verifyWith(getSigninKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            // Trả về Claims ngay cả khi token hết hạn
+            return e.getClaims();
+        } catch (Exception e) {
+            // Các lỗi khác
+            throw new IllegalArgumentException("Invalid token", e);
+        }
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolvers) {
@@ -64,14 +72,24 @@ public class JWTServiceImpl implements JWTService {
         return extractClaim(token, Claims::getSubject);
     }
 
-    private boolean isExpiredToken(String token) {
-        return extractClaim(token, Claims::getExpiration).before(new Date());
+    @Override
+    public boolean isExpiredToken(String token) {
+        try {
+            Date expiration = extractClaim(token, Claims::getExpiration);
+            return expiration.before(new Date());
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            return true; // Token đã hết hạn
+        }
     }
 
     @Override
     public boolean isValidToken(String token, UserDetails userDetails) {
-        final String username = extractUserName(token);
-        return (username.equals(userDetails.getUsername()) && !isExpiredToken(token));
+        try {
+            final String username = extractUserName(token);
+            return (username.equals(userDetails.getUsername()) && !isExpiredToken(token));
+        } catch (Exception e) {
+            return false; // Token không hợp lệ
+        }
     }
 
 }
