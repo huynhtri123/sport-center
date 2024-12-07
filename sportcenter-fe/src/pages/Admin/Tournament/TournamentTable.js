@@ -33,10 +33,10 @@ function TournamentTable({
                             <td>{index + 1 + currentPage * pageSize}</td>
                             <td>{tournament.tournamentName}</td>
                             <td>{tournament.sport.id}</td>
-                            <td>{tournament.startDate}</td>
-                            <td>{tournament.endDate}</td>
+                            <td>{new Date(tournament.startDate).toLocaleString()}</td>
+                            <td>{new Date(tournament.endDate).toLocaleString()}</td>
                             <td>{tournament.maxTeams}</td>
-                            <td>{tournament.registrationDeadline}</td>
+                            <td>{new Date(tournament.registrationDeadline).toLocaleString()}</td>
                             <td>
                                 <img
                                     src={tournament.thumUrl}

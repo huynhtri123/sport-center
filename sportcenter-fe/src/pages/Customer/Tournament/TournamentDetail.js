@@ -55,15 +55,22 @@ const TournamentDetail = () => {
                     <div className='mt-4'>
                         <span>Sport:</span> {tournament.sport?.sportName}
                     </div>
-                    <div>
-                        <span>Start Date:</span> {new Date(tournament.startDate).toLocaleString()}
+                    <div className={styles.dateInfo}>
+                        <i className='fa-solid fa-calendar-days'></i>
+                        <span>Start Date:</span>
+                        <time>{new Date(tournament.startDate).toLocaleString()}</time>
                     </div>
-                    <div>
-                        <span>End Date:</span> {new Date(tournament.endDate).toLocaleString()}
+                    <div className={styles.dateInfo}>
+                        <i className='fa-solid fa-calendar-days'></i>
+                        <span>End Date:</span>
+                        <time>{new Date(tournament.endDate).toLocaleString()}</time>
                     </div>
-                    <div>
-                        <span>Registration Deadline:</span> {new Date(tournament.registrationDeadline).toLocaleString()}
+                    <div className={styles.dateInfo}>
+                        <i class='fa-solid fa-hourglass-start'></i>
+                        <span>Registration Deadline:</span>
+                        <time>{new Date(tournament.registrationDeadline).toLocaleString()}</time>
                     </div>
+
                     <div>
                         <span>Max Teams:</span> {tournament.maxTeams}
                     </div>

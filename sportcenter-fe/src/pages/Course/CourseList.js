@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import CourseContext from '../../contexts/Course/CourseContext';
 import courseApi from '../../services/api/courseApi';
 import styles from '../../assets/css/Course/courseList.module.scss';
+import formatCurrency from '../../utils/formatCurrency';
 
 function CourseList() {
     const [courses, setCourses] = useContext(CourseContext);
@@ -41,7 +42,8 @@ function CourseList() {
                                 <div className={styles.courseInfo}>
                                     <h3>{course.courseName}</h3>
                                     <p>
-                                        <strong>Tuition:</strong> ${course.tuition}
+                                        {/* <strong>Tuition:</strong> ${formatCurrency(course.tuition)} */}
+                                        <strong>Tuition:</strong> {formatCurrency(0)}
                                     </p>
                                     <p>{course.description}</p>
                                 </div>

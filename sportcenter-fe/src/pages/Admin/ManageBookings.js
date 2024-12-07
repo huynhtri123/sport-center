@@ -160,16 +160,20 @@ function ManageBookings() {
                                         <div>{booking.userPhoneNumber || 'N/A'}</div>
                                     </div>
                                 </td>
-                                <td className={styles.startTime}>{booking.bookingDate}</td>
+                                <td className={styles.startTime}>{new Date(booking.bookingDate).toLocaleString()}</td>
                                 <td>
                                     <div className={styles.timeRange}>
-                                        <span className={styles.startTime}>{booking.startTime}</span>
+                                        <span className={styles.startTime}>
+                                            {new Date(booking.startTime).toLocaleString()}
+                                        </span>
                                         <span className={styles.timeSeparator}> - </span>
-                                        <span className={styles.endTime}>{booking.endTime}</span>
+                                        <span className={styles.endTime}>
+                                            {new Date(booking.endTime).toLocaleString()}
+                                        </span>
                                     </div>
                                 </td>
                                 <td>{booking.numberOfHours}</td>
-                                <td>${booking.totalPrice.toFixed(2)}</td>
+                                <td>{formatCurrency(booking.totalPrice)}</td>
                                 <td>
                                     {booking.recurring ? (
                                         <>

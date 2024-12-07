@@ -78,10 +78,10 @@ const TournamentHome = () => {
                                     <strong>Sport:</strong> {tournament.sport.sportName}
                                 </p>
                                 <p>
-                                    <strong>Start Date:</strong> {formatDateToZoneDateTime(tournament.startDate)}
+                                    <strong>Start Date:</strong> {new Date(tournament.startDate).toLocaleString()}
                                 </p>
                                 <p>
-                                    <strong>End Date:</strong> {formatDateToZoneDateTime(tournament.endDate)}
+                                    <strong>End Date:</strong> {new Date(tournament.endDate).toLocaleString()}
                                 </p>
 
                                 <button onClick={() => handleViewDetails(tournament.id)} className={styles.detailsBtn}>

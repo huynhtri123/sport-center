@@ -1,5 +1,6 @@
 import styles from '../../../assets/css/Admin/Field/fieldTable.module.scss';
 import ConfirmModal from '../../../components/Modal/ConfirmModal';
+import formatCurrency from '../../../utils/formatCurrency';
 
 function FieldTable({
     fields,
@@ -42,7 +43,7 @@ function FieldTable({
                                         .join(', '); // Chuyển đổi từ số thành tên ngày
                                     return (
                                         <div key={policyIndex} className={styles.policyContainer}>
-                                            <span>{`Price: $${policy.price}`}</span>
+                                            <span>{`Price: $${formatCurrency(policy.price)}`}</span>
                                             <br />
                                             <span>{`Days: ${daysOfWeek}`}</span>
                                         </div>

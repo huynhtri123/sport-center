@@ -3,10 +3,15 @@
 .fieldsTable {
     width: 100%;
     border-collapse: collapse;
-    background-color: #ffffff;
+
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     text-align: left;
     table-layout: fixed; // Đảm bảo chiều rộng của các cột được cố định
+
+    thead {
+        background-color: $blue-prime;
+        color: white;
+    }
 
     th,
     td {
