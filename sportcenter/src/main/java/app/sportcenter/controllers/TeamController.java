@@ -83,4 +83,16 @@ public class TeamController {
         return teamService.forceDelete(teamId);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
+    @GetMapping("/checkExistedName")
+    public ResponseEntity<BaseResponse> checkExistedName(@RequestParam("teamName") String teamName) {
+        boolean isExisted = teamService.checkExistedTeam(teamName);
+        if (isExisted) {
+            throw new CustomException("Tên đội đã tồn tại, vui lòng chọn tên khác!", HttpStatus.BAD_REQUEST.value());
+        }
+        return ResponseEntity.ok(
+                new BaseResponse("Đội này chưa tồn tại, có thể tạo mới", HttpStatus.OK.value(), teamName)
+        );
+    }
+
 }

@@ -232,7 +232,7 @@ function Profile() {
                             <input
                                 type='date'
                                 name='dateOfBirth'
-                                value={userInfo.dateOfBirth.split('T')[0]}
+                                value={userInfo.dateOfBirth && userInfo.dateOfBirth.split('T')[0]}
                                 onChange={handleChange}
                                 className={styles.inputField}
                             />
@@ -251,7 +251,10 @@ function Profile() {
                             <p>Email: {userInfo.email}</p>
                             <p>Phone: {userInfo.phoneNumber}</p>
                             <p>Address: {userInfo.address}</p>
-                            <p>Date of Birth: {new Date(userInfo.dateOfBirth).toLocaleDateString()}</p>
+                            <p>
+                                Date of Birth:{' '}
+                                {userInfo.dateOfBirth && new Date(userInfo.dateOfBirth).toLocaleDateString()}
+                            </p>
                             <p className={styles.price}>Số dư hiện có: {formatCurrency(accountBalance || 0)}</p>
                             <Button onClick={handleEditToggle} className={styles.editButton}>
                                 Edit

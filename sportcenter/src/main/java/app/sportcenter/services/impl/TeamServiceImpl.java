@@ -54,6 +54,11 @@ public class TeamServiceImpl implements TeamService {
         }
         String userId = currentUser.getId();
 
+        // kiểm tra xem có đội nào có tên này chưa
+        if (checkExistedTeam(teamRequest.getTeamName())) {
+            throw new CustomException("Tên đội đã tồn tại, vui lòng chọn tên khác!", HttpStatus.BAD_REQUEST.value());
+        }
+
         // nếu image input trống thì tạo bằng ảnh mặc định
         if (teamRequest.getTeamLogoUrl() == null || teamRequest.getTeamLogoUrl().isEmpty()) {
             teamRequest.setTeamLogoUrl(appConfig.getDefaultIcon());
@@ -275,5 +280,11 @@ public class TeamServiceImpl implements TeamService {
         } else {
             throw new CustomException("Bạn không có quyền xoá cứng Team của người khác!", HttpStatus.BAD_REQUEST.value());
         }
+    }
+
+    @Override
+    public boolean checkExistedTeam(String teamName) {
+        List<Team> sameNameTeams = teamRepository.getTeamByTeamName(teamName.trim());
+        return !sameNameTeams.isEmpty();    // đã tồn tại -> return true
     }
 }

@@ -17,4 +17,6 @@ public interface TeamService {
     public ResponseEntity<BaseResponse> restore(String id);
 
     public ResponseEntity<BaseResponse> forceDelete(String id);
+
+    public boolean checkExistedTeam(String teamName);
 }

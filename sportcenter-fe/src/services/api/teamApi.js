@@ -96,6 +96,11 @@ const teamApi = {
         const url = `/team/forceDelete/${teamId}`;
         return axiosClient.delete(url);
     },
+
+    checkExistedName(teamName) {
+        const url = `/team/checkExistedName?teamName=${teamName}`;
+        return axiosClient.get(url);
+    },
 };
 
 export default teamApi;

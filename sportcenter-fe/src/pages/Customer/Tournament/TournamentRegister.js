@@ -27,7 +27,29 @@ function TournamentRegister() {
         setIsModalOpen(!isModalOpen);
     };
 
-    const handleRegisterClick = () => {
+    const [isChecking, setIsChecking] = useState(false);
+
+    const checkExistedTeam = async () => {
+        try {
+            // console.log(teamName);
+            const isNotExisted = await teamApi.checkExistedName(teamName);
+            // nếu trùng là ko có response
+            if (!isNotExisted) {
+                return true; // tên bị trùng
+            }
+            return false;
+        } catch (err) {
+            // console.error(err);
+            return true; // tên bị trùng
+        }
+    };
+
+    const handleRegisterClick = async () => {
+        const isExisted = await checkExistedTeam();
+        if (isExisted) {
+            // tên bị trùng
+            return;
+        }
         if (validateInputs()) {
             toggleModalOpen(); // Chỉ mở modal nếu hợp lệ
         }
