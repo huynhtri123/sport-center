@@ -1,5 +1,6 @@
 import styles from '../../../assets/css/Admin/manageTournaments.module.scss';
 import ConfirmModal from '../../../components/Modal/ConfirmModal';
+import { formatDate } from '../../../utils/DateTimeConverter';
 
 function TournamentTable({
     filteredTournaments,
@@ -33,10 +34,19 @@ function TournamentTable({
                             <td>{index + 1 + currentPage * pageSize}</td>
                             <td>{tournament.tournamentName}</td>
                             <td>{tournament.sport.id}</td>
-                            <td>{new Date(tournament.startDate).toLocaleString()}</td>
-                            <td>{new Date(tournament.endDate).toLocaleString()}</td>
+                            <td>
+                                {formatDate(tournament.startDate)} {', '}
+                                {new Date(tournament.startDate).toLocaleTimeString()}
+                            </td>
+                            <td>
+                                {formatDate(tournament.endDate)} {', '}
+                                {new Date(tournament.endDate).toLocaleTimeString()}
+                            </td>
                             <td>{tournament.maxTeams}</td>
-                            <td>{new Date(tournament.registrationDeadline).toLocaleString()}</td>
+                            <td>
+                                {formatDate(tournament.registrationDeadline)} {', '}
+                                {new Date(tournament.registrationDeadline).toLocaleTimeString()}
+                            </td>
                             <td>
                                 <img
                                     src={tournament.thumUrl}

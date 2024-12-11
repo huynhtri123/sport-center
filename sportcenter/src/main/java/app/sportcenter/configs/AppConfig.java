@@ -31,9 +31,9 @@ public class AppConfig {
     @Value("10")
     private Integer logRounds;
 
-    @Value(("${client.url}"))
+    @Value("${client.url}")
     private String clientUrl;
 
-    @Value(("${default.icon}"))
+    @Value("${default.icon}")
     private String defaultIcon;
 }

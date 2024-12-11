@@ -23,7 +23,7 @@ const SportList = () => {
             if (fieldsResponse.status === 404) {
                 toast.warn(fieldsResponse.message);
             } else {
-                toast.success(fieldsResponse.message);
+                // toast.success(fieldsResponse.message);
             }
             setFields(fieldsResponse.data);
             localStorage.setItem('selectedFields', JSON.stringify(fieldsResponse.data));

@@ -47,7 +47,7 @@ const FieldList = () => {
             const fieldResponse = await bookingApi.updateAndGetSchedule(onDaySchedule);
             // console.log(fieldResponse.data);
             if (fieldResponse.data) {
-                toast.success(fieldResponse.message);
+                // toast.success(fieldResponse.message);
                 setField(fieldResponse.data);
                 // Lưu thông tin sân vào localStorage
                 localStorage.setItem('selectedField', JSON.stringify(fieldResponse.data));

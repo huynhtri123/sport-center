@@ -12,19 +12,90 @@
 }
 
 .infoSection {
-    display: flex; /* Căn chỉnh thông tin theo chiều ngang */
-    gap: 60px; /* Giảm khoảng cách giữa các phần tử để chặt chẽ hơn */
-    align-items: flex-start; /* Căn chỉnh phần tử theo chiều dọc */
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
     margin-bottom: 40px;
     padding: 20px;
     background-color: $blue-prime;
-    border-radius: 10px; /* Bo góc lớn hơn để tạo cảm giác mềm mại */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12); /* Làm nhẹ đổ bóng */
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 
     @media (max-width: 768px) {
-        flex-direction: column; /* Chuyển từ hàng sang cột trên màn hình nhỏ */
-        gap: 20px; /* Giảm khoảng cách giữa các phần tử */
-        align-items: center; /* Căn giữa nội dung */
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+.tournamentInfo {
+    flex: 1;
+    color: #fff;
+
+    h1 {
+        font-size: 2rem;
+        color: $yellow-hover;
+        margin-bottom: 20px;
+    }
+
+    .infoList {
+        list-style: none;
+        padding: 0;
+
+        li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+
+            i {
+                color: #ffc107;
+                margin-right: 10px;
+                font-size: 1.2rem;
+            }
+
+            span {
+                font-weight: bold;
+                margin-right: 8px;
+            }
+        }
+    }
+
+    .registrationFee {
+        color: rgb(255, 24, 24);
+        font-weight: bold;
+    }
+
+    .registerButton {
+        margin-top: 20px;
+        padding: 12px 24px;
+        background-color: $yellow-prime;
+        color: #333;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+
+        &:hover {
+            background-color: $yellow-hover;
+        }
+    }
+}
+
+.thumbnailContainer {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 3px solid #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    object-fit: cover;
+    max-width: 500px;
+
+    .thumbnail {
+        width: 100%;
+        max-width: 500px;
+        height: auto;
+        border-radius: 8px;
+        object-fit: cover;
     }
 }
 
@@ -33,9 +104,9 @@
     padding-right: 20px;
     color: #fff;
 
-    h1 {
+    h2 {
         font-size: 2rem;
-        color: $yellow-hover;
+        color: $xanh-nhat;
         margin-bottom: 15px; /* Tăng khoảng cách giữa tiêu đề và nội dung */
         display: flex;
         align-items: center; /* Căn biểu tượng với text */
@@ -70,7 +141,7 @@
     }
 
     .dateInfo {
-        color: #85a98f;
+        color: white;
     }
 
     .registrationFee {
@@ -83,7 +154,7 @@
 .rulesSection {
     margin-bottom: 30px;
     padding: 20px;
-    background-color: #e7f3ff; /* Nền sáng hơn để phân biệt */
+    background-color: #edf6ff; /* Nền sáng hơn để phân biệt */
     border-radius: 10px; /* Bo góc nhẹ */
     box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
     color: #333; /* Màu chữ chính */
@@ -92,8 +163,8 @@
 .rulesSection h2 {
     font-size: 1.5rem;
     margin-bottom: 15px;
-    color: $blue-prime; /* Màu tiêu đề nổi bật */
-    border-bottom: 2px solid #007bff; /* Đường viền dưới tiêu đề */
+    color: $yellow-hover; /* Màu tiêu đề nổi bật */
+    border-bottom: 2px solid $blue-prime; /* Đường viền dưới tiêu đề */
     padding-bottom: 5px;
     display: flex;
     align-items: center;
@@ -132,7 +203,7 @@
 }
 
 .ruleItem:hover {
-    background-color: #c4d4e4; /* Đổi nền khi hover */
+    background-color: #d9e8f7; /* Đổi nền khi hover */
     color: #fff; /* Đổi màu chữ khi hover */
     transform: scale(1.02); /* Phóng to nhẹ */
 }
@@ -170,19 +241,9 @@
     box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1); /* Đổ bóng mềm mại */
 }
 
-.prizes h2 {
-    font-size: 1.8rem; /* Tăng kích thước tiêu đề */
-    margin-bottom: 15px; /* Tăng khoảng cách dưới tiêu đề */
-    color: #ff9800; /* Màu vàng cam nổi bật */
-    display: flex;
-    align-items: center; /* Căn biểu tượng với chữ theo chiều dọc */
-    border-bottom: 2px solid #ffc107; /* Viền dưới vàng nhạt */
-    padding-bottom: 10px; /* Khoảng cách giữa chữ và viền dưới */
-}
-
 .prizes h2 i {
     margin-right: 10px; /* Khoảng cách giữa biểu tượng và chữ */
-    color: #ffc107; /* Màu biểu tượng phù hợp với viền */
+    color: $blue-prime; /* Màu biểu tượng phù hợp với viền */
 }
 
 .prizes ul {
@@ -228,11 +289,15 @@
 .registeredTeams {
     margin-bottom: 30px;
 
+    h2 i {
+        color: $yellow-hover;
+    }
+
     h2 {
         font-size: 1.5rem;
         margin-bottom: 10px;
         color: $yellow-hover;
-        border-bottom: 2px solid #007bff;
+        border-bottom: 2px solid $blue-prime;
         padding-bottom: 5px;
     }
 

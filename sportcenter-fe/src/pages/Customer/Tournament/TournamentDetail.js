@@ -5,7 +5,7 @@ import Button from '../../../components/Button/Button';
 import tournamentApi from '../../../services/api/tournamentApi';
 import { useNavigate } from 'react-router-dom';
 import formatCurrency from '../../../utils/formatCurrency';
-import { defaultIcon } from '../../../utils/defaultIcon';
+import { formatDate } from '../../../utils/DateTimeConverter';
 
 const TournamentDetail = () => {
     const [tournament, setTournament] = useTournament();
@@ -48,27 +48,37 @@ const TournamentDetail = () => {
             {/* Section 1: Thông tin giải đấu */}
             <div className={styles.infoSection}>
                 <div className={styles.tournamentInfo}>
-                    <h1 className={styles.tournamentName}>
+                    <h2 className={styles.tournamentName}>
                         <i className='fa-solid fa-trophy me-3'></i>
                         {tournament.tournamentName}
-                    </h1>
-                    <div className='mt-4'>
-                        <span>Sport:</span> {tournament.sport?.sportName}
+                    </h2>
+                    <div className='mt-4'>{tournament.sport?.sportName}</div>
+                    <div className={styles.dateInfo}>
+                        <i className='fa-solid fa-calendar-days'></i>
+                        <span>Start Date: </span>
+                        <time>
+                            {formatDate(tournament.startDate)}
+                            {', '}
+                            {new Date(tournament.startDate).toLocaleTimeString()}
+                        </time>
                     </div>
                     <div className={styles.dateInfo}>
                         <i className='fa-solid fa-calendar-days'></i>
-                        <span>Start Date:</span>
-                        <time>{new Date(tournament.startDate).toLocaleString()}</time>
-                    </div>
-                    <div className={styles.dateInfo}>
-                        <i className='fa-solid fa-calendar-days'></i>
-                        <span>End Date:</span>
-                        <time>{new Date(tournament.endDate).toLocaleString()}</time>
+                        <span>End Date: </span>
+                        <time>
+                            {formatDate(tournament.endDate)}
+                            {', '}
+                            {new Date(tournament.endDate).toLocaleTimeString()}
+                        </time>
                     </div>
                     <div className={styles.dateInfo}>
                         <i class='fa-solid fa-hourglass-start'></i>
-                        <span>Registration Deadline:</span>
-                        <time>{new Date(tournament.registrationDeadline).toLocaleString()}</time>
+                        <span>Registration Deadline: </span>
+                        <time>
+                            {formatDate(tournament.registrationDeadline)}
+                            {', '}
+                            {new Date(tournament.registrationDeadline).toLocaleTimeString()}
+                        </time>
                     </div>
 
                     <div>
@@ -79,24 +89,6 @@ const TournamentDetail = () => {
                         <span className={styles.registrationFee}>
                             {formatCurrency(tournament.registrationFee || 0)}
                         </span>
-                    </div>
-                    <div className={styles.rulesSection}>
-                        <h2>
-                            <i className='fa-solid fa-book me-3'></i>
-                            Rules
-                        </h2>
-                        <ul className={styles.rulesList}>
-                            {tournament.rules && tournament.rules.length > 0 ? (
-                                tournament.rules.map((rule, index) => (
-                                    <li key={index} className={styles.ruleItem}>
-                                        <i className='fa-solid fa-check-circle'></i>
-                                        <span>{rule}</span>
-                                    </li>
-                                ))
-                            ) : (
-                                <p className={styles.noRules}>No rules available for this tournament.</p>
-                            )}
-                        </ul>
                     </div>
 
                     <Button className={styles.registerButton} onClick={handleRegister}>
@@ -131,6 +123,25 @@ const TournamentDetail = () => {
                     <p>No prizes available.</p>
                 )}
             </section>
+
+            <div className={styles.rulesSection}>
+                <h2>
+                    <i className='fa-solid fa-book me-3'></i>
+                    Rules
+                </h2>
+                <ul className={styles.rulesList}>
+                    {tournament.rules && tournament.rules.length > 0 ? (
+                        tournament.rules.map((rule, index) => (
+                            <li key={index} className={styles.ruleItem}>
+                                <i className='fa-solid fa-check-circle'></i>
+                                <span>{rule}</span>
+                            </li>
+                        ))
+                    ) : (
+                        <p className={styles.noRules}>No rules available for this tournament.</p>
+                    )}
+                </ul>
+            </div>
 
             {/* Section 3: Các đội tham gia */}
             <section className={styles.registeredTeams}>
