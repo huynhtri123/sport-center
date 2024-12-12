@@ -5,9 +5,9 @@ const authApi = {
         const url = '/auth/signin';
         return axiosClient.post(url, signinRequest);
     },
-    refreshToken(refreshTokenRequest) {
+    refreshToken() {
         const url = '/auth/refreshToken';
-        return axiosClient.post(url, refreshTokenRequest);
+        return axiosClient.post(url);
     },
     signup(signupRequest) {
         const url = '/auth/signup';
@@ -24,6 +24,10 @@ const authApi = {
     renewPassword(userId, renewPasswordRequest) {
         const url = `/auth/renewPassword/${userId}`;
         return axiosClient.patch(url, renewPasswordRequest);
+    },
+    signout() {
+        const url = '/signout';
+        return axiosClient.post(url);
     },
 };
 

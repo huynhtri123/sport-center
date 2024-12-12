@@ -25,7 +25,7 @@ public class JWTServiceImpl implements JWTService {
         return Jwts.builder()
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000L *60 * 30)) // hết hạn sau 30 phút
+                .expiration(new Date(System.currentTimeMillis() + 1000L *60 * 30)) // hết hạn sau 30 phút: 1000L *60 * 30
                 .signWith(getSigninKey(), Jwts.SIG.HS256)
                 .compact();
     }
@@ -36,7 +36,7 @@ public class JWTServiceImpl implements JWTService {
                 .claims(extraClaims)
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 7)) // hết hạn sau 7 ngày
+                .expiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 7)) // hết hạn sau 7 ngày: 1000L * 60 * 60 * 24 * 7
                 .signWith(getSigninKey(), Jwts.SIG.HS256)
                 .compact();
     }
@@ -90,6 +90,11 @@ public class JWTServiceImpl implements JWTService {
         } catch (Exception e) {
             return false; // Token không hợp lệ
         }
+    }
+
+    @Override
+    public Date extractIssuedAt(String token) {
+        return extractClaim(token, Claims::getIssuedAt);
     }
 
 }

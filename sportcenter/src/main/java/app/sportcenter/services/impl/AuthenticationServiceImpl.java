@@ -6,14 +6,19 @@ import app.sportcenter.configs.AppConfig;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
 import app.sportcenter.models.dto.*;
+import app.sportcenter.models.entities.BackListToken;
 import app.sportcenter.models.entities.User;
 import app.sportcenter.models.entities.Verify;
+import app.sportcenter.repositories.BackListTokenRepository;
 import app.sportcenter.repositories.UserRepository;
 import app.sportcenter.services.AuthenticationService;
 import app.sportcenter.services.JWTService;
 import app.sportcenter.services.MailService;
 import app.sportcenter.services.UserService;
 import app.sportcenter.utils.mappers.UserMapper;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,10 +30,16 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.time.Duration;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -43,6 +54,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final MailService mailService;
     private final UserMapper userMapper;
     private final UserService userService;
+    private final BackListTokenRepository backListTokenRepository;
 
     @Override
     public void autoCreateAdminAccount() {
@@ -163,7 +175,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 
     @Override
-    public ResponseEntity<BaseResponse> signin(SigninRequest signinRequest) {
+    public ResponseEntity<BaseResponse> signin(SigninRequest signinRequest, HttpServletResponse response) {
         try {
             // xác thực email và password
             authenticationManager.authenticate(
@@ -184,18 +196,37 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         // kiểm tra tài khoản đã được xác thực chưa
         if (!user.getIsEmailVerified()) {
-            throw new BadCredentialsException("Tài khoản này chưa được xác thực. Vui lòng bấm quên mật khẩu để xác thực.");
+            throw new BadCredentialsException("Tài khoản này chưa được xác thực. Vui lòng chọn chức năng Quên mật khẩu để xác thực.");
         }
 
-        var jwt = jwtService.generateToken(user);
+        var accessToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(new HashMap<>(), user);
 
         JWTAuthResponse jwtAuthResponse = new JWTAuthResponse();
         jwtAuthResponse.setEmail(user.getEmail());
         jwtAuthResponse.setRole(user.getRole().name());
         jwtAuthResponse.setTokenType("Bearer");
-        jwtAuthResponse.setToken(jwt);
+        jwtAuthResponse.setToken(accessToken);
         jwtAuthResponse.setRefreshToken(refreshToken);
+
+        // lưu accessToken vào cookie
+        Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setSecure(true);
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setMaxAge(60 * 30); // 30p (60 * 30)
+
+        // Lưu refreshToken vào cookie
+        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setSecure(true);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge(60 * 60 * 24 * 7); // 7 ngày (60 * 60 * 24 * 7)
+
+        // Thêm cookies vào response
+        response.addCookie(accessTokenCookie);
+        response.addCookie(refreshTokenCookie);
+
 
         log.info("Login successfully! UserId: " + user.getId() + " Role: " + user.getRole());
 
@@ -207,18 +238,52 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public ResponseEntity<BaseResponse> refreshToken(RefreshTokenRequest refreshTokenRequest) {
-        String userEmail = jwtService.extractUserName(refreshTokenRequest.getToken());
+    public ResponseEntity<BaseResponse> refreshToken(HttpServletRequest request, HttpServletResponse response) {
+        // lấy refreshToken từ cookie
+        String refreshToken = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    refreshToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+        //log.error("check refreshTokenCookie: " + refreshToken);
+
+        if (refreshToken == null) {
+            // Refresh token not found
+            throw new CustomException("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!", HttpStatus.BAD_REQUEST.value());
+        }
+
+        // Kiểm tra xem refreshToken có bị revoked (ở trong blacklist) không
+        Optional<BackListToken> backListTokenOpt = backListTokenRepository.getBackListTokenByToken(refreshToken);
+        if (backListTokenOpt.isPresent() && backListTokenOpt.get().isRevoked()) {
+            // Nếu refreshToken đã bị revoked (trong blacklist)
+            throw new CustomException("Refresh token has been revoked", HttpStatus.BAD_REQUEST.value());
+        }
+
+        String userEmail = jwtService.extractUserName(refreshToken);
         User user = userRepository.getUserByEmail(userEmail)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        if (jwtService.isValidToken(refreshTokenRequest.getToken(), user)){
+        if (jwtService.isValidToken(refreshToken, user)){
             var jwt = jwtService.generateToken(user);
 
             JWTAuthResponse jwtAuthResponse = new JWTAuthResponse();
             jwtAuthResponse.setEmail(user.getEmail());
             jwtAuthResponse.setTokenType("Bearer");
             jwtAuthResponse.setToken(jwt);
-            jwtAuthResponse.setRefreshToken(refreshTokenRequest.getToken());
+            jwtAuthResponse.setRefreshToken(refreshToken);
+
+            // Lưu accessToken vào cookie
+            Cookie accessTokenCookie = new Cookie("accessToken", jwtAuthResponse.getToken());
+            accessTokenCookie.setHttpOnly(true);
+            accessTokenCookie.setSecure(true);
+            accessTokenCookie.setPath("/");
+            accessTokenCookie.setMaxAge(60 * 30); // 30p
+            // Thêm cookies vào response
+            response.addCookie(accessTokenCookie);
 
             return ResponseEntity.status(HttpStatus.OK).body(
                     new BaseResponse("Refresh token successfully", HttpStatus.OK.value(), jwtAuthResponse)
@@ -320,6 +385,48 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         log.info("Change password succesfully! UserId: " + user.getId());
 
         return userMapper.convertToDTO(user);
+    }
+
+    @Override
+    public void signout(HttpServletRequest request, HttpServletResponse response) {
+        // lấy refreshToken từ cookie
+        String refreshToken = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    refreshToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        // Nếu refreshToken tồn tại, lưu vào blacklist
+        // cải tiến sau này: check refreshToken hết hạn thì xoá ra khỏi db
+        if (refreshToken != null) {
+            BackListToken backListToken = new BackListToken();
+            backListToken.setToken(refreshToken);
+            backListToken.setRevoked(true);
+            backListTokenRepository.save(backListToken);
+        }
+
+        // Xóa refreshToken cookie
+        Cookie refreshTokenCookie = new Cookie("refreshToken", null);
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setSecure(true); // Chỉ dùng khi HTTPS
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge(0); // Xóa cookie
+
+        // Xóa accessToken cookie
+        Cookie accessTokenCookie = new Cookie("accessToken", null);
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setSecure(true); // Chỉ dùng khi HTTPS
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setMaxAge(0); // Xóa cookie
+
+        // Đính cookie đã xóa vào response
+        response.addCookie(refreshTokenCookie);
+        response.addCookie(accessTokenCookie);
     }
 
 }

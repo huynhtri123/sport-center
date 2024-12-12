@@ -3,10 +3,13 @@ package app.sportcenter.controllers;
 import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.models.dto.*;
 import app.sportcenter.services.AuthenticationService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -33,13 +36,13 @@ public class AuthenticationController {
     }
 
     @PostMapping("/auth/signin")
-    public ResponseEntity<BaseResponse> signin(@Valid @RequestBody SigninRequest signinRequest) {
-        return authenticationService.signin((signinRequest));
+    public ResponseEntity<BaseResponse> signin(@Valid @RequestBody SigninRequest signinRequest, HttpServletResponse response) {
+        return authenticationService.signin(signinRequest, response);
     }
 
     @PostMapping("/auth/refreshToken")
-    public ResponseEntity<BaseResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
-        return authenticationService.refreshToken((refreshTokenRequest));
+    public ResponseEntity<BaseResponse> refreshToken(HttpServletRequest request, HttpServletResponse response) {
+        return authenticationService.refreshToken(request, response);
     }
 
     @PostMapping("/auth/getVerify")
@@ -53,6 +56,15 @@ public class AuthenticationController {
         return ResponseEntity.status(HttpStatus.OK).body(
                 new BaseResponse("Đổi mật khẩu thành công", HttpStatus.OK.value(),
                         authenticationService.renewPassword(userId, renewPasswordRequest))
+        );
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
+    @PostMapping("/signout")
+    public ResponseEntity<BaseResponse> logout(HttpServletRequest request, HttpServletResponse response) {
+        authenticationService.signout(request, response);
+        return ResponseEntity.ok(
+                new BaseResponse("Log out successfully!", HttpStatus.OK.value(), null)
         );
     }
 }
