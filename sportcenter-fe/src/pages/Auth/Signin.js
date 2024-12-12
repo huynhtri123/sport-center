@@ -40,12 +40,10 @@ function Signin() {
         e.preventDefault();
         try {
             const siginResponse = await authApi.signin(signinRequest);
-            // Xóa thông tin cũ trước khi lưu thông tin mới (việc này sẽ cho làm trong đăng xuất)
+            // Xóa thông tin cũ trước khi lưu thông tin mới (xoá cho chắc thôi chứ signout xoá rồi)
             handleLocalStorage.clearToken();
-            // Lưu thông tin mới vào localStorage
-            // console.log(siginResponse.data);
-            const { email, role, tokenType, token, refreshToken } = siginResponse.data;
-            handleLocalStorage.setToken(email, role, tokenType, token, refreshToken);
+            const { email, role } = siginResponse.data;
+            handleLocalStorage.setToken(email, role);
 
             toast.success(siginResponse.message);
             setFailed(false);

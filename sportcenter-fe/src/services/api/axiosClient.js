@@ -9,6 +9,7 @@ const axiosClient = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
+    withCredentials: true,
 });
 
 // Interceptors
@@ -16,11 +17,6 @@ const axiosClient = axios.create({
 axiosClient.interceptors.request.use(
     function (config) {
         // Do something before request is sent
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers['Authorization'] = `Bearer ${token}`;
-        }
-
         return config;
     },
     function (error) {
@@ -30,8 +26,8 @@ axiosClient.interceptors.request.use(
 );
 
 // Biến lưu trữ trạng thái refresh token
-let isRefreshing = false;
-let refreshSubscribers = [];
+let isRefreshing = false; // cờ lưu trạng thái có yêu cầu refreshToken nào đang chạy ko
+let refreshSubscribers = []; // danh sách các hàm đợi refreshToken xong mới thực hiện tiếp
 
 // Hàm gọi các yêu cầu trong hàng đợi sau khi có token mới
 function onRefreshed(token) {
@@ -47,8 +43,8 @@ function addSubscriber(callback) {
 }
 
 // Hàm để refresh token
-async function execRefreshToken(token) {
-    return authApi.refreshToken({ token: token });
+async function execRefreshToken() {
+    return authApi.refreshToken();
 }
 
 // Add a response interceptor
@@ -63,57 +59,41 @@ axiosClient.interceptors.response.use(
             const { status, data } = error.response;
             // console.log(status, data);
 
+            // Xử lý lỗi 401 (Unauthorized)
             if (status === 401 && !originalRequest._retry) {
-                // Xử lý lỗi 401 (Unauthorized)
                 originalRequest._retry = true; // Đánh dấu là đã thử lại một lần
+                // Nếu chưa có yêu cầu làm mới token nào đang chạy
+                if (!isRefreshing) {
+                    isRefreshing = true;
+                    try {
+                        const response = await execRefreshToken();
+                        const newToken = response.data.token;
+                        isRefreshing = false;
+                        // Gọi lại tất cả các yêu cầu đang chờ với token mới
+                        onRefreshed(newToken);
 
-                const refreshToken = localStorage.getItem('refreshToken');
+                        // Thử gửi lại yêu cầu ban đầu với token mới
+                        console.info('Vừa refresh token thành công.');
+                        return axiosClient(originalRequest);
+                    } catch (refreshError) {
+                        console.error('Refresh token failed: ', refreshError);
+                        // đánh dấu là chưa có yêu cầu refreshToken nào đang chạy
+                        isRefreshing = false;
 
-                // Kiểm tra nếu có refresh token
-                if (refreshToken) {
-                    if (!isRefreshing) {
-                        // Nếu chưa có yêu cầu làm mới token nào đang chạy
-                        isRefreshing = true;
-
-                        try {
-                            localStorage.removeItem('token');
-                            const response = await execRefreshToken(refreshToken);
-                            const newToken = response.data.token;
-
-                            // Lưu token mới vào localStorage
-                            localStorage.setItem('token', newToken);
-                            // Đánh dấu việc làm mới token đã xong
-                            isRefreshing = false;
-                            // Gọi lại tất cả các yêu cầu đang chờ với token mới
-                            onRefreshed(newToken);
-
-                            // Thử gửi lại yêu cầu ban đầu với token mới
-                            originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
-                            console.warn('Vừa refresh token thành công.');
-                            return axiosClient(originalRequest);
-                        } catch (refreshError) {
-                            // Nếu làm mới token thất bại, xóa token và yêu cầu đăng nhập lại
-                            console.error('Refresh token failed: ', refreshError);
-                            // toast.error('Refresh token failed: ', refreshError);
-                            handleLocalStorage.clearToken();
-                            redirectToLogin();
-                            return Promise.reject(refreshError);
-                        }
+                        // Xóa tất cả các yêu cầu trong hàng đợi
+                        refreshSubscribers = [];
+                        handleLocalStorage.clearToken();
+                        redirectToLogin();
+                        return Promise.reject(refreshError);
                     }
-
-                    // Nếu đang trong quá trình làm mới token, thêm yêu cầu vào hàng đợi
-                    return new Promise((resolve) => {
-                        addSubscriber((newToken) => {
-                            originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
-                            resolve(axiosClient(originalRequest));
-                        });
-                    });
-                } else {
-                    // Không có refresh token => yêu cầu đăng nhập lại
-                    // toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
-                    handleLocalStorage.clearToken();
-                    redirectToLogin();
                 }
+
+                // Nếu đang trong quá trình làm mới token, thêm yêu cầu vào hàng đợi
+                return new Promise((resolve) => {
+                    addSubscriber(() => {
+                        resolve(axiosClient(originalRequest));
+                    });
+                });
             }
 
             // Sử dụng error.response.status để xử lý các lỗi khác
@@ -140,7 +120,7 @@ axiosClient.interceptors.response.use(
 );
 
 function redirectToLogin() {
-    window.location.href = '/#/sign-in'; // Chuyển hướng trang đăng nhập
+    window.location.href = '/#/sign-in'; // chuyển hướng đến trang đăng nhập
 }
 
 export default axiosClient;

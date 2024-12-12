@@ -6,6 +6,7 @@ import { useCheckSignedIn } from '../../customs/hooks';
 import styles from '../../assets/css/Auth/auth.module.scss';
 import Button from '../../components/Button/Button';
 import ConfirmModal from '../../components/Modal/ConfirmModal';
+import authApi from '../../services/api/authApi';
 
 function Signout() {
     // eslint-disable-next-line no-unused-vars
@@ -16,11 +17,16 @@ function Signout() {
         setIsModalOpen(!isModalOpen);
     };
 
-    const handleSignout = () => {
-        handleLocalStorage.clearToken();
-        setIsSignedIn(false);
-        toast.info('Log out successfully!');
-        navigate('/');
+    const handleSignout = async () => {
+        try {
+            const signoutResponse = await authApi.signout();
+            toast.success(signoutResponse.message);
+            handleLocalStorage.clearToken();
+            setIsSignedIn(false);
+            navigate('/');
+        } catch (err) {
+            console.error(err);
+        }
     };
 
     return (

@@ -17,31 +17,31 @@ function MyPaymentInfo() {
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false); // Quản lý trạng thái ConfirmModal
     const [paymentToDelete, setPaymentToDelete] = useState(null); // Lưu payment cần xóa
 
-    useEffect(() => {
-        const fetchUserProfile = async () => {
-            try {
-                setIsLoading(true);
-                const response = await userApi.myProfile();
-                const userData = response.data;
+    const fetchUserProfile = async () => {
+        try {
+            setIsLoading(true);
+            const response = await userApi.myProfile();
+            const userData = response.data;
 
-                setUserId(userData.id); // Store userId in state
+            setUserId(userData.id); // Store userId in state
 
-                if (userData && userData.paymentInfos && userData.paymentInfos.length > 0) {
-                    setPayments(userData.paymentInfos);
-                } else {
-                    if (payments.length === 0) {
-                        toast.info('No payment records found.');
-                    }
-                    setPayments([]);
+            if (userData && userData.paymentInfos && userData.paymentInfos.length > 0) {
+                setPayments(userData.paymentInfos);
+            } else {
+                if (payments.length === 0) {
+                    toast.info('No payment records found.');
                 }
-            } catch (err) {
-                console.error(err);
-                toast.error('Failed to fetch user profile and payment information.');
-            } finally {
-                setIsLoading(false);
+                setPayments([]);
             }
-        };
+        } catch (err) {
+            console.error(err);
+            toast.error('Failed to fetch user profile and payment information.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
+    useEffect(() => {
         fetchUserProfile();
     }, [payments.length]);
 
@@ -89,6 +89,7 @@ function MyPaymentInfo() {
             const response = await userApi.updatePaymentInfo(updatedPayment, updatedPayment.userId, paymentId);
             setPayments((prevPayments) => prevPayments.map((p) => (p.id === paymentId ? response.data : p)));
             toast.success('Payment updated successfully');
+            fetchUserProfile();
         } catch (error) {
             toast.error('Failed to update payment.');
         }
