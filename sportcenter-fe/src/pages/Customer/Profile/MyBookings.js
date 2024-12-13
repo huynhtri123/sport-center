@@ -128,10 +128,10 @@ function BookingCard({ booking, handleCancelBookingSubmit, handleCancelRecurring
             {booking.recurring ? (
                 <div>
                     <button className={styles.cancelBtn} onClick={() => toggleModalOpen()}>
-                        Just cancel this (2)
+                        Single cancel
                     </button>
                     <button className={styles.cancelBtn} onClick={() => toggleCancelRecurringModalOpen()}>
-                        Cancel recurring (3)
+                        Recurring Cancel
                     </button>
                     {isCancelRecurringModalOpen && (
                         <ConfirmModal
@@ -146,7 +146,7 @@ function BookingCard({ booking, handleCancelBookingSubmit, handleCancelRecurring
                 </div>
             ) : (
                 <button className={styles.cancelBtn} onClick={() => toggleModalOpen()}>
-                    Cancel booking (1)
+                    Cancel booking
                 </button>
             )}
 

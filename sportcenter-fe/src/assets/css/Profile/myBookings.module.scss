@@ -24,12 +24,12 @@
 }
 
 .bookingCard.recurring {
-    background-color: #f9f7d9;
+    background-color: $yellow-nhat-bg;
     border: 1px solid #f7e34d;
 }
 
 .bookingCard.nonRecurring {
-    background-color: $xanh-nhat;
+    background-color: $blue-nhat-bg;
     border: 1px solid #5bc0de;
 }
 
@@ -65,7 +65,7 @@
 
     .cancelBtn {
         background-color: #ccc;
-        color: #fff;
+        color: $blue-prime;
         border: none;
         border-radius: 4px;
         padding: 0.5rem 1rem;

@@ -129,21 +129,19 @@ function ManageSports() {
         setShowInputForm(true);
     };
 
-    const filteredSports = sports.filter(sport =>
-        sport.sportName.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredSports = sports.filter((sport) => sport.sportName.toLowerCase().includes(searchQuery.toLowerCase()));
 
     return (
         <div className={styles.manageSports}>
             {isLoading && <Loading />}
             <button className={`btn ${styles.addButton}`} onClick={handleToggleShowAddSport}>
-                {isEditing ? 'Hủy chỉnh sửa' : 'Thêm môn thể thao mới'}
+                {isEditing ? 'Cancel edit' : 'Create new sport'}
             </button>
 
             <div className={styles.searchContainer}>
                 <input
-                    type="text"
-                    placeholder="Tìm kiếm theo tên môn thể thao..."
+                    type='text'
+                    placeholder='Search by sport name...'
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className={styles.searchInput}
@@ -156,7 +154,7 @@ function ManageSports() {
                         <input
                             type='text'
                             name='sportName'
-                            placeholder='Tên Môn Thể Thao'
+                            placeholder='Search'
                             value={isEditing ? editingSport.sportName : formData.sportName}
                             onChange={handleChange}
                         />
@@ -174,7 +172,7 @@ function ManageSports() {
                             value={isEditing ? editingSport.imageUrl : formData.imageUrl}
                             onChange={handleChange}
                         />
-                        <button type="submit" className={`btn ${styles.addButton}`}>
+                        <button type='submit' className={`btn ${styles.addButton}`}>
                             {isEditing ? 'Cập nhật môn thể thao' : 'Thêm môn thể thao'}
                         </button>
                     </div>
@@ -185,10 +183,10 @@ function ManageSports() {
                 <thead>
                     <tr>
                         <th>STT</th>
-                        <th>Tên Môn Thể Thao</th>
-                        <th>Mô Tả</th>
-                        <th>Ảnh</th>
-                        <th>Thao Tác</th>
+                        <th>Sport Name</th>
+                        <th>Description</th>
+                        <th>Image</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -206,13 +204,13 @@ function ManageSports() {
                                         className={`btn ${styles.editButton}`}
                                         onClick={() => handleEditClick(sport)}
                                     >
-                                        Chỉnh sửa
+                                        Edit
                                     </button>
                                     <button
                                         className={`btn ${styles.deleteButton}`}
                                         onClick={() => toggleModalOpen(sport.id)}
                                     >
-                                        Xóa
+                                        Delete
                                     </button>
                                     {isModalOpen && deleteSportId === sport.id && (
                                         <ConfirmModal
@@ -234,17 +232,11 @@ function ManageSports() {
             </table>
 
             <div className={styles.pagination}>
-                <button
-                    disabled={currentPage === 0}
-                    onClick={() => setCurrentPage(currentPage - 1)}
-                >
+                <button disabled={currentPage === 0} onClick={() => setCurrentPage(currentPage - 1)}>
                     Previous
                 </button>
                 <span>{`Page ${currentPage + 1} of ${totalPages}`}</span>
-                <button
-                    disabled={currentPage >= totalPages - 1}
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                >
+                <button disabled={currentPage >= totalPages - 1} onClick={() => setCurrentPage(currentPage + 1)}>
                     Next
                 </button>
             </div>

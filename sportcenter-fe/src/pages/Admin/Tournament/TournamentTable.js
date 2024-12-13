@@ -16,15 +16,15 @@ function TournamentTable({
         <table className={`mt-4 ${styles.tournamentsTable}`}>
             <thead>
                 <tr>
-                    <th>STT</th>
-                    <th>Tên Giải đấu</th>
-                    <th>Môn Thể Thao</th>
-                    <th>Ngày bắt đầu</th>
-                    <th>Ngày kết thúc</th>
-                    <th>Số đội tối đa</th>
-                    <th>Hạn đăng ký</th>
-                    <th>Ảnh</th>
-                    <th>Thao tác</th>
+                    <th>Order</th>
+                    <th>Tournament Name</th>
+                    <th>Sport Id</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Max teams</th>
+                    <th>Registration Deadline</th>
+                    <th>Image</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -60,13 +60,13 @@ function TournamentTable({
                                         className={`btn ${styles.editButton}`}
                                         onClick={() => handleEditClick(tournament)}
                                     >
-                                        Chỉnh sửa
+                                        Edit
                                     </button>
                                     <button
                                         className={`btn ${styles.deleteButton}`}
                                         onClick={() => toggleModalOpen(tournament.id)}
                                     >
-                                        Xóa
+                                        Delete
                                     </button>
                                     {isModalOpen && deleteTournamentId === tournament.id && (
                                         <ConfirmModal

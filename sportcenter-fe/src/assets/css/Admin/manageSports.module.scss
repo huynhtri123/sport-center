@@ -88,15 +88,21 @@
         margin: 0 4px;
     }
 
+    tr {
+        text-align: center;
+    }
+
     .editButton,
     .deleteButton {
         width: 100px;
+        margin: 8px 8px;
         padding: 6px 12px; // Padding for the buttons
         border: none; // Remove default border
         border-radius: 4px; // Rounded corners
         font-size: 0.875rem; // Font size
         cursor: pointer; // Pointer cursor on hover
         transition: background-color 0.3s, transform 0.2s; // Smooth transition effects
+        font-weight: 700;
 
         &.editButton {
             background-color: $blue-prime; // Primary color for edit button

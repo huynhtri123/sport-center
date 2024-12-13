@@ -181,13 +181,13 @@ function ManageBookings() {
                                                 className={`btn ${styles.cancelButtonRecurring}`}
                                                 onClick={() => handleCancelBooking(booking)}
                                             >
-                                                Just cancel this
+                                                Single Cancel
                                             </Button>
                                             <Button
                                                 className={`btn ${styles.cancelButtonRecurring}`}
                                                 onClick={() => toggleCancelRecurringModalOpen(booking.id)}
                                             >
-                                                Cancel Recurring
+                                                Recurring Cancel
                                             </Button>
                                             {isCancelRecurringModalOpen && (
                                                 <ConfirmModal

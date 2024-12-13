@@ -17,7 +17,12 @@
 
     th:first-child, /* Cột đầu tiên (#) */
     td:first-child {
-        width: 100px;
+        width: 75px;
+    }
+
+    th:last-child,
+    td:last-child {
+        width: 140px;
     }
 
     th:nth-child(4), /* Cột Customer Info */
@@ -25,14 +30,19 @@
         width: 250px;
     }
 
-    th:nth-child(7), /* Cột Duration */
-    td:nth-child(7) {
-        width: 120px;
+    th:nth-child(6), /* Cột time range */
+    td:nth-child(6) {
+        width: 160px;
     }
 
-    th:nth-child(8), /* Cột Time Range */
+    th:nth-child(7), /* Cột duration */
+    td:nth-child(7) {
+        width: 100px;
+    }
+
+    th:nth-child(8), /* Cột price */
     td:nth-child(8) {
-        width: 150px;
+        width: 110px;
     }
 
     .customerInfo {
