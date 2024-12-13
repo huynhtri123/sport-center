@@ -164,6 +164,13 @@ function Profile() {
     };
 
     const handleSave = () => {
+        // Kiểm tra số điện thoại có hợp lệ không
+        const phoneNumber = userInfo.phoneNumber;
+        const phoneRegex = /^\d{10}$/; // Biểu thức chính quy kiểm tra chỉ có 10 chữ số
+        if (!phoneRegex.test(phoneNumber)) {
+            toast.warn('Please enter a valid 10-digit phone number.');
+            return; // Dừng lại nếu số điện thoại không hợp lệ
+        }
         updateProfile();
         setIsEditing(false);
     };
@@ -220,6 +227,12 @@ function Profile() {
                                 onChange={handleChange}
                                 className={styles.inputField}
                                 placeholder='Phone Number'
+                                onInput={(e) => {
+                                    // Chỉ cho phép nhập chữ số và giới hạn độ dài 10
+                                    e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
+                                }}
+                                maxLength='10' // Giới hạn độ dài tối đa là 10 ký tự
+                                required // Yêu cầu nhập dữ liệu
                             />
                             <input
                                 type='text'
@@ -235,6 +248,7 @@ function Profile() {
                                 value={userInfo.dateOfBirth && userInfo.dateOfBirth.split('T')[0]}
                                 onChange={handleChange}
                                 className={styles.inputField}
+                                max={new Date().toISOString().split('T')[0]} // Giới hạn ngày tối đa là hôm nay
                             />
                             <div className={styles.buttonGroup}>
                                 <Button onClick={handleSave} className={styles.editButton}>

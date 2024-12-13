@@ -2,7 +2,7 @@ import { useState } from 'react';
 import AuthContext from './AuthContext';
 
 function AuthProvider({ children }) {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('email');
     const check = token ? true : false;
     const [isSignedIn, setIsSignedIn] = useState(check);
 

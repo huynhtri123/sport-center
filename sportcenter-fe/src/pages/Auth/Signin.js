@@ -12,6 +12,10 @@ import { useCheckSignedIn } from '../../customs/hooks';
 import { Role } from '../../utils/enums/Role';
 
 function Signin() {
+    const [showPassword, setShowPassword] = useState(false);
+    const togglePasswordVisibility = () => {
+        setShowPassword((prevState) => !prevState);
+    };
     const [signinRequest, setSigninRequest] = useState({
         email: '',
         password: '',
@@ -92,11 +96,18 @@ function Signin() {
 
                     <div className={styles.inputBox}>
                         <label htmlFor='password' className='font-cera-round-pro-bold ms-2'>
-                            Password
+                            Password{' '}
+                            <span onClick={togglePasswordVisibility} className={styles.iconShowHide}>
+                                {showPassword ? (
+                                    <i class='fa-regular fa-eye' title='Hide password?'></i>
+                                ) : (
+                                    <i class='fa-regular fa-eye-slash' title='Show password?'></i>
+                                )}
+                            </span>
                         </label>
                         <Input
                             className={clsx('mb-3', { [styles.failed]: failed })}
-                            type={'password'}
+                            type={showPassword ? 'text' : 'password'}
                             placeholder={'Enter your password...'}
                             name='password'
                             value={signinRequest.password}
