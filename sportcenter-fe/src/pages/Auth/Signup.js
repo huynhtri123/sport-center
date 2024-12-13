@@ -26,6 +26,15 @@ function Signup() {
         expiredAt: null,
     });
 
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const togglePasswordVisibility = () => {
+        setShowPassword((prevState) => !prevState);
+    };
+    const toggleConfirmPasswordVisibility = () => {
+        setShowConfirmPassword((prevState) => !prevState);
+    };
+
     // lưu lỗi input
     const [errors, setErrors] = useState({});
 
@@ -182,11 +191,18 @@ function Signup() {
 
                     <div className={styles.inputBox}>
                         <label htmlFor='password' className='font-cera-round-pro-bold ms-2'>
-                            Password
+                            Password{' '}
+                            <span onClick={togglePasswordVisibility} className={styles.iconShowHide}>
+                                {showPassword ? (
+                                    <i class='fa-regular fa-eye' title='Hide password?'></i>
+                                ) : (
+                                    <i class='fa-regular fa-eye-slash' title='Show password?'></i>
+                                )}
+                            </span>
                         </label>
                         <Input
                             className={clsx('mb-3')}
-                            type={'password'}
+                            type={showPassword ? 'text' : 'password'}
                             placeholder={'Enter strong password...'}
                             name='password'
                             value={formData.password}
@@ -198,11 +214,18 @@ function Signup() {
 
                     <div className={styles.inputBox}>
                         <label htmlFor='confirmPassword' className='font-cera-round-pro-bold ms-2'>
-                            Confirm Password
+                            Confirm Password{' '}
+                            <span onClick={toggleConfirmPasswordVisibility} className={styles.iconShowHide}>
+                                {showConfirmPassword ? (
+                                    <i class='fa-regular fa-eye' title='Hide password?'></i>
+                                ) : (
+                                    <i class='fa-regular fa-eye-slash' title='Show password?'></i>
+                                )}
+                            </span>
                         </label>
                         <Input
                             className={clsx('mb-3')}
-                            type={'password'}
+                            type={showConfirmPassword ? 'text' : 'password'}
                             placeholder={'Confirm your password...'}
                             name='passwordConfirm'
                             value={formData.passwordConfirm}
@@ -210,6 +233,10 @@ function Signup() {
                             required
                         />
                         {errors.passwordConfirm && <div className={'errors-input'}>{errors.passwordConfirm}</div>}
+                    </div>
+
+                    <div className=''>
+                        <Link to={'/forgot-password'}>Verify your account?</Link>
                     </div>
                 </div>
 
