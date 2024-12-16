@@ -18,6 +18,12 @@ function ManageBookings() {
     const [isCancelRecurringModalOpen, setIsCancelRecurringModalOpen] = useState(false);
     const [remainingAmout, setRemainingAmount] = useState(0);
 
+    const [searchQuery, setSearchQuery] = useState(''); // State for the search query
+    const [currentPage, setCurrentPage] = useState(0);
+    const [pageSize, setPageSize] = useState(5); // Set page size to 5
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
+
     const toggleCancelRecurringModalOpen = async (bookingId) => {
         if (!isCancelRecurringModalOpen) {
             try {
@@ -33,11 +39,7 @@ function ManageBookings() {
         }
         setIsCancelRecurringModalOpen(!isCancelRecurringModalOpen);
     };
-    const [searchQuery, setSearchQuery] = useState(''); // State for the search query
-    const [currentPage, setCurrentPage] = useState(0);
-    const [pageSize, setPageSize] = useState(5); // Set page size to 5
-    const [totalPages, setTotalPages] = useState(0);
-    const [totalElements, setTotalElements] = useState(0);
+    
 
     const toggleOpenModal = () => {
         setIsModalOpen(!isModalOpen);
@@ -46,10 +48,8 @@ function ManageBookings() {
     const fetchBookings = useCallback(async () => {
         try {
             setIsLoading(true);
-            const response = await bookingApi.getAllActive(currentPage, pageSize);
-            // console.log(response);
+            const response = await bookingApi.searchByFieldName(searchQuery, currentPage, pageSize); // Sử dụng API tìm kiếm
             setBookings(response.data.content);
-            // console.log(response);
             setTotalPages(response.data.totalPages);
             setTotalElements(response.data.totalElements);
         } catch (err) {
@@ -57,11 +57,20 @@ function ManageBookings() {
         } finally {
             setIsLoading(false);
         }
-    }, [currentPage, pageSize]);
+    }, [currentPage, pageSize, searchQuery]);
 
     useEffect(() => {
         fetchBookings();
     }, [fetchBookings]);
+
+    const handleSearchChange = (e) => {
+        setSearchQuery(e.target.value);
+        setCurrentPage(0); // Reset currentPage to 0 on new search
+    };
+
+    useEffect(() => {
+        fetchBookings();
+    }, [searchQuery, currentPage]);
 
     const handleCancelBooking = (booking) => {
         setBookingToCancel(booking);
@@ -115,6 +124,12 @@ function ManageBookings() {
         return matchesCancellation && matchesSearch;
     });
 
+    useEffect(() => {
+        if (filteredBookings.length === 0 && currentPage > 0) {
+            setCurrentPage(0); // Reset to the first page if there are no results
+        }
+    }, [filteredBookings, currentPage]);
+
     // console.log('Original Bookings:', bookings);
     // console.log('Filtered Bookings:', filteredBookings);
 
@@ -126,7 +141,7 @@ function ManageBookings() {
                     type='text'
                     placeholder='Search by field name...'
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={handleSearchChange}
                     className={styles.searchInput}
                 />
             </div>

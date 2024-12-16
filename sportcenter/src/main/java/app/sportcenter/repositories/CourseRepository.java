@@ -30,4 +30,7 @@ public interface CourseRepository extends MongoRepository<Course, String> {
 
     @Query("{ 'isDeleted': false, 'isActive': true }")
     Page<Course> findAllActive(Pageable pageable);
+
+    @Query("{ 'courseName': { $regex: ?0, $options: 'i' }, 'isDeleted': false, 'isActive': true }")
+    Page<Course> searchByNameContainingIgnoreCase(String courseName, Pageable pageable);
 }

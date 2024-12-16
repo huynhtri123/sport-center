@@ -86,5 +86,12 @@ public class FieldController {
     public ResponseEntity<BaseResponse> findByFieldType(@RequestParam("type") FieldType fieldType) {
         return fieldService.findByFieldType(fieldType);
     }
+    @GetMapping("/public/field/searchByNameAndPaginate")
+    public ResponseEntity<BaseResponse> searchByNameAndPaginate(
+            @RequestParam("fieldName") String fieldName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        return fieldService.searchByNameAndPaginate(fieldName, page, size);
+    }
 
 }

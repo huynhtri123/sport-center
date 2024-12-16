@@ -9,6 +9,10 @@ const revenueApi = {
         const url = `/revenue/countRecurringBookingByType?type=${type}`;
         return axiosClient.get(url);
     },
+    getRevenueLastSixMonths() {
+        const url = '/booking/revenue/lastSixMonths';
+        return axiosClient.get(url);
+    },
 };
 
 export default revenueApi;

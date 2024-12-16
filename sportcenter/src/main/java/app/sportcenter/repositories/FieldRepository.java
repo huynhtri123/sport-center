@@ -35,4 +35,8 @@ public interface FieldRepository extends MongoRepository<Field, String> {
     @Query("{ 'isDeleted': false, 'isActive': true }")
     Page<Field> findAllActive(Pageable pageable);
 
+    @Query("{ 'fieldName': { $regex: ?0, $options: 'i' }, 'isDeleted': false, 'isActive': true }")
+    Page<Field> searchByFieldNameContainingIgnoreCase(String fieldName, Pageable pageable);
+
+
 }

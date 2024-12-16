@@ -33,6 +33,10 @@ const tournamentApi = {
         const url = `/tounament/softDelete/${tournamentId}`;
         return axiosClient.patch(url);
     },
+    searchTournaments(query, page, size) {
+        const url = `/public/tounament/searchByNameAndPaginate?tournamentName=${query}&page=${page}&size=${size}`;
+        return axiosClient.get(url);
+    },
 };
 
 export default tournamentApi;

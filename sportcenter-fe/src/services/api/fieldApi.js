@@ -60,6 +60,11 @@ const fieldApi = {
         const url = `/public/field/searchByName?fieldName=${fieldName}`;
         return axiosClient.get(url);
     },
+    // Tìm kiếm sân theo tên và phân trang
+    searchByNameAndPaginate(fieldName, page, size) {
+        const url = `/public/field/searchByNameAndPaginate?fieldName=${fieldName}&page=${page}&size=${size}`;
+        return axiosClient.get(url);
+    },
 
     // Tìm kiếm sân theo loại
     async findByType(type) {

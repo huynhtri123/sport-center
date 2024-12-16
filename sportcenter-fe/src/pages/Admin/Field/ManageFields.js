@@ -44,7 +44,10 @@ function ManageFields() {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        if (isEditing) {
+        if (name === 'searchQuery') {
+            setSearchQuery(value);
+            setCurrentPage(0); // Reset page to 0 on new search
+        } else if (isEditing) {
             setEditFormData((prevData) => ({ ...prevData, [name]: value }));
         } else {
             setFormData((prevData) => ({ ...prevData, [name]: value }));
@@ -144,7 +147,7 @@ function ManageFields() {
     const getFields = useCallback(async () => {
         try {
             setIsLoading(true);
-            const fieldsResponse = await fieldApi.getAllActive(currentPage, pageSize);
+            const fieldsResponse = await fieldApi.searchByNameAndPaginate(searchQuery, currentPage, pageSize);
             setFields(fieldsResponse.data.content);
             setTotalPages(fieldsResponse.data.totalPages);
         } catch (err) {
@@ -152,11 +155,11 @@ function ManageFields() {
         } finally {
             setIsLoading(false);
         }
-    }, [currentPage, pageSize, setFields]);
+    }, [currentPage, pageSize, searchQuery, setFields]);
 
     useEffect(() => {
         getFields();
-    }, [getFields]);
+    }, [getFields, searchQuery]);
 
     const handleSoftDelete = async () => {
         if (!deleteFieldId) return;
@@ -256,21 +259,12 @@ function ManageFields() {
             <div className={styles.searchContainer}>
                 <input
                     type='text'
+                    name='searchQuery'
                     placeholder='Search by name...'
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={handleChange}
                     className={styles.searchInput}
                 />
-                {/* <select
-                    value={selectedFieldType}
-                    onChange={(e) => setSelectedFieldType(e.target.value)}
-                    className={styles.fieldTypeSelect}
-                >
-                    <option value={FieldType.FOOTBALL}>Football</option>
-                    <option value={FieldType.TENNIS}>Tennis</option>
-                    <option value={FieldType.BADMINTON}>Badminton</option>
-                    <option value={FieldType.YOGA}>Yoga</option>
-                </select> */}
             </div>
             <button className={`btn ${styles.addButton}`} onClick={handleToggleShowAddField}>
                 {isEditing ? 'Cancel Edit' : 'Add New Field'}
@@ -289,11 +283,11 @@ function ManageFields() {
                     handleDayOfWeekChange={handleDayOfWeekChange}
                     handleRemovePricePolicy={handleRemovePricePolicy}
                     handleAddPricePolicy={handleAddPricePolicy}
-                ></FieldInput>
+                />
             )}
 
             <FieldTable
-                fields={filteredFields}
+                fields={fields}
                 currentPage={currentPage}
                 pageSize={pageSize}
                 handleEditClick={handleEditClick}
@@ -301,7 +295,7 @@ function ManageFields() {
                 isModalOpen={isModalOpen}
                 deleteFieldId={deleteFieldId}
                 handleSoftDelete={handleSoftDelete}
-            ></FieldTable>
+            />
 
             <div className={styles.pagination}>
                 <button disabled={currentPage === 0} onClick={() => setCurrentPage(currentPage - 1)}>

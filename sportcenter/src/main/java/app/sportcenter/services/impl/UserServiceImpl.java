@@ -246,10 +246,18 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với ID: " + userId));
 
+        // Kiểm tra số thẻ
+        String cardNumber = paymentRequest.getCardNumber();
+        if (!isValidCardNumber(cardNumber)) {
+            return ResponseEntity.badRequest().body(
+                    new BaseResponse("Số thẻ không hợp lệ. Vui lòng nhập lại (10 đến 16 chữ số).", HttpStatus.BAD_REQUEST.value(), null)
+            );
+        }
+
         // Tạo mới đối tượng PaymentInfo và thiết lập các thuộc tính
         PaymentInfo paymentInfo = new PaymentInfo();
         paymentInfo.setBankName(paymentRequest.getBankName());
-        paymentInfo.setCardNumber(paymentRequest.getCardNumber());
+        paymentInfo.setCardNumber(cardNumber);
         paymentInfo.setCardHolderName(paymentRequest.getCardHolderName());
         paymentInfo.setIssueDate(paymentRequest.getIssueDate());
         paymentInfo.setUserId(userId); // Lưu ID của user vào paymentInfo
@@ -274,8 +282,14 @@ public class UserServiceImpl implements UserService {
 
         // Trả về response
         return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("thêm thành công người phương thức thanh toán", HttpStatus.OK.value(), paymentResponse)
+                new BaseResponse("Thêm thành công phương thức thanh toán", HttpStatus.OK.value(), paymentResponse)
         );
+    }
+
+    // Phương thức kiểm tra số thẻ
+    private boolean isValidCardNumber(String cardNumber) {
+        // Biểu thức chính quy để kiểm tra thẻ từ 10 đến 16 chữ số
+        return cardNumber != null && cardNumber.matches("^\\d{10,16}$");
     }
 
     @Override

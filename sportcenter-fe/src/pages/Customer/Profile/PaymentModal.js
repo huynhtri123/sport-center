@@ -38,13 +38,18 @@ function PaymentModal({ payment, onClose, onSave, userId }) {
             };
             onSave(updatedFormData); // Send the updated data for saving
         } else {
-            alert('Please fill out all fields.');
+            alert('Vui lòng điền đầy đủ thông tin.');
         }
     };
 
     const isValid = () => {
         const { bankName, cardNumber, cardHolderName, issueDate } = formData;
-        return bankName && cardNumber && cardHolderName && issueDate;
+        // Kiểm tra tính hợp lệ của cardNumber
+        const isCardNumberValid = /^\d{10,16}$/.test(cardNumber); // Kiểm tra số và độ dài
+        if (!isCardNumberValid) {
+            alert('Số thẻ phải là số và có độ dài từ 10 đến 16 ký tự.');
+        }
+        return bankName && isCardNumberValid && cardHolderName && issueDate;
     };
 
     return (

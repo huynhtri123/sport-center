@@ -23,5 +23,7 @@ public interface TournamentRepository extends MongoRepository<Tournament, String
     Page<Tournament> findAllActive(Pageable pageable);
     @Query("{ 'registeredTeamIds': { $in: ?0 }, 'isDeleted': false, 'isActive': true }")
     List<Tournament> findByRegisteredTeamIds(List<String> teamIds);
+    @Query("{ 'tournamentName': { $regex: ?0, $options: 'i' }, 'isDeleted': false, 'isActive': true }")
+    Page<Tournament> searchByTournamentNameContainingIgnoreCase(String tournamentName, Pageable pageable);
 
 }

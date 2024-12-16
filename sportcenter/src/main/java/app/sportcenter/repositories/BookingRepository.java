@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.ZonedDateTime;
@@ -47,4 +48,13 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
 
     @Query("{ 'isActive': true, 'isDeleted': false }")
     Page<Booking> findAllActive(Pageable pageable);
+
+    @Query("{ 'field.fieldName': { $regex: ?0, $options: 'i' }, 'isDeleted': false, 'isActive': true }")
+    Page<Booking> searchByFieldName(String fieldName, Pageable pageable);
+
+    @Query("SELECT b FROM Booking b WHERE b.bookingDate >= :startDate")
+    List<Booking> findBookingsLastSixMonths(@Param("startDate") ZonedDateTime startDate);
+
+    @Query("SELECT b FROM Booking b WHERE b.recurringBooking.id = :recurringBookingId")
+    List<Booking> findByRecurringBookingId(@Param("recurringBookingId") String recurringBookingId);
 }

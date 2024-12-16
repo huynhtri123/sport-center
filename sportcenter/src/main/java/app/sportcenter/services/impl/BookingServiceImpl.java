@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -26,10 +27,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
 @Service
@@ -724,4 +729,77 @@ public class BookingServiceImpl implements BookingService {
         );
     }
 
+    @Transactional
+    @Override
+    public ResponseEntity<BaseResponse> searchByFieldNameAndPaginate(String fieldName, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Booking> bookingPage = bookingRepository.searchByFieldName(fieldName, pageable);
+
+//        if (bookingPage.isEmpty()) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+//                    new BaseResponse("Không tìm thấy Booking nào với tên sân này.", HttpStatus.NOT_FOUND.value(), null)
+//            );
+//        }
+
+        List<BookingResponse> responseList = bookingPage.getContent().stream()
+                .map(bookingMapper::convertToResponse)
+                .toList();
+
+        PaginatedResponse<BookingResponse> paginatedResponse = new PaginatedResponse<>(
+                responseList,
+                bookingPage.getTotalPages(),
+                bookingPage.getTotalElements()
+        );
+
+        return ResponseEntity.ok(
+                new BaseResponse("Tìm thấy danh sách Booking theo tên sân.", HttpStatus.OK.value(), paginatedResponse)
+        );
+    }
+    @Override
+    public Map<String, Double> getRevenueLastSixMonths() {
+        Map<String, Double> revenueData = new HashMap<>();
+        LocalDate now = LocalDate.now();
+        ZonedDateTime startDate = ZonedDateTime.now().minusMonths(6);
+
+        // Khởi tạo doanh thu cho từng tháng
+        for (int i = 0; i < 6; i++) {
+            String month = now.minusMonths(i).getMonth().name() + " " + now.minusMonths(i).getYear();
+            revenueData.put(month, 0.0);
+        }
+
+        // Lấy tất cả bookings trong 6 tháng gần nhất
+        List<Booking> bookings = bookingRepository.findBookingsLastSixMonths(startDate);
+        List<RecurringBooking> recurringBookings = recurringBookingRepository.findRecurringBookingsLastSixMonths(startDate);
+
+        // Tính doanh thu cho từng tháng từ bookings đơn lẻ
+        for (Booking booking : bookings) {
+            if (booking.getBookingDate() != null) {
+                LocalDate bookingDate = booking.getBookingDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                String month = bookingDate.getMonth().name() + " " + bookingDate.getYear();
+                revenueData.put(month, revenueData.get(month) + booking.getPrice());
+            }
+        }
+
+        // Tính doanh thu cho từng tháng từ recurring bookings
+        for (RecurringBooking recurringBooking : recurringBookings) {
+            String recurringBookingId = recurringBooking.getId(); // Giữ nguyên ở dạng String
+
+            if (recurringBookingId != null && !recurringBookingId.isEmpty()) {
+                List<Booking> bookingsFromRecurring = bookingRepository.findByRecurringBookingId(recurringBookingId);
+
+                for (Booking booking : bookingsFromRecurring) {
+                    if (booking.getBookingDate() != null) {
+                        LocalDate bookingDate = booking.getBookingDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                        String month = bookingDate.getMonth().name() + " " + bookingDate.getYear();
+                        revenueData.put(month, revenueData.get(month) + booking.getPrice());
+                    }
+                }
+            } else {
+                // Xử lý trường hợp ID không hợp lệ
+                System.out.println("Recurring booking ID không hợp lệ: " + recurringBookingId);
+            }
+        }
+
+        return revenueData;
+    }
 }

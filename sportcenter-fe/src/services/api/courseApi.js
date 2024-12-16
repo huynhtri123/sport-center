@@ -31,10 +31,10 @@ const courseApi = {
         return axiosClient.get(`/public/course/getAllActive?page=${page}&size=${size}`);
     },
 
-    // Search courses by name
-    searchByName(courseName) {
-        return axiosClient.get('/public/course/searchByName', { params: { courseName } });
+    searchByNameAndPaginate(courseName, page = 0, size = 5) {
+        return axiosClient.get('/public/course/searchByNameAndPaginate', { params: { courseName, page, size } });
     },
+
 };
 
 export default courseApi;

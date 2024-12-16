@@ -159,18 +159,26 @@ function ManageTournaments() {
 
     const getTournaments = useCallback(async () => {
         try {
-            const response = await tournamentApi.getAllActive(currentPage, pageSize);
+            setIsLoading(true);
+            const response = await tournamentApi.searchTournaments(searchQuery, currentPage, pageSize);
             setTournaments(response.data.content);
             setTotalPages(response.data.totalPages);
             setTotalElements(response.data.totalElements);
         } catch (err) {
             console.error(err);
+        } finally {
+            setIsLoading(false);
         }
-    }, [currentPage, pageSize]);
+    }, [currentPage, pageSize, searchQuery]);
 
     useEffect(() => {
         getTournaments();
-    }, [getTournaments, currentPage, pageSize]);
+    }, [getTournaments]);
+
+    const handleSearch = (e) => {
+        setSearchQuery(e.target.value);
+        setCurrentPage(0); // Reset currentPage to 0 on new search
+    };
 
     const handleSoftDelete = async () => {
         if (!deleteTournamentId) return;
@@ -254,7 +262,7 @@ function ManageTournaments() {
                     type='text'
                     placeholder='Search tournament by name...'
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={handleSearch}
                     className={styles.searchInput}
                 />
             </div>
@@ -489,7 +497,7 @@ function ManageTournaments() {
             )}
 
             <TournamentTable
-                filteredTournaments={filteredTournaments}
+                filteredTournaments={tournaments}
                 currentPage={currentPage}
                 pageSize={pageSize}
                 handleEditClick={handleEditClick}
