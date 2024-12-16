@@ -2,16 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import courseApi from '../../services/api/courseApi';
 import styles from '../../assets/css/Course/courseLesson.module.scss';
+import clsx from 'clsx';
 
 // Icons for different lesson levels
 const levelIcons = {
-    BEGINNER: <span role="img" aria-label="Beginner">👶</span>,
-    INTERMEDIATE: <span role="img" aria-label="Intermediate">🧑</span>,
-    ADVANCED: <span role="img" aria-label="Advanced">👨‍🎓</span>,
-    EXPERT: <span role="img" aria-label="Expert">🏆</span>,
+    BEGINNER: <i class='fas fa-child' aria-hidden='true'></i>,
+    INTERMEDIATE: <i class='fas fa-user-graduate' aria-hidden='true'></i>,
+    ADVANCED: <i class='fas fa-award' aria-hidden='true'></i>,
+    EXPERT: <i class='fas fa-crown' aria-hidden='true'></i>,
 };
 
-// Đối tượng ánh xạ cho các mức độ
+// Labels for lesson levels
 const levelLabels = {
     BEGINNER: 'Người mới',
     INTERMEDIATE: 'Trung cấp',
@@ -44,11 +45,11 @@ function CourseLesson() {
     }, [courseId]);
 
     if (loading) {
-        return <div>Loading...</div>;
+        return <div className={styles.loading}>Đang tải...</div>;
     }
 
     if (!course) {
-        return <div>Course not found.</div>;
+        return <div className={styles.error}>Không tìm thấy khóa học.</div>;
     }
 
     // Group lessons by level
@@ -64,7 +65,6 @@ function CourseLesson() {
     return (
         <div className={styles.courseContainer}>
             <aside className={styles.sidebar}>
-                {/* Course Image and Info */}
                 <div className={styles.courseHeader}>
                     <img src={course.imageUrl} alt={course.courseName} className={styles.courseImage} />
                     <h2>{course.courseName}</h2>
@@ -73,48 +73,63 @@ function CourseLesson() {
 
                 <h2>Danh sách các chương</h2>
                 {levelOrder.map((level) => {
-                    // Check if lessons for this level exist
                     if (groupedLessons[level] && groupedLessons[level].length > 0) {
                         return (
                             <div key={level}>
-                                <div 
-                                    className={styles.lessonLevel} 
+                                <div
+                                    className={styles.lessonLevel}
                                     onClick={() => {
                                         setExpandedSections((prev) => ({
                                             ...prev,
-                                            [level]: !prev[level], // Toggle the visibility of the section
+                                            [level]: !prev[level],
                                         }));
                                     }}
-                                    style={{ cursor: 'pointer' }}
                                 >
                                     {levelIcons[level]}
-                                    <span>{levelLabels[level]}</span> {/* Hiển thị tên mức độ đã chuyển đổi */}
+                                    <span>{levelLabels[level]}</span>
                                 </div>
-                                {expandedSections[level] && ( // Show videos only if the section is expanded
-                                    <div className={styles.lessonGrid}>
-                                        {groupedLessons[level].map((lesson) => (
-                                            <div className={styles.lessonCard} key={lesson.id}>
-                                                {lesson.videoId && (
-                                                    <iframe
-                                                        src={`https://www.youtube.com/embed/${lesson.videoId}`}
-                                                        title={lesson.lessonName}
-                                                        allowFullScreen
-                                                    ></iframe>
-                                                )}
-                                                <h4>{lesson.lessonName}</h4>
-                                                <p>Course Sport Type: {lesson.courseSportType}</p>
-                                                <p>Description: {lesson.description}</p>
-                                                <p>Skill Level: {lesson.levelLesson}</p>
-                                            </div>
-                                        ))}
+                            </div>
+                        );
+                    }
+                    return null;
+                })}
+            </aside>
+
+            <section className={styles.lessonSection}>
+                {levelOrder.map((level) => {
+                    if (groupedLessons[level] && groupedLessons[level].length > 0) {
+                        return (
+                            <div key={level}>
+                                {expandedSections[level] && (
+                                    <div>
+                                        <h3 className={styles.sectionHeader}>
+                                            {levelIcons[level]} <span> </span> {levelLabels[level]}
+                                        </h3>
+                                        <div className={styles.lessonGrid}>
+                                            {groupedLessons[level].map((lesson) => (
+                                                <div className={clsx(styles.lessonCard, 'mb-4')} key={lesson.id}>
+                                                    {lesson.videoId && (
+                                                        <iframe
+                                                            src={`https://www.youtube.com/embed/${lesson.videoId}`}
+                                                            title={lesson.lessonName}
+                                                            allowFullScreen
+                                                        ></iframe>
+                                                    )}
+                                                    <h4>{lesson.lessonName}</h4>
+                                                    <p>Loại hình khóa học: {lesson.courseSportType}</p>
+                                                    <p>Mô tả: {lesson.description}</p>
+                                                    <p>Cấp độ kỹ năng: {levelLabels[lesson.levelLesson]}</p>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 )}
                             </div>
                         );
                     }
-                    return null; // Không trả về gì nếu không có bài học cho mức độ đó
+                    return null;
                 })}
-            </aside>
+            </section>
         </div>
     );
 }
