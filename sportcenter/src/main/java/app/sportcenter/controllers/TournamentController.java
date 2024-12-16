@@ -124,5 +124,13 @@ public class TournamentController {
         return tournamentService.unregister(request);
     }
 
+    @GetMapping("/public/tounament/searchByNameAndPaginate")
+    public ResponseEntity<BaseResponse> searchByNameAndPaginate(
+            @RequestParam("tournamentName") String tournamentName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        return tournamentService.searchByNameAndPaginate(tournamentName, page, size);
+    }
+
 
 }

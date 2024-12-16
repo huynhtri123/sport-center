@@ -55,6 +55,11 @@ const bookingApi = {
         const url = `/recurring/getRemainingPrice/${bookingId}`;
         return axiosClient.get(url);
     },
+    searchByFieldName(fieldName, page = 0, size = 5) {
+        const url = `/booking/searchByFieldNameAndPaginate?fieldName=${fieldName}&page=${page}&size=${size}`;
+        return axiosClient.get(url);
+    },
+    
 };
 
 export default bookingApi;

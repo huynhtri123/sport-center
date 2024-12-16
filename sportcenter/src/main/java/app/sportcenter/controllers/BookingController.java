@@ -14,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
+import java.util.Map;
 
 
 @RestController
@@ -164,6 +165,21 @@ public class BookingController {
                 new BaseResponse("Lấy giá còn lại của Recurring thành công", HttpStatus.OK.value(),
                         bookingService.getRemainingAmountOfRecurringByBookingId(bookingId))
         );
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @GetMapping("/booking/searchByFieldNameAndPaginate")
+    public ResponseEntity<BaseResponse> searchByFieldNameAndPaginate(
+            @RequestParam("fieldName") String fieldName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        return bookingService.searchByFieldNameAndPaginate(fieldName, page, size);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @GetMapping("/booking/revenue/lastSixMonths")
+    public ResponseEntity<BaseResponse> getRevenueLastSixMonths() {
+        Map<String, Double> revenueData = bookingService.getRevenueLastSixMonths();
+        return ResponseEntity.ok(new BaseResponse("Lấy doanh thu thành công!", HttpStatus.OK.value(), revenueData));
     }
 
 }
