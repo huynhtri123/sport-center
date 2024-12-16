@@ -154,47 +154,53 @@ function TournamentRegister() {
     return (
         <div className={styles.tournamentRegisterContainer}>
             {isLoading && <Loading />}
-            <h1>Register for the Tournament: {tournament.tournamentName}</h1>
+            <h1>Register Form: {tournament.tournamentName}</h1>
             <div className={styles.formContainer}>
                 <div className={styles.teamInfo}>
-                    <label>Tên Đội:</label>
+                    <label>
+                        <i class='fa-solid fa-signature'></i> Team Name:
+                    </label>
                     <input
                         type='text'
                         value={teamName}
                         onChange={(e) => setTeamName(e.target.value)}
-                        placeholder='Nhập tên đội'
+                        placeholder='Enter your team name...'
                         required
                     />
-                    <label>Logo Đội:</label>
+                    <label>
+                        <i class='fa-regular fa-image'></i> Team Logo:
+                    </label>
                     <div className={styles.logoUpload}>
                         <div className={styles.logoWrapper}>
                             <img src={teamLogoUrl} alt='Team Logo' className={styles.teamLogoPreview} />
                             <input type='file' onChange={handleFileChange} className={styles.fileInput} />
                         </div>
                     </div>
-                    <label>Số lượng thành viên:</label>
+                    <label>Number of members:</label>
                     <input type='number' min='1' value={numPlayers} onChange={handleNumPlayersChange} />
                 </div>
                 <div className={styles.playersSection}>
                     {players.map((player, index) => (
                         <div key={index} className={styles.playerInput}>
-                            <h4>Thành viên {index + 1}</h4>
+                            <label>
+                                <i class='fa-solid fa-person-circle-plus'></i> Member {index + 1}
+                            </label>
                             <input
                                 type='text'
-                                placeholder='Tên thành viên'
+                                placeholder='Member name'
                                 value={player.name}
                                 onChange={(e) => handlePlayerChange(index, 'name', e.target.value)}
                                 required
                             />
                             <input
                                 type='text'
-                                placeholder='Vị trí (optional)'
+                                placeholder='Position (optional)'
                                 value={player.position}
                                 onChange={(e) => handlePlayerChange(index, 'position', e.target.value)}
                             />
                             <input
                                 type='number'
-                                placeholder='Số áo (optional)'
+                                placeholder='Number (optional)'
                                 value={player.number}
                                 onChange={(e) => handlePlayerChange(index, 'number', e.target.value)}
                             />
@@ -205,10 +211,10 @@ function TournamentRegister() {
             {errorMessage && <p className={styles.error}>{errorMessage}</p>}
             <div className={styles.actions}>
                 <Button onClick={handleRegisterClick} className={styles.registerBtn}>
-                    Đăng ký
+                    Register
                 </Button>
                 <Button onClick={handleBack} className={styles.cancelButton}>
-                    Quay lại
+                    Back
                 </Button>
             </div>
             {isModalOpen && (

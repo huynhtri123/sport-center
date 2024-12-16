@@ -1,66 +1,76 @@
 @import '../variables';
 
 .tournamentRegisterContainer {
-    max-width: 90%;
-    margin: 24px;
-    padding: 30px 50px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-    font-family: Arial, sans-serif;
-    border: 2px solid $blue-prime;
+    max-width: 80%;
+    margin: 24px auto;
+    padding: 50px;
+    background: $blue-nhat-bg;
+    border-radius: 20px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    font-family: 'Poppins', sans-serif;
+    border: 1px solid #eee;
 
     h1 {
         text-align: center;
         color: $blue-prime;
-        font-weight: 700;
-        font-size: 28px;
-        margin-bottom: 30px;
+        font-weight: 600;
+        font-size: 30px;
+        margin-bottom: 40px;
+        letter-spacing: 1px;
     }
 
     .formContainer {
         display: flex;
-        gap: 30px;
+        gap: 50px;
         justify-content: space-between;
+        flex-wrap: wrap;
     }
 
     .teamInfo {
         flex: 1;
         display: flex;
         flex-direction: column;
+        padding: 25px;
+        background: #f9f9f9;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 
         label {
-            font-weight: bold;
-            color: $dark-blue;
-            margin-top: 15px;
+            font-weight: 700;
+            color: $dark-min;
+            margin-top: 20px;
             font-size: 16px;
         }
 
         input[type='text'],
         input[type='number'] {
-            padding: 10px;
-            font-size: 18px;
-            border: 1px solid #d3d3d3;
-            border-radius: 5px;
-            margin-bottom: 10px;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #dcdcdc;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            transition: all 0.3s ease;
 
             &:focus {
                 outline: none;
-                border-color: $blue-prime;
-                box-shadow: 0 0 6px rgba(58, 123, 213, 0.2);
+                border-color: #3498db;
+                box-shadow: 0 0 8px rgba(58, 123, 213, 0.3);
             }
         }
 
         .logoUpload {
+            margin-top: 20px;
+
             .logoWrapper {
                 position: relative;
                 display: inline-block;
-                width: 120px;
-                height: 120px;
+                width: 130px;
+                height: 130px;
                 border-radius: 50%;
                 overflow: hidden;
-                border: 2px solid #d3d3d3;
-                margin-top: 10px;
+                border: 2px solid #ddd;
+                background: #f0f0f0;
+                box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
 
                 .teamLogoPreview {
                     width: 100%;
@@ -78,53 +88,43 @@
                     left: 0;
                     cursor: pointer;
                 }
-
-                .uploadText {
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    color: white;
-                    font-weight: bold;
-                    font-size: 18px;
-                    text-align: center;
-                    background-color: rgba(0, 0, 0, 0.6);
-                    padding: 5px 10px;
-                    border-radius: 5px;
-                }
             }
         }
     }
 
     .playersSection {
-        margin-left: 36px;
         flex: 2;
-        background: #fff;
-        border: 1px solid #e9ecef;
         padding: 20px;
-        border-radius: 8px;
+        background: #fff;
+        border: 1px solid #f0f0f0;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        margin-left: 30px;
 
         .playerInput {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
 
-            h4 {
-                font-size: 18px; // Tăng kích thước tiêu đề thành viên
-                color: $dark-teal;
-                margin-bottom: 10px;
+            label {
+                color: $dark-min;
+            }
+
+            i {
+                font-size: 20px;
             }
 
             input {
                 width: 100%;
-                padding: 8px;
+                padding: 12px;
                 font-size: 16px;
-                margin-top: 6px;
-                border: 1px solid #ced4da;
-                border-radius: 4px;
+                margin-top: 10px;
+                border: 1px solid #dcdcdc;
+                border-radius: 8px;
+                transition: all 0.3s ease;
 
                 &:focus {
                     outline: none;
-                    border-color: $dark-teal;
-                    box-shadow: 0 0 6px rgba(58, 123, 213, 0.2);
+                    border-color: #3498db;
+                    box-shadow: 0 0 8px rgba(58, 123, 213, 0.3);
                 }
             }
         }
@@ -133,41 +133,68 @@
     .actions {
         display: flex;
         justify-content: space-between;
-        margin-top: 25px;
+        margin-top: 30px;
+        gap: 20px;
 
         button {
-            font-weight: 700;
+            font-weight: 600;
             font-size: 16px;
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 14px 28px;
+            border-radius: 10px;
             cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
 
             &:hover {
                 opacity: 0.9;
+                transform: translateY(-2px);
             }
         }
     }
 
     .error {
-        color: red;
+        color: $remove-color;
         margin-top: 15px;
         text-align: center;
+        font-size: 14px;
+        font-weight: 500;
+        opacity: 0.8;
     }
 }
 
 .registerBtn {
     background-color: $yellow-prime;
     color: $blue-prime;
-}
-.registerBtn:hover {
-    background-color: $yellow-hover;
-    color: $dark-blue-light;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+        background-color: $yellow-hover;
+        color: $dark-blue-light;
+    }
 }
 
 .cancelButton {
-    background-color: #dc3545;
+    background-color: #e74c3c;
     color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+        background-color: #c0392b;
+        color: #fff;
+    }
 }
-.cancelButton:hover {
-    background-color: #b82533;
+
+.fileInput {
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .formContainer {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .playersSection {
+        margin-left: 0;
+    }
 }

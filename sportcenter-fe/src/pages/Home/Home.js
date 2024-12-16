@@ -37,10 +37,10 @@ function Home() {
             {/* Hero Section */}
             <section className={styles.heroSection}>
                 <div className={styles.heroContent}>
-                    <h1>Tận hưởng thể thao cùng chúng tôi!</h1>
-                    <p>Đặt sân, tham gia lớp học và giải đấu ngay hôm nay</p>
+                    <h1>Enjoy sports with us and share the excitement!</h1>
+                    <p>Book a field, join classes, and enter tournaments today!</p>
                     <Link to='/bookings' className={`btn ${styles.heroButton}`}>
-                        Khám phá ngay
+                        Discover now!
                     </Link>
                 </div>
 
@@ -62,27 +62,27 @@ function Home() {
 
             {/* Featured Services */}
             <section className={styles.featuredServices}>
-                <h2>Dịch vụ nổi bật</h2>
+                <h2>Featured Services</h2>
                 <div className={styles.servicesContainer}>
                     <div className={styles.serviceCard}>
                         <i className='fa-solid fa-futbol'></i>
-                        <h3>Đặt Sân</h3>
-                        <p>Đặt sân nhanh chóng với nhiều loại sân đa dạng.</p>
+                        <h3>Book a Field</h3>
+                        <p>Quickly book a field with a variety of options.</p>
                     </div>
                     <div className={styles.serviceCard}>
                         <i className='fa-solid fa-dumbbell'></i>
-                        <h3>Khoá học miễn phí</h3>
-                        <p>Tham gia các lớp học từ cơ bản đến nâng cao.</p>
+                        <h3>Free Courses</h3>
+                        <p>Join classes from basic to advanced levels.</p>
                     </div>
                     <div className={styles.serviceCard}>
                         <i className='fa-solid fa-trophy'></i>
-                        <h3>Giải Đấu</h3>
-                        <p>Tham gia các giải đấu để thử thách bản thân.</p>
+                        <h3>Tournaments</h3>
+                        <p>Join tournaments to challenge yourself and win valuable prizes.</p>
                     </div>
                     <div className={styles.serviceCard}>
                         <i className='fa-solid fa-store'></i>
-                        <h3>Cửa hàng</h3>
-                        <p>Đa dạng sản phẩm chuyên dụng cho các môn thể thao.</p>
+                        <h3>Shop</h3>
+                        <p>A wide range of specialized products for sports.</p>
                     </div>
                 </div>
             </section>
@@ -120,7 +120,7 @@ function Home() {
 
             {/* Gallery */}
             <section className={styles.gallerySection}>
-                <h2>Hình ảnh nổi bật</h2>
+                <h2>Featured Images</h2>
                 <div className={styles.galleryContainer}>
                     <img
                         src='https://images.pexels.com/photos/264312/pexels-photo-264312.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
@@ -147,10 +147,10 @@ function Home() {
 
             {/* Testimonials */}
             <section className={styles.testimonials}>
-                <h2>Khách hàng nói gì?</h2>
+                <h2>What Our Customers Say?</h2>
                 <div className={styles.testimonialCard}>
-                    <p>"Rất tuyệt vời! Sân rất đẹp và đội ngũ nhân viên nhiệt tình."</p>
-                    <span>- Cầu thủ Công Phượng -</span>
+                    <p>"Awesome! The field is beautiful and the staff is very enthusiastic."</p>
+                    <span>- Công Phượng, the football player -</span>
                 </div>
             </section>
         </div>

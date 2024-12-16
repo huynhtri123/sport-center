@@ -1,7 +1,9 @@
 package app.sportcenter.services.impl;
 
 import app.sportcenter.commons.BaseResponse;
+import app.sportcenter.utils.kafkaUsage.MessageWrapper;
 import app.sportcenter.commons.Role;
+import app.sportcenter.commons.SendMailType;
 import app.sportcenter.configs.AppConfig;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
@@ -23,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,14 +33,9 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.time.Duration;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.Random;
@@ -55,6 +53,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserMapper userMapper;
     private final UserService userService;
     private final BackListTokenRepository backListTokenRepository;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
     public void autoCreateAdminAccount() {
@@ -116,7 +115,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         // gửi otp qua mail:
         try {
-            mailService.sendMailVerify(user.getEmail(), user.getFullName(), verifyCode);
+            MessageWrapper messageWrapper = MessageWrapper.builder()
+                    .type(SendMailType.OTP_VERIFY.name())
+                    .payload(verifyCode)
+                    .toEmail((user.getEmail()))
+                    .toFullName(user.getFullName())
+                    .build();
+            kafkaTemplate.send("notification-delivery", messageWrapper);
+
         } catch (Exception e) {
             log.error("Lỗi khi gửi email xác thực cho người dùng: " + user.getEmail(), e);
             throw new RuntimeException("Lỗi khi gửi email xác thực. Vui lòng thử lại sau.", e);
@@ -227,6 +233,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         response.addCookie(accessTokenCookie);
         response.addCookie(refreshTokenCookie);
 
+        // Thêm thuộc tính SameSite vào cookies
+        addSameSiteAttribute(response, accessTokenCookie, "None");
+        addSameSiteAttribute(response, refreshTokenCookie, "None");
 
         log.info("Login successfully! UserId: " + user.getId() + " Role: " + user.getRole());
 
@@ -235,6 +244,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         HttpStatus.OK.value(),
                         jwtAuthResponse)
         );
+    }
+
+    // Hàm thêm thuộc tính SameSite vào cookie
+    private void addSameSiteAttribute(HttpServletResponse response, Cookie cookie, String sameSite) {
+        String cookieValue = String.format("%s=%s; HttpOnly; Secure; Path=%s; Max-Age=%d; SameSite=%s",
+                cookie.getName(),
+                cookie.getValue(),
+                cookie.getPath(),
+                cookie.getMaxAge(),
+                sameSite
+        );
+        response.addHeader("Set-Cookie", cookieValue);
     }
 
     @Override
@@ -285,6 +306,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             // Thêm cookies vào response
             response.addCookie(accessTokenCookie);
 
+            // Thêm thuộc tính SameSite vào cookies
+            addSameSiteAttribute(response, accessTokenCookie, "None");
+
             return ResponseEntity.status(HttpStatus.OK).body(
                     new BaseResponse("Refresh token successfully", HttpStatus.OK.value(), jwtAuthResponse)
             );
@@ -320,7 +344,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         // gửi otp qua mail:
         try {
-            mailService.sendMailVerify(user.getEmail(), user.getFullName(), verifyCode);
+            MessageWrapper messageWrapper = MessageWrapper.builder()
+                    .type(SendMailType.OTP_VERIFY.name())
+                    .payload(verifyCode)
+                    .toEmail((user.getEmail()))
+                    .toFullName(user.getFullName())
+                    .build();
+            kafkaTemplate.send("notification-delivery", messageWrapper);
+
         } catch (Exception e) {
             log.error("Lỗi khi gửi email xác thực cho người dùng: " + user.getEmail(), e);
             throw new RuntimeException("Lỗi khi gửi email xác thực. Vui lòng thử lại sau.", e);
@@ -427,6 +458,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         // Đính cookie đã xóa vào response
         response.addCookie(refreshTokenCookie);
         response.addCookie(accessTokenCookie);
+
+        // Thêm thuộc tính SameSite vào cookies
+        addSameSiteAttribute(response, accessTokenCookie, "None");
+        addSameSiteAttribute(response, refreshTokenCookie, "None");
     }
 
 }
