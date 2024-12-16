@@ -3,21 +3,18 @@
 .courseContainer {
     padding: 20px;
     display: flex;
-    justify-content: flex-start; // Align sidebar and lesson grid to the left
-    align-items: flex-start; // Align items to the top
+    flex-direction: column; // Stack sidebar and lesson grid vertically
     width: 100vw;
     box-sizing: border-box;
 }
 
 .sidebar {
-    background-color: $blue-prime; // Sidebar background color consistent with the theme
+    background-color: #bcc2ca; // Sidebar background color consistent with the theme
     border-radius: 10px;
     padding: 15px;
-    width: 250px; // Fixed width for the sidebar
+    width: 100%; // Full width for sidebar
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin-right: 20px; // Space between sidebar and lesson grid
-    height: auto; // Adjusts automatically based on content
-    margin-top: 15px;
+    margin-bottom: 20px; // Space below sidebar
 
     h2 {
         font-size: 1.5em;
@@ -30,7 +27,7 @@
         display: flex;
         align-items: center; // Center align the icon and text
         margin-bottom: 10px; // Space between levels
-        transition: color 0.3s ease, background-color 0.3s ease, transform 0.3s ease; // Add transition for color, background, and transform
+        transition: color 0.3s ease, background-color 0.3s ease, transform 0.3s ease; // Add transition
 
         span {
             margin-left: 10px; // Space between icon and text
@@ -38,7 +35,6 @@
             color: white; // Change text color to white for contrast
         }
 
-        // Hover effect for each lesson level
         &:hover {
             cursor: pointer; // Change cursor on hover
             color: lightblue; // Change text color on hover for visibility
@@ -46,6 +42,14 @@
             transform: translateY(-5px); // Move the element up on hover
             border-radius: 5px;
         }
+    }
+
+    .dropdown {
+        display: flex;
+        flex-direction: column;
+        margin-top: 10px;
+        position: relative; // To position the dropdown correctly
+        z-index: 1000; // Ensure it appears above other elements
     }
 }
 
@@ -68,7 +72,7 @@
     overflow: hidden;
     padding: 15px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    color: white; // Set text color to white
+    color: black; // Set text color to black for readability
 
     &:hover {
         transform: translateY(-5px);
@@ -107,5 +111,29 @@
 
     .lessonGrid {
         padding: 10px; // Reduce padding on smaller screens
+    }
+}
+.courseHeader {
+    text-align: center; // Canh giữa nội dung
+    margin-bottom: 20px; // Khoảng cách dưới cùng
+
+    .courseImage {
+        width: 100%; // Chiều rộng đầy đủ
+        max-width: 600px; // Chiều rộng tối đa gấp đôi
+        height: auto; // Tự động điều chỉnh chiều cao để giữ tỉ lệ
+        border: 5px solid $blue-prime; // Khung cho hình ảnh
+        border-radius: 10px; // Bo tròn góc
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); // Đổ bóng cho hình ảnh
+        margin-bottom: 15px; // Khoảng cách dưới hình ảnh
+    }
+
+    h2 {
+        font-size: 1.8em; // Kích thước chữ lớn hơn cho tiêu đề
+        color: $blue-prime; // Màu chữ cho tiêu đề
+    }
+
+    p {
+        font-size: 1em; // Kích thước chữ cho mô tả
+        color: #333; // Màu chữ cho mô tả
     }
 }
