@@ -26,5 +26,5 @@ public interface TournamentService {
     public ResponseEntity<BaseResponse> register(TournamentRegisterRequest request);
     public ResponseEntity<BaseResponse> unregister(TournamentRegisterRequest request);
     public void checkRegistrationEligibility(String tournamentId, String teamId, User currentUser);
-
+    public ResponseEntity<BaseResponse> searchByNameAndPaginate(String tournamentName, int page, int size);
 }

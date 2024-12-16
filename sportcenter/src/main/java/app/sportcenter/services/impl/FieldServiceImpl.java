@@ -284,4 +284,32 @@ public class FieldServiceImpl implements FieldService {
         );
     }
 
+    @Override
+    public ResponseEntity<BaseResponse> searchByNameAndPaginate(String fieldName, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Field> fieldPage = fieldRepository.searchByFieldNameContainingIgnoreCase(fieldName, pageable);
+
+//        if (fieldPage.isEmpty()) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+//                    new BaseResponse("Không tìm thấy Field có tên này.", HttpStatus.NOT_FOUND.value(), null)
+//            );
+//        }
+
+        List<FieldResponse> responseFields = fieldPage.getContent()
+                .stream()
+                .map(fieldMapper::convertToDTO)
+                .collect(Collectors.toList());
+
+        PaginatedResponse<FieldResponse> paginatedResponse = new PaginatedResponse<>(
+                responseFields,
+                fieldPage.getTotalPages(),
+                fieldPage.getTotalElements()
+        );
+
+        return ResponseEntity.ok(
+                new BaseResponse("Tìm thấy danh sách sân.", HttpStatus.OK.value(), paginatedResponse)
+        );
+    }
+
+
 }

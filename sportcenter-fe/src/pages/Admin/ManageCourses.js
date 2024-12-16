@@ -27,7 +27,7 @@ function ManageCourses() {
 
     useEffect(() => {
         fetchCourses();
-    }, [currentPage, pageSize]);
+    }, [currentPage, pageSize, searchQuery]);
 
     const fetchCourses = useCallback(async () => {
         setIsLoading(true);
@@ -43,6 +43,21 @@ function ManageCourses() {
             setIsLoading(false);
         }
     }, [currentPage, pageSize]);
+
+    const handleSearch = async (e) => {
+        const value = e.target.value;
+        setSearchQuery(value);
+        setCurrentPage(0); // Đặt lại trang về 0 khi tìm kiếm
+        try {
+            const response = await courseApi.searchByNameAndPaginate(value, 0, pageSize);
+            setCourses(response.data.content);
+            setTotalPages(response.data.totalPages);
+            setTotalElements(response.data.totalElements);
+        } catch (error) {
+            console.error('Failed to search courses:', error);
+            toast.error('Failed to search courses. Please try again.');
+        }
+    };
 
     const handleAddCourse = async () => {
         try {
@@ -137,7 +152,7 @@ function ManageCourses() {
                     type='text'
                     placeholder='Search by course name...'
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={handleSearch}
                     className={styles.searchInput}
                 />
             </div>

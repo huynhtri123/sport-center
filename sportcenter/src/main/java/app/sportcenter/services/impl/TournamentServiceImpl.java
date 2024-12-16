@@ -439,5 +439,26 @@ public class TournamentServiceImpl implements TournamentService {
             throw new CustomException("Bạn không phải chủ sở hữu Team này!", HttpStatus.BAD_REQUEST.value());
         }
     }
+    @Override
+    public ResponseEntity<BaseResponse> searchByNameAndPaginate(String tournamentName, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Tournament> tournamentPage = tournamentRepository.searchByTournamentNameContainingIgnoreCase(tournamentName, pageable);
+
+        List<TournamentResponse> responseTournaments = tournamentPage.getContent()
+                .stream()
+                .map(tournamentMapper::convertToDTO)
+                .collect(Collectors.toList());
+
+        PaginatedResponse<TournamentResponse> paginatedResponse = new PaginatedResponse<>(
+                responseTournaments,
+                tournamentPage.getTotalPages(),
+                tournamentPage.getTotalElements()
+        );
+
+        return ResponseEntity.ok(
+                new BaseResponse("Tìm thấy danh sách giải đấu.", HttpStatus.OK.value(), paginatedResponse)
+        );
+    }
+
 
 }

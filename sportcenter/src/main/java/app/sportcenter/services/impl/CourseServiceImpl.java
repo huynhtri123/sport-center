@@ -182,6 +182,33 @@ public class CourseServiceImpl implements CourseService {
         );
     }
 
+    @Override
+    public ResponseEntity<BaseResponse> searchByNameAndPaginate(String courseName, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Course> coursePage = courseRepository.searchByNameContainingIgnoreCase(courseName, pageable);
+
+//        if (coursePage.isEmpty()) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+//                    new BaseResponse("Không tìm thấy khóa học nào với tên này.", HttpStatus.NOT_FOUND.value(), null)
+//            );
+//        }
+
+        List<CourseResponse> responseCourses = coursePage.getContent()
+                .stream()
+                .map(courseMapper::convertToDTO)
+                .collect(Collectors.toList());
+
+        PaginatedResponse<CourseResponse> paginatedResponse = new PaginatedResponse<>(
+                responseCourses,
+                coursePage.getTotalPages(),
+                coursePage.getTotalElements()
+        );
+
+        return ResponseEntity.ok(
+                new BaseResponse("Tìm thấy danh sách khóa học.", HttpStatus.OK.value(), paginatedResponse)
+        );
+    }
+
 
 
 

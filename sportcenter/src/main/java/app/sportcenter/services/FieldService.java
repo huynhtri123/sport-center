@@ -23,4 +23,5 @@ public interface FieldService {
 
     public ResponseEntity<BaseResponse> searchByNameContainingIgnoreCase(String fieldName);
     public ResponseEntity<BaseResponse> findByFieldType(FieldType fieldType);
+    ResponseEntity<BaseResponse> searchByNameAndPaginate(String fieldName, int page, int size);
 }

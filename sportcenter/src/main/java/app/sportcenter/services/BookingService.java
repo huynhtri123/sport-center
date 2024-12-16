@@ -8,6 +8,7 @@ import app.sportcenter.models.dto.TimeRequest;
 import org.springframework.http.ResponseEntity;
 
 import java.time.ZonedDateTime;
+import java.util.Map;
 
 public interface BookingService {
     public ResponseEntity<BaseResponse> createBooking(BookingRequest bookingRequest);
@@ -40,4 +41,6 @@ public interface BookingService {
     public Double getRemainingAmountOfRecurringByBookingId(String bookingId);
 
     public ResponseEntity<BaseResponse> getRecurringBookingByContainBookingId(String bookingId);
+    public ResponseEntity<BaseResponse> searchByFieldNameAndPaginate(String fieldName, int page, int size);
+    public Map<String, Double> getRevenueLastSixMonths();
 }

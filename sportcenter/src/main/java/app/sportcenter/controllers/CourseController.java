@@ -66,4 +66,12 @@ public class CourseController {
         return courseService.deleteLessonFromCourse(courseId, lessonId);
     }
 
+    @GetMapping("/public/course/searchByNameAndPaginate")
+    public ResponseEntity<BaseResponse> searchByNameAndPaginate(
+            @RequestParam("courseName") String courseName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        return courseService.searchByNameAndPaginate(courseName, page, size);
+    }
+
 }
