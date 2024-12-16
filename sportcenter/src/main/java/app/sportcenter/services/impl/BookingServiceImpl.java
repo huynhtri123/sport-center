@@ -10,9 +10,9 @@ import app.sportcenter.services.BookingService;
 import app.sportcenter.services.InvoiceService;
 import app.sportcenter.services.MailService;
 import app.sportcenter.services.UserService;
+import app.sportcenter.utils.kafkaUsage.MessageWrapper;
 import app.sportcenter.utils.mappers.BookingMapper;
 import app.sportcenter.utils.mappers.FieldMapper;
-import app.sportcenter.utils.mappers.InvoiceMapper;
 import app.sportcenter.utils.mappers.RecurringBookingMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,16 +21,20 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,11 +59,9 @@ public class BookingServiceImpl implements BookingService {
     @Autowired
     private InvoiceService invoiceService;
     @Autowired
-    private InvoiceRepository invoiceRepository;
-    @Autowired
-    private InvoiceMapper invoiceMapper;
-    @Autowired
     private FieldMapper fieldMapper;
+    @Autowired
+    private KafkaTemplate<String, Object> kafkaTemplate;
 
     // đặt lẻ
     @Transactional
@@ -105,9 +107,6 @@ public class BookingServiceImpl implements BookingService {
             Booking savedBooking = bookingRepository.save(booking);
 
             BookingResponse response = bookingMapper.convertToResponse(savedBooking);
-
-//            // send mail
-//            sendMailBooking(currentUser, response);
 
             log.info("Đặt sân bước 1 thành công" + response.getId());
             return ResponseEntity.ok(
@@ -184,7 +183,13 @@ public class BookingServiceImpl implements BookingService {
         log.info("Đặt sân bước 2 thành công! " + bookingId);
 
         // send mail
-        sendMailBooking(currUser, response);
+        MessageWrapper messageWrapper = MessageWrapper.builder()
+                .type(SendMailType.CONFIRM_BOOKING.name())
+                .payload(response)
+                .toEmail(currUser.getEmail())
+                .toFullName(currUser.getFullName())
+                .build();
+        kafkaTemplate.send("notification-delivery", messageWrapper);
 
         return ResponseEntity.ok(
                 new BaseResponse("Xác nhận đặt sân thành công", HttpStatus.OK.value(), response)
@@ -248,9 +253,6 @@ public class BookingServiceImpl implements BookingService {
 
         RecurringBooking savedRecurringBooking = recurringBookingRepository.save(recurringBooking);
         RecurringBookingResponse response = recurringBookingMapper.convertToDTO(savedRecurringBooking);
-
-        //send mail
-//        sendMailRecurringBooking(currentUser, response);
 
         log.info("Đặt sân (recurring) bước 1 thành công " + response.getId());
         return ResponseEntity.ok(
@@ -334,8 +336,14 @@ public class BookingServiceImpl implements BookingService {
         RecurringBooking confirmedRecurring = recurringBookingRepository.save(recurringBooking);
         RecurringBookingResponse response = recurringBookingMapper.convertToDTO(confirmedRecurring);
 
-        //send mail
-        sendMailRecurringBooking(currUser, response);
+        // send mail
+        MessageWrapper messageWrapper = MessageWrapper.builder()
+                .type(SendMailType.CONFIRM_RECURRING.name())
+                .payload(response)
+                .toEmail(currUser.getEmail())
+                .toFullName(currUser.getFullName())
+                .build();
+        kafkaTemplate.send("notification-delivery", messageWrapper);
 
         String message = "Xác nhận đặt sân theo lịch cứng (" + recurringBooking.getInterval() + "/"
                 + recurringBooking.getPackageDurationMonths() + " months) thành công!";
@@ -593,7 +601,13 @@ public class BookingServiceImpl implements BookingService {
             }
 
             // 4. send mail
-            sendMailCancelBooking(owner, response);
+            MessageWrapper messageWrapper = MessageWrapper.builder()
+                    .type(SendMailType.CANCEL_BOOKING.name())
+                    .payload(response)
+                    .toEmail(owner.getEmail())
+                    .toFullName(owner.getFullName())
+                    .build();
+            kafkaTemplate.send("notification-delivery", messageWrapper);
 
             return ResponseEntity.ok(
                     new BaseResponse("Huỷ đặt sân thành công.", HttpStatus.OK.value(), response)
@@ -701,133 +715,18 @@ public class BookingServiceImpl implements BookingService {
         InvoiceResponse invoiceResponse = invoiceService.create(invoiceRequest);
 
         // 5. gửi mail
-        sendMailRecurringBookingCancel(owner, response);
+        MessageWrapper messageWrapper = MessageWrapper.builder()
+                .type(SendMailType.CANCEL_RECURRING.name())
+                .payload(response)
+                .toEmail(owner.getEmail())
+                .toFullName(owner.getFullName())
+                .build();
+        kafkaTemplate.send("notification-delivery", messageWrapper);
 
         return ResponseEntity.ok(
                 new BaseResponse("Huỷ cứng recurringBooking thành công, 50% số tiền đã hoàn vào số dư.",
                         HttpStatus.OK.value(), response)
         );
-    }
-
-    private void sendMailBooking(User user, BookingResponse bookingResponse) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z");
-        try {
-            // chuyển đổi các thời gian sang múi giờ Việt Nam
-            ZonedDateTime bookingDateInVietnam = bookingResponse.getBookingDate().withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"));
-            ZonedDateTime startTimeInVietnam = bookingResponse.getStartTime().withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"));
-            ZonedDateTime endTimeInVietnam = bookingResponse.getEndTime().withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"));
-
-            String email = user.getEmail();
-            String fullName = user.getFullName();
-            String bookingDate = bookingDateInVietnam.format(formatter);
-            String numberOfHours = bookingResponse.getNumberOfHours().toString();
-            String startTime = startTimeInVietnam.format(formatter);
-            String endTime = endTimeInVietnam.format(formatter);
-            String totalPrice = bookingResponse.getTotalPrice().toString();
-
-            mailService.sendMailBooking(email, fullName, bookingDate, numberOfHours, startTime, endTime, totalPrice);
-
-        } catch (Exception e) {
-            throw new CustomException("Lỗi khi gửi mail booking: " + e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR.value());
-        }
-    }
-
-    public void sendMailRecurringBooking(User user, RecurringBookingResponse recurringBookingResponse) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z");
-        try {
-            String email = user.getEmail();
-            String fullName = user.getFullName();
-            String fieldName = recurringBookingResponse.getField().getFieldName();
-
-            // Chuyển thời gian sang múi giờ Việt Nam (GMT+7)
-            String startDate = recurringBookingResponse.getStartDate()
-                    .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
-                    .format(formatter);
-            String startTime = recurringBookingResponse.getStartTime()
-                    .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
-                    .format(formatter);
-            String endDate = recurringBookingResponse.getEndDate()
-                    .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
-                    .format(formatter);
-            String endTime = recurringBookingResponse.getEndTime()
-                    .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
-                    .format(formatter);
-
-            String interval = recurringBookingResponse.getInterval().name(); // DAILY, WEEKLY, MONTHLY
-            String numberOfHours = recurringBookingResponse.getNumberOfHours().toString();
-            String packageDurationMonths = recurringBookingResponse.getPackageDurationMonths().toString();
-            String price = recurringBookingResponse.getPrice().toString();
-
-            // Gọi phương thức gửi mail với các thông tin đã được định dạng
-            mailService.sendMailRecurringBooking(email, fullName, fieldName, startDate, startTime, endDate, endTime, interval, numberOfHours, packageDurationMonths, price);
-
-        } catch (Exception e) {
-            throw new CustomException("Lỗi khi gửi mail đặt sân định kỳ: " + e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR.value());
-        }
-    }
-
-    public void sendMailRecurringBookingCancel(User user, RecurringBookingResponse recurringBookingResponse) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z");
-        try {
-            String email = user.getEmail();
-            String fullName = user.getFullName();
-            String fieldName = recurringBookingResponse.getField().getFieldName();
-
-            // Chuyển thời gian sang múi giờ Việt Nam (GMT+7)
-            String startDate = recurringBookingResponse.getStartDate()
-                    .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
-                    .format(formatter);
-            String startTime = recurringBookingResponse.getStartTime()
-                    .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
-                    .format(formatter);
-            String endDate = recurringBookingResponse.getEndDate()
-                    .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
-                    .format(formatter);
-            String endTime = recurringBookingResponse.getEndTime()
-                    .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
-                    .format(formatter);
-
-            String interval = recurringBookingResponse.getInterval().name(); // DAILY, WEEKLY, MONTHLY
-            String numberOfHours = recurringBookingResponse.getNumberOfHours().toString();
-            Double price = recurringBookingResponse.getPrice();
-            String duration = recurringBookingResponse.getPackageDurationMonths().toString();
-            Double refund = price / 2;
-
-            // Gọi phương thức gửi mail với các thông tin đã được định dạng
-            mailService.sendMailRecurringBookingCancel(email, fullName, fieldName, startDate,
-                    startTime, endDate, endTime, interval, numberOfHours, price, refund, duration);
-
-        } catch (Exception e) {
-            throw new CustomException("Lỗi khi gửi mail hủy đặt sân định kỳ: " + e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR.value());
-        }
-    }
-
-
-    private void sendMailCancelBooking(User user, BookingResponse canceledBooking) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z");
-        try {
-            // Chuyển đổi các thời gian sang múi giờ Việt Nam
-            ZonedDateTime bookingDateInVietnam = canceledBooking.getBookingDate().withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"));
-            ZonedDateTime startTimeInVietnam = canceledBooking.getStartTime().withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"));
-            ZonedDateTime endTimeInVietnam = canceledBooking.getEndTime().withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"));
-
-            String email = user.getEmail();
-            String fullName = user.getFullName();
-            String bookingDate = bookingDateInVietnam.format(formatter);
-            String startTime = startTimeInVietnam.format(formatter);
-            String endTime = endTimeInVietnam.format(formatter);
-            String price = canceledBooking.getTotalPrice().toString();
-
-            // Gọi hàm gửi email
-            mailService.sendMailCancelBooking(email, fullName, bookingDate, startTime, endTime, price);
-
-        } catch (Exception e) {
-            throw new CustomException("Lỗi khi gửi mail huỷ booking: " + e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR.value());
-        }
     }
 
     @Transactional
@@ -903,5 +802,4 @@ public class BookingServiceImpl implements BookingService {
 
         return revenueData;
     }
-
 }

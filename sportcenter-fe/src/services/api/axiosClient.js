@@ -120,7 +120,9 @@ axiosClient.interceptors.response.use(
 );
 
 function redirectToLogin() {
-    window.location.href = '/#/sign-in'; // chuyển hướng đến trang đăng nhập
+    // window.location.href = '/#/sign-in'; // chuyển hướng đến trang đăng nhập
+    const basePath = window.location.pathname.split('/')[1]; // Lấy basePath từ URL
+    window.location.href = `/${basePath}/#/sign-in`;
 }
 
 export default axiosClient;

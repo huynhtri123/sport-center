@@ -2,6 +2,7 @@ package app.sportcenter.services.impl;
 
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.models.dto.BookingResponse;
+import app.sportcenter.models.dto.TeamResponse;
 import app.sportcenter.models.entities.Team;
 import app.sportcenter.services.MailService;
 import jakarta.mail.internet.MimeMessage;
@@ -22,214 +23,120 @@ public class MailServiceImpl implements MailService {
     private JavaMailSender mailSender;
     @Autowired
     private TemplateEngine templateEngine;
-    @Override
-    public void sendMailVerify(String toEmail, String userName, String verifyCode) {
-        MimeMessagePreparator preparator = new MimeMessagePreparator() {
-            public void prepare(MimeMessage mimeMessage) throws Exception {
+
+    private void sendEmail(String toEmail, String subject, String templateFile, Context context) {
+        try {
+            MimeMessagePreparator preparator = mimeMessage -> {
                 MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
                 messageHelper.setTo(toEmail);
-                messageHelper.setSubject("Sport Center - Mã xác minh");
-
-                Context context = new Context();
-                context.setVariable("UserName", userName);
-                context.setVariable("ToEmail", toEmail);
-                context.setVariable("VerifyCode", verifyCode);
-
-                String content = templateEngine.process("VerifyTemplate", context);
-
+                messageHelper.setSubject(subject);
+                String content = templateEngine.process(templateFile, context);
                 messageHelper.setText(content, true);
-            }
-        };
-        mailSender.send(preparator);
-    }
-
-    @Override
-    public void sendMailBooking(String toEmail, String fullName, String bookingDate, String numberOfHours, String startTime, String endTime, String totalPrice) {
-        try {
-            MimeMessagePreparator preparator = new MimeMessagePreparator() {
-                public void prepare(MimeMessage mimeMessage) throws Exception {
-                    MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-                    messageHelper.setTo(toEmail);
-                    messageHelper.setSubject("Sport Center - Booking");
-
-                    Context context = new Context();
-                    context.setVariable("fullName", fullName);
-                    context.setVariable("toEmail", toEmail);
-                    context.setVariable("bookingDate", bookingDate);
-                    context.setVariable("numberOfHours", numberOfHours);
-                    context.setVariable("startTime", startTime);
-                    context.setVariable("endTime", endTime);
-                    context.setVariable("totalPrice", totalPrice);
-
-                    String content = templateEngine.process("BookingTemplate", context);
-                    messageHelper.setText(content, true);
-                }
             };
             mailSender.send(preparator);
-
         } catch (Exception e) {
-            throw new CustomException("Lỗi khi gửi mail booking: " + e.getMessage(),
+            throw new CustomException("Lỗi khi gửi mail: " + e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
 
     @Override
-    public void sendMailRecurringBooking(String toEmail, String fullName, String fieldName, String startDate, String startTime, String endDate, String endTime, String interval, String numberOfHours, String packageDurationMonths, String price) {
-        try {
-            MimeMessagePreparator preparator = new MimeMessagePreparator() {
-                public void prepare(MimeMessage mimeMessage) throws Exception {
-                    MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-                    messageHelper.setTo(toEmail);
-                    messageHelper.setSubject("Sport Center - Recurring Booking Confirmation");
+    public void sendMailVerify(String toEmail, String userName, String verifyCode, String templateFile) {
+        Context context = new Context();
+        context.setVariable("UserName", userName);
+        context.setVariable("ToEmail", toEmail);
+        context.setVariable("VerifyCode", verifyCode);
+        sendEmail(toEmail, "Sport Center - Mã xác minh", templateFile, context);
+    }
 
-                    // Khởi tạo các biến cho template email
-                    Context context = new Context();
-                    context.setVariable("fullName", fullName);
-                    context.setVariable("fieldName", fieldName);
-                    context.setVariable("startDate", startDate);
-                    context.setVariable("startTime", startTime);
-                    context.setVariable("endDate", endDate);
-                    context.setVariable("endTime", endTime);
-                    context.setVariable("interval", interval);
-                    context.setVariable("numberOfHours", numberOfHours);
-                    context.setVariable("packageDurationMonths", packageDurationMonths);
-                    context.setVariable("price", price);
+    @Override
+    public void sendMailBooking(String toEmail, String fullName, String bookingDate, String numberOfHours,
+                                String startTime, String endTime, String totalPrice, String templateFile) {
+        Context context = new Context();
+        context.setVariable("fullName", fullName);
+        context.setVariable("toEmail", toEmail);
+        context.setVariable("bookingDate", bookingDate);
+        context.setVariable("numberOfHours", numberOfHours);
+        context.setVariable("startTime", startTime);
+        context.setVariable("endTime", endTime);
+        context.setVariable("totalPrice", totalPrice);
+        sendEmail(toEmail, "Sport Center - Booking", templateFile, context);
+    }
 
-                    // Render template email với Thymeleaf
-                    String content = templateEngine.process("RecurringBookingTemplate", context);
-                    messageHelper.setText(content, true);
-                }
-            };
-            mailSender.send(preparator);
-
-        } catch (Exception e) {
-            throw new CustomException("Lỗi khi gửi mail đặt sân định kỳ: " + e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR.value());
-        }
+    @Override
+    public void sendMailRecurringBooking(String toEmail, String fullName, String fieldName, String startDate,
+                                         String startTime, String endDate, String endTime, String interval,
+                                         String numberOfHours, String packageDurationMonths, String price,
+                                         String templateFile) {
+        Context context = new Context();
+        context.setVariable("fullName", fullName);
+        context.setVariable("fieldName", fieldName);
+        context.setVariable("startDate", startDate);
+        context.setVariable("startTime", startTime);
+        context.setVariable("endDate", endDate);
+        context.setVariable("endTime", endTime);
+        context.setVariable("interval", interval);
+        context.setVariable("numberOfHours", numberOfHours);
+        context.setVariable("packageDurationMonths", packageDurationMonths);
+        context.setVariable("price", price);
+        sendEmail(toEmail, "Sport Center - Recurring Booking Confirmation", templateFile, context);
     }
 
     @Override
     public void sendMailRecurringBookingCancel(String toEmail, String fullName, String fieldName,
                                                String startDate, String startTime, String endDate,
                                                String endTime, String interval, String numberOfHours,
-                                               Double price, Double refund, String duration) {
-        try {
-            MimeMessagePreparator preparator = new MimeMessagePreparator() {
-                public void prepare(MimeMessage mimeMessage) throws Exception {
-                    MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-                    messageHelper.setTo(toEmail);
-                    messageHelper.setSubject("Sport Center - Recurring Booking Cancellation Confirmation");
-
-                    // Khởi tạo các biến cho template email
-                    Context context = new Context();
-                    context.setVariable("fullName", fullName);
-                    context.setVariable("fieldName", fieldName);
-                    context.setVariable("startDate", startDate);
-                    context.setVariable("startTime", startTime);
-                    context.setVariable("endDate", endDate);
-                    context.setVariable("endTime", endTime);
-                    context.setVariable("interval", interval);
-                    context.setVariable("numberOfHours", numberOfHours);
-                    context.setVariable("price", price);
-                    context.setVariable("refund", refund);
-                    context.setVariable("duration", duration);
-
-                    // Render template email với Thymeleaf
-                    String content = templateEngine.process("RecurringBookingCancelTemplate", context);
-                    messageHelper.setText(content, true);
-                }
-            };
-            mailSender.send(preparator);
-
-        } catch (Exception e) {
-            throw new CustomException("Lỗi khi gửi mail hủy đặt sân định kỳ: " + e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR.value());
-        }
-    }
-
-
-
-    @Override
-    public void sendMailCancelBooking(String toEmail, String fullName,
-                                      String bookingDate, String startTime, String endTime, String price) {
-        try {
-            MimeMessagePreparator preparator = new MimeMessagePreparator() {
-                public void prepare(MimeMessage mimeMessage) throws Exception {
-                    MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-                    messageHelper.setTo(toEmail);
-                    messageHelper.setSubject("Sport Center - Booking Cancellation");
-
-                    Context context = new Context();
-                    context.setVariable("fullName", fullName);
-                    context.setVariable("bookingDate", bookingDate);
-                    context.setVariable("startTime", startTime);
-                    context.setVariable("endTime", endTime);
-                    context.setVariable("price", price);
-
-                    String content = templateEngine.process("CancelBookingTemplate", context);
-                    messageHelper.setText(content, true);
-                }
-            };
-            mailSender.send(preparator);
-
-        } catch (Exception e) {
-            throw new CustomException("Lỗi khi gửi mail huỷ booking: " + e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR.value());
-        }
-    }
-
-
-    @Override
-    public void sendMailRegisterTournament(String toEmail, String tournamentName, ZonedDateTime startDate, ZonedDateTime endDate, Team team) {
-        MimeMessagePreparator preparator = new MimeMessagePreparator() {
-            public void prepare(MimeMessage mimeMessage) throws Exception {
-                MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-                messageHelper.setTo(toEmail);
-                messageHelper.setSubject("Sport Center - Đăng ký tham gia giải đấu thành công");
-
-                Context context = new Context();
-                context.setVariable("teamName", team.getTeamName());
-                context.setVariable("tournamentName", tournamentName);
-                context.setVariable("startDate", startDate.toString());
-                context.setVariable("endDate", endDate.toString());
-                context.setVariable("players", team.getPlayers());
-
-                String content = templateEngine.process("RegisterTournamentTemplate", context);
-                messageHelper.setText(content, true);
-            }
-        };
-        try {
-            mailSender.send(preparator);
-        } catch (Exception e) {
-            throw new CustomException("Lỗi khi gửi mail đăng ký giải đấu: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
-        }
+                                               Double price, Double refund, String duration, String templateFile) {
+        Context context = new Context();
+        context.setVariable("fullName", fullName);
+        context.setVariable("fieldName", fieldName);
+        context.setVariable("startDate", startDate);
+        context.setVariable("startTime", startTime);
+        context.setVariable("endDate", endDate);
+        context.setVariable("endTime", endTime);
+        context.setVariable("interval", interval);
+        context.setVariable("numberOfHours", numberOfHours);
+        context.setVariable("price", price);
+        context.setVariable("refund", refund);
+        context.setVariable("duration", duration);
+        sendEmail(toEmail, "Sport Center - Recurring Booking Cancellation Confirmation", templateFile, context);
     }
 
     @Override
-    public void sendMailUnregisterTournament(String toEmail, String tournamentName, ZonedDateTime startDate, ZonedDateTime endDate, Team team) {
-        // Gửi email thông báo hủy đăng ký
-        MimeMessagePreparator preparator = new MimeMessagePreparator() {
-            public void prepare(MimeMessage mimeMessage) throws Exception {
-                MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-                messageHelper.setTo(toEmail);
-                messageHelper.setSubject("Sport Center - Hủy đăng ký giải đấu thành công");
-
-                Context context = new Context();
-                context.setVariable("teamName", team.getTeamName());
-                context.setVariable("tournamentName", tournamentName);
-                context.setVariable("startDate", startDate.toString());
-                context.setVariable("endDate", endDate.toString());
-
-                String content = templateEngine.process("UnregisterTournamentTemplate", context);
-                messageHelper.setText(content, true);
-            }
-        };
-        try {
-            mailSender.send(preparator);
-        } catch (Exception e) {
-            throw new CustomException("Lỗi khi gửi mail hủy đăng ký giải đấu: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
-        }
+    public void sendMailCancelBooking(String toEmail, String fullName, String bookingDate,
+                                      String startTime, String endTime, String price, String templateFile) {
+        Context context = new Context();
+        context.setVariable("fullName", fullName);
+        context.setVariable("bookingDate", bookingDate);
+        context.setVariable("startTime", startTime);
+        context.setVariable("endTime", endTime);
+        context.setVariable("price", price);
+        sendEmail(toEmail, "Sport Center - Booking Cancellation", templateFile, context);
     }
 
+    @Override
+    public void sendMailRegisterTournament(String toEmail, String tournamentName,
+                                           ZonedDateTime startDate, ZonedDateTime endDate, TeamResponse team,
+                                           String templateFile) {
+        Context context = new Context();
+        context.setVariable("teamName", team.getTeamName());
+        context.setVariable("tournamentName", tournamentName);
+        context.setVariable("startDate", startDate.toString());
+        context.setVariable("endDate", endDate.toString());
+        context.setVariable("players", team.getPlayers());
+        sendEmail(toEmail, "Sport Center - Đăng ký tham gia giải đấu thành công", templateFile, context);
+    }
 
+    @Override
+    public void sendMailUnregisterTournament(String toEmail, String tournamentName,
+                                             ZonedDateTime startDate, ZonedDateTime endDate, TeamResponse team,
+                                             String templateFile) {
+        Context context = new Context();
+        context.setVariable("teamName", team.getTeamName());
+        context.setVariable("tournamentName", tournamentName);
+        context.setVariable("startDate", startDate.toString());
+        context.setVariable("endDate", endDate.toString());
+        sendEmail(toEmail, "Sport Center - Hủy đăng ký giải đấu thành công", templateFile, context);
+    }
 }
+

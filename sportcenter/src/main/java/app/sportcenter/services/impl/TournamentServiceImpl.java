@@ -7,15 +7,15 @@ import app.sportcenter.exceptions.NotFoundException;
 import app.sportcenter.models.dto.*;
 import app.sportcenter.models.entities.Team;
 import app.sportcenter.models.entities.Tournament;
+import app.sportcenter.utils.kafkaUsage.MessageWrapper;
+import app.sportcenter.utils.kafkaUsage.TournamentTeamPayload;
 import app.sportcenter.models.entities.User;
 import app.sportcenter.repositories.SportRepository;
 import app.sportcenter.repositories.TeamRepository;
 import app.sportcenter.repositories.TournamentRepository;
 import app.sportcenter.repositories.UserRepository;
-import app.sportcenter.services.InvoiceService;
 import app.sportcenter.services.MailService;
 import app.sportcenter.services.TournamentService;
-import app.sportcenter.services.UserService;
 import app.sportcenter.utils.mappers.TeamMapper;
 import app.sportcenter.utils.mappers.TournamentMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +25,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -52,15 +52,13 @@ public class TournamentServiceImpl implements TournamentService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private UserService userService;
-    @Autowired
-    private InvoiceService invoiceService;
-    @Autowired
     private MailService mailService;
     @Autowired
     private AppConfig appConfig;
     @Autowired
     private TeamMapper teamMapper;
+    @Autowired
+    private KafkaTemplate<String, Object> kafkaTemplate;
 
     private void checkFutureDate(ZonedDateTime startDate, ZonedDateTime endDate, ZonedDateTime deadlineDate) {
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
@@ -331,7 +329,21 @@ public class TournamentServiceImpl implements TournamentService {
         Team team = teamRepository.findById(request.getTeamId()).orElseThrow(
                 () -> new NotFoundException("Không tìm thấy Team để gửi mail")
         );
-//        sendRegistrationEmail(tournament, team);
+
+        // send mail
+        TournamentResponse tournamentResponse = tournamentMapper.convertToDTO(tournament);
+        TeamResponse teamResponse = teamMapper.convertToDTO(team);
+        TournamentTeamPayload payload = TournamentTeamPayload.builder()
+                .tournament(tournamentResponse)
+                .team(teamResponse)
+                .build();
+        MessageWrapper messageWrapper = MessageWrapper.builder()
+                .type(SendMailType.REGISTER_TOURNAMENT.name())
+                .payload(payload)
+                .toEmail(currentUser.getEmail())
+                .toFullName(currentUser.getFullName())
+                .build();
+        kafkaTemplate.send("notification-delivery", messageWrapper);
 
         return ResponseEntity.ok(new BaseResponse(
                 "Đăng ký tham gia giải đấu thành công.", HttpStatus.OK.value(), response)
@@ -382,19 +394,6 @@ public class TournamentServiceImpl implements TournamentService {
         }
     }
 
-    public void sendRegistrationEmail(Tournament tournament, Team team) {
-        User user = userRepository.findById(team.getUserId())
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy người sở hữu team này để lấy email"));
-        String toEmail = user.getEmail();
-        mailService.sendMailRegisterTournament(
-                toEmail,
-                tournament.getTournamentName(),
-                tournament.getStartDate(),
-                tournament.getEndDate(),
-                team
-        );
-    }
-
     @Transactional
     @Override
     public ResponseEntity<BaseResponse> unregister(TournamentRegisterRequest request) {
@@ -425,11 +424,21 @@ public class TournamentServiceImpl implements TournamentService {
 
             TournamentResponse response = tournamentMapper.convertToDTO(tournamentRepository.save(tournament));
 
-            // gửi mail thông báo
             User user = userRepository.findById(team.getUserId())
                     .orElseThrow(() -> new NotFoundException("Không tìm thấy người sở hữu team này để lấy email"));
-            String toEmail = user.getEmail();
-            mailService.sendMailUnregisterTournament(toEmail, tournament.getTournamentName(), tournament.getStartDate(), tournament.getEndDate(), team);
+            // gửi mail thông báo
+            TeamResponse teamResponse = teamMapper.convertToDTO(team);
+            TournamentTeamPayload payload = TournamentTeamPayload.builder()
+                    .tournament(response)
+                    .team(teamResponse)
+                    .build();
+            MessageWrapper messageWrapper = MessageWrapper.builder()
+                    .type(SendMailType.CANCEL_REGISTER_TOURNAMENT.name())
+                    .payload(payload)
+                    .toEmail(user.getEmail())
+                    .toFullName(user.getFullName())
+                    .build();
+            kafkaTemplate.send("notification-delivery", messageWrapper);
 
             return ResponseEntity.ok(new BaseResponse(
                     "Hủy đăng ký tham gia giải đấu thành công.", HttpStatus.OK.value(), response)
