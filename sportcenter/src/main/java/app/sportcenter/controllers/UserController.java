@@ -82,4 +82,14 @@ public class UserController {
         );
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @GetMapping("/getUserById/{userId}")
+    public ResponseEntity<BaseResponse> getUserById(@PathVariable("userId") String userId) {
+        return ResponseEntity.ok(
+                new BaseResponse("Find user by id successfully",
+                        HttpStatus.OK.value(),
+                        userService.getUserById(userId))
+        );
+    }
+
 }

@@ -173,6 +173,13 @@ public class UserServiceImpl implements UserService {
         return userMapper.convertToDTO(currUser);
     }
 
+    @Override
+    public UserResponse getUserById(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User cannot found with id=" + userId));
+        return userMapper.convertToDTO(user);
+    }
+
 
 //    @Override
 //    public ResponseEntity<BaseResponse> getById(String id) {

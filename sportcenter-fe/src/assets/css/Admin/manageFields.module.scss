@@ -35,15 +35,20 @@
     }
 
     .addButton {
-        background-color: $blue-prime;
+        display: block;
+        margin: 1rem 0;
+        padding: 0.5rem 1rem;
+        background-color: #007bff;
         color: white;
-        padding: 8px 15px;
         border: none;
-        border-radius: 4px;
+        border-radius: 5px;
         cursor: pointer;
+        font-size: 16px;
+        font-family: 'Cera Round Pro Bold', Times, serif;
 
         &:hover {
-            background-color: darken($blue-prime, 10%);
+            background-color: #0f6ed4;
+            color: white;
         }
     }
 
@@ -179,14 +184,20 @@
     }
 
     .submitButton {
-        background-color: $blue-prime;
+        display: block;
+        margin: 1rem 0;
+        padding: 0.5rem 1rem;
+        background-color: #007bff;
         color: white;
         border: none;
-        border-radius: 4px;
+        border-radius: 5px;
         cursor: pointer;
+        font-size: 16px;
+        font-family: 'Cera Round Pro Bold', Times, serif;
 
         &:hover {
-            background-color: darken($blue-prime, 10%);
+            background-color: #0f6ed4;
+            color: white;
         }
     }
 }

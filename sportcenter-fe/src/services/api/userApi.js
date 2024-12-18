@@ -69,6 +69,10 @@ const userApi = {
         const url = '/user/getCurrentUser';
         return axiosClient.get(url);
     },
+    getUserById(userId) {
+        const url = `/user/getUserById/${userId}`;
+        return axiosClient.get(url);
+    },
 };
 
 export default userApi;

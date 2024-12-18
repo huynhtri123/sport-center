@@ -145,7 +145,6 @@ function ManageCourses() {
     return (
         <div className={styles.manageCourses}>
             {isLoading && <Loading />}
-            <h2>Manage Courses</h2>
 
             <div className={styles.searchContainer}>
                 <input

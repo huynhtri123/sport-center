@@ -37,6 +37,10 @@ const tournamentApi = {
         const url = `/public/tounament/searchByNameAndPaginate?tournamentName=${query}&page=${page}&size=${size}`;
         return axiosClient.get(url);
     },
+    getRegisteredTeams(tournamentId) {
+        const url = `/public/tounament/getRegistedTeams/${tournamentId}`;
+        return axiosClient.get(url);
+    },
 };
 
 export default tournamentApi;

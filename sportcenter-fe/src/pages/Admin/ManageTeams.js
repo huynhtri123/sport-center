@@ -1,128 +1,156 @@
 import React, { useState, useEffect } from 'react';
-import teamApi from '../../services/api/teamApi'; // Update with your actual API service
-import styles from '../../assets/css/Admin/manageTeams.module.scss'; // Create this CSS file
+import teamApi from '../../services/api/teamApi'; // Đảm bảo đúng đường dẫn
+import styles from '../../assets/css/Admin/manageTeams.module.scss'; // Đảm bảo đúng đường dẫn
 import { toast } from 'react-toastify';
+import userApi from '../../services/api/userApi';
+import ConfirmModal from '../../components/Modal/ConfirmModal'; // Đảm bảo đúng đường dẫn
 
 function ManageTeams() {
     const [teams, setTeams] = useState([]);
-    const [newTeam, setNewTeam] = useState({ teamName: '', description: '', logoUrl: '' });
-    const [editingTeam, setEditingTeam] = useState(null);
+    const [userInfo, setUserInfo] = useState({}); // Lưu thông tin user
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [teamIdToDelete, setTeamIdToDelete] = useState(null); // Lưu ID của team cần xóa
 
-    // Fetch the teams data from the API when the component mounts
+    // Lấy danh sách team từ API
     useEffect(() => {
         fetchTeams();
     }, []);
+
+    // Fetch thông tin người dùng
+    const fetchUser = async (userId) => {
+        try {
+            const response = await userApi.getUserById(userId);
+            setUserInfo((prevState) => ({
+                ...prevState,
+                [userId]: response.data, // Lưu thông tin người dùng vào userInfo với userId làm key
+            }));
+        } catch (error) {
+            console.error('Failed to fetch user info:', error);
+            toast.error('Failed to fetch user information.');
+        }
+    };
 
     async function fetchTeams() {
         try {
             const response = await teamApi.getAll();
             setTeams(response.data);
+
+            // Fetch thông tin người dùng cho mỗi team
+            response.data.forEach((team) => {
+                if (team.userId) {
+                    fetchUser(team.userId); // Gọi API để lấy thông tin người dùng
+                }
+            });
         } catch (error) {
-            console.error("Failed to fetch teams:", error);
-            toast.error("Failed to fetch teams. Please try again.");
+            console.error('Failed to fetch teams:', error);
+            toast.error('Failed to fetch teams. Please try again.');
         }
     }
 
-    const handleAddTeam = async () => {
+    const handleDeleteTeam = async () => {
         try {
-            const response = await teamApi.create(newTeam);
-            setTeams([...teams, response.data]);
-            toast.success("Team added successfully!");
-            setNewTeam({ teamName: '', description: '', logoUrl: '' });
-        } catch (error) {
-            console.error("Failed to add team:", error);
-            toast.error("Failed to add team. Please try again.");
+            // Gọi API để xóa team
+            const response = await teamApi.softDelete(teamIdToDelete);
+
+            // Sau khi xóa thành công, fetch lại danh sách các team
+            fetchTeams();
+            setIsModalOpen(false); // Đóng modal sau khi xóa thành công
+
+            toast.success(response.message);
+        } catch (err) {
+            console.error('Failed to delete team:', err);
+            setIsModalOpen(false);
         }
     };
 
-    const handleEditTeam = (team) => {
-        setEditingTeam(team);
+    const openDeleteModal = (teamId) => {
+        setTeamIdToDelete(teamId); // Lưu ID của team cần xóa
+        setIsModalOpen(true); // Mở modal
     };
 
-    const handleUpdateTeam = async () => {
-        try {
-            const response = await teamApi.update(editingTeam.id, editingTeam);
-            setTeams(teams.map(team => (team.id === editingTeam.id ? response.data : team)));
-            toast.success("Team updated successfully!");
-            setEditingTeam(null);
-        } catch (error) {
-            console.error("Failed to update team:", error);
-            toast.error("Failed to update team. Please try again.");
-        }
-    };
-
-    const handleDeleteTeam = async (teamId) => {
-        try {
-            await teamApi.softDelete(teamId);
-            setTeams(teams.filter(team => team.id !== teamId));
-            toast.success("Team deleted successfully!");
-        } catch (error) {
-            console.error("Failed to delete team:", error);
-            toast.error("Failed to delete team. Please try again.");
-        }
+    const closeModal = () => {
+        setIsModalOpen(false); // Đóng modal
+        setTeamIdToDelete(null); // Reset teamIdToDelete
     };
 
     return (
         <div className={styles.manageTeams}>
-            <h2>Manage Teams</h2>
             <table className={styles.teamsTable}>
                 <thead>
                     <tr>
                         <th>STT</th>
                         <th>Team Name</th>
-                        <th>Description</th>
+                        <th>Owner</th>
                         <th>Logo</th>
+                        <th>Players</th>
+                        <th>Enrolled Tournaments</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {teams.map((team, index) => (
-                        <tr key={team.id}>
+                        <tr key={index}>
                             <td>{index + 1}</td>
                             <td>{team.teamName}</td>
-                            <td>{team.description}</td>
                             <td>
-                                <img src={team.logoUrl} alt={team.teamName} className={styles.teamLogo} />
+                                {/* Hiển thị fullName, email và phoneNumber của người dùng */}
+                                {userInfo[team.userId] ? (
+                                    <>
+                                        <strong>{userInfo[team.userId].fullName}</strong>
+                                        <div>{userInfo[team.userId].email}</div>
+                                        <div>{userInfo[team.userId].phoneNumber}</div>
+                                    </>
+                                ) : (
+                                    'Loading...'
+                                )}
                             </td>
                             <td>
-                                <button className={`btn ${styles.editButton}`} onClick={() => handleEditTeam(team)}>Edit</button>
-                                <button className={`btn ${styles.deleteButton}`} onClick={() => handleDeleteTeam(team.id)}>Delete</button>
+                                {team.teamLogoUrl ? (
+                                    <img src={team.teamLogoUrl} alt={team.teamName} className={styles.teamLogo} />
+                                ) : (
+                                    'No Logo'
+                                )}
+                            </td>
+                            <td>
+                                {team.players && team.players.length > 0
+                                    ? team.players.map((player, idx) => (
+                                          <span key={idx}>
+                                              {player.name}
+                                              {idx < team.players.length - 1 ? ', ' : ''}
+                                          </span>
+                                      ))
+                                    : 'No Players'}
+                            </td>
+                            <td>
+                                {team.enrolledTournaments && team.enrolledTournaments.length > 0
+                                    ? team.enrolledTournaments.map((tournament, idx) => (
+                                          <span key={idx}>
+                                              {tournament.tournamentName}
+                                              {idx < team.enrolledTournaments.length - 1 ? ', ' : ''}
+                                          </span>
+                                      ))
+                                    : 'No Tournaments'}
+                            </td>
+                            <td>
+                                <button
+                                    className={`btn ${styles.deleteButton}`}
+                                    onClick={() => openDeleteModal(team.id)}
+                                >
+                                    Delete
+                                </button>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
 
-            <div className={styles.formContainer}>
-                <h3>{editingTeam ? "Edit Team" : "Add New Team"}</h3>
-                <input
-                    type="text"
-                    placeholder="Team Name"
-                    value={editingTeam ? editingTeam.teamName : newTeam.teamName}
-                    onChange={(e) => editingTeam ? setEditingTeam({ ...editingTeam, teamName: e.target.value }) : setNewTeam({ ...newTeam, teamName: e.target.value })}
-                />
-                <input
-                    type="text"
-                    placeholder="Description"
-                    value={editingTeam ? editingTeam.description : newTeam.description}
-                    onChange={(e) => editingTeam ? setEditingTeam({ ...editingTeam, description: e.target.value }) : setNewTeam({ ...newTeam, description: e.target.value })}
-                />
-                <input
-                    type="text"
-                    placeholder="Logo URL"
-                    value={editingTeam ? editingTeam.logoUrl : newTeam.logoUrl}
-                    onChange={(e) => editingTeam ? setEditingTeam({ ...editingTeam, logoUrl: e.target.value }) : setNewTeam({ ...newTeam, logoUrl: e.target.value })}
-                />
-                <button
-                    className={`btn ${styles.addButton}`}
-                    onClick={editingTeam ? handleUpdateTeam : handleAddTeam}
-                >
-                    {editingTeam ? "Update Team" : "Add Team"}
-                </button>
-                {editingTeam && (
-                    <button className="btn" onClick={() => setEditingTeam(null)}>Cancel</button>
-                )}
-            </div>
+            {/* Modal xác nhận */}
+            <ConfirmModal
+                title='Are you sure you want to delete this team?'
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                onSubmit={handleDeleteTeam}
+            />
         </div>
     );
 }

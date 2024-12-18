@@ -3,7 +3,9 @@ import React, { useEffect, useState } from 'react';
 import styles from '../../assets/css/admin.module.scss';
 import { Pie, Bar } from 'react-chartjs-2';
 import ManageFields from './Field/ManageFields';
-import ManageSports from './ManageSports';
+// import ManageSports from './ManageSports';
+import ManageTeams from './ManageTeams';
+import ManageInvoices from './ManageInvoice';
 import Signout from '../Auth/Signout';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import ManageCourses from './ManageCourses';
@@ -85,12 +87,13 @@ function AdminDashboard() {
 
     const sections = [
         { name: 'Dashboard', icon: 'fa-solid fa-chart-line' },
-        { name: 'Manage Fields', icon: 'fa-solid fa-money-bill' },
-        { name: 'Manage Sports', icon: 'fa-solid fa-basketball-ball' },
-        { name: 'Manage Bookings', icon: 'fa-solid fa-calendar-check' },
+        { name: 'Manage Fields', icon: 'fa-solid fa-hockey-puck' },
         { name: 'Manage Courses', icon: 'fa-solid fa-dumbbell' },
+        // { name: 'Manage Sports', icon: 'fa-solid fa-basketball-ball' },
+        { name: 'Manage Bookings', icon: 'fa-solid fa-calendar-check' },
+        { name: 'Manage Invoices', icon: 'fa-solid fa-money-bill' },
+        { name: 'Manage Teams', icon: 'fa-solid fa-people-group' },
         { name: 'Manage Tournaments', icon: 'fa-solid fa-trophy' },
-        { name: 'Reports', icon: 'fa-solid fa-file-alt' },
     ];
 
     const revenueData = {
@@ -169,14 +172,18 @@ function AdminDashboard() {
                 );
             case 'Manage Fields':
                 return <ManageFields />;
-            case 'Manage Sports':
-                return <ManageSports />;
+            // case 'Manage Sports':
+            //     return <ManageSports />;
             case 'Manage Courses':
                 return <ManageCourses />;
             case 'Manage Tournaments':
                 return <ManageTournaments />;
             case 'Manage Bookings':
                 return <ManageBookings />;
+            case 'Manage Teams':
+                return <ManageTeams></ManageTeams>;
+            case 'Manage Invoices':
+                return <ManageInvoices></ManageInvoices>;
             default:
                 return <h2>Welcome to Admin Dashboard</h2>;
         }
