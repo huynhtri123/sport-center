@@ -154,26 +154,26 @@ function ManageSports() {
                         <input
                             type='text'
                             name='sportName'
-                            placeholder='Search'
+                            placeholder='Sport name'
                             value={isEditing ? editingSport.sportName : formData.sportName}
                             onChange={handleChange}
                         />
                         <input
                             type='text'
                             name='description'
-                            placeholder='Mô Tả'
+                            placeholder='Description'
                             value={isEditing ? editingSport.description : formData.description}
                             onChange={handleChange}
                         />
                         <input
                             type='text'
                             name='imageUrl'
-                            placeholder='URL Ảnh'
+                            placeholder='Image Url'
                             value={isEditing ? editingSport.imageUrl : formData.imageUrl}
                             onChange={handleChange}
                         />
                         <button type='submit' className={`btn ${styles.addButton}`}>
-                            {isEditing ? 'Cập nhật môn thể thao' : 'Thêm môn thể thao'}
+                            {isEditing ? 'Update' : 'Create'}
                         </button>
                     </div>
                 </form>

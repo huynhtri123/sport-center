@@ -32,7 +32,7 @@ const sportApi = {
     },
 
     // Get all active sports
-    getAllActive: (page = 0, size = 3) => {
+    getAllActive: (page, size) => {
         return axiosClient.get(`/public/sport/getAllActive?page=${page}&size=${size}`);
     },
 };

@@ -12,7 +12,7 @@
 .banner {
     position: relative;
     width: 100%;
-    height: 320px; /* Tăng chiều cao của banner */
+    height: 240px; /* Tăng chiều cao của banner */
     background: url('https://images.pexels.com/photos/1103829/pexels-photo-1103829.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')
         no-repeat center center fixed; /* Background parallax */
     background-size: cover;
@@ -85,10 +85,62 @@
     z-index: 0;
 }
 
+.filterSection {
+    margin-top: 24px;
+    margin-bottom: 40px;
+    text-align: center;
+
+    .filterLabel {
+        font-size: 1.4rem;
+        font-weight: 500;
+        margin-bottom: 15px;
+        display: block;
+        color: #333; /* Màu chữ trầm nhẹ */
+    }
+
+    .filterButtons {
+        display: inline-flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
+
+        button {
+            background-color: #f4f4f4; /* Nền sáng nhẹ */
+            color: #333; /* Màu chữ tối đơn giản */
+            border: 1px solid #ddd; /* Viền mỏng tạo cảm giác nhẹ nhàng */
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 30px; /* Nút bo tròn thanh lịch */
+            cursor: pointer;
+            transition: all 0.3s ease;
+
+            &:hover {
+                background-color: $blue-nhat-bg; /* Hiệu ứng hover màu nhạt */
+                color: #007bff; /* Chữ đổi màu xanh nổi bật */
+                border-color: #b3e5ff; /* Viền đồng bộ với màu hover */
+            }
+
+            &.active {
+                background-color: #007bff; /* Nền xanh đậm nổi bật */
+                color: white; /* Chữ trắng để tương phản */
+                border-color: #007bff;
+                font-weight: 600; /* Nhấn mạnh hơn cho trạng thái active */
+                box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3); /* Hiệu ứng đổ bóng mềm mại */
+            }
+
+            &:focus {
+                outline: none;
+                box-shadow: 0 0 5px rgba(0, 123, 255, 0.6); /* Hiệu ứng focus nhẹ */
+            }
+        }
+    }
+}
+
 /* Course List */
 .courseList {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Cột linh hoạt và đẹp mắt */
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); /* Cột linh hoạt và đẹp mắt */
     gap: 24px;
     padding: 40px 20px;
     margin-top: -60px; /* Đưa phần danh sách khóa học lên trên một chút */
@@ -100,7 +152,8 @@
     flex-direction: column;
     align-items: center;
     background-color: white;
-    border-radius: 15px; /* Góc bo mềm mại cho mỗi item */
+    border: 3px solid #ccc;
+    border-radius: 10px; /* Góc bo mềm mại cho mỗi item */
     overflow: hidden;
     padding: 20px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;

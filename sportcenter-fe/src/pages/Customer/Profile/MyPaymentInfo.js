@@ -121,7 +121,7 @@ function MyPaymentInfo() {
         <div className={styles.myPaymentInfoContainer}>
             {isLoading && <Loading />}
             <button onClick={handleAddPayment} className={styles.addPaymentButton}>
-                Thêm Payment Info
+                Add Payment Info
             </button>
             {payments.length > 0 ? (
                 payments.map((payment, index) => (
@@ -171,10 +171,10 @@ function PaymentCard({ payment, onEdit, onDelete }) {
                 <span>Issue Date:</span> {new Date(payment.issueDate).toLocaleDateString()}
             </p>
             <button onClick={onEdit} className={`${styles.updateButton} ${styles.updateButtonCustom}`}>
-                Cập nhật
+                Edit
             </button>
             <button onClick={onDelete} className={styles.deleteButton}>
-                Xóa
+                Remove
             </button>
         </div>
     );

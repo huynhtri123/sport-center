@@ -1,6 +1,7 @@
+import { useState, useEffect } from 'react';
 import styles from '../../../assets/css/Admin/manageFields.module.scss';
-import { FieldType } from '../../../utils/enums/FieldType';
 import Button from '../../../components/Button/Button';
+import sportApi from '../../../services/api/sportApi';
 
 function FieldInput({
     isEditing,
@@ -16,6 +17,22 @@ function FieldInput({
     handleRemovePricePolicy,
     handleAddPricePolicy,
 }) {
+    const [sports, setSports] = useState([]); // State chứa danh sách môn thể thao
+
+    // Fetch danh sách môn thể thao từ API khi component mount
+    useEffect(() => {
+        const fetchSports = async () => {
+            try {
+                const response = await sportApi.getAllActive(0, 100); // Gọi API lấy danh sách môn thể thao
+                setSports(response.data.content); // Cập nhật state với danh sách môn thể thao
+            } catch (error) {
+                console.error('Error fetching sports:', error); // Xử lý lỗi khi gọi API
+            }
+        };
+
+        fetchSports();
+    }, []); // useEffect chỉ chạy 1 lần khi component mount
+
     return (
         <form onSubmit={isEditing ? handleEditSubmit : handleAddSubmit} className={styles.inputForm}>
             <div className={styles.formContainer}>
@@ -66,17 +83,26 @@ function FieldInput({
                         onChange={handleChange}
                         required
                     />
+
+                    {/* Dropdown cho FieldType, lấy danh sách từ API */}
                     <select
                         name='fieldType'
                         value={isEditing ? editFormData.fieldType : formData.fieldType}
                         onChange={handleChange}
                         required
                     >
-                        <option value={FieldType.FOOTBALL}>Football</option>
-                        <option value={FieldType.TENNIS}>Tennis</option>
-                        <option value={FieldType.BADMINTON}>Badminton</option>
-                        <option value={FieldType.YOGA}>Yoga</option>
+                        {/* Nếu chưa có dữ liệu, hiển thị "Loading..." */}
+                        {sports.length === 0 ? (
+                            <option value=''>Loading...</option>
+                        ) : (
+                            sports.map((sport) => (
+                                <option key={sport.id} value={sport.sportName}>
+                                    {sport.sportName}
+                                </option>
+                            ))
+                        )}
                     </select>
+
                     <input
                         type='text'
                         name='description'
@@ -85,6 +111,8 @@ function FieldInput({
                         onChange={handleChange}
                         required
                     />
+
+                    {/* Các phần khác của form */}
                     {(isEditing ? editFormData.pricePolicies : formData.pricePolicies).map((policy, index) => (
                         <div key={index} className={styles.pricePolicyContainer}>
                             <input
@@ -111,7 +139,7 @@ function FieldInput({
                                                 'Wednesday',
                                                 'Thursday',
                                                 'Friday',
-                                                'Sartuday',
+                                                'Saturday',
                                                 'Sunday',
                                             ][dayIndex]
                                         }
@@ -132,6 +160,7 @@ function FieldInput({
                     </button>
                 </div>
             </div>
+
             <Button type='submit' className={`btn ${styles.submitButton}`}>
                 {isEditing ? 'Save Changes' : 'Create Field'}
             </Button>

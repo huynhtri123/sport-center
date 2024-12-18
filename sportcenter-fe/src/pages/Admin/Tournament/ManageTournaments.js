@@ -276,14 +276,13 @@ function ManageTournaments() {
                     <div className={styles.formContainer}>
                         <div className={styles.inputGroup}>
                             <label htmlFor='tournamentName' className='me-3'>
-                                Tên giải đấu
+                                Tournament Name
                             </label>
                             <input
                                 id='tournamentName'
                                 type='text'
                                 name='tournamentName'
                                 value={isEditing ? editFormData.tournamentName : formData.tournamentName}
-                                placeholder='Tên giải đấu'
                                 onChange={handleChange}
                                 required
                             />
@@ -292,28 +291,27 @@ function ManageTournaments() {
                         <div className={styles.inputGroup}>
                             <div className={styles.inputGroup}>
                                 <label htmlFor='thumUrl' className='me-3'>
-                                    Ảnh đại diện (URL)
+                                    Tournament avatar
                                 </label>
                                 <input
                                     id='thumUrl'
                                     type='url'
                                     name='thumUrl'
                                     value={isEditing ? editFormData.thumUrl : formData.thumUrl}
-                                    placeholder='URL ảnh đại diện'
+                                    placeholder='Image url'
                                     onChange={handleChange}
                                     required
                                 />
                             </div>
 
                             <label htmlFor='sportId' className='me-3'>
-                                ID môn thể thao
+                                Sport Id
                             </label>
                             <input
                                 id='sportId'
                                 type='text'
                                 name='sportId'
                                 value={isEditing ? editFormData.sportId : formData.sportId}
-                                placeholder='ID môn thể thao'
                                 onChange={handleChange}
                                 required
                             />
@@ -321,7 +319,7 @@ function ManageTournaments() {
 
                         <div className={styles.inputGroup}>
                             <label htmlFor='startDate' className='me-3'>
-                                Ngày bắt đầu
+                                Start Date
                             </label>
                             <input
                                 id='startDate'
@@ -339,7 +337,7 @@ function ManageTournaments() {
 
                         <div className={styles.inputGroup}>
                             <label htmlFor='endDate' className='me-3'>
-                                Ngày kết thúc
+                                End Date
                             </label>
                             <input
                                 id='endDate'
@@ -357,14 +355,13 @@ function ManageTournaments() {
 
                         <div className={styles.inputGroup}>
                             <label htmlFor='maxTeams' className='me-3'>
-                                Số đội tối đa
+                                Max Register Teams
                             </label>
                             <input
                                 id='maxTeams'
                                 type='number'
                                 name='maxTeams'
                                 value={isEditing ? editFormData.maxTeams : formData.maxTeams}
-                                placeholder='Số đội tối đa'
                                 onChange={handleChange}
                                 required
                             />
@@ -372,7 +369,7 @@ function ManageTournaments() {
 
                         <div className={styles.inputGroup}>
                             <label htmlFor='registrationDeadline' className='me-3'>
-                                Hạn đăng ký
+                                Registration Deadline
                             </label>
                             <input
                                 id='registrationDeadline'
@@ -392,7 +389,7 @@ function ManageTournaments() {
                         <div className={styles.inputGroup}>
                             {/* Khối nhập phí đăng ký */}
                             <label htmlFor='registrationFee' className='me-3'>
-                                Phí đăng ký tham gia (VND)
+                                Registration Fee (VND)
                             </label>
                             <input
                                 className={styles.fee}
@@ -402,19 +399,18 @@ function ManageTournaments() {
                                 step={1000}
                                 name='registrationFee'
                                 value={isEditing ? editFormData.registrationFee : formData.registrationFee}
-                                placeholder='Phí đăng ký (USD)'
                                 onChange={handleChange}
                                 required
                             />
 
                             {/* Khối nhập quy định giải đấu */}
                             <div className={styles.rulesContainer}>
-                                <h4>Quy định giải đấu</h4>
+                                <h4>Tournament Rules</h4>
                                 {(isEditing ? editFormData.rules || [] : formData.rules || []).map((rule, index) => (
                                     <div key={index} className={styles.ruleItem}>
                                         <input
                                             type='text'
-                                            placeholder={`Quy định ${index + 1}`}
+                                            placeholder={`Rule ${index + 1}`}
                                             value={rule}
                                             onChange={(e) => handleRuleChange(index, e.target.value)}
                                             required
@@ -431,39 +427,39 @@ function ManageTournaments() {
 
                             {/* Khối nhập giải thưởng */}
                             <div className={styles.prizesContainer}>
-                                <h4>Giải Thưởng</h4>
+                                <h4>Prizes</h4>
                                 {(isEditing ? editFormData.prizes : formData.prizes).map((prize, index) => (
                                     <div key={index} className={styles.prizeItem}>
                                         <label htmlFor={`position-${index}`} className='ms-3'>
-                                            Vị trí
+                                            Position
                                         </label>
                                         <input
                                             id={`position-${index}`}
                                             type='number'
-                                            placeholder='Vị trí'
+                                            placeholder='e.g. 1'
                                             value={prize.position}
                                             onChange={(e) => handlePrizeChange(index, 'position', e.target.value)}
                                             required
                                         />
                                         <label htmlFor={`description-${index}`} className='ms-3'>
-                                            Mô tả
+                                            Description
                                         </label>
                                         <input
                                             id={`description-${index}`}
                                             type='text'
-                                            placeholder='Mô tả'
+                                            placeholder='e.g. Gold medal'
                                             value={prize.description}
                                             onChange={(e) => handlePrizeChange(index, 'description', e.target.value)}
                                             required
                                         />
                                         <label htmlFor={`reward-${index}`} className='ms-3'>
-                                            Thưởng (VND)
+                                            Reward (VND)
                                         </label>
                                         <input
                                             id={`reward-${index}`}
                                             type='number'
                                             min={0}
-                                            placeholder='Giải (USD)'
+                                            placeholder='e.g. 500000'
                                             value={prize.reward}
                                             onChange={(e) => handlePrizeChange(index, 'reward', e.target.value)}
                                             required
