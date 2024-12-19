@@ -26,7 +26,7 @@ function ManageTeams() {
             }));
         } catch (error) {
             console.error('Failed to fetch user info:', error);
-            toast.error('Failed to fetch user information.');
+            // toast.error('Failed to fetch user information.');
         }
     };
 
@@ -43,7 +43,7 @@ function ManageTeams() {
             });
         } catch (error) {
             console.error('Failed to fetch teams:', error);
-            toast.error('Failed to fetch teams. Please try again.');
+            // toast.error('Failed to fetch teams. Please try again.');
         }
     }
 
@@ -88,59 +88,60 @@ function ManageTeams() {
                     </tr>
                 </thead>
                 <tbody>
-                    {teams.map((team, index) => (
-                        <tr key={index}>
-                            <td>{index + 1}</td>
-                            <td>{team.teamName}</td>
-                            <td>
-                                {/* Hiển thị fullName, email và phoneNumber của người dùng */}
-                                {userInfo[team.userId] ? (
-                                    <>
-                                        <strong>{userInfo[team.userId].fullName}</strong>
-                                        <div>{userInfo[team.userId].email}</div>
-                                        <div>{userInfo[team.userId].phoneNumber}</div>
-                                    </>
-                                ) : (
-                                    'Loading...'
-                                )}
-                            </td>
-                            <td>
-                                {team.teamLogoUrl ? (
-                                    <img src={team.teamLogoUrl} alt={team.teamName} className={styles.teamLogo} />
-                                ) : (
-                                    'No Logo'
-                                )}
-                            </td>
-                            <td>
-                                {team.players && team.players.length > 0
-                                    ? team.players.map((player, idx) => (
-                                          <span key={idx}>
-                                              {player.name}
-                                              {idx < team.players.length - 1 ? ', ' : ''}
-                                          </span>
-                                      ))
-                                    : 'No Players'}
-                            </td>
-                            <td>
-                                {team.enrolledTournaments && team.enrolledTournaments.length > 0
-                                    ? team.enrolledTournaments.map((tournament, idx) => (
-                                          <span key={idx}>
-                                              {tournament.tournamentName}
-                                              {idx < team.enrolledTournaments.length - 1 ? ', ' : ''}
-                                          </span>
-                                      ))
-                                    : 'No Tournaments'}
-                            </td>
-                            <td>
-                                <button
-                                    className={`btn ${styles.deleteButton}`}
-                                    onClick={() => openDeleteModal(team.id)}
-                                >
-                                    Delete
-                                </button>
-                            </td>
-                        </tr>
-                    ))}
+                    {teams &&
+                        teams.map((team, index) => (
+                            <tr key={index}>
+                                <td>{index + 1}</td>
+                                <td>{team.teamName}</td>
+                                <td>
+                                    {/* Hiển thị fullName, email và phoneNumber của người dùng */}
+                                    {userInfo[team.userId] ? (
+                                        <>
+                                            <strong>{userInfo[team.userId].fullName}</strong>
+                                            <div>{userInfo[team.userId].email}</div>
+                                            <div>{userInfo[team.userId].phoneNumber}</div>
+                                        </>
+                                    ) : (
+                                        'Loading...'
+                                    )}
+                                </td>
+                                <td>
+                                    {team.teamLogoUrl ? (
+                                        <img src={team.teamLogoUrl} alt={team.teamName} className={styles.teamLogo} />
+                                    ) : (
+                                        'No Logo'
+                                    )}
+                                </td>
+                                <td>
+                                    {team.players && team.players.length > 0
+                                        ? team.players.map((player, idx) => (
+                                              <span key={idx}>
+                                                  {player.name}
+                                                  {idx < team.players.length - 1 ? ', ' : ''}
+                                              </span>
+                                          ))
+                                        : 'No Players'}
+                                </td>
+                                <td>
+                                    {team.enrolledTournaments && team.enrolledTournaments.length > 0
+                                        ? team.enrolledTournaments.map((tournament, idx) => (
+                                              <span key={idx}>
+                                                  {tournament.tournamentName}
+                                                  {idx < team.enrolledTournaments.length - 1 ? ', ' : ''}
+                                              </span>
+                                          ))
+                                        : 'No Tournaments'}
+                                </td>
+                                <td>
+                                    <button
+                                        className={`btn ${styles.deleteButton}`}
+                                        onClick={() => openDeleteModal(team.id)}
+                                    >
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
                 </tbody>
             </table>
 

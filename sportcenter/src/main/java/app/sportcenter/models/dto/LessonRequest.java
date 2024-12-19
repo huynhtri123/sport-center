@@ -14,9 +14,6 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = false)
 public class LessonRequest extends BaseRequestDTO{
 
-    @NotNull(message = "Bạn chưa nhập loại khóa học!")
-    private CourseSportType courseSportType;
-
     @NotNull(message = "Bạn chưa nhập tên lớp học!")
     private String lessonName;
 

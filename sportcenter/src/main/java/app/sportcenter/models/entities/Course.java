@@ -20,6 +20,8 @@ import java.util.List;
 public class Course extends BaseEntity {
     @Id
     private String id;
+    @DBRef
+    private Sport sport;
     private String courseName;
     private Double tuition;               // học phí
     private String description;

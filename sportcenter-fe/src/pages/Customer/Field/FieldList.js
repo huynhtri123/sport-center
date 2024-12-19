@@ -1,4 +1,4 @@
-import { React, useEffect } from 'react';
+import { React, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -6,11 +6,13 @@ import 'react-toastify/dist/ReactToastify.css';
 import styles from '../../../assets/css/Field/field.module.scss';
 import { useGetFields, useGetField } from '../../../customs/hooks';
 import bookingApi from '../../../services/api/booking/bookingApi';
+import sportApi from '../../../services/api/sportApi';
 
 const FieldList = () => {
     const [fields, setFields] = useGetFields(); // danh sách field, lấy từ context (set ở trang SportHome)
     // eslint-disable-next-line no-unused-vars
     const [field, setField] = useGetField();
+    const [sportName, setSportName] = useState(''); // Trạng thái để lưu sportName
 
     // Lấy danh sách `fields` từ `localStorage` nếu `fields` bị null hoặc rỗng
     useEffect(() => {
@@ -22,16 +24,25 @@ const FieldList = () => {
         }
     }, [fields, setFields]);
 
-    if (!fields || fields.length === 0) {
-        return (
-            <div className={styles.container}>
-                <h2 className={styles.title}>Chưa có sân</h2>
-                <Link to={'/'}>Chọn môn thể thao khác</Link>
-            </div>
-        );
-    }
+    // Lấy thông tin môn thể thao từ API khi `sportId` có giá trị
+    const sportId = fields[0]?.sportId;
+    useEffect(() => {
+        const fetchSportName = async () => {
+            try {
+                if (sportId) {
+                    const response = await sportApi.getById(sportId);
+                    setSportName(response.data.sportName || 'Sport');
+                }
+            } catch (error) {
+                console.error('Error fetching sport:', error);
+                setSportName('Sport');
+            }
+        };
 
-    // lấy chi tiết sân (thật ra là lấy lịch từ bookingController)
+        fetchSportName();
+    }, [sportId]);
+
+    // Lấy chi tiết sân (thật ra là lấy lịch từ bookingController)
     const handleGetField = async (fieldId) => {
         try {
             const date = new Date();
@@ -45,11 +56,8 @@ const FieldList = () => {
                 endOfDay: `${year}-${month}-${day}T23:59:00Z`, // Kết thúc vào 23:59
             };
             const fieldResponse = await bookingApi.updateAndGetSchedule(onDaySchedule);
-            // console.log(fieldResponse.data);
             if (fieldResponse.data) {
-                // toast.success(fieldResponse.message);
                 setField(fieldResponse.data);
-                // Lưu thông tin sân vào localStorage
                 localStorage.setItem('selectedField', JSON.stringify(fieldResponse.data));
             } else {
                 toast.error('Không tìm thấy thông tin sân.');
@@ -60,9 +68,18 @@ const FieldList = () => {
         }
     };
 
+    if (!fields || fields.length === 0) {
+        return (
+            <div className={styles.container}>
+                <h2 className={styles.title}>Chưa có sân</h2>
+                <Link to={'/'}>Chọn môn thể thao khác</Link>
+            </div>
+        );
+    }
+
     return (
         <div className={styles.container}>
-            <h2 className={styles.title}>{fields[0]?.fieldType || 'Fields'}</h2>
+            <h2 className={styles.title}>{sportName ? `${sportName} Fields` : 'Fields'}</h2>
             <div className={styles.cardContainer}>
                 {fields.map((fieldMap) => {
                     return (

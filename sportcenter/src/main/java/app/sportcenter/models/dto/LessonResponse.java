@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = false)
 public class LessonResponse extends BaseResponseDTO {
     private String id;
-    private CourseSportType courseSportType;
     private String lessonName;
     private String description;
     private LevelLesson levelLesson;

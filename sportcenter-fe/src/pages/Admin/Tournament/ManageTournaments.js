@@ -5,6 +5,7 @@ import tournamentApi from '../../../services/api/tournamentApi';
 import { Loading } from '../../../components/Loading/Loading';
 import Button from '../../../components/Button/Button';
 import TournamentTable from './TournamentTable';
+import sportApi from '../../../services/api/sportApi';
 
 function ManageTournaments() {
     const [tournaments, setTournaments] = useState([]);
@@ -12,6 +13,7 @@ function ManageTournaments() {
     const [searchQuery, setSearchQuery] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [deleteTournamentId, setDeleteTournamentId] = useState(null);
+    const [sports, setSports] = useState([]);
     const [formData, setFormData] = useState({
         tournamentName: '',
         sportId: '',
@@ -28,6 +30,20 @@ function ManageTournaments() {
     const [editFormData, setEditFormData] = useState(formData);
     const [isEditing, setIsEditing] = useState(false);
     const [showInputForm, setShowInputForm] = useState(false);
+
+    const fetchSports = async () => {
+        try {
+            const response = await sportApi.getAllActive(0, 100); // Assume this API fetches all sports
+            setSports(response.data.content);
+        } catch (error) {
+            console.error('Failed to fetch sports:', error);
+            toast.error('Failed to fetch sports. Please try again.');
+        }
+    };
+
+    useEffect(() => {
+        fetchSports(); // Gọi API khi component được render lần đầu
+    }, []);
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(0);
@@ -304,17 +320,29 @@ function ManageTournaments() {
                                 />
                             </div>
 
-                            <label htmlFor='sportId' className='me-3'>
-                                Sport Id
-                            </label>
-                            <input
-                                id='sportId'
-                                type='text'
-                                name='sportId'
-                                value={isEditing ? editFormData.sportId : formData.sportId}
-                                onChange={handleChange}
-                                required
-                            />
+                            <div className={styles.inputGroup}>
+                                <label htmlFor='sportId' className='me-3'>
+                                    Sport
+                                </label>
+                                <select
+                                    id='sportId'
+                                    name='sportId'
+                                    value={isEditing ? editFormData.sportId : formData.sportId} // Dùng value là sportId từ state
+                                    onChange={handleChange} // Gọi hàm handleChange khi chọn môn thể thao
+                                    required
+                                >
+                                    <option value=''>Select Sport</option>
+                                    {sports.map(
+                                        (
+                                            sport // Duyệt qua danh sách sports và tạo các option
+                                        ) => (
+                                            <option key={sport.id} value={sport.id}>
+                                                {sport.sportName} {/* Hiển thị tên môn thể thao */}
+                                            </option>
+                                        )
+                                    )}
+                                </select>
+                            </div>
                         </div>
 
                         <div className={styles.inputGroup}>

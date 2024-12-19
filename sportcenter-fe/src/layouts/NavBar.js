@@ -84,7 +84,7 @@ function NavBar() {
                     </div>
                 </div>
 
-                {/* Middle - Search Combo Box */}
+                {/* Middle - Search Combo Box
                 <form className={`d-flex align-items-center ${styles.middleInput}`}>
                     <div className={`input-group ${styles.inputGroup}`}>
                         <select
@@ -97,7 +97,7 @@ function NavBar() {
                                 Select a sport...
                             </option>
                             {sports.map((sport, index) => (
-                                <option key={index} value={sport.sportName}>
+                                <option key={index} value={sport.id}>
                                     {sport.sportName}
                                 </option>
                             ))}
@@ -106,7 +106,7 @@ function NavBar() {
                             <i className='fa-regular fa-calendar' title='Check'></i>
                         </div>
                     </div>
-                </form>
+                </form> */}
 
                 {/* Right - Sign In, Sign Up, Sign Out */}
                 <div className={`d-flex align-items-center ${styles.iconContainer}`}>

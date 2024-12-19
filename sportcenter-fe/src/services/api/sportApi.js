@@ -8,7 +8,7 @@ const sportApi = {
 
     // Get a sport by ID
     getById(sportId) {
-        return axiosClient.get(`/sport/${sportId}`);
+        return axiosClient.get(`/public/sport/getById/${sportId}`);
     },
 
     // Update a sport by ID

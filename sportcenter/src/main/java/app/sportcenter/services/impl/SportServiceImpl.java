@@ -5,7 +5,9 @@ import app.sportcenter.commons.PaginatedResponse;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.models.dto.SportRequest;
 import app.sportcenter.models.dto.SportResponse;
+import app.sportcenter.models.entities.Field;
 import app.sportcenter.models.entities.Sport;
+import app.sportcenter.repositories.FieldRepository;
 import app.sportcenter.repositories.SportRepository;
 import app.sportcenter.repositories.TournamentRepository;
 import app.sportcenter.services.SportService;
@@ -29,6 +31,8 @@ public class SportServiceImpl implements SportService {
     private SportMapper sportMapper;
     @Autowired
     private TournamentRepository tournamentRepository;
+    @Autowired
+    private FieldRepository fieldRepository;
 
     @Override
     public ResponseEntity<BaseResponse> create(SportRequest sportRequest) {
@@ -88,6 +92,12 @@ public class SportServiceImpl implements SportService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     new BaseResponse("Không tìm thấy sport để xóa", HttpStatus.NOT_FOUND.value(), null)
             );
+        }
+
+        // kiem tra co san nao khong
+        List<Field> relevantFields = fieldRepository.findBySportIdAndIsActiveTrueAndIsDeletedFalse(id);
+        if (!relevantFields.isEmpty()) {
+            throw new CustomException("Không thể xoá vì có sân thể thao đang được dùng cho Sport này!", HttpStatus.BAD_REQUEST.value());
         }
 
         // Check if any active, non-deleted tournaments are associated with this sport

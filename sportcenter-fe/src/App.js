@@ -58,7 +58,7 @@ function App() {
                             <Route path='/sign-in' element={<Signin />} />
                             <Route path='/forgot-password' element={<ForgotPassword />} />
 
-                            <Route path='/sport/:sportName' element={<DynamicSportHome />} />
+                            {/* <Route path='/sport/:sportId' element={<DynamicSportHome />} /> */}
                             <Route path='/sport/fields' element={<FieldList />} />
                             <Route path='/bookings' element={<SportList />} />
 

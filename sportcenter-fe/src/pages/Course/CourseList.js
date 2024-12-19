@@ -5,11 +5,12 @@ import courseApi from '../../services/api/courseApi';
 import sportApi from '../../services/api/sportApi';
 import styles from '../../assets/css/Course/courseList.module.scss';
 import formatCurrency from '../../utils/formatCurrency';
+import { toast } from 'react-toastify';
 
 function CourseList() {
     const [courses, setCourses] = useContext(CourseContext);
     const [filteredCourses, setFilteredCourses] = useState([]);
-    const [filter, setFilter] = useState('All');
+    const [filter, setFilter] = useState('All'); // Now filter will store sportId
     const [sports, setSports] = useState([]);
 
     const fetchSports = async () => {
@@ -39,19 +40,16 @@ function CourseList() {
 
     // Update filtered courses khi thay đổi bộ lọc
     useEffect(() => {
+        // console.log(courses[0]);
         if (filter === 'All') {
             setFilteredCourses(courses);
         } else {
-            setFilteredCourses(
-                courses.filter((course) =>
-                    course.lessons.some((lesson) => lesson.courseSportType === filter.toUpperCase())
-                )
-            );
+            setFilteredCourses(courses.filter((course) => course.sportId === filter));
         }
     }, [filter, courses]);
 
-    const handleFilterChange = (selectedSport) => {
-        setFilter(selectedSport);
+    const handleFilterChange = (selectedSportId) => {
+        setFilter(selectedSportId);
     };
 
     return (
@@ -78,9 +76,9 @@ function CourseList() {
                     {sports.map((sport) => (
                         <button
                             key={sport.id}
-                            className={filter === sport.sportName ? 'active' : ''}
-                            onClick={() => handleFilterChange(sport.sportName)}
-                            aria-pressed={filter === sport.sportName}
+                            className={filter === sport.id ? 'active' : ''} // Use sport.id
+                            onClick={() => handleFilterChange(sport.id)} // Pass sport.id
+                            aria-pressed={filter === sport.id}
                         >
                             {sport.sportName}
                         </button>
@@ -100,7 +98,7 @@ function CourseList() {
                                 <div className={styles.courseInfo}>
                                     <h3>{course.courseName}</h3>
                                     <p>
-                                        <strong>Tuition:</strong> {formatCurrency(0)}
+                                        <strong>Tuition:</strong> {formatCurrency(course.tuition)}
                                     </p>
                                     <p>{course.description}</p>
                                 </div>

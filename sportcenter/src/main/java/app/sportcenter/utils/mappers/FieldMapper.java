@@ -5,6 +5,8 @@ import app.sportcenter.models.dto.FieldRequest;
 import app.sportcenter.models.dto.FieldResponse;
 import app.sportcenter.models.entities.Field;
 import app.sportcenter.models.entities.PricePolicy;
+import app.sportcenter.models.entities.Sport;
+import app.sportcenter.repositories.SportRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,13 +20,42 @@ public class FieldMapper {
     private ModelMapper modelMapper;
     @Autowired
     private PricePolicyMapper pricePolicyMapper;
+    @Autowired
+    private SportRepository sportRepository;
 
     public Field convertToEntity(FieldRequest fieldRequest) {
-        return fieldRequest != null ? modelMapper.map(fieldRequest, Field.class) : null;
+        if (fieldRequest == null) {
+            throw new CustomException("FieldRequest is null!", HttpStatus.BAD_REQUEST.value());
+        }
+
+        Field field = modelMapper.map(fieldRequest, Field.class);
+
+        Sport sport = sportRepository.findById(fieldRequest.getSportId())
+                .orElseThrow(() -> new CustomException("Sport not found with id: " + fieldRequest.getSportId(), HttpStatus.NOT_FOUND.value()));
+        field.setSport(sport);
+
+        List<PricePolicy> pricePolicyEntity = fieldRequest.getPricePolicies().stream()
+                .map(pricePolicyMapper::convertToEntity)
+                .toList();
+        field.setPricePolicies(pricePolicyEntity);
+
+        return field;
     }
 
     public FieldResponse convertToDTO(Field field) {
-        return field != null ? modelMapper.map(field, FieldResponse.class) : null;
+        if (field == null) {
+            throw new CustomException("Field is null!", HttpStatus.BAD_REQUEST.value());
+        }
+
+        FieldResponse response = modelMapper.map(field, FieldResponse.class);
+
+        response.setSportId(field.getSport().getId());
+
+        response.setPricePolicies(field.getPricePolicies().stream()
+                .map(pricePolicyMapper::convertToRespone)
+                .toList());
+
+        return response;
     }
 
     // Ghi đè field mới lên field cũ
@@ -37,14 +68,18 @@ public class FieldMapper {
         }
 
         oldField.setFieldName(newField.getFieldName());
-        oldField.setFieldType(newField.getFieldType());
         oldField.setDescription(newField.getDescription());
-
-        List<PricePolicy> pricePolicyEntity = newField.getPricePolicies().stream()
-                        .map(pricePolicyMapper::convertToEntity).toList();
-        oldField.setPricePolicies(pricePolicyEntity);
         oldField.setImageUrl(newField.getImageUrl());
         oldField.setVideoUrl(newField.getVideoUrl());
+
+        Sport sport = sportRepository.findById(newField.getSportId())
+                .orElseThrow(() -> new CustomException("Sport not found with id: " + newField.getSportId(), HttpStatus.NOT_FOUND.value()));
+        oldField.setSport(sport);
+
+        List<PricePolicy> pricePolicyEntity = newField.getPricePolicies().stream()
+                .map(pricePolicyMapper::convertToEntity)
+                .toList();
+        oldField.setPricePolicies(pricePolicyEntity);
 
         return oldField;
     }

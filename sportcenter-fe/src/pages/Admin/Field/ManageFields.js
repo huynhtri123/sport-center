@@ -4,7 +4,6 @@ import styles from '../../../assets/css/Admin/manageFields.module.scss';
 import { useGetFields } from '../../../customs/hooks';
 import fieldApi from '../../../services/api/fieldApi';
 import { Loading } from '../../../components/Loading/Loading';
-import { FieldType } from '../../../utils/enums/FieldType';
 import fileApi from '../../../services/api/fileApi';
 import { defaultIcon } from '../../../utils/defaultIcon';
 import FieldTable from './FieldTable';
@@ -17,11 +16,11 @@ function ManageFields() {
     const [deleteFieldId, setDeleteFieldId] = useState(null);
     const [formData, setFormData] = useState({
         fieldName: '',
-        fieldType: FieldType.FOOTBALL,
+        sportId: '', // Changed from fieldType
         description: '',
         imageUrl: defaultIcon,
         videoUrl: defaultIcon,
-        pricePolicies: [{ price: '', daysOfWeek: [] }], // Default days
+        pricePolicies: [{ price: 0, daysOfWeek: [] }], // Default days
     });
     const [editFieldId, setEditFieldId] = useState(null);
     const [editFormData, setEditFormData] = useState(formData);
@@ -30,7 +29,7 @@ function ManageFields() {
 
     // Search state
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedFieldType, setSelectedFieldType] = useState(FieldType.FOOTBALL);
+    const [selectedSportId, setSelectedSportId] = useState(''); // Changed from selectedFieldType
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(0);
@@ -44,6 +43,7 @@ function ManageFields() {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        // console.log(name + ':' + value);
         if (name === 'searchQuery') {
             setSearchQuery(value);
             setCurrentPage(0); // Reset page to 0 on new search
@@ -54,7 +54,6 @@ function ManageFields() {
         }
     };
 
-    // change image
     const handleChangeFile = async (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -74,14 +73,12 @@ function ManageFields() {
         }
     };
 
-    // change video
     const handleChangeVideoFile = async (e) => {
         const file = e.target.files[0];
         if (file) {
             try {
                 setIsLoading(true);
                 const response = await fileApi.uploadVideo(file);
-                // console.log(response);
                 if (isEditing) {
                     setEditFormData((prevState) => ({ ...prevState, videoUrl: response.data.url }));
                 } else {
@@ -105,11 +102,11 @@ function ManageFields() {
             getFields();
             setFormData({
                 fieldName: '',
-                fieldType: FieldType.FOOTBALL,
+                sportId: '', // Reset sportId
                 description: '',
                 imageUrl: defaultIcon,
                 videoUrl: defaultIcon,
-                pricePolicies: [{ price: '', daysOfWeek: [] }], // Default days
+                pricePolicies: [{ price: 0, daysOfWeek: [] }],
             });
         } catch (err) {
             console.error(err);
@@ -181,7 +178,7 @@ function ManageFields() {
         setEditFieldId(field.id);
         setEditFormData({
             fieldName: field.fieldName,
-            fieldType: field.fieldType,
+            sportId: field.sportId, // Changed from fieldType
             description: field.description,
             imageUrl: field.imageUrl || defaultIcon,
             videoUrl: field.videoUrl || defaultIcon,
@@ -245,11 +242,9 @@ function ManageFields() {
         }
     };
 
-    // Filter fields based on search query and selected field type
+    // Filter fields based on search query and selected sportId
     const filteredFields = fields.filter((field) => {
         const matchesName = field.fieldName.toLowerCase().includes(searchQuery.toLowerCase());
-        // const matchesType = field.fieldType === selectedFieldType;
-        // return matchesName && matchesType;
         return matchesName;
     });
 

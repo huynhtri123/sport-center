@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import styles from '../../assets/css/Admin/manageCourses.module.scss';
 import courseApi from '../../services/api/courseApi';
+import sportApi from '../../services/api/sportApi'; // Import sport API
 import { Loading } from '../../components/Loading/Loading';
 
 function ManageCourses() {
@@ -11,12 +12,22 @@ function ManageCourses() {
         description: '',
         tuition: '',
         imageUrl: '',
+        sportId: '', // Added field for selected sport
         lessons: [],
     });
     const [editingCourse, setEditingCourse] = useState(null);
     const [lessonCount, setLessonCount] = useState(0);
     const [isFormVisible, setIsFormVisible] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [sports, setSports] = useState([]); // To store list of sports
+
+    // Define LevelLesson Enum for lesson levels
+    const LevelLesson = {
+        BEGINNER: 'BEGINNER',
+        INTERMEDIATE: 'INTERMEDIATE',
+        ADVANCED: 'ADVANCED',
+        EXPERT: 'EXPERT',
+    };
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(0);
@@ -27,8 +38,10 @@ function ManageCourses() {
 
     useEffect(() => {
         fetchCourses();
+        fetchSports(); // Fetch sports on component mount
     }, [currentPage, pageSize, searchQuery]);
 
+    // Fetch courses
     const fetchCourses = useCallback(async () => {
         setIsLoading(true);
         try {
@@ -38,16 +51,26 @@ function ManageCourses() {
             setTotalElements(response.data.totalElements);
         } catch (error) {
             console.error('Failed to fetch courses:', error);
-            toast.error('Failed to fetch courses. Please try again.');
         } finally {
             setIsLoading(false);
         }
     }, [currentPage, pageSize]);
 
+    // Fetch sports list
+    const fetchSports = async () => {
+        try {
+            const response = await sportApi.getAllActive(0, 100); // Assume this API fetches all sports
+            setSports(response.data.content);
+        } catch (error) {
+            console.error('Failed to fetch sports:', error);
+            toast.error('Failed to fetch sports. Please try again.');
+        }
+    };
+
     const handleSearch = async (e) => {
         const value = e.target.value;
         setSearchQuery(value);
-        setCurrentPage(0); // Đặt lại trang về 0 khi tìm kiếm
+        setCurrentPage(0); // Reset to the first page when searching
         try {
             const response = await courseApi.searchByNameAndPaginate(value, 0, pageSize);
             setCourses(response.data.content);
@@ -55,11 +78,13 @@ function ManageCourses() {
             setTotalElements(response.data.totalElements);
         } catch (error) {
             console.error('Failed to search courses:', error);
-            toast.error('Failed to search courses. Please try again.');
         }
     };
 
     const handleAddCourse = async () => {
+        // Validate the form before submitting
+        if (!validateForm()) return; // Stop submission if validation fails
+
         try {
             const response = await courseApi.create(newCourse);
             setCourses([...courses, response.data]);
@@ -68,8 +93,36 @@ function ManageCourses() {
             fetchCourses(); // Refresh the course list
         } catch (error) {
             console.error('Failed to add course:', error);
-            toast.error('Failed to add course. Please try again.');
         }
+    };
+
+    const validateForm = () => {
+        // Check if courseName, description, tuition, and imageUrl are filled
+        if (!newCourse.courseName || !newCourse.description || !newCourse.tuition || !newCourse.imageUrl) {
+            toast.warn('Please fill in all the course details (name, description, tuition, image URL)!');
+            return false;
+        }
+
+        // Check if sportId is selected
+        if (!newCourse.sportId) {
+            toast.warn('Please select a sport!');
+            return false;
+        }
+
+        // Check if lessons are added and each lesson has a valid level
+        if (newCourse.lessons.length === 0) {
+            toast.warn('Please add at least one lesson!');
+            return false;
+        }
+
+        for (const lesson of newCourse.lessons) {
+            if (!lesson.lessonName || !lesson.description || !lesson.levelLesson) {
+                toast.warn('Please fill in all lesson details (name, description, and level)!');
+                return false;
+            }
+        }
+
+        return true;
     };
 
     const handleEditCourse = (course) => {
@@ -79,6 +132,7 @@ function ManageCourses() {
             description: course.description,
             tuition: course.tuition,
             imageUrl: course.imageUrl,
+            sportId: course.sportId || '', // Make sure to set sportId
             lessons: course.lessons || [],
         });
         setLessonCount(course.lessons ? course.lessons.length : 0);
@@ -86,6 +140,9 @@ function ManageCourses() {
     };
 
     const handleUpdateCourse = async () => {
+        // Validate the form before submitting
+        if (!validateForm()) return; // Stop submission if validation fails
+
         try {
             const response = await courseApi.update(editingCourse.id, newCourse);
             setCourses(courses.map((course) => (course.id === editingCourse.id ? response.data : course)));
@@ -111,7 +168,7 @@ function ManageCourses() {
     };
 
     const resetForm = () => {
-        setNewCourse({ courseName: '', description: '', tuition: '', imageUrl: '', lessons: [] });
+        setNewCourse({ courseName: '', description: '', tuition: '', imageUrl: '', sportId: '', lessons: [] });
         setLessonCount(0);
         setEditingCourse(null);
         setIsFormVisible(false);
@@ -132,10 +189,9 @@ function ManageCourses() {
         const lessons = [];
         for (let i = 0; i < lessonCount; i++) {
             lessons.push({
-                courseSportType: '',
                 lessonName: '',
                 description: '',
-                levelLesson: '',
+                levelLesson: '', // Initialize empty value for levelLesson
                 videoId: '',
             });
         }
@@ -202,7 +258,7 @@ function ManageCourses() {
                 </table>
             )}
 
-            {isFormVisible && ( // Conditionally render the form
+            {isFormVisible && (
                 <div className={styles.formContainer}>
                     <h3>{editingCourse ? 'Edit Course' : 'Add New Course'}</h3>
                     <input
@@ -230,6 +286,19 @@ function ManageCourses() {
                         onChange={(e) => setNewCourse({ ...newCourse, imageUrl: e.target.value })}
                     />
 
+                    {/* Select Sport */}
+                    <select
+                        value={newCourse.sportId}
+                        onChange={(e) => setNewCourse({ ...newCourse, sportId: e.target.value })}
+                    >
+                        <option value=''>Select Sport</option>
+                        {sports.map((sport) => (
+                            <option key={sport.id} value={sport.id}>
+                                {sport.sportName}
+                            </option>
+                        ))}
+                    </select>
+
                     <input
                         type='number'
                         placeholder='Number of Lessons'
@@ -243,12 +312,6 @@ function ManageCourses() {
                             <h4>{`Lesson ${index + 1}`}</h4>
                             <input
                                 type='text'
-                                placeholder='Course Sport Type'
-                                value={lesson.courseSportType}
-                                onChange={(e) => handleLessonChange(index, 'courseSportType', e.target.value)}
-                            />
-                            <input
-                                type='text'
                                 placeholder='Lesson Name'
                                 value={lesson.lessonName}
                                 onChange={(e) => handleLessonChange(index, 'lessonName', e.target.value)}
@@ -259,12 +322,19 @@ function ManageCourses() {
                                 value={lesson.description}
                                 onChange={(e) => handleLessonChange(index, 'description', e.target.value)}
                             />
-                            <input
-                                type='text'
-                                placeholder='Level'
+
+                            {/* Level select */}
+                            <select
                                 value={lesson.levelLesson}
                                 onChange={(e) => handleLessonChange(index, 'levelLesson', e.target.value)}
-                            />
+                            >
+                                <option value=''>Select Level</option>
+                                <option value={LevelLesson.BEGINNER}>Beginner</option>
+                                <option value={LevelLesson.INTERMEDIATE}>Intermediate</option>
+                                <option value={LevelLesson.ADVANCED}>Advanced</option>
+                                <option value={LevelLesson.EXPERT}>Expert</option>
+                            </select>
+
                             <input
                                 type='text'
                                 placeholder='Video ID'

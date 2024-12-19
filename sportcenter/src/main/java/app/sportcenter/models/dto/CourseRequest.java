@@ -1,5 +1,6 @@
 package app.sportcenter.models.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,6 +14,9 @@ import java.util.List;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class CourseRequest extends BaseRequestDTO{
+
+    @NotBlank(message = "Bạn chưa nhập id môn thể thao cho khoá học!")
+    private String sportId;
 
     @NotNull(message = "Bạn chưa nhập tên khóa học!")
     private String courseName;

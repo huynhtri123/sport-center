@@ -66,24 +66,30 @@ const fieldApi = {
         return axiosClient.get(url);
     },
 
-    // Tìm kiếm sân theo loại
-    async findByType(type) {
-        const url = `/public/field/findByType?type=${type}`;
-        try {
-            const response = await axiosClient.get(url);
-            return response;
-        } catch (error) {
-            if (error.response && error.response.status === 404) {
-                return {
-                    data: null,
-                    message: 'Không tìm thấy loại sân yêu cầu.',
-                    status: 404,
-                };
-            }
-            // Ném lỗi lại nếu không phải là 404 để xử lý tiếp ở nơi khác
-            throw error;
-        }
+    // // Tìm kiếm sân theo loại
+    // async findByType(type) {
+    //     const url = `/public/field/findByType?type=${type}`;
+    //     try {
+    //         const response = await axiosClient.get(url);
+    //         return response;
+    //     } catch (error) {
+    //         if (error.response && error.response.status === 404) {
+    //             return {
+    //                 data: null,
+    //                 message: 'Không tìm thấy loại sân yêu cầu.',
+    //                 status: 404,
+    //             };
+    //         }
+    //         // Ném lỗi lại nếu không phải là 404 để xử lý tiếp ở nơi khác
+    //         throw error;
+    //     }
+    // },
+
+    findBySportId(sportId) {
+        const url = `/public/field/findBySportId/${sportId}`;
+        return axiosClient.get(url);
     },
+
     findById(fieldId) {
         const url = `/public/field/getById/${fieldId}`;
         return axiosClient.get(url);

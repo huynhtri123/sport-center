@@ -29,7 +29,6 @@ public class LessonMapper {
         oldLesson.setLessonName(newLesson.getLessonName());
         oldLesson.setDescription(newLesson.getDescription());
         oldLesson.setVideoId(newLesson.getVideoId());
-        oldLesson.setCourseSportType(newLesson.getCourseSportType());
 
         return oldLesson;
     }

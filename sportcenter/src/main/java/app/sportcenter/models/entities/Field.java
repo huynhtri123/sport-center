@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.ZonedDateTime;
@@ -21,7 +22,10 @@ import java.util.List;
 public class Field extends BaseEntity {
     @Id
     private String id;
-    private FieldType fieldType;
+//    private FieldType fieldType;
+    @DBRef
+    private Sport sport;
+
     private String fieldName;
     private String description;
     private String imageUrl;

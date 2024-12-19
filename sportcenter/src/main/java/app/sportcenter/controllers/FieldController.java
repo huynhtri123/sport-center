@@ -82,10 +82,17 @@ public class FieldController {
     }
 
     // public
-    @GetMapping("/public/field/findByType")
-    public ResponseEntity<BaseResponse> findByFieldType(@RequestParam("type") FieldType fieldType) {
-        return fieldService.findByFieldType(fieldType);
+//    @GetMapping("/public/field/findByType")
+//    public ResponseEntity<BaseResponse> findByFieldType(@RequestParam("type") FieldType fieldType) {
+//        return fieldService.findByFieldType(fieldType);
+//    }
+
+    @GetMapping("/public/field/findBySportId/{sportId}")
+    public ResponseEntity<BaseResponse> findBySportId(@PathVariable("sportId") String sportId) {
+        return fieldService.findBySportId(sportId);
     }
+
+
     @GetMapping("/public/field/searchByNameAndPaginate")
     public ResponseEntity<BaseResponse> searchByNameAndPaginate(
             @RequestParam("fieldName") String fieldName,
