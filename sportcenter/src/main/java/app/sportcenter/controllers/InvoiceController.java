@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/invoice")
 public class InvoiceController {
@@ -72,6 +74,15 @@ public class InvoiceController {
         InvoiceResponse response = invoiceService.forceDelete(invoiceId);
         return ResponseEntity.ok(
                 new BaseResponse("Xoá cứng invoice thành công!", HttpStatus.OK.value(), response)
+        );
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
+    @GetMapping("/revenue/lastSixMonths")
+    public ResponseEntity<BaseResponse> getRevenueLastSixMonths() {
+        Map<String, Double> revenueData = invoiceService.getRevenueLastSixMonths();
+        return ResponseEntity.ok(
+                new BaseResponse("Doanh thu trong 6 tháng qua", HttpStatus.OK.value(), revenueData)
         );
     }
 

@@ -10,7 +10,7 @@ const revenueApi = {
         return axiosClient.get(url);
     },
     getRevenueLastSixMonths() {
-        const url = '/booking/revenue/lastSixMonths';
+        const url = '/invoice/revenue/lastSixMonths';
         return axiosClient.get(url);
     },
 };
