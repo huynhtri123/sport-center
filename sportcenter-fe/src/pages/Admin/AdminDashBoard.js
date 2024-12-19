@@ -1,9 +1,7 @@
-// src/pages/Admin/AdminDashBoard.js
 import React, { useEffect, useState } from 'react';
 import styles from '../../assets/css/admin.module.scss';
 import { Pie, Bar } from 'react-chartjs-2';
 import ManageFields from './Field/ManageFields';
-// import ManageSports from './ManageSports';
 import ManageTeams from './ManageTeams';
 import ManageInvoices from './ManageInvoice';
 import ManageSports from './ManageSports';
@@ -15,6 +13,7 @@ import ManageBookings from './ManageBookings';
 import revenueApi from '../../services/api/revenueApi';
 import { RecurringIntervalType } from '../../utils/enums/RecurringIntervalType';
 
+// Đăng ký các thành phần của Chart.js
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
 function AdminDashboard() {
@@ -41,68 +40,12 @@ function AdminDashboard() {
         ],
     });
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const countSingleBooking = await revenueApi.countSingleBooking();
-                const dailyRecurringBooking = await revenueApi.countRecurringBookingByType(RecurringIntervalType.DAILY);
-                const weeklyRecurringBooking = await revenueApi.countRecurringBookingByType(
-                    RecurringIntervalType.WEEKLY
-                );
-                const monthlyRecurringBooking = await revenueApi.countRecurringBookingByType(
-                    RecurringIntervalType.MONTHLY
-                );
-
-                const totalBookings =
-                    countSingleBooking.data +
-                    dailyRecurringBooking.data +
-                    weeklyRecurringBooking.data +
-                    monthlyRecurringBooking.data;
-
-                const normalizedData =
-                    totalBookings > 0
-                        ? [
-                              (countSingleBooking.data / totalBookings) * 100,
-                              (dailyRecurringBooking.data / totalBookings) * 100,
-                              (weeklyRecurringBooking.data / totalBookings) * 100,
-                              (monthlyRecurringBooking.data / totalBookings) * 100,
-                          ]
-                        : [0, 0, 0, 0];
-
-                setPieChartData((prev) => ({
-                    ...prev,
-                    datasets: [
-                        {
-                            ...prev.datasets[0],
-                            data: normalizedData,
-                        },
-                    ],
-                }));
-            } catch (error) {
-                console.error('Failed to fetch booking data:', error);
-            }
-        };
-
-        fetchData();
-    }, []);
-
-    const sections = [
-        { name: 'Dashboard', icon: 'fa-solid fa-chart-line' },
-        { name: 'Manage Fields', icon: 'fa-solid fa-hockey-puck' },
-        { name: 'Manage Courses', icon: 'fa-solid fa-dumbbell' },
-        { name: 'Manage Sports', icon: 'fa-solid fa-basketball-ball' },
-        { name: 'Manage Bookings', icon: 'fa-solid fa-calendar-check' },
-        { name: 'Manage Invoices', icon: 'fa-solid fa-money-bill' },
-        { name: 'Manage Teams', icon: 'fa-solid fa-people-group' },
-        { name: 'Manage Tournaments', icon: 'fa-solid fa-trophy' },
-    ];
-
-    const revenueData = {
-        labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+    const [revenueData, setRevenueData] = useState({
+        labels: [],
         datasets: [
             {
                 label: 'Revenue in USD',
-                data: [5000, 7000, 8000, 9000, 6500, 12000],
+                data: [],
                 backgroundColor: [
                     'rgba(75, 192, 192, 0.6)',
                     'rgba(153, 102, 255, 0.6)',
@@ -122,7 +65,70 @@ function AdminDashboard() {
                 borderWidth: 1,
             },
         ],
-    };
+    });
+
+    const sections = [
+        { name: 'Dashboard', icon: 'fa-solid fa-chart-line' },
+        { name: 'Manage Fields', icon: 'fa-solid fa-hockey-puck' },
+        { name: 'Manage Courses', icon: 'fa-solid fa-dumbbell' },
+        { name: 'Manage Sports', icon: 'fa-solid fa-basketball-ball' },
+        { name: 'Manage Bookings', icon: 'fa-solid fa-calendar-check' },
+        { name: 'Manage Invoices', icon: 'fa-solid fa-money-bill' },
+        { name: 'Manage Teams', icon: 'fa-solid fa-people-group' },
+        { name: 'Manage Tournaments', icon: 'fa-solid fa-trophy' },
+    ];
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // Fetch booking counts
+                const countSingleBooking = await revenueApi.countSingleBooking();
+                const dailyRecurringBooking = await revenueApi.countRecurringBookingByType(RecurringIntervalType.DAILY);
+                const weeklyRecurringBooking = await revenueApi.countRecurringBookingByType(RecurringIntervalType.WEEKLY);
+                const monthlyRecurringBooking = await revenueApi.countRecurringBookingByType(RecurringIntervalType.MONTHLY);
+
+                const totalBookings = countSingleBooking.data + dailyRecurringBooking.data + weeklyRecurringBooking.data + monthlyRecurringBooking.data;
+
+                const normalizedData = totalBookings > 0
+                    ? [
+                        (countSingleBooking.data / totalBookings) * 100,
+                        (dailyRecurringBooking.data / totalBookings) * 100,
+                        (weeklyRecurringBooking.data / totalBookings) * 100,
+                        (monthlyRecurringBooking.data / totalBookings) * 100,
+                    ]
+                    : [0, 0, 0, 0];
+
+                setPieChartData((prev) => ({
+                    ...prev,
+                    datasets: [{
+                        ...prev.datasets[0],
+                        data: normalizedData,
+                    }],
+                }));
+
+                // Fetch revenue for the last 6 months
+                const revenueResponse = await revenueApi.getRevenueLastSixMonths();
+                const revenueData = revenueResponse.data;
+
+                // Chuyển đổi dữ liệu thành mảng cho biểu đồ
+                const months = Object.keys(revenueData);
+                const amounts = Object.values(revenueData);
+
+                setRevenueData((prev) => ({
+                    ...prev,
+                    labels: months,
+                    datasets: [{
+                        ...prev.datasets[0],
+                        data: amounts,
+                    }],
+                }));
+            } catch (error) {
+                console.error('Failed to fetch booking data:', error);
+            }
+        };
+
+        fetchData();
+    }, []);
 
     const renderContent = () => {
         switch (selectedSection) {
@@ -145,6 +151,19 @@ function AdminDashboard() {
                                             title: {
                                                 display: true,
                                                 text: 'Revenue in the Last 6 Months',
+                                            },
+                                        },
+                                        scales: {
+                                            x: {
+                                                ticks: {
+                                                    autoSkip: false, // Hiển thị tất cả nhãn
+                                                    maxRotation: 0, // Đặt góc xoay nhãn về 0
+                                                    minRotation: 0, // Đặt góc xoay tối thiểu về 0
+                                                    font: {
+                                                        size: 8, // Thay đổi kích thước chữ cho nhãn tháng
+                                                        weight: 'bolder',
+                                                    },
+                                                },
                                             },
                                         },
                                     }}
@@ -182,9 +201,9 @@ function AdminDashboard() {
             case 'Manage Bookings':
                 return <ManageBookings />;
             case 'Manage Teams':
-                return <ManageTeams></ManageTeams>;
+                return <ManageTeams />;
             case 'Manage Invoices':
-                return <ManageInvoices></ManageInvoices>;
+                return <ManageInvoices />;
             default:
                 return <h2>Welcome to Admin Dashboard</h2>;
         }
@@ -196,7 +215,6 @@ function AdminDashboard() {
                 <h2>Admin Panel</h2>
                 <ul className={styles.navList}>
                     {sections.map((section) => (
-                        // eslint-disable-next-line jsx-a11y/role-supports-aria-props
                         <li
                             key={section.name}
                             className={`${styles.navItem} ${selectedSection === section.name ? styles.active : ''}`}
@@ -214,7 +232,7 @@ function AdminDashboard() {
             <div className={styles.content}>
                 <header className={styles.header}>
                     <h1>{selectedSection}</h1>
-                    <Signout></Signout>
+                    <Signout />
                 </header>
                 <div className={styles.mainContent}>{renderContent()}</div>
             </div>
