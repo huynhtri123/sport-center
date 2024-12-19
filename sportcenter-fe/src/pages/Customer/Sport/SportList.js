@@ -6,7 +6,6 @@ import { toast } from 'react-toastify';
 
 import styles from '../../../assets/css/Sport/sportList.module.scss';
 import { useGetSports } from '../../../customs/hooks';
-import sportData from '../../../data/sportData';
 import { useGetFields } from '../../../customs/hooks';
 import fieldApi from '../../../services/api/fieldApi';
 
@@ -17,9 +16,9 @@ const SportList = () => {
     const [fields, setFields] = useGetFields();
     const navigate = useNavigate();
 
-    const fetchAndNavigate = async (type, to) => {
+    const fetchAndNavigate = async (sportId, to) => {
         try {
-            const fieldsResponse = await fieldApi.findByType(type);
+            const fieldsResponse = await fieldApi.findBySportId(sportId);
             if (fieldsResponse.status === 404) {
                 toast.warn(fieldsResponse.message);
             } else {
@@ -30,16 +29,13 @@ const SportList = () => {
             navigate(to); // Navigate after successful data fetching
         } catch (err) {
             setFields([]);
-            toast.error(err.message || 'Có lỗi xảy ra!');
+            // toast.error(err.message || 'Có lỗi xảy ra!');
         }
     };
 
-    const handleClick = (sportName) => {
-        const sport = sportData.find((item) => item.key === sportName.toLowerCase());
-        // console.log(sport);
-        const linkTo = sport.linkTo;
-        const fieldType = sport.fieldType;
-        fetchAndNavigate(fieldType, linkTo);
+    const handleClick = (sportId) => {
+        const linkTo = '/sport/fields';
+        fetchAndNavigate(sportId, linkTo);
     };
 
     if (!sports || sports.length === 0) {
@@ -66,7 +62,7 @@ const SportList = () => {
                 {/* <h2 className={styles.sectionTitle}>Available Sports</h2> */}
                 <ul className={clsx(styles.sportList)}>
                     {sports.map((sport, index) => (
-                        <li key={index} className={clsx(styles.sportItem)} onClick={() => handleClick(sport.sportName)}>
+                        <li key={index} className={clsx(styles.sportItem)} onClick={() => handleClick(sport.id)}>
                             <img src={sport.imageUrl} alt={sport.sportName} className={clsx(styles.sportImage)} />
                             <div className={clsx(styles.sportInfo)}>
                                 <h2>{sport.sportName}</h2>

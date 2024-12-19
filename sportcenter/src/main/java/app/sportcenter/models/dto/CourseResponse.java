@@ -15,6 +15,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class CourseResponse extends BaseResponseDTO {
     private String id;
+    private String sportId;
     private String courseName;
     private Double tuition;
     private String description;

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import styles from '../../../assets/css/Admin/manageFields.module.scss';
 import Button from '../../../components/Button/Button';
 import sportApi from '../../../services/api/sportApi';
+import { toast } from 'react-toastify';
 
 function FieldInput({
     isEditing,
@@ -18,12 +19,14 @@ function FieldInput({
     handleAddPricePolicy,
 }) {
     const [sports, setSports] = useState([]); // State chứa danh sách môn thể thao
+    const [errors, setErrors] = useState({}); // State chứa lỗi form
 
     // Fetch danh sách môn thể thao từ API khi component mount
     useEffect(() => {
         const fetchSports = async () => {
             try {
                 const response = await sportApi.getAllActive(0, 100); // Gọi API lấy danh sách môn thể thao
+                console.log(response.data.content);
                 setSports(response.data.content); // Cập nhật state với danh sách môn thể thao
             } catch (error) {
                 console.error('Error fetching sports:', error); // Xử lý lỗi khi gọi API
@@ -33,8 +36,33 @@ function FieldInput({
         fetchSports();
     }, []); // useEffect chỉ chạy 1 lần khi component mount
 
+    // Kiểm tra xem có ít nhất một ngày được chọn trong policy không
+    const validateForm = () => {
+        let formIsValid = true;
+        let errorMessages = {};
+
+        (isEditing ? editFormData.pricePolicies : formData.pricePolicies).forEach((policy, index) => {
+            if (policy.daysOfWeek.length === 0) {
+                formIsValid = false;
+                toast.warn('Please select at least one day for price policy.');
+            }
+        });
+
+        setErrors(errorMessages);
+        return formIsValid;
+    };
+
+    // Hàm submit form
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (validateForm()) {
+            // Nếu form hợp lệ, gọi handleAddSubmit hoặc handleEditSubmit
+            isEditing ? handleEditSubmit(e) : handleAddSubmit(e);
+        }
+    };
+
     return (
-        <form onSubmit={isEditing ? handleEditSubmit : handleAddSubmit} className={styles.inputForm}>
+        <form onSubmit={handleSubmit} className={styles.inputForm}>
             <div className={styles.formContainer}>
                 <div className={styles.mediaContainer}>
                     <div className={styles.avatarContainer}>
@@ -84,22 +112,24 @@ function FieldInput({
                         required
                     />
 
-                    {/* Dropdown cho FieldType, lấy danh sách từ API */}
+                    {/* Dropdown cho sportId, lấy danh sách từ API */}
                     <select
-                        name='fieldType'
-                        value={isEditing ? editFormData.fieldType : formData.fieldType}
+                        name='sportId'
+                        value={isEditing ? editFormData.sportId : formData.sportId}
                         onChange={handleChange}
                         required
                     >
-                        {/* Nếu chưa có dữ liệu, hiển thị "Loading..." */}
                         {sports.length === 0 ? (
                             <option value=''>Loading...</option>
                         ) : (
-                            sports.map((sport) => (
-                                <option key={sport.id} value={sport.sportName}>
-                                    {sport.sportName}
-                                </option>
-                            ))
+                            <>
+                                <option value=''>Please select a sport</option>
+                                {sports.map((sport) => (
+                                    <option key={sport.id} value={sport.id}>
+                                        {sport.sportName}
+                                    </option>
+                                ))}
+                            </>
                         )}
                     </select>
 
@@ -146,6 +176,10 @@ function FieldInput({
                                     </label>
                                 ))}
                             </div>
+                            {/* Hiển thị lỗi nếu không có ngày nào được chọn */}
+                            {errors[`policy-${index}`] && (
+                                <span className={styles.errorText}>{errors[`policy-${index}`]}</span>
+                            )}
                             <button
                                 type='button'
                                 className={`btn ${styles.removePolicyButton}`}

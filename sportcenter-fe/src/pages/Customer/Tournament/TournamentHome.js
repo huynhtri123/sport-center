@@ -23,7 +23,7 @@ const TournamentHome = () => {
             setTournaments(tournamentsResponse.data.content);
         } catch (err) {
             console.error(err);
-            toast.error('Failed to load tournaments');
+            // toast.error('Failed to load tournaments');
         }
     };
 

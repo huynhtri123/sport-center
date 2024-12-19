@@ -21,8 +21,7 @@ public class SportController {
         return sportService.create(sportRequest);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/sport/getById/{sportId}")
+    @GetMapping("/public/sport/getById/{sportId}")
     public ResponseEntity<BaseResponse> getById(@PathVariable String sportId) {
         return sportService.getById(sportId);
     }

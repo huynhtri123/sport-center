@@ -275,7 +275,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         if (refreshToken == null) {
             // Refresh token not found
-            throw new CustomException("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("Thông tin xác thực không hợp lệ, vui lòng đăng nhập lại!", HttpStatus.BAD_REQUEST.value());
         }
 
         // Kiểm tra xem refreshToken có bị revoked (ở trong blacklist) không

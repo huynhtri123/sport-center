@@ -25,8 +25,11 @@ public interface FieldRepository extends MongoRepository<Field, String> {
     public List<Field> searchByFieldNameContainingIgnoreCase(String fieldName);
 
     // search by fieldType
-    @Query("{ 'fieldType': ?0, 'isDeleted': false, 'isActive': true }")
-    List<Field> findByFieldType(FieldType fieldType);
+//    @Query("{ 'fieldType': ?0, 'isDeleted': false, 'isActive': true }")
+//    List<Field> findByFieldType(FieldType fieldType);
+
+    @Query("{ 'sport.id': ?0, 'isDeleted': false, 'isActive': true }")
+    List<Field> findBySportIdAndIsActiveTrueAndIsDeletedFalse(String sportId);
 
     // search by fieldStatus
     @Query("{ 'fieldStatus': ?0, 'isDeleted': false, 'isActive': true }")

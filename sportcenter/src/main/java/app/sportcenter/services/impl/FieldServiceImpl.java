@@ -269,20 +269,34 @@ public class FieldServiceImpl implements FieldService {
     }
 
     @Override
-    public ResponseEntity<BaseResponse> findByFieldType(FieldType fieldType) {
-        List<Field> fieldList = fieldRepository.findByFieldType(fieldType);
-
+    public ResponseEntity<BaseResponse> findBySportId(String sportId) {
+        List<Field> fieldList = fieldRepository.findBySportIdAndIsActiveTrueAndIsDeletedFalse(sportId);
         if (fieldList.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Không tìm thấy sân thuộc loại " + fieldType.name() + ".", HttpStatus.NOT_FOUND.value(), null)
+                    new BaseResponse("Không tìm thấy sân thuộc sportId " + sportId + ".", HttpStatus.NOT_FOUND.value(), null)
             );
         }
-
         List<FieldResponse> responseFields = fieldList.stream().map(fieldMapper::convertToDTO).toList();
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy danh sách sân thuộc loại " + fieldType.name() + ".", HttpStatus.OK.value(), responseFields)
+                new BaseResponse("Tìm thấy danh sách sân thuộc sportId " + sportId + ".", HttpStatus.OK.value(), responseFields)
         );
     }
+
+//    @Override
+//    public ResponseEntity<BaseResponse> findByFieldType(FieldType fieldType) {
+//        List<Field> fieldList = fieldRepository.findByFieldType(fieldType);
+//
+//        if (fieldList.isEmpty()) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+//                    new BaseResponse("Không tìm thấy sân thuộc loại " + fieldType.name() + ".", HttpStatus.NOT_FOUND.value(), null)
+//            );
+//        }
+//
+//        List<FieldResponse> responseFields = fieldList.stream().map(fieldMapper::convertToDTO).toList();
+//        return ResponseEntity.ok(
+//                new BaseResponse("Tìm thấy danh sách sân thuộc loại " + fieldType.name() + ".", HttpStatus.OK.value(), responseFields)
+//        );
+//    }
 
     @Override
     public ResponseEntity<BaseResponse> searchByNameAndPaginate(String fieldName, int page, int size) {

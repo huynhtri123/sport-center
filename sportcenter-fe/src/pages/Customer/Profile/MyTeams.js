@@ -33,7 +33,7 @@ function MyTeam({ teams }) {
             setTeamToDelete(null); // Đặt lại teamToDelete
         } catch (err) {
             console.error(err);
-            toast.error('Xóa team không thành công.');
+            // toast.error('Xóa team không thành công.');
         } finally {
             setIsLoading(false);
             setIsConfirmModalOpen(false);

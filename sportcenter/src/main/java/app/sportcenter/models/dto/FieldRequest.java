@@ -5,6 +5,7 @@ import app.sportcenter.commons.FieldType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,8 +20,10 @@ import java.util.List;
 public class FieldRequest extends BaseRequestDTO {
 
     // client: tạo combobox chứa các giá trị có sẵn (giá trị khác có sẵn là lỗi)
-    @NotNull(message = "Bạn chưa nhập loại sân!")
-    private FieldType fieldType;
+//    @NotNull(message = "Bạn chưa nhập loại sân!")
+//    private FieldType fieldType;
+    @NotBlank(message = "Bạn chưa nhập id môn thể thao cho sân!")
+    private String sportId;
 
     @NotBlank(message = "Bạn chưa nhập tên cho sân!")
     private String fieldName;

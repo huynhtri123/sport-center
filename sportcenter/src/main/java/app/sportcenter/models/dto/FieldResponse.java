@@ -19,7 +19,8 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = false)
 public class FieldResponse extends BaseResponseDTO {
     private String id;
-    private FieldType fieldType;
+//    private FieldType fieldType;
+    private String sportId;
     private String fieldName;
     private String description;
     private Double defaultPrice;
