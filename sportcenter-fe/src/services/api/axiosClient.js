@@ -100,16 +100,16 @@ axiosClient.interceptors.response.use(
             switch (status) {
                 case 403: // Forbidden
                     console.warn('Access Denied: ', data.message);
-                    toast.error('Bạn không có quyền truy cập tài nguyên này.');
+                    toast.error('You do not have permission to access this resource.');
                     break;
 
                 default: // các lỗi khác
-                    toast.error(data.message || 'Đã xảy ra lỗi, vui lòng thử lại sau.');
+                    toast.error(data.message || 'An error occurred, please try again later.');
             }
         } else if (error.request) {
             // Xử lý lỗi mạng hoặc không phản hồi từ server
             console.error('No response received from server: ', error.request);
-            toast.error('Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng!');
+            toast.error('Unable to connect to the server. Please check your network connection!');
         } else {
             console.error('Error setting up request: ', error.message);
             toast.error('Error setting up request: ', error.message);

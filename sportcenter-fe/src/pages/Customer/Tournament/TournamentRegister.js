@@ -94,7 +94,7 @@ function TournamentRegister() {
                 setIsLoading(true);
                 const uploadResponse = await fileApi.uploadImage(file);
                 setTeamLogoUrl(uploadResponse.data.url);
-                toast.info('Logo đã được cập nhật!');
+                toast.info('Updated logo!');
             } catch (err) {
                 console.error(err);
             } finally {

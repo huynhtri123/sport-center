@@ -46,7 +46,7 @@ function PaymentModal({ payment, onClose, onSave, userId }) {
         // Kiểm tra tính hợp lệ của cardNumber
         const isCardNumberValid = /^\d{10,16}$/.test(cardNumber); // Kiểm tra số và độ dài
         if (!isCardNumberValid) {
-            toast.warn('Số thẻ phải là số và có độ dài từ 10 đến 16 ký tự.');
+            toast.warn('The card number must be a number and have a length of 10 to 16 characters.');
             return;
         }
         return bankName && isCardNumberValid && cardHolderName && issueDate;
