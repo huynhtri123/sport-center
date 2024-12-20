@@ -64,22 +64,22 @@ public class TournamentServiceImpl implements TournamentService {
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
         // 1. các ngày trong input phải là trong tương lai
         if (startDate.isBefore(now) || startDate.isEqual(now)) {
-            throw new CustomException("Ngày bắt đầu phải là ngày trong tương lai", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("The start date must be a future date", HttpStatus.BAD_REQUEST.value());
         }
         if (endDate.isBefore(now) || endDate.isEqual(now)) {
-            throw new CustomException("Ngày kết thúc phải là ngày trong tương lai", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("The end date must be a future date", HttpStatus.BAD_REQUEST.value());
         }
         if (deadlineDate.isBefore(now) || deadlineDate.isEqual(now)) {
-            throw new CustomException("Hạn đăng ký phải là ngày trong tương lai", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("The registration deadline must be a future date", HttpStatus.BAD_REQUEST.value());
         }
         // 2. ngày kết thúc phải sau ngày bắt đầu
         if (endDate.isBefore(startDate) || endDate.isEqual(startDate)) {
-            throw new CustomException("Ngày kết thúc phải sau ngày bắt đầu", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("The end date must be after the start date", HttpStatus.BAD_REQUEST.value());
         }
 
         // 3. ngày deadline phải trước ngày bắt đầu
         if (deadlineDate.isAfter(startDate) || deadlineDate.isEqual(startDate)) {
-            throw new CustomException("Hạn đăng ký phải trước ngày bắt đầu", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("The registration deadline must be before the start date", HttpStatus.BAD_REQUEST.value());
         }
     }
 
@@ -99,7 +99,7 @@ public class TournamentServiceImpl implements TournamentService {
 
         boolean isExistedSport = sportRepository.existsById(tournamentRequest.getSportId());
         if (!isExistedSport) {
-            throw new NotFoundException("Sport không tồn tại");
+            throw new NotFoundException("Sport does not exist");
         }
 
         Tournament savedTournament = tournamentRepository.save(tournament);
@@ -107,7 +107,7 @@ public class TournamentServiceImpl implements TournamentService {
                 savedTournament
         );
         return ResponseEntity.ok(
-                new BaseResponse("Tạo mới Tournament thành công.", HttpStatus.OK.value(), tournamentResponse)
+                new BaseResponse("Successfully created a new Tournament.", HttpStatus.OK.value(), tournamentResponse)
         );
     }
 
