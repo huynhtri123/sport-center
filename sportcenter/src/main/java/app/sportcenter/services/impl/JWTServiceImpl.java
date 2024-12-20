@@ -78,7 +78,7 @@ public class JWTServiceImpl implements JWTService {
             Date expiration = extractClaim(token, Claims::getExpiration);
             return expiration.before(new Date());
         } catch (io.jsonwebtoken.ExpiredJwtException e) {
-            return true; // Token đã hết hạn
+            return true; // token đã hết hạn
         }
     }
 

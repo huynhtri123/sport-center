@@ -63,7 +63,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currUser = (User) authentication.getPrincipal();
         Invoice invoice = invoiceRepository.findById(invoiceId)
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy invoice"));
+                .orElseThrow(() -> new NotFoundException("Invoice not found."));
         // admin hoặc chủ nhân moi duoc
         if (currUser.getRole().equals(Role.ADMIN) || currUser.getId().equals(invoice.getUser().getId())) {
             invoice.setIsDeleted(flag);
@@ -71,7 +71,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             InvoiceResponse response = invoiceMapper.convertToResponse(updatedInvoice);
             return response;
         } else {
-            throw new CustomException("Bạn không có quyền thực hiện hành động này lên hoá đơn này", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("You do not have permission to perform this action on this invoice.", HttpStatus.BAD_REQUEST.value());
         }
     }
 
@@ -80,14 +80,14 @@ public class InvoiceServiceImpl implements InvoiceService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currUser = (User) authentication.getPrincipal();
         Invoice invoice = invoiceRepository.findById(invoiceId)
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy invoice"));
+                .orElseThrow(() -> new NotFoundException("Invoice not found."));
         // admin hoặc chủ nhân moi duoc
         if (currUser.getRole().equals(Role.ADMIN) || currUser.getId().equals(invoice.getUser().getId())) {
             invoiceRepository.deleteById(invoiceId);
             InvoiceResponse response = invoiceMapper.convertToResponse(invoice);
             return response;
         } else {
-            throw new CustomException("Bạn không có quyền thực hiện hành động này lên hoá đơn này", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("You do not have permission to perform this action on this invoice.", HttpStatus.BAD_REQUEST.value());
         }
     }
 

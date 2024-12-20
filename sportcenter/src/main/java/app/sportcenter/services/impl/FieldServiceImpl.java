@@ -53,7 +53,7 @@ public class FieldServiceImpl implements FieldService {
     public ResponseEntity<BaseResponse> create(FieldRequest fieldRequest) {
         // kiểm tra trùng lặp ngày trong các pricePolicies
         if (hasDuplicateDays(fieldRequest.getPricePolicies())) {
-            throw new CustomException("Thất bại vì có ngày bị trùng lặp trong các chính sách giá!", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("Failed due to overlapping dates in pricing policies!", HttpStatus.BAD_REQUEST.value());
         }
 
         // set ảnh và video mặc định
@@ -70,7 +70,7 @@ public class FieldServiceImpl implements FieldService {
         }
         FieldResponse responseField = fieldMapper.convertToDTO(fieldRepository.save(field));
         return ResponseEntity.status(HttpStatus.CREATED.value()).body(
-                new BaseResponse("Tạo mới sân (field) thành công!", HttpStatus.CREATED.value(), responseField)
+                new BaseResponse("Field created successfully!", HttpStatus.CREATED.value(), responseField)
         );
     }
 
@@ -94,7 +94,7 @@ public class FieldServiceImpl implements FieldService {
 
         if (fieldPage.isEmpty()) {
             return ResponseEntity.ok(
-                    new BaseResponse("Không có sân nào được tìm thấy.", HttpStatus.OK.value(), null)
+                    new BaseResponse("No fields found.", HttpStatus.OK.value(), null)
             );
         }
 
@@ -110,19 +110,19 @@ public class FieldServiceImpl implements FieldService {
         );
 
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy danh sách sân.", HttpStatus.OK.value(), paginatedResponse)
+                new BaseResponse("Field list found.", HttpStatus.OK.value(), paginatedResponse)
         );
     }
 
     @Override
     public ResponseEntity<BaseResponse> getById(String fieldId) {
         Field field = fieldRepository.findById(fieldId).orElseThrow(
-                () -> new NotFoundException("Không tìm thấy sân!")
+                () -> new NotFoundException("No field found!")
         );
 
         FieldResponse responseField = fieldMapper.convertToDTO(field);
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy sân.", HttpStatus.OK.value(), responseField)
+                new BaseResponse("Field found.", HttpStatus.OK.value(), responseField)
         );
     }
 
@@ -130,12 +130,12 @@ public class FieldServiceImpl implements FieldService {
     public ResponseEntity<BaseResponse> getAllSoftDeleted() {
         List<Field> listDeleted = fieldRepository.getFieldByIsDeletedTrue();
         if (listDeleted.isEmpty()) {
-            throw new NotFoundException("Không tìm thấy Field nào bị xoá mềm.");
+            throw new NotFoundException("No soft-deleted fields found.");
         }
 
         List<FieldResponse> responseField = listDeleted.stream().map(fieldMapper::convertToDTO).toList();
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy danh sách Field bị xoá mềm.", HttpStatus.OK.value(), responseField)
+                new BaseResponse("Soft-deleted field list found.", HttpStatus.OK.value(), responseField)
         );
     }
 
@@ -144,17 +144,17 @@ public class FieldServiceImpl implements FieldService {
     public ResponseEntity<BaseResponse> updateById(String fieldId, FieldRequest newField) {
         // kiểm tra trùng lặp ngày trong các pricePolicies
         if (hasDuplicateDays(newField.getPricePolicies())) {
-            throw new CustomException("Thất bại vì có ngày bị trùng lặp trong các chính sách giá!", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("Failed due to overlapping dates in pricing policies!", HttpStatus.BAD_REQUEST.value());
         }
         Field field = fieldRepository.findById(fieldId).orElseThrow(() ->
-                new NotFoundException("Không tìm thấy Field!"));
+                new NotFoundException("Field not found!"));
 
         Field updatedField = fieldRepository.save(fieldMapper.replaceAll(field, newField));
 
         FieldResponse responseField = fieldMapper.convertToDTO(updatedField);
 
         return ResponseEntity.ok(
-                new BaseResponse("Cập nhật Field thành công.", HttpStatus.OK.value(), responseField)
+                new BaseResponse("Field updated successfully.", HttpStatus.OK.value(), responseField)
         );
     }
 
@@ -162,15 +162,15 @@ public class FieldServiceImpl implements FieldService {
     @Override
     public ResponseEntity<BaseResponse> toggleActiveStatus(String fieldId) {
         Field field = fieldRepository.findById(fieldId).orElseThrow(() ->
-                new NotFoundException("Không tìm thấy Field!"));
+                new NotFoundException("Field not found!"));
 
         field.setIsActive(!field.getIsActive());
         Field updatedField = fieldRepository.save(field);
 
         FieldResponse responseField = fieldMapper.convertToDTO(updatedField);
         return ResponseEntity.ok(
-                new BaseResponse("Đổi trạng thái active thành công."
-                        + "Trạng thái Field hiện tại: " + updatedField.getIsActive(),
+                new BaseResponse("Active status updated successfully."
+                        + "Current field status: " + updatedField.getIsActive(),
                         HttpStatus.OK.value(),
                         responseField)
         );
@@ -180,7 +180,7 @@ public class FieldServiceImpl implements FieldService {
     @Override
     public ResponseEntity<BaseResponse> softDeleted(String fieldId) {
         Field field = fieldRepository.findById(fieldId).orElseThrow(() ->
-                new NotFoundException("Không tìm thấy Field!"));
+                new NotFoundException("Field not found!"));
 
         // tìm coi có bất kỳ Booking nào đang chứa Field này thì không cho xoá luôn
         List<Booking> relevantBookings = bookingRepository.getBookingByFieldId(fieldId);
@@ -189,7 +189,8 @@ public class FieldServiceImpl implements FieldService {
             boolean hasActiveBookings = relevantBookings.stream()
                     .anyMatch(booking -> booking.getIsActive() && booking.getEndTime().isAfter(now));
             if (hasActiveBookings) {
-                throw new CustomException("Có Booking đang hoạt động chứa Field này, bạn không thể xoá nó!", HttpStatus.BAD_REQUEST.value());
+                throw new CustomException("There is an active booking associated with this field, you cannot delete it!",
+                        HttpStatus.BAD_REQUEST.value());
             }
         }
 
@@ -198,7 +199,7 @@ public class FieldServiceImpl implements FieldService {
         FieldResponse responseField = fieldMapper.convertToDTO(updatedField);
 
         return ResponseEntity.ok(
-                new BaseResponse("Xoá mềm sân thành công.", HttpStatus.OK.value(), responseField)
+                new BaseResponse("Field soft-deleted successfully.", HttpStatus.OK.value(), responseField)
         );
     }
 
@@ -206,7 +207,7 @@ public class FieldServiceImpl implements FieldService {
     @Override
     public ResponseEntity<BaseResponse> restore(String fieldId) {
         Field field = fieldRepository.findById(fieldId).orElseThrow(() ->
-                new NotFoundException("Không tìm thấy Field!"));
+                new NotFoundException("Field not found!"));
 
         field.setIsDeleted(false);
 
@@ -214,7 +215,7 @@ public class FieldServiceImpl implements FieldService {
         FieldResponse responseField = fieldMapper.convertToDTO(updatedField);
 
         return ResponseEntity.ok(
-                new BaseResponse("Khôi phục sân thành công.", HttpStatus.OK.value(), responseField)
+                new BaseResponse("Field restored successfully.", HttpStatus.OK.value(), responseField)
         );
     }
 
@@ -222,7 +223,7 @@ public class FieldServiceImpl implements FieldService {
     @Override
     public ResponseEntity<BaseResponse> forceDelete(String fieldId) {
         Field field = fieldRepository.findById(fieldId).orElseThrow(() ->
-                new NotFoundException("Không tìm thấy Field!"));
+                new NotFoundException("Field not found!"));
         FieldResponse resonseField = fieldMapper.convertToDTO(field);
 
         // tìm coi có bất kỳ Booking nào đang chứa Field này thì không cho xoá luôn
@@ -232,7 +233,8 @@ public class FieldServiceImpl implements FieldService {
             boolean hasActiveBookings = relevantBookings.stream()
                     .anyMatch(booking -> booking.getIsActive() && booking.getEndTime().isAfter(now));
             if (hasActiveBookings) {
-                throw new CustomException("Có Booking đang hoạt động chứa Field này, bạn không thể xoá nó!", HttpStatus.BAD_REQUEST.value());
+                throw new CustomException("There is an active booking associated with this field, you cannot delete it!",
+                        HttpStatus.BAD_REQUEST.value());
             }
         }
         // Xóa ảnh từ Cloudinary (chỉ xoá ảnh không phải ảnh mặc định)
@@ -248,7 +250,7 @@ public class FieldServiceImpl implements FieldService {
         fieldRepository.deleteById(fieldId);
 
         return ResponseEntity.ok(
-                new BaseResponse("Xoá cứng Field thành công.", HttpStatus.OK.value(), resonseField)
+                new BaseResponse("Field permanently deleted successfully.", HttpStatus.OK.value(), resonseField)
         );
     }
 
@@ -258,13 +260,14 @@ public class FieldServiceImpl implements FieldService {
 
         if (fieldList.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Không tìm thấy Field có tên này.", HttpStatus.NOT_FOUND.value(), null)
+                    new BaseResponse("No field found with this name.", HttpStatus.NOT_FOUND.value(), null)
             );
         }
 
         List<FieldResponse> responseFields = fieldList.stream().map(fieldMapper::convertToDTO).toList();
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy danh sách sân.", HttpStatus.OK.value(), responseFields)
+                new BaseResponse("\n" +
+                        "Field list found.", HttpStatus.OK.value(), responseFields)
         );
     }
 
@@ -273,12 +276,12 @@ public class FieldServiceImpl implements FieldService {
         List<Field> fieldList = fieldRepository.findBySportIdAndIsActiveTrueAndIsDeletedFalse(sportId);
         if (fieldList.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Không tìm thấy sân thuộc sportId " + sportId + ".", HttpStatus.NOT_FOUND.value(), null)
+                    new BaseResponse("No fields found for the specified sportId. " + sportId + ".", HttpStatus.NOT_FOUND.value(), null)
             );
         }
         List<FieldResponse> responseFields = fieldList.stream().map(fieldMapper::convertToDTO).toList();
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy danh sách sân thuộc sportId " + sportId + ".", HttpStatus.OK.value(), responseFields)
+                new BaseResponse("Field list found for the specified sportId. " + sportId + ".", HttpStatus.OK.value(), responseFields)
         );
     }
 
@@ -321,9 +324,8 @@ public class FieldServiceImpl implements FieldService {
         );
 
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy danh sách sân.", HttpStatus.OK.value(), paginatedResponse)
+                new BaseResponse("Field list found.", HttpStatus.OK.value(), paginatedResponse)
         );
     }
-
 
 }
