@@ -79,7 +79,7 @@ const FieldList = () => {
 
     return (
         <div className={styles.container}>
-            <h2 className={styles.title}>{sportName ? `${sportName} Fields` : 'Fields'}</h2>
+            <h2 className={styles.title}>{sportName ? `${sportName}` : 'Fields'}</h2>
             <div className={styles.cardContainer}>
                 {fields.map((fieldMap) => {
                     return (
