@@ -108,10 +108,6 @@ function ManageCourses() {
     };
 
     const validateForm = () => {
-        // Check if courseName, description, tuition, and imageUrl are filled
-        if (!newCourse.courseName || !newCourse.description || !newCourse.imageUrl) {
-            toast.warn('Please fill in all the course details (name, description, tuition, image URL)!');
-
         // Check if courseName is filled
         if (!newCourse.courseName) {
             toast.warn('Please enter the course name!');
@@ -133,13 +129,6 @@ function ManageCourses() {
         // Check if imageUrl is filled
         if (!newCourse.imageUrl) {
             toast.warn('Please provide an image URL!');
-
-            return false;
-        }
-        if (editingCourse && newCourse.tuition === '') {
-            toast.warn('Please fill in Tuition!');
-        } else if (Number(newCourse.tuition) < 0) {
-            toast.warn('Tuition cannot be negative!');
             return false;
         }
 
@@ -211,7 +200,7 @@ function ManageCourses() {
             fetchCourses(); // Refresh the course list
         } catch (error) {
             console.error('Failed to update course:', error);
-            // toast.error('Failed to update course. Please try again.');
+            toast.error('Failed to update course. Please try again.');
         }
     };
 
@@ -363,14 +352,21 @@ function ManageCourses() {
                         value={newCourse.description}
                         onChange={(e) => setNewCourse({ ...newCourse, description: e.target.value })}
                     />
+                    <label htmlFor='tuition'>Tuition:</label>
                     <input
+                        name='tuition'
                         type='number'
                         placeholder='Tuition'
-                        value={newCourse.tuition}
+                        value={newCourse.tuition || 0} // Ensure default value is 0
                         onChange={(e) => {
-                            // Chuyển đổi giá trị nhập vào thành số và đảm bảo trong khoảng từ 0 đến 100 triệu
-                            const value = Math.min(100000000, Math.max(0, parseFloat(e.target.value))); // Giới hạn giá trị trong phạm vi này
-                            setNewCourse({ ...newCourse, tuition: value });
+                            const value = parseFloat(e.target.value);
+                            // Ensure the value is between 0 and 100 million and not empty
+                            if (!isNaN(value) && value >= 0 && value <= 100000000) {
+                                setNewCourse({ ...newCourse, tuition: value });
+                            } else if (e.target.value === '') {
+                                // Prevent input from becoming empty
+                                setNewCourse({ ...newCourse, tuition: 0 });
+                            }
                         }}
                         min='0'
                         max='100000000' // Giới hạn tối đa là 100 triệu
