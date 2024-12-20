@@ -203,28 +203,28 @@ function PaymentModal({
     return (
         <div className={styles.modalOverlay}>
             <div className={styles.modalContent}>
-                <h2>Thanh Toán</h2>
+                <h2>Payment</h2>
                 <p>
-                    Tổng số tiền cần thanh toán: <strong>{price} VND</strong>
+                    Total amount to pay: <strong>{price} VND</strong>
                 </p>
                 <p>
-                    Số dư hiện có: <strong>{accountBalance} VND</strong>
+                    Current balance: <strong>{accountBalance} VND</strong>
                 </p>
 
                 {accountBalance === 0 ? (
-                    <p>Bạn không có số dư khả dụng.</p>
+                    <p>You do not have any available balance.</p>
                 ) : remainingAmount > 0 ? (
                     <p>
-                        Số tiền cần thanh toán thêm: <strong>{remainingAmount} VND</strong>
+                        Additional amount to pay: <strong>{remainingAmount} VND</strong>
                     </p>
                 ) : (
-                    <p>Thanh toán sẽ được thực hiện toàn bộ bằng số dư.</p>
+                    <p>The payment will be fully covered by your balance.</p>
                 )}
 
                 <div className={styles.buttonContainer}>
                     {accountBalance === 0 ? (
                         <button className={styles.cardButton} onClick={handlePaymentByCard}>
-                            Thanh toán toàn bộ bằng thẻ
+                            Pay fully by card
                         </button>
                     ) : remainingAmount > 0 ? (
                         <>
@@ -232,19 +232,19 @@ function PaymentModal({
                                 className={styles.balanceButton}
                                 onClick={() => handleRemainingPaymentAndSubmit(remainingAmount)}
                             >
-                                Sử dụng số dư và thanh toán {remainingAmount} VND bằng thẻ
+                                Use balance and pay {remainingAmount} VND by card
                             </button>
                             <button className={styles.cardButton} onClick={handlePaymentByCard}>
-                                Thanh toán toàn bộ bằng thẻ
+                                Pay fully by card
                             </button>
                         </>
                     ) : (
                         <button className={styles.balanceButton} onClick={handleBalancePaymentAndSubmit}>
-                            Thanh toán bằng số dư
+                            Pay with balance
                         </button>
                     )}
                     <button className={styles.cancelButton} onClick={onClose}>
-                        Hủy
+                        Cancel
                     </button>
                 </div>
             </div>

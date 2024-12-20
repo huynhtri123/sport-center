@@ -18,7 +18,7 @@ function Signup2Modal({ isOpen, onClose, onSubmit, signupEmail, isError }) {
         if (code.length === 6) {
             onSubmit(code);
         } else {
-            toast.error('Code phải chứa đúng 6 số!');
+            toast.error('The code must contain exactly 6 digits!');
         }
     };
 

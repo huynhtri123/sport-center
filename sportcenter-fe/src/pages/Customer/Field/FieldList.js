@@ -60,11 +60,11 @@ const FieldList = () => {
                 setField(fieldResponse.data);
                 localStorage.setItem('selectedField', JSON.stringify(fieldResponse.data));
             } else {
-                toast.error('Không tìm thấy thông tin sân.');
+                toast.error('Field information not found.');
                 setField(null);
             }
         } catch (err) {
-            toast.error(err.message || 'Có lỗi xảy ra.');
+            toast.error(err.message || 'An error occurred.');
         }
     };
 

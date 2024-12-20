@@ -4,13 +4,14 @@ import styles from '../../assets/css/Admin/manageCourses.module.scss';
 import courseApi from '../../services/api/courseApi';
 import sportApi from '../../services/api/sportApi'; // Import sport API
 import { Loading } from '../../components/Loading/Loading';
+import ConfirmModal from '../../components/Modal/ConfirmModal';
 
 function ManageCourses() {
     const [courses, setCourses] = useState([]);
     const [newCourse, setNewCourse] = useState({
         courseName: '',
         description: '',
-        tuition: '',
+        tuition: 0,
         imageUrl: '',
         sportId: '', // Added field for selected sport
         lessons: [],
@@ -20,6 +21,10 @@ function ManageCourses() {
     const [isFormVisible, setIsFormVisible] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [sports, setSports] = useState([]); // To store list of sports
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const toggleDeleteModal = () => {
+        setIsDeleteModalOpen(!isDeleteModalOpen);
+    };
 
     // Define LevelLesson Enum for lesson levels
     const LevelLesson = {
@@ -85,6 +90,12 @@ function ManageCourses() {
         // Validate the form before submitting
         if (!validateForm()) return; // Stop submission if validation fails
 
+        // Ensure tuition is not negative before adding the course
+        if (newCourse.tuition < 0) {
+            toast.warn('Tuition must be greater than or equal to 0!');
+            return;
+        }
+
         try {
             const response = await courseApi.create(newCourse);
             setCourses([...courses, response.data]);
@@ -100,6 +111,29 @@ function ManageCourses() {
         // Check if courseName, description, tuition, and imageUrl are filled
         if (!newCourse.courseName || !newCourse.description || !newCourse.imageUrl) {
             toast.warn('Please fill in all the course details (name, description, tuition, image URL)!');
+
+        // Check if courseName is filled
+        if (!newCourse.courseName) {
+            toast.warn('Please enter the course name!');
+            return false;
+        }
+
+        // Check if description is filled
+        if (!newCourse.description) {
+            toast.warn('Please enter the course description!');
+            return false;
+        }
+
+        // Check if tuition is valid
+        if (newCourse.tuition === '' || newCourse.tuition < 0) {
+            toast.warn('Please enter a valid tuition fee (greater than or equal to 0)!');
+            return false;
+        }
+
+        // Check if imageUrl is filled
+        if (!newCourse.imageUrl) {
+            toast.warn('Please provide an image URL!');
+
             return false;
         }
         if (editingCourse && newCourse.tuition === '') {
@@ -115,15 +149,29 @@ function ManageCourses() {
             return false;
         }
 
-        // Check if lessons are added and each lesson has a valid level
-        if (newCourse.lessons.length === 0) {
-            toast.warn('Please add at least one lesson!');
+        // Check if lessons are added
+        if (newCourse.lessons.length < 0) {
+            toast.warn('Please enter a valid number of lessons!');
             return false;
         }
 
-        for (const lesson of newCourse.lessons) {
-            if (!lesson.lessonName || !lesson.description || !lesson.levelLesson) {
-                toast.warn('Please fill in all lesson details (name, description, and level)!');
+        // Check if all lessons have valid details
+        for (const [index, lesson] of newCourse.lessons.entries()) {
+            if (!lesson.lessonName) {
+                toast.warn(`Please enter the name for lesson ${index + 1}!`);
+                return false;
+            }
+            if (!lesson.description) {
+                toast.warn(`Please enter the description for lesson ${index + 1}!`);
+                return false;
+            }
+            if (!lesson.levelLesson) {
+                toast.warn(`Please select a level for lesson ${index + 1}!`);
+                return false;
+            }
+            if (!lesson.videoId || lesson.videoId.trim() === '') {
+                // Check if videoId is not empty or just whitespace
+                toast.warn(`Please provide a video ID for lesson ${index + 1}!`);
                 return false;
             }
         }
@@ -149,6 +197,12 @@ function ManageCourses() {
         // Validate the form before submitting
         if (!validateForm()) return; // Stop submission if validation fails
 
+        // Ensure tuition is not negative before updating the course
+        if (newCourse.tuition < 0) {
+            toast.warn('Tuition must be greater than or equal to 0!');
+            return;
+        }
+
         try {
             const response = await courseApi.update(editingCourse.id, newCourse);
             setCourses(courses.map((course) => (course.id === editingCourse.id ? response.data : course)));
@@ -160,6 +214,8 @@ function ManageCourses() {
             // toast.error('Failed to update course. Please try again.');
         }
     };
+
+    const [courseToDelete, setCourseToDelete] = useState(null); // ID course cần xóa
 
     const handleDeleteCourse = async (courseId) => {
         try {
@@ -218,7 +274,17 @@ function ManageCourses() {
                 />
             </div>
 
-            <button className={`btn ${styles.addButton}`} onClick={() => setIsFormVisible((prev) => !prev)}>
+            <button
+                className={`btn ${styles.addButton}`}
+                onClick={() => {
+                    if (isFormVisible) {
+                        resetForm(); // Đóng form và reset trạng thái
+                    } else {
+                        resetForm(); // Đảm bảo reset trước khi mở form
+                        setIsFormVisible(true); // Mở form
+                    }
+                }}
+            >
                 {isFormVisible ? 'Cancel' : 'Add New Course'}
             </button>
 
@@ -253,10 +319,28 @@ function ManageCourses() {
                                     </button>
                                     <button
                                         className={`btn ${styles.deleteButton}`}
-                                        onClick={() => handleDeleteCourse(course.id)}
+                                        onClick={() => {
+                                            setCourseToDelete(course.id); // Lưu course ID
+                                            toggleDeleteModal(); // Mở modal
+                                        }}
                                     >
                                         Delete
                                     </button>
+                                    <ConfirmModal
+                                        title='Are you sure you want to delete this course?'
+                                        isOpen={isDeleteModalOpen}
+                                        onClose={() => {
+                                            toggleDeleteModal(); // Đóng modal
+                                            setCourseToDelete(null); // Xóa trạng thái course cần xóa
+                                        }}
+                                        onSubmit={() => {
+                                            if (courseToDelete) {
+                                                handleDeleteCourse(courseToDelete); // Thực hiện xóa
+                                                toggleDeleteModal(); // Đóng modal
+                                                setCourseToDelete(null); // Xóa trạng thái course cần xóa
+                                            }
+                                        }}
+                                    />
                                 </td>
                             </tr>
                         ))}
@@ -283,8 +367,16 @@ function ManageCourses() {
                         type='number'
                         placeholder='Tuition'
                         value={newCourse.tuition}
-                        onChange={(e) => setNewCourse({ ...newCourse, tuition: e.target.value })}
+                        onChange={(e) => {
+                            // Chuyển đổi giá trị nhập vào thành số và đảm bảo trong khoảng từ 0 đến 100 triệu
+                            const value = Math.min(100000000, Math.max(0, parseFloat(e.target.value))); // Giới hạn giá trị trong phạm vi này
+                            setNewCourse({ ...newCourse, tuition: value });
+                        }}
+                        min='0'
+                        max='100000000' // Giới hạn tối đa là 100 triệu
+                        step='any' // Cho phép nhập số thập phân
                     />
+
                     <input
                         type='text'
                         placeholder='Image URL'
@@ -305,13 +397,18 @@ function ManageCourses() {
                         ))}
                     </select>
 
-                    <input
-                        type='number'
-                        placeholder='Number of Lessons'
-                        value={lessonCount}
-                        onChange={(e) => setLessonCount(Number(e.target.value))}
-                        onBlur={handleAddLessonFields}
-                    />
+                    <div className={styles.inputGroup}>
+                        <label htmlFor='lessonCount'>Number of Lessons</label>
+                        <input
+                            type='number'
+                            placeholder='Number of Lessons'
+                            value={lessonCount}
+                            onChange={(e) => setLessonCount(Math.min(Number(e.target.value), 20))} // Giới hạn tối đa là 20
+                            onBlur={handleAddLessonFields}
+                            min={0}
+                            max={20} // Giới hạn tối đa là 20
+                        />
+                    </div>
 
                     {newCourse.lessons.map((lesson, index) => (
                         <div key={index} className={styles.lessonContainer}>

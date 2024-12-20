@@ -181,7 +181,7 @@ function Booking() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [numberOfHours, interval, duration, selectedDate, startTime]);
 
-    const dayNames = ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ nhật'];
+    const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
     return (
         <div className={styles.bookingContainer}>
@@ -193,19 +193,19 @@ function Booking() {
                 <div className={styles.fieldInfo}>
                     <h1>{field.fieldName}</h1>
                     <p>{field.description}</p>
-                    <Video src={field.videoUrl} title={'Video hướng dẫn vào sân'}></Video>
+                    <Video src={field.videoUrl} title={'Instructional video for entering the venue'}></Video>
                 </div>
             </section>
 
             <section className={styles.pricePoliciesSection}>
-                <h2>Chính sách giá</h2>
+                <h2>Price Policies</h2>
                 <ul className={styles.pricePolicyList}>
                     {field.pricePolicies &&
                         field.pricePolicies.map((policy, index) => (
                             <li key={index} className={styles.pricePolicyItem}>
-                                <p className={styles.price}>Giá: {formatCurrency(policy.price)}/giờ</p>
+                                <p className={styles.price}>Price: {formatCurrency(policy.price)}/hours</p>
                                 <p>
-                                    <strong>Áp dụng vào:</strong>{' '}
+                                    <strong>Aplpy for:</strong>{' '}
                                     {policy.daysOfWeek
                                         .map((day) => dayNames[day - 1]) // Chuyển từ số sang tên ngày
                                         .join(', ')}
@@ -216,9 +216,9 @@ function Booking() {
             </section>
 
             <section className={styles.bookingSection}>
-                <h2>Đặt sân</h2>
+                <h2>Booking</h2>
                 <div className={styles.formGroup}>
-                    <label htmlFor='datePicker'>Chọn ngày:</label>
+                    <label htmlFor='datePicker'>Choose a date:</label>
                     <input
                         type='date'
                         id='datePicker'
@@ -255,16 +255,16 @@ function Booking() {
                             );
                         })
                     ) : (
-                        <p>Không có khung giờ nào khả dụng cho ngày đã chọn.</p>
+                        <p>There are no available time slots for the selected day.</p>
                     )}
                 </div>
                 <div className={styles.formGroup}>
-                    <label htmlFor='startTime'>Thời gian bắt đầu:</label>
+                    <label htmlFor='startTime'>Start Time:</label>
                     <input ref={startTimeRef} type='text' id='startTime' value={startTime} readOnly />
                 </div>
                 <form onSubmit={(e) => toggleModal(false, e)} className={styles.bookingForm}>
                     <div className={styles.formGroup}>
-                        <label htmlFor='numberOfHours'>Số giờ muốn đặt:</label>
+                        <label htmlFor='numberOfHours'>Number of hours:</label>
                         <input
                             type='number'
                             id='numberOfHours'
@@ -293,27 +293,27 @@ function Booking() {
                     )}
                 </form>
 
-                <h2 className='mt-4'>Đặt sân theo lịch cứng</h2>
+                <h2 className='mt-4'>Recurring Booking (Fixed Booking)</h2>
                 <form onSubmit={(e) => toggleModal(true, e)} className={styles.bookingForm}>
                     <div className={styles.formGroup}>
-                        <label htmlFor='interval'>Chọn chu kỳ:</label>
+                        <label htmlFor='interval'>Select the cycle:</label>
                         <select id='interval' value={interval} onChange={(e) => setInterval(e.target.value)}>
-                            <option value={RecurringIntervalType.DAILY}>Hàng ngày</option>
-                            <option value={RecurringIntervalType.WEEKLY}>Hàng tuần</option>
-                            <option value={RecurringIntervalType.MONTHLY}>Hàng tháng</option>
+                            <option value={RecurringIntervalType.DAILY}>Daily</option>
+                            <option value={RecurringIntervalType.WEEKLY}>Weekly</option>
+                            <option value={RecurringIntervalType.MONTHLY}>Monthly</option>
                         </select>
                     </div>
                     <div className={styles.formGroup}>
-                        <label htmlFor='duration'>Thời hạn gói (tháng):</label>
+                        <label htmlFor='duration'>Package duration (months):</label>
                         <select id='duration' value={duration} onChange={(e) => setDuration(e.target.value)}>
-                            <option value={1}>1 tháng</option>
-                            <option value={3}>3 tháng</option>
-                            <option value={6}>6 tháng</option>
+                            <option value={1}>1 month</option>
+                            <option value={3}>3 months</option>
+                            <option value={6}>6 months</option>
                         </select>
                     </div>
                     <p className={styles.price}>Price: {formatCurrency(recurringBookingPrice)}</p>
                     <Button type='submit' className={clsx('font-cera-round-pro-medium', styles.bookingButton)}>
-                        Book Recurring
+                        Recurring Booking Now
                     </Button>
                     {isRecurringModalOpen && (
                         <PaymentModal

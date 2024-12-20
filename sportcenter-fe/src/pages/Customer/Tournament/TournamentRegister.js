@@ -57,12 +57,12 @@ function TournamentRegister() {
 
     const validateInputs = () => {
         if (!teamName) {
-            setErrorMessage('Bạn chưa nhập tên cho đội!');
+            setErrorMessage('You have not entered a team name!');
             return false;
         }
         const allPlayersValid = players.every((player) => player.name.trim() !== '');
         if (!allPlayersValid) {
-            setErrorMessage('Tất cả các thành viên cần có tên!');
+            setErrorMessage('All members must have a name!');
             return false;
         }
         setErrorMessage(''); // Xóa lỗi nếu hợp lệ
@@ -71,6 +71,13 @@ function TournamentRegister() {
 
     const handleNumPlayersChange = (e) => {
         const count = parseInt(e.target.value, 10) || 0;
+
+        // Giới hạn số lượng thành viên tối đa là 16
+        if (count > 16) {
+            setNumPlayers(16);
+            return;
+        }
+
         setNumPlayers(count);
         const updatedPlayers = [...players];
         while (updatedPlayers.length < count) {
@@ -94,7 +101,7 @@ function TournamentRegister() {
                 setIsLoading(true);
                 const uploadResponse = await fileApi.uploadImage(file);
                 setTeamLogoUrl(uploadResponse.data.url);
-                toast.info('Logo đã được cập nhật!');
+                toast.info('Updated logo!');
             } catch (err) {
                 console.error(err);
             } finally {
@@ -129,8 +136,8 @@ function TournamentRegister() {
             navigate('/tournament/detail');
             return registerResponse.data;
         } catch (error) {
-            console.error('Đăng ký thất bại:', error);
-            setErrorMessage('Có lỗi xảy ra, vui lòng thử lại!');
+            console.error('Registration failed:', error);
+            setErrorMessage('An error occurred, please try again!');
             if (createdTeamId) {
                 try {
                     // eslint-disable-next-line no-unused-vars
@@ -177,7 +184,13 @@ function TournamentRegister() {
                         </div>
                     </div>
                     <label>Number of members:</label>
-                    <input type='number' min='1' value={numPlayers} onChange={handleNumPlayersChange} />
+                    <input
+                        type='number'
+                        min='1'
+                        max='16' // Giới hạn tối đa là 16
+                        value={numPlayers}
+                        onChange={handleNumPlayersChange}
+                    />
                 </div>
                 <div className={styles.playersSection}>
                     {players.map((player, index) => (

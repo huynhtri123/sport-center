@@ -50,14 +50,55 @@ function RenewPasswordModal({ isModalOpen, onClose, email, getVerifyResponse }) 
         }
     };
 
+    const isValidEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // console.log(formData);
 
+        // Reset previous errors
+        setErrors({});
+
+        // Validate email
+        if (!isValidEmail(email)) {
+            setErrors((prevErrors) => ({
+                ...prevErrors,
+                email: 'Invalid email format!',
+            }));
+            return;
+        }
+
+        // Validate password and confirm password
+        if (formData.password.includes(' ')) {
+            setErrors((prevErrors) => ({
+                ...prevErrors,
+                password: 'Password must not contain spaces!',
+            }));
+            return;
+        }
+
+        if (formData.comfirmPassword.includes(' ')) {
+            setErrors((prevErrors) => ({
+                ...prevErrors,
+                comfirmPassword: 'Confirm password must not contain spaces!',
+            }));
+            return;
+        }
+
+        if (formData.password !== formData.comfirmPassword) {
+            setErrors((prevErrors) => ({
+                ...prevErrors,
+                comfirmPassword: 'Passwords do not match!',
+            }));
+            return;
+        }
+
+        // Validate using the schema
         try {
             await RenewPasswordSchema.validate(formData, { abortEarly: false });
         } catch (validationErrors) {
-            // nếu validate có lỗi thì nó nằm trong validationErrors.inner
             if (validationErrors && validationErrors.inner) {
                 const formErrors = {};
                 validationErrors.inner.forEach((error) => {
@@ -71,7 +112,6 @@ function RenewPasswordModal({ isModalOpen, onClose, email, getVerifyResponse }) 
         }
 
         const userId = getVerifyResponse.data.id;
-        // console.log(userId);
         try {
             const renewPasswordResponse = await authApi.renewPassword(userId, {
                 password: formData.password,
@@ -82,7 +122,7 @@ function RenewPasswordModal({ isModalOpen, onClose, email, getVerifyResponse }) 
             navigate('/');
         } catch (apiErr) {
             inputCodeRef.current.focus();
-            setErrors('');
+            setErrors(''); // Clear errors on failure
             console.error(apiErr);
         }
     };

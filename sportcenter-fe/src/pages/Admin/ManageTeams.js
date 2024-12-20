@@ -4,12 +4,14 @@ import styles from '../../assets/css/Admin/manageTeams.module.scss'; // Đảm b
 import { toast } from 'react-toastify';
 import userApi from '../../services/api/userApi';
 import ConfirmModal from '../../components/Modal/ConfirmModal'; // Đảm bảo đúng đường dẫn
+import { Loading } from '../../components/Loading/Loading';
 
 function ManageTeams() {
     const [teams, setTeams] = useState([]);
     const [userInfo, setUserInfo] = useState({}); // Lưu thông tin user
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [teamIdToDelete, setTeamIdToDelete] = useState(null); // Lưu ID của team cần xóa
+    const [isLoading, setIsLoading] = useState(false);
 
     // Lấy danh sách team từ API
     useEffect(() => {
@@ -49,6 +51,7 @@ function ManageTeams() {
 
     const handleDeleteTeam = async () => {
         try {
+            setIsLoading(true);
             // Gọi API để xóa team
             const response = await teamApi.softDelete(teamIdToDelete);
 
@@ -60,6 +63,8 @@ function ManageTeams() {
         } catch (err) {
             console.error('Failed to delete team:', err);
             setIsModalOpen(false);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -75,6 +80,7 @@ function ManageTeams() {
 
     return (
         <div className={styles.manageTeams}>
+            {isLoading && <Loading></Loading>}
             <table className={styles.teamsTable}>
                 <thead>
                     <tr>

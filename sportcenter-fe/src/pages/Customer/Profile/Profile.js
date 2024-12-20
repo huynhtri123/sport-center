@@ -210,6 +210,7 @@ function Profile() {
                                 onChange={handleChange}
                                 className={styles.inputField}
                                 placeholder='Full Name'
+                                maxLength='50'
                             />
                             <input
                                 type='email'
@@ -261,7 +262,7 @@ function Profile() {
                         </>
                     ) : (
                         <>
-                            <h2>{userInfo.fullName}</h2>
+                            <h2 title={userInfo.fullName}>{userInfo.fullName}</h2>
                             <p>Email: {userInfo.email}</p>
                             <p>Phone: {userInfo.phoneNumber}</p>
                             <p>Address: {userInfo.address}</p>
@@ -269,7 +270,7 @@ function Profile() {
                                 Date of Birth:{' '}
                                 {userInfo.dateOfBirth && new Date(userInfo.dateOfBirth).toLocaleDateString()}
                             </p>
-                            <p className={styles.price}>Số dư hiện có: {formatCurrency(accountBalance || 0)}</p>
+                            <p className={styles.price}>Account balance: {formatCurrency(accountBalance || 0)}</p>
                             <Button onClick={handleEditToggle} className={styles.editButton}>
                                 Edit
                             </Button>
@@ -278,14 +279,14 @@ function Profile() {
                 </div>
             </div>
 
-            <div className={styles.section}>
+            {/* <div className={styles.section}>
                 <h3 onClick={handleToggleCart}>
                     <i className='fa-solid fa-bag-shopping'></i>
                     <span className='ms-3'>Cart</span>
                 </h3>
                 <p>View your cart items and proceed to checkout.</p>
                 {showCart && <MyCart></MyCart>}
-            </div>
+            </div> */}
 
             <div className={styles.section}>
                 <h3 onClick={handleTogglePaymentInfo}>

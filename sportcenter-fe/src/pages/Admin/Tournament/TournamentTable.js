@@ -108,14 +108,14 @@ function TournamentTable({
                                             <DetailModal
                                                 isOpen={isViewDetailModalOpen}
                                                 onClose={toggleViewDetail}
-                                                title={`${selectedTournament?.tournamentName}`}
+                                                title={`Participant Teams of ${selectedTournament?.tournamentName}:`}
                                                 registeredTeams={registeredTeams.data}
                                             />
                                         )}
 
                                         {isModalOpen && deleteTournamentId === tournament.id && (
                                             <ConfirmModal
-                                                title='Bạn có chắc chắn muốn xóa giải đấu này không?'
+                                                title='Are you sure you want to delete this tournament?'
                                                 isOpen={isModalOpen}
                                                 onClose={() => toggleModalOpen(null)}
                                                 onSubmit={handleSoftDelete}
@@ -127,21 +127,21 @@ function TournamentTable({
                         ))
                     ) : (
                         <tr>
-                            <td colSpan='9'>Không có giải đấu nào.</td>
+                            <td colSpan='9'>There are no tournaments.</td>
                         </tr>
                     )}
                 </tbody>
             </table>
 
             {/* Modal hiển thị thông tin đội đã đăng ký */}
-            {isViewDetailModalOpen && (
+            {/* {isViewDetailModalOpen && (
                 <ConfirmModal
                     title='Bạn có chắc chắn muốn xóa giải đấu này không?'
                     isOpen={isModalOpen}
                     onClose={() => toggleModalOpen(null)}
                     onSubmit={handleSoftDelete}
                 />
-            )}
+            )} */}
         </>
     );
 }

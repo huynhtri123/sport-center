@@ -75,10 +75,7 @@ function ManageUsers() {
                                 <td>{user.phoneNumber}</td>
                                 <td>{user.address}</td>
                                 <td>
-                                    <button
-                                        className={`btn ${styles.editButton}`}
-                                        onClick={() => handleEditUser(user)}
-                                    >
+                                    <button className={`btn ${styles.editButton}`} onClick={() => handleEditUser(user)}>
                                         Edit
                                     </button>
                                     <button
@@ -103,38 +100,27 @@ function ManageUsers() {
                         type='text'
                         placeholder='Full Name'
                         value={editingUser ? editingUser.fullName : ''}
-                        onChange={(e) =>
-                            setEditingUser({ ...editingUser, fullName: e.target.value })
-                        }
+                        onChange={(e) => setEditingUser({ ...editingUser, fullName: e.target.value })}
                     />
                     <input
                         type='email'
                         placeholder='Email'
                         value={editingUser ? editingUser.email : ''}
-                        onChange={(e) =>
-                            setEditingUser({ ...editingUser, email: e.target.value })
-                        }
+                        onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
                     />
                     <input
                         type='text'
                         placeholder='Phone Number'
                         value={editingUser ? editingUser.phoneNumber : ''}
-                        onChange={(e) =>
-                            setEditingUser({ ...editingUser, phoneNumber: e.target.value })
-                        }
+                        onChange={(e) => setEditingUser({ ...editingUser, phoneNumber: e.target.value })}
                     />
                     <input
                         type='text'
                         placeholder='Address'
                         value={editingUser ? editingUser.address : ''}
-                        onChange={(e) =>
-                            setEditingUser({ ...editingUser, address: e.target.value })
-                        }
+                        onChange={(e) => setEditingUser({ ...editingUser, address: e.target.value })}
                     />
-                    <button
-                        className={`btn ${styles.addButton}`}
-                        onClick={handleUpdateUser}
-                    >
+                    <button className={`btn ${styles.addButton}`} onClick={handleUpdateUser}>
                         Update User
                     </button>
                     <button className='btn' onClick={() => setEditingUser(null)}>

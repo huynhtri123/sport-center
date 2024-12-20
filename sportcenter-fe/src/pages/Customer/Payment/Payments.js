@@ -209,7 +209,7 @@ export default function Payments() {
 
                     {isModalOpen && (
                         <ConfirmModal
-                            title={'Bạn có chắc muốn thực hiện thanh toán?'}
+                            title={'Are you sure you want to proceed with the payment?'}
                             isOpen={isModalOpen}
                             onClose={toggleModal}
                             onSubmit={handlePayment}
