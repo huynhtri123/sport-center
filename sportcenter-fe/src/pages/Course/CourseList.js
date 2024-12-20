@@ -5,7 +5,6 @@ import courseApi from '../../services/api/courseApi';
 import sportApi from '../../services/api/sportApi';
 import styles from '../../assets/css/Course/courseList.module.scss';
 import formatCurrency from '../../utils/formatCurrency';
-import { toast } from 'react-toastify';
 
 function CourseList() {
     const [courses, setCourses] = useContext(CourseContext);
