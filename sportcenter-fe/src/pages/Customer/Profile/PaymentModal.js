@@ -94,10 +94,10 @@ function PaymentModal({ payment, onClose, onSave, userId }) {
                     </div>
                     <div className={styles.buttons}>
                         <button type='submit' className={styles.saveBtn}>
-                            Lưu
+                            Save
                         </button>
                         <button type='button' className={styles.cancelBtn} onClick={onClose}>
-                            Hủy
+                            Cancel
                         </button>
                     </div>
                 </form>

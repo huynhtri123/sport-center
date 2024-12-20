@@ -152,6 +152,8 @@ function FieldInput({
                                 placeholder='Price'
                                 onChange={(e) => handlePricePolicyChange(e, index)}
                                 required
+                                min='0'
+                                step='any' // Cho phép nhập số thập phân
                             />
                             <div className={styles.dayOfWeekContainer}>
                                 {Array.from({ length: 7 }).map((_, dayIndex) => (

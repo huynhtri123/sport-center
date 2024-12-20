@@ -50,9 +50,22 @@ function Signup() {
     const navigate = useNavigate();
 
     const handleChangeInput = (e) => {
+        const { name, value } = e.target;
+
+        // Clear specific password errors when modifying the fields
+        if (name === 'password' || name === 'passwordConfirm') {
+            setErrors((prevErrors) => {
+                const newErrors = { ...prevErrors };
+                // Remove errors related to password and confirm password
+                delete newErrors.password;
+                delete newErrors.passwordConfirm;
+                return newErrors;
+            });
+        }
+
         setFormData({
             ...formData,
-            [e.target.name]: e.target.value,
+            [name]: value,
         });
     };
 
@@ -76,9 +89,41 @@ function Signup() {
         });
     };
 
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
     // submit đăng ký bước 1
     const handleSubmit = async (e) => {
         e.preventDefault();
+        // Clear previous errors before validation
+        setErrors({});
+
+        // Kiểm tra email hợp lệ
+        if (!isValidEmail(formData.email)) {
+            setErrors({
+                ...errors,
+                email: 'Invalid email!',
+            });
+            return;
+        }
+
+        // Kiểm tra nếu mật khẩu chứa khoảng trắng
+        if (formData.password.includes(' ')) {
+            setErrors({
+                password: 'Password must not contain spaces!',
+            });
+            return;
+        }
+        // Kiểm tra nếu mật khẩu chứa khoảng trắng
+        if (formData.passwordConfirm.includes(' ')) {
+            setErrors({
+                passwordConfirm: 'Password must not contain spaces!',
+            });
+            return;
+        }
+
         // reset lỗi input về rỗng
         setErrors({});
         setIsLoading(true); // bắt đầu hiệu ứng loading

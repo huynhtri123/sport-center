@@ -103,7 +103,7 @@ function MyTeam({ teams }) {
 
                     {isConfirmModalOpen && (
                         <ConfirmModal
-                            title={'Bạn có chắc vẫn muốn xoá Team này?'}
+                            title={'Are you sure you still want to delete this team?'}
                             isOpen={isConfirmModalOpen}
                             onClose={handleToggleConfirmModal}
                             onSubmit={handleDeleteTeam}

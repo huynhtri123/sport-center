@@ -56,6 +56,8 @@ function MyBookings({ bookings, setMyBookings, getMyProfile }) {
                             booking={booking}
                             handleCancelBookingSubmit={handleCancelBookingSubmit}
                             handleCancelRecurring={handleCancelRecurring}
+                            isLoading={isLoading}
+                            setIsLoading={setIsLoading}
                         />
                     ))
                 ) : (
@@ -66,7 +68,7 @@ function MyBookings({ bookings, setMyBookings, getMyProfile }) {
     );
 }
 
-function BookingCard({ booking, handleCancelBookingSubmit, handleCancelRecurring }) {
+function BookingCard({ booking, handleCancelBookingSubmit, handleCancelRecurring, isLoading, setIsLoading }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isCancelRecurringModalOpen, setIsCancelRecurringModalOpen] = useState(false);
     // const [recurringBooking, setRecurringBooking] = useState({});
@@ -78,6 +80,7 @@ function BookingCard({ booking, handleCancelBookingSubmit, handleCancelRecurring
     const toggleCancelRecurringModalOpen = async () => {
         if (!isCancelRecurringModalOpen) {
             try {
+                setIsLoading(true);
                 // const getRecurring = await bookingApi.getRecurringByBookingId(booking.id);
                 // setRecurringBooking(getRecurring.data);
                 const remainingAmoutResponse = await bookingApi.getRemainingAmout(booking.id);
@@ -86,14 +89,16 @@ function BookingCard({ booking, handleCancelBookingSubmit, handleCancelRecurring
                 // console.log(getRecurring);
             } catch (err) {
                 console.error(err);
+            } finally {
+                setIsLoading(false);
             }
         }
         setIsCancelRecurringModalOpen(!isCancelRecurringModalOpen);
     };
 
     const modalTitle = booking.recurring
-        ? 'Đây là lịch cứng! Nếu huỷ lẻ booking này bạn sẽ không được hoàn tiền! Bạn có chắc muốn huỷ?'
-        : 'Bạn có chắc muốn huỷ booking? Số tiền đặt sân sẽ được hoàn vào số dư!';
+        ? 'This is a fixed schedule! If you cancel this booking, you will not receive a refund. Are you sure you want to cancel?'
+        : 'Are you sure you want to cancel the booking? The court booking amount will be refunded to your balance!';
 
     const cardClass = booking.recurring
         ? `${styles.bookingCard} ${styles.recurring}`
@@ -101,6 +106,7 @@ function BookingCard({ booking, handleCancelBookingSubmit, handleCancelRecurring
 
     return (
         <div className={cardClass}>
+            {isLoading && <Loading></Loading>}
             <h4>
                 {booking.recurring ? `RECURRING - ${booking.fieldResponse.fieldName}` : booking.fieldResponse.fieldName}
             </h4>
@@ -135,9 +141,9 @@ function BookingCard({ booking, handleCancelBookingSubmit, handleCancelRecurring
                     </button>
                     {isCancelRecurringModalOpen && (
                         <ConfirmModal
-                            title={`Bạn sẽ được hoàn ${formatCurrency(
+                            title={`You will be refunded ${formatCurrency(
                                 remainingAmout / 2
-                            )} (50% của số booking còn lại)! Bạn vẫn chắc muôn huỷ lịch cứng?`}
+                            )} (50% of the remaining booking amount)! Are you sure you want to cancel the fixed schedule?`}
                             onClose={toggleCancelRecurringModalOpen}
                             onSubmit={() => handleCancelRecurring(booking.id)}
                             isOpen={isCancelRecurringModalOpen}

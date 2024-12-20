@@ -10,10 +10,10 @@ function ConfirmModal({ title, isOpen, onClose, onSubmit }) {
                 <h4>{title}</h4>
                 <div className={clsx('d-flex', 'justify-content-center', 'mt-3')}>
                     <button className={clsx('btn', 'btn-primary', 'me-2')} onClick={onSubmit}>
-                        Xác nhận
+                        Confirm
                     </button>
                     <button className={clsx('btn', 'btn-secondary')} onClick={onClose}>
-                        Hủy
+                        Cancel
                     </button>
                 </div>
             </div>

@@ -36,7 +36,7 @@ public class TournamentRequest extends BaseRequestDTO {
     @NotNull(message = "Bạn chưa nhập số lượng đội tham gia tối đa")
     private Integer maxTeams;
 
-    private List<String> registeredTeamIds;
+//    private List<String> registeredTeamIds;
 
     @NotNull(message = "Bạn chưa nhập ngày hạn chót đăng ký tham gia giải đấu")
 //    @Future(message = "Ngày hạn chót phải là ngày trong tương lai")

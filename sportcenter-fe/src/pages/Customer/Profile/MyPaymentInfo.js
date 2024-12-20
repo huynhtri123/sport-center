@@ -147,7 +147,7 @@ function MyPaymentInfo() {
 
             {isConfirmModalOpen && (
                 <ConfirmModal
-                    title='Bạn có chắc chắn muốn xóa thông tin thanh toán này?'
+                    title='Are you sure you want to delete this payment information?'
                     isOpen={isConfirmModalOpen}
                     onClose={() => setIsConfirmModalOpen(false)} // Đóng modal nếu hủy
                     onSubmit={confirmDeletePayment} // Xóa khi xác nhận

@@ -46,7 +46,7 @@ function TournamentCard({ tournament, setLocalTournaments }) {
             };
             // console.log(unregisterRequest);
             const unregisterResponse = await userApi.unregisterTournament(unregisterRequest);
-            toast.info(unregisterResponse.message);
+            toast.success(unregisterResponse.message);
             setLocalTournaments((prevTournaments) => prevTournaments.filter((t) => t.id !== tounamentId));
             setIsConfirmModalOpen(false);
             // console.log(unregisterResponse);
@@ -81,7 +81,7 @@ function TournamentCard({ tournament, setLocalTournaments }) {
                     {isConfirmModalOpen && (
                         <ConfirmModal
                             title={
-                                'Bạn có chắc muốn huỷ đăng ký giải đấu? Hành động này sẽ không được hoàn tiền và không thể hoàn tác!'
+                                'Are you sure you want to cancel your tournament registration? This action is non-refundable and cannot be undone!'
                             }
                             isOpen={isConfirmModalOpen}
                             onClose={handleToggleConfirmModal}

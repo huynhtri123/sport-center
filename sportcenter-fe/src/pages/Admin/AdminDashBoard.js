@@ -44,7 +44,7 @@ function AdminDashboard() {
         labels: [],
         datasets: [
             {
-                label: 'Revenue in USD',
+                label: 'Revenue in VND',
                 data: [],
                 backgroundColor: [
                     'rgba(75, 192, 192, 0.6)',
@@ -84,26 +84,37 @@ function AdminDashboard() {
                 // Fetch booking counts
                 const countSingleBooking = await revenueApi.countSingleBooking();
                 const dailyRecurringBooking = await revenueApi.countRecurringBookingByType(RecurringIntervalType.DAILY);
-                const weeklyRecurringBooking = await revenueApi.countRecurringBookingByType(RecurringIntervalType.WEEKLY);
-                const monthlyRecurringBooking = await revenueApi.countRecurringBookingByType(RecurringIntervalType.MONTHLY);
+                const weeklyRecurringBooking = await revenueApi.countRecurringBookingByType(
+                    RecurringIntervalType.WEEKLY
+                );
+                const monthlyRecurringBooking = await revenueApi.countRecurringBookingByType(
+                    RecurringIntervalType.MONTHLY
+                );
 
-                const totalBookings = countSingleBooking.data + dailyRecurringBooking.data + weeklyRecurringBooking.data + monthlyRecurringBooking.data;
+                const totalBookings =
+                    countSingleBooking.data +
+                    dailyRecurringBooking.data +
+                    weeklyRecurringBooking.data +
+                    monthlyRecurringBooking.data;
 
-                const normalizedData = totalBookings > 0
-                    ? [
-                        (countSingleBooking.data / totalBookings) * 100,
-                        (dailyRecurringBooking.data / totalBookings) * 100,
-                        (weeklyRecurringBooking.data / totalBookings) * 100,
-                        (monthlyRecurringBooking.data / totalBookings) * 100,
-                    ]
-                    : [0, 0, 0, 0];
+                const normalizedData =
+                    totalBookings > 0
+                        ? [
+                              (countSingleBooking.data / totalBookings) * 100,
+                              (dailyRecurringBooking.data / totalBookings) * 100,
+                              (weeklyRecurringBooking.data / totalBookings) * 100,
+                              (monthlyRecurringBooking.data / totalBookings) * 100,
+                          ]
+                        : [0, 0, 0, 0];
 
                 setPieChartData((prev) => ({
                     ...prev,
-                    datasets: [{
-                        ...prev.datasets[0],
-                        data: normalizedData,
-                    }],
+                    datasets: [
+                        {
+                            ...prev.datasets[0],
+                            data: normalizedData,
+                        },
+                    ],
                 }));
 
                 // Fetch revenue for the last 6 months
@@ -117,10 +128,12 @@ function AdminDashboard() {
                 setRevenueData((prev) => ({
                     ...prev,
                     labels: months,
-                    datasets: [{
-                        ...prev.datasets[0],
-                        data: amounts,
-                    }],
+                    datasets: [
+                        {
+                            ...prev.datasets[0],
+                            data: amounts,
+                        },
+                    ],
                 }));
             } catch (error) {
                 console.error('Failed to fetch booking data:', error);

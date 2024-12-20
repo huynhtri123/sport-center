@@ -39,7 +39,6 @@ function ManageBookings() {
         }
         setIsCancelRecurringModalOpen(!isCancelRecurringModalOpen);
     };
-    
 
     const toggleOpenModal = () => {
         setIsModalOpen(!isModalOpen);
@@ -206,9 +205,9 @@ function ManageBookings() {
                                             </Button>
                                             {isCancelRecurringModalOpen && (
                                                 <ConfirmModal
-                                                    title={`Chủ sỡ hữu sẽ được hoàn ${formatCurrency(
+                                                    title={`The owner will be refunded ${formatCurrency(
                                                         remainingAmout / 2
-                                                    )} (50% của số booking còn lại)! Bạn vẫn chắc muôn huỷ lịch cứng?`}
+                                                    )} (50% of the remaining booking amount)! Are you sure you want to cancel this fixed booking?`}
                                                     isOpen={isCancelRecurringModalOpen}
                                                     onClose={toggleCancelRecurringModalOpen}
                                                     onSubmit={() => handleCancelRecurring(booking.id)}
@@ -237,8 +236,8 @@ function ManageBookings() {
                 <ConfirmModal
                     title={
                         bookingToCancel.recurring
-                            ? 'Đây là lịch cứng! Nếu huỷ lẻ booking này chủ sỡ hữu sẽ không được hoàn tiền! Bạn có chắc muốn huỷ?'
-                            : 'Bạn có chắc muốn huỷ booking? Số tiền đặt sân sẽ được hoàn vào số dư cho chủ sỡ hữu!'
+                            ? 'This is a fixed schedule! If you cancel this booking, the owner will not receive a refund! Are you sure you want to cancel?'
+                            : 'Are you sure you want to cancel the booking? The court booking fee will be refunded to the owner balance!'
                     }
                     isOpen={isModalOpen}
                     onClose={toggleOpenModal}

@@ -92,6 +92,9 @@ function ManageTournaments() {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        if (name === 'maxTeams' && value > 16) {
+            return; // Ngừng xử lý nếu giá trị vượt quá 16
+        }
         if (name === 'startDate' || name === 'endDate' || name === 'registrationDeadline') {
             const isoDate = new Date(value).toISOString();
             if (isEditing) {
@@ -389,6 +392,8 @@ function ManageTournaments() {
                                 id='maxTeams'
                                 type='number'
                                 name='maxTeams'
+                                min={0}
+                                max={16}
                                 value={isEditing ? editFormData.maxTeams : formData.maxTeams}
                                 onChange={handleChange}
                                 required
@@ -424,6 +429,7 @@ function ManageTournaments() {
                                 id='registrationFee'
                                 type='number'
                                 min={0}
+                                max={100000000}
                                 step={1000}
                                 name='registrationFee'
                                 value={isEditing ? editFormData.registrationFee : formData.registrationFee}

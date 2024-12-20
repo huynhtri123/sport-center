@@ -42,6 +42,11 @@ function ManageSports() {
 
     const handleAddSubmit = async (e) => {
         e.preventDefault();
+        // Kiểm tra các trường bắt buộc
+        if (!formData.sportName || !formData.description || !formData.imageUrl) {
+            toast.warn('Please enter complete information for the sport.');
+            return;
+        }
         try {
             setIsLoading(true);
             const createResponse = await sportApi.create(formData);
@@ -57,6 +62,11 @@ function ManageSports() {
 
     const handleEditSubmit = async (e) => {
         e.preventDefault();
+        // Kiểm tra các trường bắt buộc
+        if (!editingSport.sportName || !editingSport.description || !editingSport.imageUrl) {
+            toast.warn('Please enter complete information for the sport.');
+            return;
+        }
         try {
             setIsLoading(true);
             const editResponse = await sportApi.update(editingSport.id, editingSport);
@@ -214,7 +224,7 @@ function ManageSports() {
                                     </button>
                                     {isModalOpen && deleteSportId === sport.id && (
                                         <ConfirmModal
-                                            title='Bạn có chắc chắn muốn xóa môn thể thao này không?'
+                                            title='Are you sure you want to delete this sport?'
                                             isOpen={isModalOpen}
                                             onClose={() => toggleModalOpen(null)}
                                             onSubmit={handleSoftDelete}
@@ -225,7 +235,7 @@ function ManageSports() {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan='5'>Không có môn thể thao nào.</td>
+                            <td colSpan='5'>There are no sports available.</td>
                         </tr>
                     )}
                 </tbody>
