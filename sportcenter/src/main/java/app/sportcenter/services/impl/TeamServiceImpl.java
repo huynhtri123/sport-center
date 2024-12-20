@@ -50,13 +50,13 @@ public class TeamServiceImpl implements TeamService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
         if (currentUser == null) {
-            throw new CustomException("Không tìm thấy thông tin đăng nhập!", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("Login information not found!", HttpStatus.BAD_REQUEST.value());
         }
         String userId = currentUser.getId();
 
         // kiểm tra xem có đội nào có tên này chưa
         if (checkExistedTeam(teamRequest.getTeamName())) {
-            throw new CustomException("Tên đội đã tồn tại, vui lòng chọn tên khác!", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("Team name already exists, please choose a different name!", HttpStatus.BAD_REQUEST.value());
         }
 
         // nếu image input trống thì tạo bằng ảnh mặc định
@@ -68,7 +68,7 @@ public class TeamServiceImpl implements TeamService {
         TeamResponse responseTeam = teamMapper.convertToDTO(teamRepository.save(team));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                new BaseResponse("Tạo mới đội thành công!",
+                new BaseResponse("Team created successfully!",
                         HttpStatus.CREATED.value(),
                         responseTeam)
         );
@@ -79,12 +79,12 @@ public class TeamServiceImpl implements TeamService {
         Team team = teamRepository.getTeamById(id);
         if (team == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Không tìm thấy đội", HttpStatus.NOT_FOUND.value(), null)
+                    new BaseResponse("Team not found", HttpStatus.NOT_FOUND.value(), null)
             );
         }
         TeamResponse responseTeam = teamMapper.convertToDTO(team);
         return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("Tìm thấy đội", HttpStatus.OK.value(), responseTeam)
+                new BaseResponse("Team found.", HttpStatus.OK.value(), responseTeam)
         );
     }
 
@@ -93,12 +93,12 @@ public class TeamServiceImpl implements TeamService {
         List<Team> teamList = teamRepository.getByIsDeletedFalseAndIsActiveTrue();
         if (teamList.isEmpty()) {
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new BaseResponse("Không tìm thấy đội", HttpStatus.OK.value(), null)
+                    new BaseResponse("Team not found.", HttpStatus.OK.value(), null)
             );
         }
         List<TeamResponse> teamResponseList = teamList.stream().map(teamMapper::convertToDTO).toList();
         return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("Danh sách đội", HttpStatus.OK.value(), teamResponseList)
+                new BaseResponse("Team list", HttpStatus.OK.value(), teamResponseList)
         );
     }
 
@@ -107,12 +107,12 @@ public class TeamServiceImpl implements TeamService {
         List<Team> myTeams = teamRepository.getTeamByUserIdAndIsActiveTrueAndIsDeletedFalse(userId);
         if (myTeams.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Không tìm thấy Teams của bạn!", HttpStatus.NOT_FOUND.value(), null)
+                    new BaseResponse("Your teams not found!", HttpStatus.NOT_FOUND.value(), null)
             );
         }
         List<TeamResponse> responseList = myTeams.stream().map(teamMapper::convertToDTO).toList();
         return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("Tìm thấy Teams của bạn!", HttpStatus.OK.value(), responseList)
+                new BaseResponse("Your teams found!", HttpStatus.OK.value(), responseList)
         );
     }
 
@@ -122,7 +122,7 @@ public class TeamServiceImpl implements TeamService {
         Team team = teamRepository.getTeamById(id);
         if (team == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Không tìm thấy đội để cập nhật", HttpStatus.NOT_FOUND.value(), null)
+                    new BaseResponse("No team found for update", HttpStatus.NOT_FOUND.value(), null)
             );
         }
 
@@ -130,7 +130,7 @@ public class TeamServiceImpl implements TeamService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
         if (currentUser == null) {
-            throw new CustomException("Không tìm thấy thông tin đăng nhập!", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("Login information not found!", HttpStatus.BAD_REQUEST.value());
         }
         String userId = currentUser.getId();
 
@@ -141,10 +141,10 @@ public class TeamServiceImpl implements TeamService {
 
             TeamResponse responseTeam = teamMapper.convertToDTO(updatedTeam);
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new BaseResponse("Cập nhật đội thành công", HttpStatus.OK.value(), responseTeam)
+                    new BaseResponse("Team updated successfully", HttpStatus.OK.value(), responseTeam)
             );
         } else {
-            throw new CustomException("Bạn không có quyền cập nhật Team của người khác!", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("You do not have permission to update someone else's team!", HttpStatus.BAD_REQUEST.value());
         }
     }
 
@@ -154,7 +154,7 @@ public class TeamServiceImpl implements TeamService {
         Team team = teamRepository.getTeamById(id);
         if (team == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Không tìm thấy đội để xóa", HttpStatus.NOT_FOUND.value(), null)
+                    new BaseResponse("No team found for deletion", HttpStatus.NOT_FOUND.value(), null)
             );
         }
 
@@ -162,7 +162,7 @@ public class TeamServiceImpl implements TeamService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
         if (currentUser == null) {
-            throw new CustomException("Không tìm thấy thông tin đăng nhập!", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("Login information not found!", HttpStatus.BAD_REQUEST.value());
         }
         String userId = currentUser.getId();
 
@@ -179,7 +179,7 @@ public class TeamServiceImpl implements TeamService {
                                         tournament.getEndDate().isAfter(now)
                                 ));
                 if (hasActiveTournament) {
-                    throw new CustomException("Team này đang có tham gia giải đấu, bạn không thể xoá nó!", HttpStatus.BAD_REQUEST.value());
+                    throw new CustomException("This team is participating in a tournament, you cannot delete it!", HttpStatus.BAD_REQUEST.value());
                 }
             }
 
@@ -188,11 +188,11 @@ public class TeamServiceImpl implements TeamService {
 
             TeamResponse responseTeam = teamMapper.convertToDTO(team);
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new BaseResponse("Xóa đội thành công", HttpStatus.OK.value(), responseTeam)
+                    new BaseResponse("Team deleted successfully", HttpStatus.OK.value(), responseTeam)
             );
 
         } else {
-            throw new CustomException("Bạn không có quyền xoá Team của người khác!", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("You do not have permission to delete someone else's team!", HttpStatus.BAD_REQUEST.value());
         }
     }
 
@@ -202,7 +202,7 @@ public class TeamServiceImpl implements TeamService {
         Team team = teamRepository.getTeamById(id);
         if (team == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Không tìm thấy đội để khôi phục", HttpStatus.NOT_FOUND.value(), null)
+                    new BaseResponse("No team found to restore", HttpStatus.NOT_FOUND.value(), null)
             );
         }
 
@@ -210,7 +210,7 @@ public class TeamServiceImpl implements TeamService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
         if (currentUser == null) {
-            throw new CustomException("Không tìm thấy thông tin đăng nhập!", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("Login information not found!", HttpStatus.BAD_REQUEST.value());
         }
         String userId = currentUser.getId();
 
@@ -220,10 +220,10 @@ public class TeamServiceImpl implements TeamService {
             teamRepository.save(team);
             TeamResponse responseTeam = teamMapper.convertToDTO(team);
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new BaseResponse("Khôi phục đội thành công", HttpStatus.OK.value(), responseTeam)
+                    new BaseResponse("Team restored successfully", HttpStatus.OK.value(), responseTeam)
             );
         } else {
-            throw new CustomException("Bạn không có quyền khôi phục Team của người khác!", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("You do not have permission to restore someone else's team!", HttpStatus.BAD_REQUEST.value());
         }
     }
 
@@ -233,7 +233,7 @@ public class TeamServiceImpl implements TeamService {
         Team team = teamRepository.getTeamById(id);
         if (team == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Không tìm thấy đội để xoá cứng", HttpStatus.NOT_FOUND.value(), null)
+                    new BaseResponse("No team found for permanent deletion", HttpStatus.NOT_FOUND.value(), null)
             );
         }
 
@@ -241,7 +241,7 @@ public class TeamServiceImpl implements TeamService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
         if (currentUser == null) {
-            throw new CustomException("Không tìm thấy thông tin đăng nhập!", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("Login information not found!", HttpStatus.BAD_REQUEST.value());
         }
         String userId = currentUser.getId();
 
@@ -258,7 +258,7 @@ public class TeamServiceImpl implements TeamService {
                                         tournament.getEndDate().isAfter(now)
                         ));
                 if (hasActiveTournament) {
-                    throw new CustomException("Team này đang có tham gia giải đấu, bạn không thể xoá nó!", HttpStatus.BAD_REQUEST.value());
+                    throw new CustomException("This team is participating in a tournament, you cannot delete it!", HttpStatus.BAD_REQUEST.value());
                 }
             }
 
@@ -275,10 +275,10 @@ public class TeamServiceImpl implements TeamService {
             teamRepository.deleteById(id);
             TeamResponse responseTeam = teamMapper.convertToDTO(team);
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new BaseResponse("Xoá cứng đội thành công", HttpStatus.OK.value(), responseTeam)
+                    new BaseResponse("Team permanently deleted successfully", HttpStatus.OK.value(), responseTeam)
             );
         } else {
-            throw new CustomException("Bạn không có quyền xoá cứng Team của người khác!", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("You do not have permission to permanently delete someone else's team!", HttpStatus.BAD_REQUEST.value());
         }
     }
 

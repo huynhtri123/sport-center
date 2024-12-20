@@ -33,7 +33,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public ResponseEntity<BaseResponse> create(NotificationRequest notificationRequest) {
         if (notificationRequest == null) {
-            throw new CustomException("Không có input!", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("No input provided!", HttpStatus.BAD_REQUEST.value());
         }
 
         Notification notification = mapper.convertToEntity(notificationRequest);
@@ -42,18 +42,18 @@ public class NotificationServiceImpl implements NotificationService {
         NotificationResponse response = mapper.convertToDTO(savedNotification);
 
         return ResponseEntity.ok(
-                new BaseResponse("Tạo mới Notification thành công.", HttpStatus.OK.value(), response)
+                new BaseResponse("Notification created successfully.", HttpStatus.OK.value(), response)
         );
     }
 
     @Override
     public ResponseEntity<BaseResponse> getById(String notiId) {
         Notification notification = notificationRepo.findById(notiId)
-                .orElseThrow(() -> new CustomException("Không tìm thấy thông báo có id này", HttpStatus.NOT_FOUND.value()));
+                .orElseThrow(() -> new CustomException("No notification found with this ID.", HttpStatus.NOT_FOUND.value()));
 
         NotificationResponse response = mapper.convertToDTO(notification);
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy thông báo có id này.", HttpStatus.OK.value(), response)
+                new BaseResponse("Notification found with this ID.", HttpStatus.OK.value(), response)
         );
     }
 
@@ -64,11 +64,11 @@ public class NotificationServiceImpl implements NotificationService {
                 .map(mapper::convertToDTO)
                 .toList();
         if (responseList.isEmpty()) {
-            throw new CustomException("Không tìm thấy danh sách thông báo!", HttpStatus.NOT_FOUND.value());
+            throw new CustomException("Notification list not found!", HttpStatus.NOT_FOUND.value());
         }
 
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy danh sách thông báo.", HttpStatus.OK.value(), responseList)
+                new BaseResponse("Notification list found.", HttpStatus.OK.value(), responseList)
         );
     }
 
@@ -80,10 +80,10 @@ public class NotificationServiceImpl implements NotificationService {
                 .toList();
 
         if (responseList.isEmpty()) {
-            return ResponseEntity.ok(new BaseResponse("Không tìm thấy thông báo đã xóa mềm.", HttpStatus.NOT_FOUND.value(), responseList));
+            return ResponseEntity.ok(new BaseResponse("No soft-deleted notification found.", HttpStatus.NOT_FOUND.value(), responseList));
         }
 
-        return ResponseEntity.ok(new BaseResponse("Tìm thấy thông báo đã xóa mềm.", HttpStatus.OK.value(), responseList));
+        return ResponseEntity.ok(new BaseResponse("Soft-deleted notification found.", HttpStatus.OK.value(), responseList));
     }
 
     @Override
@@ -95,12 +95,12 @@ public class NotificationServiceImpl implements NotificationService {
 
         if (responseList.isEmpty()) {
             return ResponseEntity.ok(
-                    new BaseResponse("Không tìm thấy thông báo cho userId: " + userId, HttpStatus.NOT_FOUND.value(), responseList)
+                    new BaseResponse("No notification found for userId: " + userId, HttpStatus.NOT_FOUND.value(), responseList)
             );
         }
 
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy thông báo cho userId: " + userId, HttpStatus.OK.value(), responseList)
+                new BaseResponse("Notification found for userId: " + userId, HttpStatus.OK.value(), responseList)
         );
     }
 
@@ -113,12 +113,12 @@ public class NotificationServiceImpl implements NotificationService {
 
         if (responseList.isEmpty()) {
             return ResponseEntity.ok(
-                    new BaseResponse("Không tìm thấy thông báo với tiêu đề: " + title, HttpStatus.NOT_FOUND.value(), responseList)
+                    new BaseResponse("No notification found with the title: " + title, HttpStatus.NOT_FOUND.value(), responseList)
             );
         }
 
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy thông báo với tiêu đề: " + title, HttpStatus.OK.value(), responseList)
+                new BaseResponse("Notification found with the title: " + title, HttpStatus.OK.value(), responseList)
         );
     }
 
@@ -126,7 +126,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public ResponseEntity<BaseResponse> update(String notificationId, NotificationRequest notificationRequest) {
         Notification notification = notificationRepo.findById(notificationId)
-                .orElseThrow(() -> new CustomException("Thông báo không tồn tại!", HttpStatus.NOT_FOUND.value()));
+                .orElseThrow(() -> new CustomException("The notification does not exist!", HttpStatus.NOT_FOUND.value()));
 
         // cập nhật các trường của thông báo
         notification.setTitle(notificationRequest.getTitle());
@@ -135,43 +135,43 @@ public class NotificationServiceImpl implements NotificationService {
         Notification updatedNotification = notificationRepo.save(notification);
         NotificationResponse response = mapper.convertToDTO(updatedNotification);
 
-        return ResponseEntity.ok(new BaseResponse("Cập nhật thông báo thành công.", HttpStatus.OK.value(), response));
+        return ResponseEntity.ok(new BaseResponse("Notification updated successfully.", HttpStatus.OK.value(), response));
     }
 
     @Transactional
     @Override
     public ResponseEntity<BaseResponse> softDelete(String notificationId) {
         Notification notification = notificationRepo.findById(notificationId)
-                .orElseThrow(() -> new CustomException("Thông báo không tồn tại!", HttpStatus.NOT_FOUND.value()));
+                .orElseThrow(() -> new CustomException("The notification does not exist!", HttpStatus.NOT_FOUND.value()));
 
         notification.setIsDeleted(true);
         NotificationResponse response = mapper.convertToDTO(notificationRepo.save(notification));
 
-        return ResponseEntity.ok(new BaseResponse("Xoá mềm thông báo thành công.", HttpStatus.OK.value(), response));
+        return ResponseEntity.ok(new BaseResponse("Soft delete of notification successful.", HttpStatus.OK.value(), response));
     }
 
     @Transactional
     @Override
     public ResponseEntity<BaseResponse> restore(String notificationId) {
         Notification notification = notificationRepo.findById(notificationId)
-                .orElseThrow(() -> new CustomException("Thông báo không tồn tại!", HttpStatus.NOT_FOUND.value()));
+                .orElseThrow(() -> new CustomException("The notification does not exist!", HttpStatus.NOT_FOUND.value()));
 
         notification.setIsDeleted(false);
         NotificationResponse response = mapper.convertToDTO(notificationRepo.save(notification));
 
-        return ResponseEntity.ok(new BaseResponse("Khôi phục thông báo thành công.", HttpStatus.OK.value(), response));
+        return ResponseEntity.ok(new BaseResponse("Notification restored successfully.", HttpStatus.OK.value(), response));
     }
 
     @Transactional
     @Override
     public ResponseEntity<BaseResponse> forceDelete(String notificationId) {
         if (!notificationRepo.existsById(notificationId)) {
-            throw new CustomException("Thông báo không tồn tại!", HttpStatus.NOT_FOUND.value());
+            throw new CustomException("The notification does not exist!", HttpStatus.NOT_FOUND.value());
         }
 
         notificationRepo.deleteById(notificationId);
 
-        return ResponseEntity.ok(new BaseResponse("Xoá cứng thông báo thành công.", HttpStatus.OK.value(), notificationId));
+        return ResponseEntity.ok(new BaseResponse("Notification permanently deleted successfully.", HttpStatus.OK.value(), notificationId));
     }
 
     @Override
@@ -184,7 +184,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         // Kiểm tra xem userId truyền vào có trùng với userId trong JWT hay không
         if (!currentUserId.equals(userId)) {
-            throw new CustomException("Bạn không có quyền truy cập thông báo của người khác.", HttpStatus.FORBIDDEN.value());
+            throw new CustomException("You do not have permission to access someone else's notification.", HttpStatus.FORBIDDEN.value());
         }
 
         List<NotificationResponse> responseList = notificationRepo.findByUser_IdAndIsDeletedFalseAndIsActiveTrue(currentUserId)
@@ -193,10 +193,10 @@ public class NotificationServiceImpl implements NotificationService {
                 .toList();
 
         if (responseList.isEmpty()) {
-            return ResponseEntity.ok(new BaseResponse("Không tìm thấy thông báo cho người dùng hiện tại.", HttpStatus.NOT_FOUND.value(), responseList));
+            return ResponseEntity.ok(new BaseResponse("No notification found for the current user.", HttpStatus.NOT_FOUND.value(), responseList));
         }
 
-        return ResponseEntity.ok(new BaseResponse("Tìm thấy thông báo cho người dùng hiện tại.", HttpStatus.OK.value(), responseList));
+        return ResponseEntity.ok(new BaseResponse("Notification found for the current user.", HttpStatus.OK.value(), responseList));
     }
 
 

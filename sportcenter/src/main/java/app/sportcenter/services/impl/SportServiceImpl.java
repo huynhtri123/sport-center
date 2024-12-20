@@ -44,7 +44,7 @@ public class SportServiceImpl implements SportService {
         SportResponse responseSport = sportMapper.convertToDTO(sportRepository.save(sport));
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("Tạo mới môn thể thao (Sport) thành công!",
+                new BaseResponse("Sport created successfully!",
                         HttpStatus.OK.value(),
                         responseSport)
         );
@@ -55,12 +55,12 @@ public class SportServiceImpl implements SportService {
         Sport sport = sportRepository.getSportById(id);
         if(sport == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Khong tim thay sport", HttpStatus.NOT_FOUND.value(),null)
+                    new BaseResponse("Sport not found.", HttpStatus.NOT_FOUND.value(),null)
             );
         }
         SportResponse responseSport = sportMapper.convertToDTO(sport);
         return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("Tim thay sport", HttpStatus.OK.value(),responseSport)
+                new BaseResponse("Sport found.", HttpStatus.OK.value(),responseSport)
         );
     }
 
@@ -69,7 +69,7 @@ public class SportServiceImpl implements SportService {
         Sport sport = sportRepository.getSportById(id);
         if(sport == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Khong tim thay sport de update", HttpStatus.NOT_FOUND.value(),null)
+                    new BaseResponse("Sport not found for update.", HttpStatus.NOT_FOUND.value(),null)
             );
         }
         sport.setSportName(sportRequest.getSportName());
@@ -78,7 +78,7 @@ public class SportServiceImpl implements SportService {
         sportRepository.save(sport);
         SportResponse responseSport = sportMapper.convertToDTO(sport);
         return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("Tim thay sport de update", HttpStatus.OK.value(),responseSport)
+                new BaseResponse("Sport found for update.", HttpStatus.OK.value(),responseSport)
         );
 
     }
@@ -90,21 +90,21 @@ public class SportServiceImpl implements SportService {
         // Check if the sport exists
         if (sport == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Không tìm thấy sport để xóa", HttpStatus.NOT_FOUND.value(), null)
+                    new BaseResponse("Sport not found for deletion.", HttpStatus.NOT_FOUND.value(), null)
             );
         }
 
         // kiem tra co san nao khong
         List<Field> relevantFields = fieldRepository.findBySportIdAndIsActiveTrueAndIsDeletedFalse(id);
         if (!relevantFields.isEmpty()) {
-            throw new CustomException("Không thể xoá vì có sân thể thao đang được dùng cho Sport này!", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("Cannot delete because there are sports fields currently being used for this sport!", HttpStatus.BAD_REQUEST.value());
         }
 
         // Check if any active, non-deleted tournaments are associated with this sport
         boolean hasAssociatedTournaments = tournamentRepository.existsBySportIdAndIsActiveTrueAndIsDeletedFalse(id);
         if (hasAssociatedTournaments) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                    new BaseResponse("Không thể xóa môn thể thao vì đang được sử dụng trong các giải đấu", HttpStatus.BAD_REQUEST.value(), null)
+                    new BaseResponse("Cannot delete the sport because it is being used in tournaments.", HttpStatus.BAD_REQUEST.value(), null)
             );
         }
 
@@ -116,7 +116,7 @@ public class SportServiceImpl implements SportService {
         SportResponse responseSport = sportMapper.convertToDTO(sport);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("Xóa thành công sport", HttpStatus.OK.value(), responseSport)
+                new BaseResponse("Sport deleted successfully.", HttpStatus.OK.value(), responseSport)
         );
     }
 
@@ -128,7 +128,7 @@ public class SportServiceImpl implements SportService {
 
         if (activeSportsPage.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Không tìm thấy môn thể thao nào đang hoạt động", HttpStatus.NOT_FOUND.value(), null)
+                    new BaseResponse("No active sport found.", HttpStatus.NOT_FOUND.value(), null)
             );
         }
 
@@ -147,7 +147,7 @@ public class SportServiceImpl implements SportService {
         // Return the BaseResponse with paginated data
         return ResponseEntity.ok(
                 new BaseResponse(
-                        "Tìm thấy danh sách môn thể thao đang hoạt động",
+                        "Active sports list found.",
                         HttpStatus.OK.value(),
                         paginatedResponse
                 )
@@ -159,14 +159,14 @@ public class SportServiceImpl implements SportService {
         Sport sport = sportRepository.getSportById(id);
         if(sport == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Khong tim thay sport", HttpStatus.NOT_FOUND.value(),null)
+                    new BaseResponse("Sport not found.", HttpStatus.NOT_FOUND.value(),null)
             );
         }
         sport.setIsDeleted(false);
         sportRepository.save(sport);
         SportResponse responseSport = sportMapper.convertToDTO(sport);
         return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("Khoi phuc thanh cong sport", HttpStatus.OK.value(),responseSport)
+                new BaseResponse("Sport restored successfully.", HttpStatus.OK.value(),responseSport)
         );
     }
 }

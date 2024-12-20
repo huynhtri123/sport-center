@@ -84,12 +84,12 @@ public class UserServiceImpl implements UserService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
         if (currentUser == null) {
-            throw new NotFoundException("Không tìm thấy người dùng đang đăng nhập!");
+            throw new NotFoundException("User currently logged in not found!");
         }
 
         UserResponse responseUser = userMapper.convertToDTO(currentUser);
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy thông tin người dùng hiện tại", HttpStatus.OK.value(), responseUser)
+                new BaseResponse("Found information about the current user", HttpStatus.OK.value(), responseUser)
         );
     }
 
@@ -101,7 +101,7 @@ public class UserServiceImpl implements UserService {
         Double accountBalance = currentUser.getAccountBalance();
 
         return ResponseEntity.ok(
-                new BaseResponse("Lấy số dư hiện tại thành công.", HttpStatus.OK.value(), accountBalance)
+                new BaseResponse("Retrieved current balance successfully", HttpStatus.OK.value(), accountBalance)
         );
     }
 
@@ -112,14 +112,14 @@ public class UserServiceImpl implements UserService {
 
         Double accountBalance = currentUser.getAccountBalance();
         if (accountBalance < amountToPay) {
-            throw new CustomException("Thất bại. Số dư không đủ để thực hiện thanh toán!", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("Failed. Insufficient balance to complete the payment!", HttpStatus.BAD_REQUEST.value());
         }
 
         currentUser.setAccountBalance(accountBalance - amountToPay);
         userRepository.save(currentUser);
 
         return ResponseEntity.ok(
-                new BaseResponse("Thanh toán bằng số dư thành công!", HttpStatus.OK.value(),
+                new BaseResponse("Payment using balance was successful!", HttpStatus.OK.value(),
                         amountToPay)
         );
     }
@@ -166,7 +166,7 @@ public class UserServiceImpl implements UserService {
 
         // Kiểm tra nếu authentication null hoặc không xác thực
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new SecurityException("Không có người dùng nào đang đăng nhập.");
+            throw new SecurityException("No users are currently logged in");
         }
 
         User currUser = (User) authentication.getPrincipal();
@@ -211,7 +211,7 @@ public class UserServiceImpl implements UserService {
 
         if (userList.isEmpty()) {
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new BaseResponse("Không tìm thấy người dùng", HttpStatus.OK.value(), null)
+                    new BaseResponse("User not found", HttpStatus.OK.value(), null)
             );
         }
 
@@ -220,7 +220,7 @@ public class UserServiceImpl implements UserService {
                 .toList();
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("Danh sách người dùng", HttpStatus.OK.value(), userResponseList)
+                new BaseResponse("User list", HttpStatus.OK.value(), userResponseList)
         );
     }
 
@@ -232,7 +232,7 @@ public class UserServiceImpl implements UserService {
         // Check if the user exists
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Không tìm thấy người dùng để xóa", HttpStatus.NOT_FOUND.value(), null)
+                    new BaseResponse("No user found to delete", HttpStatus.NOT_FOUND.value(), null)
             );
         }
 
@@ -244,20 +244,20 @@ public class UserServiceImpl implements UserService {
         UserResponse responseUser = userMapper.convertToDTO(user);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("Xóa thành công người dùng", HttpStatus.OK.value(), responseUser)
+                new BaseResponse("User deleted successfully", HttpStatus.OK.value(), responseUser)
         );
     }
 
     @Override
     public ResponseEntity<BaseResponse> addPaymentInfoToUser(String userId, PaymentRequest paymentRequest) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với ID: " + userId));
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
 
         // Kiểm tra số thẻ
         String cardNumber = paymentRequest.getCardNumber();
         if (!isValidCardNumber(cardNumber)) {
             return ResponseEntity.badRequest().body(
-                    new BaseResponse("Số thẻ không hợp lệ. Vui lòng nhập lại (10 đến 16 chữ số).", HttpStatus.BAD_REQUEST.value(), null)
+                    new BaseResponse("Invalid card number. Please enter again (10 to 16 digits)", HttpStatus.BAD_REQUEST.value(), null)
             );
         }
 
@@ -289,7 +289,7 @@ public class UserServiceImpl implements UserService {
 
         // Trả về response
         return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("Thêm thành công phương thức thanh toán", HttpStatus.OK.value(), paymentResponse)
+                new BaseResponse("Payment method added successfully", HttpStatus.OK.value(), paymentResponse)
         );
     }
 
@@ -303,11 +303,11 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<BaseResponse> removePaymentInfoFromUser(String userId, String paymentInfoId) {
         // Find the user by userId
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với ID: " + userId));
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
 
         // Find the payment info by paymentInfoId
         PaymentInfo paymentInfo = paymentInfoRepository.findById(paymentInfoId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin thanh toán với ID: " + paymentInfoId));
+                .orElseThrow(() -> new RuntimeException("Payment information not found with ID: " + paymentInfoId));
 
         // Remove the payment info from the user's list of payment information
         user.getPaymentInfos().remove(paymentInfo);
@@ -320,7 +320,7 @@ public class UserServiceImpl implements UserService {
 
         // Return a response indicating success
         return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("Xóa thông tin thanh toán thành công", HttpStatus.OK.value(), null)
+                new BaseResponse("Payment information deleted successfully", HttpStatus.OK.value(), null)
         );
     }
 
@@ -328,11 +328,11 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<BaseResponse> updatePaymentInfoForUser(String userId, String paymentInfoId, PaymentRequest paymentRequest) {
         // Find the user by userId
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với ID: " + userId));
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
 
         // Find the payment info by paymentInfoId
         PaymentInfo paymentInfo = paymentInfoRepository.findById(paymentInfoId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin thanh toán với ID: " + paymentInfoId));
+                .orElseThrow(() -> new RuntimeException("Payment information not found with ID: " + paymentInfoId));
 
         // Update the payment info fields with the new values
         paymentInfo.setBankName(paymentRequest.getBankName());
@@ -354,7 +354,7 @@ public class UserServiceImpl implements UserService {
 
         // Return a success response with the updated payment info
         return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("Cập nhật thông tin thanh toán thành công", HttpStatus.OK.value(), paymentResponse)
+                new BaseResponse("Payment information updated successfully", HttpStatus.OK.value(), paymentResponse)
         );
     }
 

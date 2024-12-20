@@ -35,7 +35,7 @@ public class MailServiceImpl implements MailService {
             };
             mailSender.send(preparator);
         } catch (Exception e) {
-            throw new CustomException("Lỗi khi gửi mail: " + e.getMessage(),
+            throw new CustomException("Error sending email: " + e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
@@ -46,7 +46,7 @@ public class MailServiceImpl implements MailService {
         context.setVariable("UserName", userName);
         context.setVariable("ToEmail", toEmail);
         context.setVariable("VerifyCode", verifyCode);
-        sendEmail(toEmail, "Sport Center - Mã xác minh", templateFile, context);
+        sendEmail(toEmail, "Sport Center - Verification code", templateFile, context);
     }
 
     @Override
@@ -124,7 +124,7 @@ public class MailServiceImpl implements MailService {
         context.setVariable("startDate", startDate.toString());
         context.setVariable("endDate", endDate.toString());
         context.setVariable("players", team.getPlayers());
-        sendEmail(toEmail, "Sport Center - Đăng ký tham gia giải đấu thành công", templateFile, context);
+        sendEmail(toEmail, "Sport Center - Successfully registered for the tournament.", templateFile, context);
     }
 
     @Override
@@ -136,7 +136,7 @@ public class MailServiceImpl implements MailService {
         context.setVariable("tournamentName", tournamentName);
         context.setVariable("startDate", startDate.toString());
         context.setVariable("endDate", endDate.toString());
-        sendEmail(toEmail, "Sport Center - Hủy đăng ký giải đấu thành công", templateFile, context);
+        sendEmail(toEmail, "Sport Center - Successfully unregistered from the tournament.", templateFile, context);
     }
 }
 
