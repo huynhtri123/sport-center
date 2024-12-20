@@ -95,12 +95,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public VerifyResponse signup(SignupRequest signupRequest) {
         // kiểm tra xem email đã tồn tại chưa
         if (userRepository.existsByEmail(signupRequest.getEmail())) {
-            throw new IllegalArgumentException("Email đã tồn tại!");
+            throw new IllegalArgumentException("Existed Email!");
         }
 
         // check mật khẩu và xác nhận mật khẩu
         if (!checkMatchPassword(signupRequest.getPassword(), signupRequest.getPasswordConfirm())) {
-            throw new IllegalArgumentException("Mật khẩu và xác nhận mật khẩu không khớp");
+            throw new IllegalArgumentException("Password and confirm password do not match!");
         }
 
         User user = new User();
@@ -125,7 +125,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         } catch (Exception e) {
             log.error("Lỗi khi gửi email xác thực cho người dùng: " + user.getEmail(), e);
-            throw new RuntimeException("Lỗi khi gửi email xác thực. Vui lòng thử lại sau.", e);
+            throw new RuntimeException("Error sending verification email. Please try again later.", e);
         }
 
         user.setVerify(verify);
@@ -143,16 +143,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public UserResponse verifyUser(String userId, VerifyRequest verifyRequest) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Tài khoản của bạn không tồn tại"));
+                .orElseThrow(() -> new NotFoundException("Your account does not exist."));
 
         // kiểm tra xem có mã xác thực không
         if (user.getVerify() == null) {
-            throw new NotFoundException("Mã xác thực không tồn tại");
+            throw new NotFoundException("The verification code does not exist.");
         }
 
         // kiểm tra xem tài khoản đã đươc xác thực trước đó chưa
         if (user.getIsEmailVerified()) {
-            throw new CustomException("Tài khoản này đã được xác thực trước đó rồi.", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("This account has already been verified.", HttpStatus.BAD_REQUEST.value());
         }
 
         // kiểm tra mã xác thực hết hạn chưa
@@ -160,13 +160,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             log.error("Verify code is expired: " + user.getEmail());
             user.setVerify(null); // Xóa mã xác thực đã hết hạn
             userRepository.save(user);
-            throw new CustomException("Verify code đã hết hạn!", HttpStatus.UNAUTHORIZED.value());
+            throw new CustomException("The verification code has expired!", HttpStatus.UNAUTHORIZED.value());
         }
 
         // check code
         if (!BCrypt.checkpw(verifyRequest.getCode(), user.getVerify().getCode())) {
             log.error("Verify code is incorrect: " + user.getEmail());
-            throw new CustomException("Mã xác thực không chính xác", HttpStatus.UNAUTHORIZED.value());
+            throw new CustomException("The verification code is incorrect.", HttpStatus.UNAUTHORIZED.value());
         }
 
         // pass, đánh dấu tài khoản là đã được xác thực
@@ -188,12 +188,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     new UsernamePasswordAuthenticationToken(signinRequest.getEmail(), signinRequest.getPassword())
             );
         } catch (BadCredentialsException e) {
-            throw new BadCredentialsException("Thông tin đăng nhập không chính xác.");
+            throw new BadCredentialsException("Incorrect login information.");
         } catch (IllegalArgumentException e) {
             throw new CustomException("Invalid email or password!", HttpStatus.UNAUTHORIZED.value());
         } catch (Exception e) {
             log.error("Error during authentication: " + e.getMessage(), e);
-            throw new CustomException("Lỗi không xác định xảy ra. Vui lòng thử lại.", HttpStatus.INTERNAL_SERVER_ERROR.value());
+            throw new CustomException("An unknown error occurred. Please try again.", HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
 
         // lấy thông tin người dùng từ db
@@ -202,7 +202,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         // kiểm tra tài khoản đã được xác thực chưa
         if (!user.getIsEmailVerified()) {
-            throw new BadCredentialsException("Tài khoản này chưa được xác thực. Vui lòng chọn chức năng Quên mật khẩu để xác thực.");
+            throw new BadCredentialsException("This account has not been verified. Please use the Forgot Password feature to verify.");
         }
 
         var accessToken = jwtService.generateToken(user);
@@ -240,7 +240,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         log.info("Login successfully! UserId: " + user.getId() + " Role: " + user.getRole());
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("Đăng nhập thành công",
+                new BaseResponse("Login successfully",
                         HttpStatus.OK.value(),
                         jwtAuthResponse)
         );
@@ -275,7 +275,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         if (refreshToken == null) {
             // Refresh token not found
-            throw new CustomException("Thông tin xác thực không hợp lệ, vui lòng đăng nhập lại!", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("Invalid credentials, please log in again!", HttpStatus.BAD_REQUEST.value());
         }
 
         // Kiểm tra xem refreshToken có bị revoked (ở trong blacklist) không
@@ -315,7 +315,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 // invalid refreshToken (refreshToken het han thi nem ra)
-                new BaseResponse("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại", HttpStatus.BAD_REQUEST.value(), null)
+                new BaseResponse("Your session has expired. Please log in again.", HttpStatus.BAD_REQUEST.value(), null)
         );
     }
 
@@ -324,7 +324,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public ResponseEntity<BaseResponse> sendVerifyRequest(ForgotPasswordRequest forgotPasswordRequest) {
         User user = userService.getUserByEmail(forgotPasswordRequest.getEmail());
         if (user == null) {
-            throw new CustomException("Không tìm thấy người dùng có email này!", HttpStatus.NOT_FOUND.value());
+            throw new CustomException("No user found with this email!", HttpStatus.NOT_FOUND.value());
         }
 
         // kiểm tra xem user này được xác thực chưa
@@ -332,9 +332,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String message = "";
         // nếu được xác thực rồi thì đây là yêu cầu lấy lại mật khẩu
         if (isVerified) {
-            message = "Mã khôi phục mật khẩu đã được gửi đến email:" + user.getEmail();
+            message = "The password recovery code has been sent to the email:" + user.getEmail();
         } else {
-            message = "Mã xác thực đã được gửi đến email:" + user.getEmail();
+            message = "The verification code has been sent to the email:" + user.getEmail();
         }
 
         // gửi OTP
@@ -354,7 +354,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         } catch (Exception e) {
             log.error("Lỗi khi gửi email xác thực cho người dùng: " + user.getEmail(), e);
-            throw new RuntimeException("Lỗi khi gửi email xác thực. Vui lòng thử lại sau.", e);
+            throw new RuntimeException("Error sending verification email. Please try again later.", e);
         }
 
         user.setVerify(verify);
@@ -375,11 +375,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public UserResponse renewPassword(String userId, RenewPasswordRequest renewPasswordRequest) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng này"));
+                .orElseThrow(() -> new NotFoundException("User not found."));
 
         // kiểm tra xem có mã xác thực không
         if (user.getVerify() == null) {
-            throw new NotFoundException("Mã xác thực không tồn tại");
+            throw new NotFoundException("The verification code does not exist.");
         }
 
         // kiểm tra xem tài khoản này đã được xác thực chưa (không cần thiết)
@@ -393,18 +393,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             log.error("Verify code is expired: " + user.getEmail());
             user.setVerify(null); // Xóa mã xác thực đã hết hạn
             userRepository.save(user);
-            throw new CustomException("Verify code đã hết hạn!", HttpStatus.UNAUTHORIZED.value());
+            throw new CustomException("The verification code has expired!", HttpStatus.UNAUTHORIZED.value());
         }
 
         // check mã khôi phục
         if (!BCrypt.checkpw(renewPasswordRequest.getResetPasswordCode(), user.getVerify().getCode())) {
             log.error("Verify code is incorrect: " + user.getEmail());
-            throw new CustomException("Mã xác thực không chính xác", HttpStatus.UNAUTHORIZED.value());
+            throw new CustomException("The verification code is incorrect.", HttpStatus.UNAUTHORIZED.value());
         }
 
         // check mật khẩu và xác nhận mật khẩu
         if (!checkMatchPassword(renewPasswordRequest.getPassword(), renewPasswordRequest.getComfirmPassword())) {
-            throw new IllegalArgumentException("Mật khẩu và xác nhận mật khẩu không khớp");
+            throw new IllegalArgumentException("Password and confirmation password do not match.");
         }
 
         // pass, tạo mật khẩu mới

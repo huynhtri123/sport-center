@@ -99,13 +99,13 @@ public class LessonServiceImpl implements LessonService {
 
         if (lessonList.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Không tìm thấy bài học thuộc loại " + courseSportType.name() + ".", HttpStatus.NOT_FOUND.value(), null)
+                    new BaseResponse("No lesson found of this type: " + courseSportType.name() + ".", HttpStatus.NOT_FOUND.value(), null)
             );
         }
 
         List<LessonResponse> responseLessons = lessonList.stream().map(lessonMapper::convertToDTO).toList();
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy danh sách sân thuộc loại " + courseSportType.name() + ".", HttpStatus.OK.value(), responseLessons)
+                new BaseResponse("Field list found for this type: " + courseSportType.name() + ".", HttpStatus.OK.value(), responseLessons)
         );
     }
 }

@@ -104,7 +104,8 @@ axiosClient.interceptors.response.use(
                     break;
 
                 default: // các lỗi khác
-                    toast.error(data.message || 'Đã xảy ra lỗi, vui lòng thử lại sau.');
+                    // toast.error(data.message || 'Đã xảy ra lỗi, vui lòng thử lại sau.');
+                    console.log(error);
             }
         } else if (error.request) {
             // Xử lý lỗi mạng hoặc không phản hồi từ server

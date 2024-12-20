@@ -41,7 +41,7 @@ public class CourseServiceImpl implements CourseService {
         }
         CourseResponse responseCourse = courseMapper.convertToDTO(courseRepository.save(course));
         return ResponseEntity.status(HttpStatus.CREATED.value()).body(
-                new BaseResponse("Tạo mới khóa học (course) thành công!", HttpStatus.CREATED.value(), responseCourse)
+                new BaseResponse("Course created successfully!", HttpStatus.CREATED.value(), responseCourse)
         );
     }
 
@@ -52,7 +52,7 @@ public class CourseServiceImpl implements CourseService {
 
         if (activeCoursesPage.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Không tìm thấy khóa học nào đang hoạt động", HttpStatus.NOT_FOUND.value(), null)
+                    new BaseResponse("No active courses found.", HttpStatus.NOT_FOUND.value(), null)
             );
         }
 
@@ -71,7 +71,7 @@ public class CourseServiceImpl implements CourseService {
         // Return the BaseResponse with paginated data
         return ResponseEntity.ok(
                 new BaseResponse(
-                        "Tìm thấy danh sách khóa học đang hoạt động",
+                        "Active course list found.",
                         HttpStatus.OK.value(),
                         paginatedResponse
                 )
@@ -138,21 +138,19 @@ public class CourseServiceImpl implements CourseService {
     }
 
 
-
-
     @Override
     public ResponseEntity<BaseResponse> searchByNameContainingIgnoreCase(String courseName) {
         List<Course> courseList = courseRepository.searchByClassNameContainingIgnoreCase(courseName);
 
         if (courseList.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Không tìm thấy Course có tên này.", HttpStatus.NOT_FOUND.value(), null)
+                    new BaseResponse("No course found with this name.", HttpStatus.NOT_FOUND.value(), null)
             );
         }
 
         List<CourseResponse> responseCourses = courseList.stream().map(courseMapper::convertToDTO).toList();
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy danh sách khóa học.", HttpStatus.OK.value(), responseCourses)
+                new BaseResponse("Course list found.", HttpStatus.OK.value(), responseCourses)
         );
     }
 
@@ -205,7 +203,7 @@ public class CourseServiceImpl implements CourseService {
         );
 
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy danh sách khóa học.", HttpStatus.OK.value(), paginatedResponse)
+                new BaseResponse("Course list found.", HttpStatus.OK.value(), paginatedResponse)
         );
     }
 

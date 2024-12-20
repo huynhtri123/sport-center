@@ -69,7 +69,7 @@ public class BookingServiceImpl implements BookingService {
         User currentUser = (User) authentication.getPrincipal();
 
         Field field = fieldRepository.findById(bookingRequest.getFieldId())
-                .orElseThrow(() -> new CustomException("Không tìm thấy field có id này", HttpStatus.NOT_FOUND.value()));
+                .orElseThrow(() -> new CustomException("Field with this ID not found.", HttpStatus.NOT_FOUND.value()));
         log.info("Booking user: " + currentUser.getFullName());
         log.info("Booking field: " + field.getFieldName());
 
@@ -108,12 +108,12 @@ public class BookingServiceImpl implements BookingService {
 
             log.info("Đặt sân bước 1 thành công" + response.getId());
             return ResponseEntity.ok(
-                    new BaseResponse("Thành công, vui lòng thanh toán để chốt đặt sân!", HttpStatus.OK.value(), response)
+                    new BaseResponse("Success, please make the payment to confirm your booking!", HttpStatus.OK.value(), response)
             );
         }
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
-                new BaseResponse("Sân không trống trong thời gian này!", HttpStatus.CONFLICT.value(), null)
+                new BaseResponse("Failed. The field is not available at this time!", HttpStatus.CONFLICT.value(), null)
         );
     }
 
@@ -129,18 +129,18 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public ResponseEntity<BaseResponse> confirmBooking(String bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy booking cần chốt"));
+                .orElseThrow(() -> new NotFoundException("Booking to confirm not found."));
 
         // kiểm tra coi booking này có thật sự cần được xác nhận không (chua duoc active va chưa bị xoá mới đc)
         if (booking.getIsActive() || booking.getIsDeleted()) {
-            throw new CustomException("Booing này không đủ điều kiên để được xác nhận", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("This booking does not meet the requirements for confirmation.", HttpStatus.BAD_REQUEST.value());
         }
 
         // kiem tra quyen
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currUser = (User) authentication.getPrincipal();
         if (!currUser.getId().equals(booking.getUser().getId()) && !currUser.getRole().equals(Role.ADMIN)) {
-            throw new CustomException("Bạn không có quyền xác nhận booking này", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("You do not have permission to confirm this booking.", HttpStatus.BAD_REQUEST.value());
         }
 
         // kiểm tra sân có còn trống không
@@ -154,7 +154,7 @@ public class BookingServiceImpl implements BookingService {
             bookingRepository.save(booking);
             // hoàn tiền
             User owner = userRepository.findById(booking.getUser().getId())
-                            .orElseThrow(() -> new NotFoundException("Không tìm thấy chủ nhân của booking này để hoàn tiền"));
+                            .orElseThrow(() -> new NotFoundException("Cannot find the owner of this booking to process the refund."));
             userService.refund(owner, booking.getPrice());
             // tạo hoá đơn
             InvoiceRequest invoiceRequest = new InvoiceRequest();
@@ -167,7 +167,7 @@ public class BookingServiceImpl implements BookingService {
             InvoiceResponse invoiceResponse = invoiceService.create(invoiceRequest);
             log.info("Sân không còn trống, bạn đã được hoàn tiền vào số dư! " + bookingId);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    new BaseResponse("Sân không còn trống, bạn đã được hoàn tiền vào số dư!",
+                    new BaseResponse("The field is no longer available, you have been refunded to your balance!",
                             HttpStatus.INTERNAL_SERVER_ERROR.value(),
                             invoiceResponse)
             );
@@ -190,7 +190,7 @@ public class BookingServiceImpl implements BookingService {
         kafkaTemplate.send("notification-delivery", messageWrapper);
 
         return ResponseEntity.ok(
-                new BaseResponse("Xác nhận đặt sân thành công", HttpStatus.OK.value(), response)
+                new BaseResponse("Court booking confirmed successfully.", HttpStatus.OK.value(), response)
         );
     }
 
@@ -202,7 +202,7 @@ public class BookingServiceImpl implements BookingService {
         User currentUser = (User) authentication.getPrincipal();
 
         Field field = fieldRepository.findById(recurringBookingRequest.getFieldId())
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy Field có id này"));
+                .orElseThrow(() -> new NotFoundException("Field with this ID not found."));
         log.info("RecurringBooking user: " + currentUser.getFullName());
         log.info("RecurringBooking field: " + field.getFieldName());
 
@@ -213,7 +213,7 @@ public class BookingServiceImpl implements BookingService {
         List<TimeSlot> recurringTimeSlots = recurringBooking.generateTimeSlots();
         boolean isAvailableRecurring = checkAvailableRecurring(field.getId(), recurringTimeSlots);
         if (!isAvailableRecurring) {
-            throw new CustomException("Thất bại! Có ít nhất 1 timeSlot không trống ở khung giờ này trong tương lai",
+            throw new CustomException("Failed! There is at least 1 timeslot that is not available during this time in the future.",
                     HttpStatus.NOT_FOUND.value());
         }
 
@@ -254,7 +254,7 @@ public class BookingServiceImpl implements BookingService {
 
         log.info("Đặt sân (recurring) bước 1 thành công " + response.getId());
         return ResponseEntity.ok(
-                new BaseResponse("Thành công, vui lòng thanh toán để chốt đặt sân!", HttpStatus.OK.value(), response)
+                new BaseResponse("Success, please make the payment to confirm your court booking!", HttpStatus.OK.value(), response)
         );
 
     }
@@ -276,7 +276,7 @@ public class BookingServiceImpl implements BookingService {
     public ResponseEntity<BaseResponse> confirmRecurringBooking(String recurringId) {
         // lấy thông tin RecurringBooking
         RecurringBooking recurringBooking = recurringBookingRepository.findById(recurringId)
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy RecurringBooking với id này"));
+                .orElseThrow(() -> new NotFoundException("RecurringBooking with this ID not found."));
         Field recuringField = recurringBooking.getField();
         List<TimeSlot> recurringTimeSlots = recurringBooking.generateTimeSlots();
         List<Booking> relatedBookings = bookingRepository.findAllById(recurringBooking.getBookingIds());
@@ -285,12 +285,12 @@ public class BookingServiceImpl implements BookingService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currUser = (User) authentication.getPrincipal();
         if (!currUser.getId().equals(recurringBooking.getUser().getId()) && !currUser.getRole().equals(Role.ADMIN)) {
-            throw new CustomException("Bạn không có quyền xác nhận RecurringBooking này", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("You do not have permission to confirm this recurring booking.", HttpStatus.BAD_REQUEST.value());
         }
 
         // kiểm tra trạng thái recurring
         if (recurringBooking.getIsActive() || recurringBooking.getIsDeleted()) {
-            throw new CustomException("RecurringBooing này không đủ điều kiên để được xác nhận", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("This recurring booking does not meet the requirements for confirmation.", HttpStatus.BAD_REQUEST.value());
         }
 
         // kiểm tra tình trạng sân
@@ -307,7 +307,7 @@ public class BookingServiceImpl implements BookingService {
 
             // 2. hoàn tiền
             User owner = userRepository.findById(recurringBooking.getUser().getId())
-                    .orElseThrow(() -> new NotFoundException("Không tìm thấy chủ nhân của RecurringBooking này để hoàn tiền"));
+                    .orElseThrow(() -> new NotFoundException("Cannot find the owner of this recurring booking to process the refund."));
             userService.refund(owner, recurringBooking.getPrice());
             // 3. tạo hoá đơn
             InvoiceRequest invoiceRequest = new InvoiceRequest();
@@ -320,7 +320,8 @@ public class BookingServiceImpl implements BookingService {
             InvoiceResponse invoiceResponse = invoiceService.create(invoiceRequest);
             log.info("Đặt sân (recurring) bước 2 không thành công, đã hoàn tiền," + recurringId);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    new BaseResponse("Thất bại, có ít nhất 1 timeSlot không trống ở khung giờ này trong tương lai, bạn đã được hoàn tiền vào số dư!",
+                    new BaseResponse("Failed, there is at least 1 timeslot that is not available during this time in the future. " +
+                            "You have been refunded to your balance!",
                             HttpStatus.INTERNAL_SERVER_ERROR.value(),
                             invoiceResponse)
             );
@@ -343,8 +344,8 @@ public class BookingServiceImpl implements BookingService {
                 .build();
         kafkaTemplate.send("notification-delivery", messageWrapper);
 
-        String message = "Xác nhận đặt sân theo lịch cứng (" + recurringBooking.getInterval() + "/"
-                + recurringBooking.getPackageDurationMonths() + " months) thành công!";
+        String message = "Confirm recurring booking according to the fixed schedule. (" + recurringBooking.getInterval() + "/"
+                + recurringBooking.getPackageDurationMonths() + " months) successfully!";
         log.info("Đặt sân (recurring) bước 2 thành công," + recurringId);
         return ResponseEntity.ok(
                 new BaseResponse(message, HttpStatus.OK.value(), response)
@@ -357,7 +358,7 @@ public class BookingServiceImpl implements BookingService {
         User currentUser = (User) authentication.getPrincipal();
 
         Field field = fieldRepository.findById(bookingRequest.getFieldId())
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy sân với id này"));
+                .orElseThrow(() -> new NotFoundException("Field with this ID not found."));
         Booking booking = bookingMapper.convertToEntity(bookingRequest, field, currentUser);
 
         return booking.getPrice();
@@ -369,7 +370,7 @@ public class BookingServiceImpl implements BookingService {
         User currentUser = (User) authentication.getPrincipal();
 
         Field field = fieldRepository.findById(recurringBookingRequest.getFieldId())
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy sân với id này"));
+                .orElseThrow(() -> new NotFoundException("Field with this ID not found."));
         RecurringBooking recurringBooking = recurringBookingMapper.convertToEntity(recurringBookingRequest, field, currentUser);
 
         return recurringBooking.getPrice();
@@ -379,23 +380,23 @@ public class BookingServiceImpl implements BookingService {
     public ResponseEntity<BaseResponse> getRecurringBookingByContainBookingId(String bookingId) {
         RecurringBooking recurringBooking = recurringBookingRepository.getByContainBookingId(bookingId);
         if (recurringBooking == null) {
-            throw new NotFoundException("Không tìm thấy RecurringBooking nào chứa bookingId: " + bookingId);
+            throw new NotFoundException("No recurring booking found with this bookingId:: " + bookingId);
         }
         RecurringBookingResponse response = recurringBookingMapper.convertToDTO(recurringBooking);
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy RecurringBooking", HttpStatus.OK.value(), response)
+                new BaseResponse("RecurringBooking found.", HttpStatus.OK.value(), response)
         );
     }
 
     @Override
     public ResponseEntity<BaseResponse> getBookingById(String id) {
         Booking booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new CustomException("Không tìm thấy booking!", HttpStatus.NOT_FOUND.value()));
+                .orElseThrow(() -> new CustomException("RecurringBooking cannot found!", HttpStatus.NOT_FOUND.value()));
 
         BookingResponse response = bookingMapper.convertToResponse(booking);
 
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy Booking.", HttpStatus.OK.value(), response)
+                new BaseResponse("RecurringBooking found.", HttpStatus.OK.value(), response)
         );
     }
 
@@ -403,12 +404,12 @@ public class BookingServiceImpl implements BookingService {
     public ResponseEntity<BaseResponse> getBookingByUserId(String userId) {
         List<Booking> bookingList = bookingRepository.findBookingByUserId(userId);
         if (bookingList.isEmpty()) {
-            throw new CustomException("Không tìm thấy Booking nào của user này!", HttpStatus.NOT_FOUND.value());
+            throw new CustomException("No bookings found for this user!", HttpStatus.NOT_FOUND.value());
         }
 
         List<BookingResponse> responseList = bookingList.stream().map(bookingMapper::convertToResponse).toList();
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy danh sách Booking của user này.", HttpStatus.OK.value(), responseList)
+                new BaseResponse("Found the booking list for this user.", HttpStatus.OK.value(), responseList)
         );
     }
 
@@ -422,19 +423,19 @@ public class BookingServiceImpl implements BookingService {
 
         // Kiểm tra xem userId truyền vào có trùng với userId trong JWT hay không
         if (!currentUserId.equals(userId)) {
-            throw new CustomException("Bạn không có quyền truy cập bookings của người khác.", HttpStatus.FORBIDDEN.value());
+            throw new CustomException("You do not have permission to access other users' bookings.", HttpStatus.FORBIDDEN.value());
         }
 
         ZonedDateTime now = ZonedDateTime.now();
         // lấy danh sách booking của user hiện tại, còn hiệu lực
         List<Booking> bookingList = bookingRepository.getCurrentBookingsOfCurrentUser(userId, now, FieldStatus.IN_USE.name());
         if (bookingList.isEmpty()) {
-            throw new CustomException("Bạn chưa có booking nào!", HttpStatus.NOT_FOUND.value());
+            throw new CustomException("You don't have any bookings yet!", HttpStatus.NOT_FOUND.value());
         }
 
         List<BookingResponse> responseList = bookingList.stream().map(bookingMapper::convertToResponse).toList();
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy danh sách booking.", HttpStatus.OK.value(), responseList)
+                new BaseResponse("Found the booking list.", HttpStatus.OK.value(), responseList)
         );
     }
 
@@ -442,12 +443,12 @@ public class BookingServiceImpl implements BookingService {
     public ResponseEntity<BaseResponse> getBookingByFieldId(String fieldId) {
         List<Booking> bookingList = bookingRepository.getBookingByFieldId(fieldId);
         if (bookingList.isEmpty()) {
-            throw new CustomException("Không tìm thấy Booking nào của sân này!", HttpStatus.NOT_FOUND.value());
+            throw new CustomException("No bookings found for this field!", HttpStatus.NOT_FOUND.value());
         }
 
         List<BookingResponse> responseList = bookingList.stream().map(bookingMapper::convertToResponse).toList();
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy danh sách Booking của sân này.", HttpStatus.OK.value(), responseList)
+                new BaseResponse("Found the booking list for this field.", HttpStatus.OK.value(), responseList)
         );
     }
 
@@ -455,12 +456,12 @@ public class BookingServiceImpl implements BookingService {
     public ResponseEntity<BaseResponse> getBookingsByStartTime(ZonedDateTime startTime) {
         List<Booking> bookingList = bookingRepository.getBookingByStartTime(startTime);
         if (bookingList.isEmpty()) {
-            throw new CustomException("Không tìm thấy Booking nào của sân này!", HttpStatus.NOT_FOUND.value());
+            throw new CustomException("No bookings found for this court!", HttpStatus.NOT_FOUND.value());
         }
 
         List<BookingResponse> responseList = bookingList.stream().map(bookingMapper::convertToResponse).toList();
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy danh sách Booking của sân này.", HttpStatus.OK.value(), responseList)
+                new BaseResponse("Found the booking list for this court.", HttpStatus.OK.value(), responseList)
         );
     }
 
@@ -471,7 +472,7 @@ public class BookingServiceImpl implements BookingService {
         Page<Booking> bookingPage = bookingRepository.findAllActive(PageRequest.of(page, size));
 
         if (bookingPage.isEmpty()) {
-            throw new CustomException("Không tìm thấy Booking nào đang hoạt động!", HttpStatus.NOT_FOUND.value());
+            throw new CustomException("No active bookings found!", HttpStatus.NOT_FOUND.value());
         }
 
         List<BookingResponse> responseList = bookingPage.getContent().stream()
@@ -485,7 +486,7 @@ public class BookingServiceImpl implements BookingService {
         );
 
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy danh sách Booking đang hoạt động.", HttpStatus.OK.value(), paginatedResponse)
+                new BaseResponse("Found the list of active bookings.", HttpStatus.OK.value(), paginatedResponse)
         );
     }
 
@@ -514,7 +515,7 @@ public class BookingServiceImpl implements BookingService {
         fieldResponse.convertTimeSlotsToUTCPlus7();
 
         return ResponseEntity.ok(
-                new BaseResponse("Lấy lịch sân thành công.", HttpStatus.OK.value(), fieldResponse));
+                new BaseResponse("Successfully retrieved the court schedule.", HttpStatus.OK.value(), fieldResponse));
     }
 
 
@@ -522,12 +523,12 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public ResponseEntity<BaseResponse> changeIsDeleted(String bookingId, boolean flag) {
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new CustomException("Không tìm thấy booking!", HttpStatus.NOT_FOUND.value()));
+                .orElseThrow(() -> new CustomException("No booking found!", HttpStatus.NOT_FOUND.value()));
         booking.setIsDeleted(flag);
         Booking savedBooking = bookingRepository.save(booking);
 
         BookingResponse response = bookingMapper.convertToResponse(savedBooking);
-        String message = "Thành công. Trạng thái hiện tại: isDeleted=" + booking.getIsDeleted();
+        String message = "Success. Current status: isDeleted=" + booking.getIsDeleted();
 
         return ResponseEntity.ok(
                 new BaseResponse(message, HttpStatus.OK.value(), response)
@@ -537,12 +538,12 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public ResponseEntity<BaseResponse> forceDelete(String bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new CustomException("Không tìm thấy booking!", HttpStatus.NOT_FOUND.value()));
+                .orElseThrow(() -> new CustomException("Booking not found!", HttpStatus.NOT_FOUND.value()));
         BookingResponse response = bookingMapper.convertToResponse(booking);
 
         bookingRepository.deleteById(bookingId);
         return ResponseEntity.ok(
-                new BaseResponse("Xoá cứng thành công.", HttpStatus.OK.value(), response)
+                new BaseResponse("Force delete booking successful.", HttpStatus.OK.value(), response)
         );
     }
 
@@ -552,12 +553,12 @@ public class BookingServiceImpl implements BookingService {
         User currentUser = (User) authentication.getPrincipal();
 
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy Booking này"));
+                .orElseThrow(() -> new NotFoundException("This booking not found."));
         // chỉ chủ sỡ hữu hoặc admin mới có quyền huỷ booking
         if (booking.getUser().getId().equals(currentUser.getId()) || currentUser.getRole().equals(Role.ADMIN)) {
             Field field = booking.getField();
             if (field == null) {
-                throw new NotFoundException("Không tìm thấy Field trong Booking này");
+                throw new NotFoundException("Field not found in this booking.");
             }
             ZonedDateTime bookingStartTime = booking.getStartTime();
             ZonedDateTime bookingEndTime = booking.getEndTime();
@@ -566,7 +567,7 @@ public class BookingServiceImpl implements BookingService {
 
             // kiểm tra nếu booking đã hết hạn thì out
             if (bookingEndTime.isBefore(now) || !booking.getIsActive() || booking.getIsDeleted()) {
-                throw new CustomException("Booking này đã hết hạn, không thể huỷ!", HttpStatus.BAD_REQUEST.value());
+                throw new CustomException("This booking has expired and cannot be canceled!", HttpStatus.BAD_REQUEST.value());
             }
 
             // 1. tạo timeSlot AVAILABLE trong khoảng thời gian này
@@ -580,11 +581,11 @@ public class BookingServiceImpl implements BookingService {
             Booking canceledBooking = bookingRepository.save(booking);
 
             BookingResponse response = bookingMapper.convertToResponse(canceledBooking);
-            log.info("Đã huỷ booking " + canceledBooking.getId());
+            log.info("Canceled booking " + canceledBooking.getId());
 
             // 3. hoàn tiền nếu là đặt lẻ
             User owner = userRepository.findById(booking.getUser().getId())
-                    .orElseThrow(() -> new NotFoundException("Không tìm thấy chủ sở hữu booking này"));
+                    .orElseThrow(() -> new NotFoundException("Owner of this booking not found."));
             if (!booking.isRecurring()) {
                 Double refundAmount = booking.getPrice();
                 userService.refund(owner, refundAmount);
@@ -608,11 +609,11 @@ public class BookingServiceImpl implements BookingService {
             kafkaTemplate.send("notification-delivery", messageWrapper);
 
             return ResponseEntity.ok(
-                    new BaseResponse("Huỷ đặt sân thành công.", HttpStatus.OK.value(), response)
+                    new BaseResponse("Court booking canceled successfully.", HttpStatus.OK.value(), response)
             );
 
         } else {
-            throw new CustomException("Bạn không có quyền huỷ đặt sân của người khác", HttpStatus.FORBIDDEN.value());
+            throw new CustomException("You do not have permission to cancel another user's court booking.", HttpStatus.FORBIDDEN.value());
         }
 
     }
@@ -620,13 +621,13 @@ public class BookingServiceImpl implements BookingService {
     private List<Booking> getRelevantActiveBookings(String bookingId) {
         RecurringBooking recurrParent = recurringBookingRepository.getByContainBookingId(bookingId);
         if (recurrParent == null) {
-            throw new NotFoundException("Không tìm thấy Recurring nào chứa bookingId này!");
+            throw new NotFoundException("No recurring booking found with this bookingId!");
         }
         // xác thực
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User currUser = (User) auth.getPrincipal();
         if (currUser.getRole() != Role.ADMIN && !currUser.getId().equals(recurrParent.getUser().getId())) {
-            throw new CustomException("Bạn không có quyền truy cập recurring của người khác!", HttpStatus.FORBIDDEN.value());
+            throw new CustomException("You do not have permission to access another user's recurring bookings!", HttpStatus.FORBIDDEN.value());
         }
         return recurrParent.getBookingIds()
                 .stream()
@@ -659,7 +660,7 @@ public class BookingServiceImpl implements BookingService {
     public ResponseEntity<BaseResponse> cancelRecurringByBookingId(String bookingId) {
         RecurringBooking recurrParent = recurringBookingRepository.getByContainBookingId(bookingId);
         if (recurrParent == null) {
-            throw new NotFoundException("Không tìm thấy Recurring nào chứa bookingId này!");
+            throw new NotFoundException("No recurring booking found with this bookingId!");
         }
 
         Double remainingAmount = 0.0;
@@ -701,7 +702,7 @@ public class BookingServiceImpl implements BookingService {
         Double refund = remainingAmount / 2;
         String ownerId = recurrParent.getUser().getId();
         User owner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy chủ nhân của recurringBooking này"));
+                .orElseThrow(() -> new NotFoundException("Owner of this recurring booking not found."));
         userService.refund(owner, refund);
         // 4. tạo hoá đơn
         InvoiceRequest invoiceRequest = new InvoiceRequest();
@@ -722,7 +723,7 @@ public class BookingServiceImpl implements BookingService {
         kafkaTemplate.send("notification-delivery", messageWrapper);
 
         return ResponseEntity.ok(
-                new BaseResponse("Huỷ cứng recurringBooking thành công, 50% số tiền đã hoàn vào số dư.",
+                new BaseResponse("Recurring booking hard cancel successful, 50% of the amount has been refunded to your balance.",
                         HttpStatus.OK.value(), response)
         );
     }
@@ -750,7 +751,7 @@ public class BookingServiceImpl implements BookingService {
         );
 
         return ResponseEntity.ok(
-                new BaseResponse("Tìm thấy danh sách Booking theo tên sân.", HttpStatus.OK.value(), paginatedResponse)
+                new BaseResponse("Found the booking list by court name.", HttpStatus.OK.value(), paginatedResponse)
         );
     }
 
@@ -795,7 +796,7 @@ public class BookingServiceImpl implements BookingService {
                 }
             } else {
                 // Xử lý trường hợp ID không hợp lệ
-                System.out.println("Recurring booking ID không hợp lệ: " + recurringBookingId);
+                System.out.println("Recurring booking ID is invalid: " + recurringBookingId);
             }
         }
 

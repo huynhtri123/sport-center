@@ -86,7 +86,7 @@ public class CloudinaryServiceImpl implements CloudinaryService {
 
         // kiểm tra định dạng URL hợp lệ
         if (parts.length == 0) {
-            throw new CustomException("URL không hợp lệ.", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("Invalid URL.", HttpStatus.BAD_REQUEST.value());
         }
 
         // lấy phần tên tệp từ URL
@@ -107,12 +107,12 @@ public class CloudinaryServiceImpl implements CloudinaryService {
             // kiểm tra kết quả xóa
             String resultStatus = (String) result.get("result");
             if (!"ok".equals(resultStatus)) {
-                throw new CustomException("Không thể xóa ảnh. publicId không tồn tại hoặc đã bị xóa trước đó.", HttpStatus.NOT_FOUND.value());
+                throw new CustomException("Cannot delete the image. The publicId does not exist or has already been deleted.", HttpStatus.NOT_FOUND.value());
             }
 
             log.info("Deleted image with publicId: " + publicId);
         } catch (Exception e) {
-            throw new CustomException("Đã xảy ra lỗi khi xóa ảnh: " + e.getMessage(), HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("An error occurred while deleting the image: " + e.getMessage(), HttpStatus.BAD_REQUEST.value());
         }
     }
 

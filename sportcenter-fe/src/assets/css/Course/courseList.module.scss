@@ -140,7 +140,7 @@
 /* Course List */
 .courseList {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); /* Cột linh hoạt và đẹp mắt */
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); /* Cột linh hoạt và đẹp mắt */
     gap: 24px;
     padding: 40px 20px;
     margin-top: -60px; /* Đưa phần danh sách khóa học lên trên một chút */
@@ -212,6 +212,7 @@
         line-height: 1.5;
         color: #444;
         margin-bottom: 10px;
+        text-align: justify;
     }
 
     strong {

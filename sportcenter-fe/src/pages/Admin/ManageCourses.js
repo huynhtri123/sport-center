@@ -98,8 +98,14 @@ function ManageCourses() {
 
     const validateForm = () => {
         // Check if courseName, description, tuition, and imageUrl are filled
-        if (!newCourse.courseName || !newCourse.description || !newCourse.tuition || !newCourse.imageUrl) {
+        if (!newCourse.courseName || !newCourse.description || !newCourse.imageUrl) {
             toast.warn('Please fill in all the course details (name, description, tuition, image URL)!');
+            return false;
+        }
+        if (editingCourse && newCourse.tuition === '') {
+            toast.warn('Please fill in Tuition!');
+        } else if (Number(newCourse.tuition) < 0) {
+            toast.warn('Tuition cannot be negative!');
             return false;
         }
 
@@ -151,7 +157,7 @@ function ManageCourses() {
             fetchCourses(); // Refresh the course list
         } catch (error) {
             console.error('Failed to update course:', error);
-            toast.error('Failed to update course. Please try again.');
+            // toast.error('Failed to update course. Please try again.');
         }
     };
 
