@@ -27,6 +27,7 @@ function ManageBookings() {
     const toggleCancelRecurringModalOpen = async (bookingId) => {
         if (!isCancelRecurringModalOpen) {
             try {
+                setIsLoading(true);
                 const getRecurring = await bookingApi.getRecurringByBookingId(bookingId);
                 setRecurringBooking(getRecurring.data);
                 const remainingAmoutResponse = await bookingApi.getRemainingAmout(bookingId);
@@ -35,6 +36,8 @@ function ManageBookings() {
                 // console.log(getRecurring);
             } catch (err) {
                 console.error(err);
+            } finally {
+                setIsLoading(false);
             }
         }
         setIsCancelRecurringModalOpen(!isCancelRecurringModalOpen);

@@ -114,8 +114,8 @@ const TournamentDetail = () => {
                     <ul>
                         {prizes.map((prize, index) => (
                             <li key={index}>
-                                <strong>Position {prize.position}:</strong> {prize.description} - $
-                                <strong>{formatCurrency(prize.reward || 0)}</strong>
+                                <strong className='me-2'>Position {prize.position}:</strong> {prize.description} -
+                                <strong className='ms-1'> {formatCurrency(prize.reward || 0)}</strong>
                             </li>
                         ))}
                     </ul>

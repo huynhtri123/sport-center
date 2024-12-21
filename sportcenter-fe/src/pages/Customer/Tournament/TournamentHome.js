@@ -136,7 +136,9 @@ const TournamentHome = () => {
                                             <ul>
                                                 {tournament.prizes.map((prize, index) => (
                                                     <li key={index}>
-                                                        <span>Position {prize.position && prize.position}:</span>{' '}
+                                                        <span className='me-2'>
+                                                            Position {prize.position && prize.position}:
+                                                        </span>{' '}
                                                         {formatCurrency(prize.reward && prize.reward)}
                                                     </li>
                                                 ))}

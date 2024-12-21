@@ -6,6 +6,8 @@ import bookingApi from '../../../services/api/booking/bookingApi';
 import ConfirmModal from '../../../components/Modal/ConfirmModal';
 import { Loading } from '../../../components/Loading/Loading';
 import formatCurrency from '../../../utils/formatCurrency';
+import formatCurenncy from '../../../utils/formatCurrency';
+import { formatDate } from '../../../utils/DateTimeConverter';
 
 function MyBookings({ bookings, setMyBookings, getMyProfile }) {
     const [isLoading, setIsLoading] = useState(false);
@@ -112,15 +114,21 @@ function BookingCard({ booking, handleCancelBookingSubmit, handleCancelRecurring
             </h4>
             <p>
                 <span>Booking Date:</span>
-                <span>{booking.bookingDate}</span>
+                <span>
+                    {formatDate(booking.bookingDate)} - {new Date(booking.bookingDate).toLocaleTimeString()}
+                </span>
             </p>
             <p>
                 <span>Start Time:</span>
-                <span>{booking.startTime}</span>
+                <span>
+                    {formatDate(booking.startTime)} - {new Date(booking.startTime).toLocaleTimeString()}
+                </span>
             </p>
             <p>
                 <span>End Time:</span>
-                <span>{booking.endTime}</span>
+                <span>
+                    {formatDate(booking.endTime)} - {new Date(booking.endTime).toLocaleTimeString()}
+                </span>
             </p>
             <p>
                 <span>Hours:</span>
@@ -128,7 +136,7 @@ function BookingCard({ booking, handleCancelBookingSubmit, handleCancelRecurring
             </p>
             <p>
                 <span>Total Price:</span>
-                <span>${booking.totalPrice}</span>
+                <span>{formatCurenncy(booking.totalPrice)}</span>
             </p>
 
             {booking.recurring ? (
