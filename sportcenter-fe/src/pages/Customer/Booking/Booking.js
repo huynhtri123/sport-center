@@ -304,7 +304,7 @@ function Booking() {
                         </select>
                     </div>
                     <div className={styles.formGroup}>
-                        <label htmlFor='duration'>Package duration (months):</label>
+                        <label htmlFor='duration'>Package duration:</label>
                         <select id='duration' value={duration} onChange={(e) => setDuration(e.target.value)}>
                             <option value={1}>1 month</option>
                             <option value={3}>3 months</option>
