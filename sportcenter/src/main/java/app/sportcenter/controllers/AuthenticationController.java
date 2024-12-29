@@ -54,7 +54,7 @@ public class AuthenticationController {
     public ResponseEntity<BaseResponse> renewPassword(@PathVariable("userId") String userId,
                                                       @Valid @RequestBody RenewPasswordRequest renewPasswordRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("Đổi mật khẩu thành công", HttpStatus.OK.value(),
+                new BaseResponse("Password changed successfully.", HttpStatus.OK.value(),
                         authenticationService.renewPassword(userId, renewPasswordRequest))
         );
     }

@@ -36,7 +36,7 @@ function Signout() {
             </Button>
             {isModalOpen && (
                 <ConfirmModal
-                    title={'Bạn có chắc muốn đăng xuất?'}
+                    title={'Are you sure you want to log out?'}
                     isOpen={isModalOpen}
                     onClose={toggleModalOpen}
                     onSubmit={handleSignout}

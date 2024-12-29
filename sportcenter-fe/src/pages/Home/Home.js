@@ -150,7 +150,7 @@ function Home() {
                 <h2>What Our Customers Say?</h2>
                 <div className={styles.testimonialCard}>
                     <p>"Awesome! The field is beautiful and the staff is very enthusiastic."</p>
-                    <span>- Công Phượng, the football player -</span>
+                    <span>- Cong Phuong, the football player -</span>
                 </div>
             </section>
         </div>
