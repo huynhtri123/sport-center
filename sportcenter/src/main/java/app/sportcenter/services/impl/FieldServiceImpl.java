@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -264,7 +266,10 @@ public class FieldServiceImpl implements FieldService {
             );
         }
 
-        List<FieldResponse> responseFields = fieldList.stream().map(fieldMapper::convertToDTO).toList();
+        List<FieldResponse> responseFields = fieldList.stream()
+                .map(fieldMapper::convertToDTO)
+                .sorted(Comparator.comparing(FieldResponse::getCreatedAt).reversed())
+                .toList();
         return ResponseEntity.ok(
                 new BaseResponse("\n" +
                         "Field list found.", HttpStatus.OK.value(), responseFields)
@@ -285,25 +290,10 @@ public class FieldServiceImpl implements FieldService {
         );
     }
 
-//    @Override
-//    public ResponseEntity<BaseResponse> findByFieldType(FieldType fieldType) {
-//        List<Field> fieldList = fieldRepository.findByFieldType(fieldType);
-//
-//        if (fieldList.isEmpty()) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-//                    new BaseResponse("Không tìm thấy sân thuộc loại " + fieldType.name() + ".", HttpStatus.NOT_FOUND.value(), null)
-//            );
-//        }
-//
-//        List<FieldResponse> responseFields = fieldList.stream().map(fieldMapper::convertToDTO).toList();
-//        return ResponseEntity.ok(
-//                new BaseResponse("Tìm thấy danh sách sân thuộc loại " + fieldType.name() + ".", HttpStatus.OK.value(), responseFields)
-//        );
-//    }
-
     @Override
     public ResponseEntity<BaseResponse> searchByNameAndPaginate(String fieldName, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        //Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Field> fieldPage = fieldRepository.searchByFieldNameContainingIgnoreCase(fieldName, pageable);
 
 //        if (fieldPage.isEmpty()) {

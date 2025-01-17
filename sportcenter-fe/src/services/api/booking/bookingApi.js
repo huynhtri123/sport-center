@@ -59,7 +59,6 @@ const bookingApi = {
         const url = `/booking/searchByFieldNameAndPaginate?fieldName=${fieldName}&page=${page}&size=${size}`;
         return axiosClient.get(url);
     },
-    
 };
 
 export default bookingApi;

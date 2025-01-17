@@ -45,7 +45,9 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     public List<InvoiceResponse> getAllActive() {
         List<InvoiceResponse> responses = invoiceRepository.findByIsActiveTrueAndIsDeletedFalse()
-                .stream().map(invoiceMapper::convertToResponse)
+                .stream()
+                .map(invoiceMapper::convertToResponse)
+                .sorted(Comparator.comparing(InvoiceResponse::getCreatedAt).reversed())
                 .toList();
         return responses;
     }

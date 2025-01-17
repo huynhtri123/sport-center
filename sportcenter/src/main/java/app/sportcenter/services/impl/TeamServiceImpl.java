@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
@@ -96,7 +97,10 @@ public class TeamServiceImpl implements TeamService {
                     new BaseResponse("Team not found.", HttpStatus.OK.value(), null)
             );
         }
-        List<TeamResponse> teamResponseList = teamList.stream().map(teamMapper::convertToDTO).toList();
+        List<TeamResponse> teamResponseList = teamList.stream()
+                .map(teamMapper::convertToDTO)
+                .sorted(Comparator.comparing(TeamResponse::getCreatedAt).reversed())
+                .toList();
         return ResponseEntity.status(HttpStatus.OK).body(
                 new BaseResponse("Team list", HttpStatus.OK.value(), teamResponseList)
         );

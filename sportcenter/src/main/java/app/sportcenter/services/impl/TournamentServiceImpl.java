@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -34,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -113,7 +115,8 @@ public class TournamentServiceImpl implements TournamentService {
 
     @Override
     public ResponseEntity<BaseResponse> getAllActive(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        //Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Tournament> activeTournamentsPage = tournamentRepository.findAllActive(pageable);
 
         if (activeTournamentsPage.isEmpty()) {
@@ -457,7 +460,7 @@ public class TournamentServiceImpl implements TournamentService {
     }
     @Override
     public ResponseEntity<BaseResponse> searchByNameAndPaginate(String tournamentName, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Tournament> tournamentPage = tournamentRepository.searchByTournamentNameContainingIgnoreCase(tournamentName, pageable);
 
         List<TournamentResponse> responseTournaments = tournamentPage.getContent()

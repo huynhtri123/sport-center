@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -50,8 +51,6 @@ public class BookingServiceImpl implements BookingService {
     private FieldRepository fieldRepository;
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private MailService mailService;
     @Autowired
     private UserService userService;
     @Autowired
@@ -731,7 +730,8 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     @Override
     public ResponseEntity<BaseResponse> searchByFieldNameAndPaginate(String fieldName, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        //Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Booking> bookingPage = bookingRepository.searchByFieldName(fieldName, pageable);
 
 //        if (bookingPage.isEmpty()) {
