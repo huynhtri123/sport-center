@@ -5,9 +5,13 @@ const userApi = {
         const url = '/user/myProfile';
         return axiosClient.get(url);
     },
-    updateProfile(userRequest) {
+    updateProfile(formData) {
         const url = '/user/updateProfile';
-        return axiosClient.put(url, userRequest);
+        return axiosClient.put(url, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data', // Header để gửi FormData
+            },
+        });
     },
 
     // bookings

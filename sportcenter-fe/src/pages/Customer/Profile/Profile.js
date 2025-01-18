@@ -128,36 +128,43 @@ function Profile() {
         }));
     };
 
-    const handleImageChange = async (e) => {
+    const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            try {
-                setIsLoading(true);
-                const response = await fileApi.uploadImage(file);
-                setUserInfo((prevInfo) => ({
-                    ...prevInfo,
-                    avatarUrl: response.data.url,
-                }));
-            } catch (error) {
-                console.error('Upload failed:', error);
-            } finally {
-                setIsLoading(false);
-            }
+            setUserInfo((prevInfo) => ({
+                ...prevInfo,
+                avatarFile: file, // Lưu file để gửi cùng với userRequest
+                avatarUrl: URL.createObjectURL(file), // Hiển thị preview ảnh
+            }));
         }
     };
 
     const updateProfile = async () => {
         try {
             setIsLoading(true);
+            // Tạo FormData để chứa dữ liệu JSON và file
+            const formData = new FormData();
+            // Thêm userRequest vào FormData
             const userRequest = {
                 ...userInfo,
                 dateOfBirth: formatDateToZoneDateTime(userInfo.dateOfBirth),
             };
-            const updateProfileResponse = await userApi.updateProfile(userRequest);
+            formData.append('userRequest', new Blob([JSON.stringify(userRequest)], { type: 'application/json' }));
+
+            // Nếu có file, thêm file vào FormData
+            if (userInfo.avatarFile) {
+                formData.append('file', userInfo.avatarFile);
+            }
+
+            // Gửi request đến API
+            const updateProfileResponse = await userApi.updateProfile(formData);
             toast.success(updateProfileResponse.message);
+
+            // Lấy lại thông tin mới sau khi cập nhật thành công
             getMyProfile();
         } catch (err) {
             console.error(err);
+            toast.error('Failed to update profile. Please try again.');
         } finally {
             setIsLoading(false);
         }
