@@ -14,6 +14,7 @@ import MyPaymentInfo from './MyPaymentInfo';
 import MyTournaments from './MyTournaments';
 import MyTeam from './MyTeams';
 import formatCurrency from '../../../utils/formatCurrency';
+import { Link } from 'react-router-dom';
 
 function Profile() {
     const [profile, setProfile] = useState({}); // để chứa data lấy từ api
@@ -36,6 +37,9 @@ function Profile() {
     // handles
     const handleToggleCart = () => setShowCart(!showCart);
     const handleTogglePaymentInfo = () => setShowPaymentInfo(!showPaymentInfo);
+
+    const isAdmin = profile.role === 'ADMIN';
+
     const handleToggleBookings = async () => {
         setShowBookings(!showBookings);
         if (showBookings === false && profile?.id && myBooking.length === 0) {
@@ -88,7 +92,7 @@ function Profile() {
     const getMyProfile = async () => {
         try {
             const profileResponse = await userApi.myProfile();
-            // console.log(profileResponse);
+            //console.log(profileResponse.data.role);
             setProfile(profileResponse.data);
             setAccountBalance(profileResponse.data.accountBalance || 0);
         } catch (err) {
@@ -319,23 +323,34 @@ function Profile() {
                 )}
             </div>
 
-            <div className={styles.section}>
-                <h3 onClick={handleToggleTournaments}>
-                    <i className='fa-regular fa-calendar-check'></i>
-                    <span className='ms-3'>Tournaments And Events</span>
-                </h3>
-                <p>Check your registered tournaments and sports events.</p>
-                {showTournaments && <MyTournaments tournaments={tournaments}></MyTournaments>}
-            </div>
+            {!isAdmin && (
+                <div className={styles.section}>
+                    <h3 onClick={handleToggleTournaments}>
+                        <i className='fa-regular fa-calendar-check'></i>
+                        <span className='ms-3'>Tournaments And Events</span>
+                    </h3>
+                    <p>Check your registered tournaments and sports events.</p>
+                    {showTournaments && <MyTournaments tournaments={tournaments}></MyTournaments>}
+                </div>
+            )}
 
-            <div className={styles.section}>
-                <h3 onClick={handleToggleTeams}>
-                    <i className='fa-solid fa-people-group'></i>
-                    <span className='ms-3'>My Teams</span>
-                </h3>
-                <p>See your teams and their accomplishments.</p>
-                {showTeams && <MyTeam teams={teams}></MyTeam>}
-            </div>
+            {!isAdmin && (
+                <div className={styles.section}>
+                    <h3 onClick={handleToggleTeams}>
+                        <i className='fa-solid fa-people-group'></i>
+                        <span className='ms-3'>My Teams</span>
+                    </h3>
+                    <p>See your teams and their accomplishments.</p>
+                    {showTeams && <MyTeam teams={teams}></MyTeam>}
+                </div>
+            )}
+
+            {isAdmin && (
+                <Link className={styles.link} to={'/admin'}>
+                    <i class='fa-solid fa-arrow-right-long me-2'></i>
+                    Go to Admin Dashboard
+                </Link>
+            )}
 
             <div className='d-flex justify-content-end mb-4'>
                 <Signout></Signout>

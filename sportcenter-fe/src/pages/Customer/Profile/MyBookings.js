@@ -40,6 +40,7 @@ function MyBookings({ bookings, setMyBookings, getMyProfile }) {
             setMyBookings((prevBookings) => prevBookings.filter((booking) => !canceledBookingIds.includes(booking.id)));
 
             toast.success(cancelRecurringResponse.message);
+            getMyProfile();
         } catch (err) {
             console.log(err);
         } finally {

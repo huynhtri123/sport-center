@@ -3,9 +3,12 @@ package app.sportcenter.controllers;
 
 import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.exceptions.CustomException;
+import app.sportcenter.models.dto.CloudinaryResponse;
 import app.sportcenter.models.dto.TeamRequest;
 import app.sportcenter.models.entities.User;
+import app.sportcenter.services.CloudinaryService;
 import app.sportcenter.services.TeamService;
+import app.sportcenter.utils.FileUploadUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,12 +17,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/team")
 public class TeamController {
     @Autowired
     private TeamService teamService;
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     // chỉ có người đang đăng nhập mới có thể tự tạo team cho mình
     @PreAuthorize("hasAnyAuthority('CUSTOMER')")

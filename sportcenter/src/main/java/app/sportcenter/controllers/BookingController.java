@@ -23,7 +23,7 @@ public class BookingController {
     @Autowired
     private BookingService bookingService;
 
-    @PreAuthorize("hasAnyAuthority('CUSTOMER')")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
     @PostMapping("/booking/create")
     public ResponseEntity<BaseResponse> createBooking(@Valid @RequestBody BookingRequest bookingRequest) {
         return bookingService.createBooking(bookingRequest);
@@ -36,7 +36,7 @@ public class BookingController {
     }
 
 
-    @PreAuthorize("hasAnyAuthority('CUSTOMER')")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
     @PostMapping("/booking/createRecurring")
     public ResponseEntity<BaseResponse> createRecurringBooking(
             @Valid @RequestBody RecurringBookingRequest recurringBookingRequest) {
@@ -50,7 +50,7 @@ public class BookingController {
     }
 
     // lấy giá đặt sân lẻ
-    @PreAuthorize("hasAnyAuthority('CUSTOMER')")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
     @PostMapping("/booking/getBookingPrice")
     public ResponseEntity<BaseResponse> getBookingPrice(@Valid @RequestBody BookingRequest bookingRequest) {
         Double price = bookingService.getBookingPrice(bookingRequest);
@@ -60,7 +60,7 @@ public class BookingController {
     }
 
     // lấy giá đặt sân theo lịch cứng
-    @PreAuthorize("hasAnyAuthority('CUSTOMER')")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
     @PostMapping("/booking/getRecurringBookingPrice")
     public ResponseEntity<BaseResponse> getRecurringBookingPrice(
             @Valid @RequestBody RecurringBookingRequest recurringBookingRequest) {
@@ -90,7 +90,7 @@ public class BookingController {
         return bookingService.getBookingByUserId(userId);
     }
 
-    @PreAuthorize("hasAnyAuthority('CUSTOMER')")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
     @GetMapping("/booking/myBookings/{userId}")
     public ResponseEntity<BaseResponse> getCurrentBookingsOfCurrentUser(@PathVariable String userId) {
         return bookingService.getCurrentBookingsOfCurrentUser(userId);

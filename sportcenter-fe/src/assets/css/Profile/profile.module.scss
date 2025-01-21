@@ -112,3 +112,19 @@
     margin-bottom: 10px;
     cursor: pointer;
 }
+
+.link {
+    display: inline-block;
+    color: $blue-prime;
+    font-size: 15px;
+    font-weight: bold;
+    text-align: center;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+    text-align: center;
+    align-items: center;
+}
+
+.link:hover {
+    color: $yellow-hover; /* Màu xanh đậm hơn khi hover */
+}

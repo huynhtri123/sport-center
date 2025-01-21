@@ -33,10 +33,13 @@ public class TeamMapper {
 
         TeamResponse teamResponse = modelMapper.map(team, TeamResponse.class);
 
-        // Chuyển đổi danh sách Tournament từ team
-        List<Tournament> tournaments = team.getEnrolledTournamentIds().stream()
-                .map(this::fetchTournamentById)
-                .collect(Collectors.toList());
+        // Kiểm tra trường hợp getEnrolledTournamentIds là null
+        List<Tournament> tournaments = new ArrayList<>();
+        if (team.getEnrolledTournamentIds() != null) {
+            tournaments = team.getEnrolledTournamentIds().stream()
+                    .map(this::fetchTournamentById)
+                    .collect(Collectors.toList());
+        }
 
         teamResponse.setEnrolledTournaments(tournaments);
 

@@ -48,11 +48,11 @@
 }
 
 .navItem:hover {
-    background-color: #555; /* Đổi màu khi hover */
+    background-color: #66647a; /* Đổi màu khi hover */
 }
 
 .navItem.active {
-    background-color: #007bff; /* Màu nền khi mục được chọn (clicked) */
+    background-color: $tim-nhat; /* Màu nền khi mục được chọn (clicked) */
 }
 
 .navItem span {
@@ -64,7 +64,7 @@
     flex-grow: 1; /* Cho phép nội dung chính mở rộng */
     padding: 20px; /* Thêm padding cho nội dung chính */
     box-sizing: border-box; /* Đảm bảo tính toán kích thước đúng */
-    background-color: #f8f9fa; /* Màu nền của nội dung chính */
+    background-color: $xanh-da-troi-nhat; /* Màu nền của nội dung chính */
 }
 
 .header {
@@ -115,4 +115,20 @@
 /* Thay đổi kích thước chữ cho các nhãn trục x */
 .chartjs-x-axis .tick {
     font-size: 10px; /* Điều chỉnh kích thước chữ cho nhãn trục x */
+}
+
+.link {
+    display: inline-block;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    text-align: center;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+    text-align: center;
+    align-items: center;
+}
+
+.link:hover {
+    color: #ccc; /* Màu xanh đậm hơn khi hover */
 }

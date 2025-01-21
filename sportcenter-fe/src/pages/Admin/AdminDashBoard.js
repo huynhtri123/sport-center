@@ -12,6 +12,7 @@ import ManageTournaments from './Tournament/ManageTournaments';
 import ManageBookings from './ManageBookings';
 import revenueApi from '../../services/api/revenueApi';
 import { RecurringIntervalType } from '../../utils/enums/RecurringIntervalType';
+import { Link } from 'react-router-dom';
 
 // Đăng ký các thành phần của Chart.js
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
@@ -228,6 +229,7 @@ function AdminDashboard() {
                 <h2>Admin Panel</h2>
                 <ul className={styles.navList}>
                     {sections.map((section) => (
+                        // eslint-disable-next-line jsx-a11y/role-supports-aria-props
                         <li
                             key={section.name}
                             className={`${styles.navItem} ${selectedSection === section.name ? styles.active : ''}`}
@@ -240,6 +242,11 @@ function AdminDashboard() {
                         </li>
                     ))}
                 </ul>
+
+                <Link className={styles.link} to={'/'}>
+                    <i class='fa-solid fa-arrow-right-long me-2'></i>
+                    Go to Home Page
+                </Link>
             </nav>
 
             <div className={styles.content}>

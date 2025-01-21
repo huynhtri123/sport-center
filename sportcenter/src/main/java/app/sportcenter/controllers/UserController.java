@@ -75,13 +75,13 @@ public class UserController {
         return userService.updatePaymentInfoForUser(userId, paymentInfoId, paymentRequest);
     }
 
-    @PreAuthorize("hasAnyAuthority('CUSTOMER')")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
     @GetMapping("/getAccountBalance")
     public ResponseEntity<BaseResponse> getAccountBalance() {
         return userService.getAccountBalance();
     }
 
-    @PreAuthorize("hasAnyAuthority('CUSTOMER')")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
     @PatchMapping("/makePaymentByBalance")
     public ResponseEntity<BaseResponse> makePaymentByBalance(@RequestParam Double amountToPay) {
         return userService.makePaymentByBalance(amountToPay);
