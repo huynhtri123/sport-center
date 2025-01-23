@@ -1,6 +1,7 @@
 package app.sportcenter.services;
 
 import app.sportcenter.commons.BaseResponse;
+import app.sportcenter.models.dto.InvoiceResponse;
 import app.sportcenter.models.dto.PaymentRequest;
 import app.sportcenter.models.dto.UserRequest;
 import app.sportcenter.models.dto.UserResponse;
@@ -30,7 +31,7 @@ public interface UserService {
 
     public ResponseEntity<BaseResponse> getAccountBalance();
 
-    public ResponseEntity<BaseResponse> makePaymentByBalance(Double amountToPay);
+    public InvoiceResponse makePaymentByBalance(Double amountToPay, String transactionType);
 
     public boolean refund(User user, Double price);
 

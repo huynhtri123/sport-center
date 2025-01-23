@@ -57,9 +57,9 @@ function PaymentModal({
 
     const remainingAmount = Math.max(price - accountBalance, 0);
 
-    const makePaymentByBalance = async (price) => {
+    const makePaymentByBalance = async (price, transactionType) => {
         try {
-            const balancePaymentResponse = await userApi.makePaymentByBalance(price);
+            const balancePaymentResponse = await userApi.makePaymentByBalance(price, transactionType);
             console.log(price);
             if (balancePaymentResponse && balancePaymentResponse.data != null) {
                 console.log(balancePaymentResponse);
@@ -124,7 +124,7 @@ function PaymentModal({
             if (!bookingResponse) return;
 
             // đặt sân bước 1 thành công -> thanh toán
-            const balancePaymentResponse = await makePaymentByBalance(price);
+            const balancePaymentResponse = await makePaymentByBalance(price, TransactionType.BOOKING);
             if (!balancePaymentResponse) return;
 
             // thanh toán thành công -> gọi api đặt sân bước 2
@@ -145,18 +145,11 @@ function PaymentModal({
         try {
             // gọi hàm đăng kí giải đấu từ cha
             const registerResponse = await onSubmit();
-            // console.log(registerResponse);
             if (!registerResponse) return;
 
             // đăng kí bước 1 thành công -> thanh toán
-            const balancePaymentResponse = await makePaymentByBalance(price);
+            const balancePaymentResponse = await makePaymentByBalance(price, TransactionType.REGISTRATION_FEE);
             if (!balancePaymentResponse) return;
-
-            // thanh toán thành công -> đăng ký bước 2
-
-            // đăng ký bước 2 thành công -> tạo hoá đơn
-            const transactionType = TransactionType.REGISTRATION_FEE;
-            await createInvoice(user.id, price, transactionType, PaymentMethod.ACCOUNT_BALANCE);
         } catch (err) {
             console.error('Error during balance payment:', err);
         }

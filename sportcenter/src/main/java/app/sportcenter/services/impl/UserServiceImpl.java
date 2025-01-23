@@ -1,17 +1,20 @@
 package app.sportcenter.services.impl;
 
 import app.sportcenter.commons.BaseResponse;
+import app.sportcenter.commons.PaymentMethod;
+import app.sportcenter.commons.PaymentStatus;
+import app.sportcenter.commons.TransactionType;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
-import app.sportcenter.models.dto.PaymentRequest;
-import app.sportcenter.models.dto.PaymentResponse;
-import app.sportcenter.models.dto.UserRequest;
-import app.sportcenter.models.dto.UserResponse;
+import app.sportcenter.models.dto.*;
+import app.sportcenter.models.entities.Invoice;
 import app.sportcenter.models.entities.PaymentInfo;
 import app.sportcenter.models.entities.User;
+import app.sportcenter.repositories.InvoiceRepository;
 import app.sportcenter.repositories.PaymentInfoRepository;
 import app.sportcenter.repositories.UserRepository;
 import app.sportcenter.services.UserService;
+import app.sportcenter.utils.mappers.InvoiceMapper;
 import app.sportcenter.utils.mappers.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +40,8 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final InvoiceMapper invoiceMapper;
+    private final InvoiceRepository invoiceRepository;
     @Autowired
     private PaymentInfoRepository paymentInfoRepository;
 
@@ -106,7 +111,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<BaseResponse> makePaymentByBalance(Double amountToPay) {
+    public InvoiceResponse makePaymentByBalance(Double amountToPay, String transactionType) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
 
@@ -118,10 +123,14 @@ public class UserServiceImpl implements UserService {
         currentUser.setAccountBalance(accountBalance - amountToPay);
         userRepository.save(currentUser);
 
-        return ResponseEntity.ok(
-                new BaseResponse("Payment using balance was successful!", HttpStatus.OK.value(),
-                        amountToPay)
-        );
+        Invoice invoice = new Invoice();
+        invoice.setUser(currentUser);
+        invoice.setAmount(amountToPay);
+        invoice.setPaymentMethod(PaymentMethod.ACCOUNT_BALANCE);
+        invoice.setPaymentStatus(PaymentStatus.PAID);
+        invoice.setTransactionType(TransactionType.valueOf(transactionType));
+        Invoice savedInvoice = invoiceRepository.save(invoice);
+        return invoiceMapper.convertToResponse(savedInvoice);
     }
 
     @Transactional
@@ -130,28 +139,28 @@ public class UserServiceImpl implements UserService {
         try {
             // Kiểm tra đầu vào
             if (owner == null) {
-                log.error("Người dùng không hợp lệ (null).");
+                log.error("Owner not found (null).");
                 return false;
             }
             if (price == null || price < 0) {
-                log.error("Số tiền refund không hợp lệ: {}", price);
+                log.error("Refund amount not found: {}", price);
                 return false;
             }
 
             // Cập nhật số dư
             Double currentBalance = owner.getAccountBalance();
             if (currentBalance == null) {
-                log.error("Số dư hiện tại của người dùng {} không hợp lệ (null).", owner.getFullName());
+                log.error("Account balance of current user {} null.", owner.getFullName());
                 return false;
             }
 
             owner.setAccountBalance(currentBalance + price);
             userRepository.save(owner);
-            log.warn("Vừa refund cho {} số tiền {}", owner.getFullName(), price);
+            log.warn("Refunded {} amount {}", owner.getFullName(), price);
 
             return true;
         } catch (Exception ex) {
-            log.error("Lỗi xảy ra khi thực hiện refund cho {} số tiền {}: {}",
+            log.error("Error while refund for {} amount {}: {}",
                     owner != null ? owner.getFullName() : "null",
                     price,
                     ex.getMessage(),

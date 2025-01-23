@@ -82,9 +82,12 @@ public class UserController {
     }
 
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
-    @PatchMapping("/makePaymentByBalance")
-    public ResponseEntity<BaseResponse> makePaymentByBalance(@RequestParam Double amountToPay) {
-        return userService.makePaymentByBalance(amountToPay);
+    @PatchMapping("/balance-pay")
+    public ResponseEntity<BaseResponse> makePaymentByBalance(@RequestParam Double amountToPay,
+                                                             @RequestParam String transactionType) {
+        return ResponseEntity.ok(
+                new BaseResponse("Payment using balance was successful!", HttpStatus.OK.value(),
+                        userService.makePaymentByBalance(amountToPay, transactionType)));
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")

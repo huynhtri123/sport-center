@@ -10,6 +10,7 @@ import formatCurrency from '../../../utils/formatCurrency';
 import { TransactionType } from '../../../utils/enums/TransactionType';
 import { PaymentMethod } from '../../../utils/enums/PaymentMethod';
 import ConfirmModal from '../../../components/Modal/ConfirmModal';
+import paymentApi from '../../../services/api/payment/paymentApi';
 
 // cải tiến: trưởng hợp thanh toán CARD thất bại
 export default function Payments() {
@@ -63,37 +64,37 @@ export default function Payments() {
 
     const selectedPayment = user?.paymentInfos?.[selectedPaymentIndex] || {};
 
+    // chưa hoàn thiện, quăng đặt sân b2 qua BE chỗ thanh toán luôn
     const cardPaymentForBooking = async () => {
         try {
-            // buoc 1
+            // 1. đặt sân bước 1
             const bookingResponse = await onSubmit(); // booking || recurringBooking
-            // console.log(bookingResponse);
             if (!bookingResponse) return;
 
-            // thanh toan
+            // 2. nếu đặt sân bước 1 thành công -> thanh toán
+            // thanh toán bằng vnpay (nếu có số dư thì BE xử lý luôn r)
+            // BE: Thanh toán bằng số dư, tạo hoá đơn + thanh toán bằng vnpay, tạo hoá đơn
             const transactionType = TransactionType.BOOKING;
-            // 1. kiem tra neu có amountByBalance nghia la thanh toan lon xon
-            if (amountByBalance) {
-                const balancePaymentResponse = await makePaymentByBalance(amountByBalance);
-                // console.log(amountByBalance);
-                // console.log(balancePaymentResponse);
-                if (!balancePaymentResponse) return;
-
-                // tao hoa don balance
-                await createInvoice(user.id, amountByBalance, transactionType, PaymentMethod.ACCOUNT_BALANCE);
-            }
-            // toast.success('Thanh toán thành công');
-
-            // thanh toán thành công -> gọi api đặt sân bước 2
-            // console.log(bookingResponse);
-            const bookingId = bookingResponse.id;
-            const confirmResponse = await confirmBooking(bookingId);
-            if (!confirmResponse) return;
-
-            // đặt sân bước 2 thành công -> tạo hoá đơn
             const invoiceAmount = amountByBalance ? amount - amountByBalance : amount;
-            await createInvoice(user.id, invoiceAmount, transactionType, PaymentMethod.CARD);
-            navigate('/payment-confirmation');
+            const vnpayRequest = {
+                userId: user.id,
+                amount: invoiceAmount,
+                amountByBalance: amountByBalance || 0,
+                transactionType: transactionType,
+            };
+            const response = await paymentApi.pay(vnpayRequest);
+            window.location.href = response.url;
+
+            // 3. thanh toán đầy đủ thành công -> gọi api đặt sân bước 2
+            // chỗ này đem qua BE luôn
+            // BE: nếu sân không còn trống -> hoàn tiền (có thể cải tiến hoàn 200% hay tặng voucher thay lời xin lỗi)
+            if (response && response.url) {
+                const bookingId = bookingResponse.id;
+                const confirmResponse = await confirmBooking(bookingId);
+                if (!confirmResponse) return;
+            }
+
+            // sau khi thanh toán, BE tự điều hướng
         } catch (err) {
             console.error(err);
         }
@@ -101,35 +102,26 @@ export default function Payments() {
 
     const cardPaymentForTournament = async () => {
         try {
-            // buoc 1
+            // 1. đăng ký giải đấu
             const registerTournamentResponse = await onSubmit(); // register tournament
-            // console.log(registerTournamentResponse);
             if (!registerTournamentResponse) {
-                navigate('/tournaments');
                 return;
             }
 
-            // thanh toan
+            // 2. thanh toán
             const transactionType = TransactionType.REGISTRATION_FEE;
-            // 1. kiem tra neu có amountByBalance nghia la thanh toan lon xon
-            if (amountByBalance) {
-                const balancePaymentResponse = await makePaymentByBalance(amountByBalance);
-                // console.log(amountByBalance);
-                // console.log(balancePaymentResponse);
-                if (!balancePaymentResponse) {
-                    // huy dki
-                    return;
-                }
-                // tao hoa don balance
-                await createInvoice(user.id, amountByBalance, transactionType, PaymentMethod.ACCOUNT_BALANCE);
-            }
-            // toast.success('Thanh toán thành công');
+            const invoiceAmount = amountByBalance ? amount - amountByBalance : amount;
+            const vnpayRequest = {
+                userId: user.id,
+                amount: invoiceAmount,
+                amountByBalance: amountByBalance || 0,
+                transactionType: transactionType,
+            };
+            const response = await paymentApi.pay(vnpayRequest);
+            window.location.href = response.url;
             // thanh toán không thành công thì gọi hàm huỷ register
 
-            // tạo hoá đơn
-            const invoiceAmount = amountByBalance ? amount - amountByBalance : amount;
-            await createInvoice(user.id, invoiceAmount, transactionType, PaymentMethod.CARD);
-            navigate('/payment-confirmation');
+            // BE tự điều hướng về
         } catch (err) {
             console.error(err);
         }

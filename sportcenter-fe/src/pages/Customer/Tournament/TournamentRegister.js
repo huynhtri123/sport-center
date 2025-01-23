@@ -133,7 +133,7 @@ function TournamentRegister() {
             const registerResponse = await tournamentApi.register(registerRequest);
             toast.success(registerResponse.message);
             localStorage.setItem('selectedTournament', JSON.stringify(registerResponse.data));
-            navigate('/tournament/detail');
+            //navigate('/tournament/detail');
             return registerResponse.data;
         } catch (error) {
             console.error('Registration failed:', error);

@@ -38,8 +38,10 @@ public class InvoiceServiceImpl implements InvoiceService {
             Invoice savedInvoice = invoiceRepository.save(invoice);
             InvoiceResponse response = invoiceMapper.convertToResponse(savedInvoice);
             return response;
+        } else {
+            throw new CustomException("You dont have permission to create invoice for other user!",
+                    HttpStatus.BAD_REQUEST.value());
         }
-        return null;
     }
 
     @Override
