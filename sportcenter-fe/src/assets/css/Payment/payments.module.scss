@@ -116,3 +116,15 @@
         transform: translateY(0);
     }
 }
+
+.vnpayLogo {
+    width: 150px; // Điều chỉnh kích thước logo
+    margin-bottom: 1rem; // Khoảng cách dưới logo
+}
+
+.paymentImage {
+    width: 100%; // Đảm bảo hình ảnh chiếm toàn bộ chiều rộng
+    max-width: 400px; // Giới hạn chiều rộng tối đa
+    margin-bottom: 1rem; // Khoảng cách trên hình ảnh
+    border-radius: 10px; // Bo tròn các góc
+}

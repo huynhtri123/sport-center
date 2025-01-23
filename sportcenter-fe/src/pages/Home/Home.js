@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styles from '../../assets/css/home.module.scss';
+import { useUser } from '../../customs/hooks';
+import userApi from '../../services/api/userApi';
 
 const bannerImages = [
     'https://res.cloudinary.com/dftznqjsj/image/upload/v1729679449/yoga-banner_otpmcq.png',
@@ -14,6 +16,16 @@ const bannerImages = [
 function Home() {
     const extendedImages = [bannerImages[bannerImages.length - 1], ...bannerImages, bannerImages[0]];
     const [currentIndex, setCurrentIndex] = useState(1);
+    const [user, setUser] = useUser();
+
+    const fetchCurrUser = async () => {
+        const userRespones = await userApi.getCurrentUser();
+        setUser(userRespones.data);
+    };
+
+    useEffect(() => {
+        fetchCurrUser();
+    }, []);
 
     useEffect(() => {
         const interval = setInterval(() => {
