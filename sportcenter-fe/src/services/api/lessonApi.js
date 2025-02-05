@@ -9,13 +9,13 @@ const lessonApi = {
 
     // Lấy tất cả các buổi học đang hoạt động (active & not deleted)
     getAllActive() {
-        const url = '/lesson/getAllActive';
+        const url = '/lesson/all-active';
         return axiosClient.get(url);
     },
 
     // Lấy thông tin buổi học theo ID
     getById(lessonId) {
-        const url = `/lesson/getById/${lessonId}`;
+        const url = `/lesson/${lessonId}`;
         return axiosClient.get(url);
     },
 
@@ -39,7 +39,7 @@ const lessonApi = {
 
     // Xóa mềm buổi học theo ID
     softDelete(lessonId) {
-        const url = `/lesson/softDelete/${lessonId}`;
+        const url = `/lesson/soft-delete/${lessonId}`;
         return axiosClient.patch(url);
     },
 
@@ -57,7 +57,7 @@ const lessonApi = {
 
     // Tìm kiếm buổi học theo tên
     searchByName(lessonName) {
-        const url = `/lesson/searchByName?lessonName=${lessonName}`;
+        const url = `/lesson/search-by-name?lessonName=${lessonName}`;
         return axiosClient.get(url);
     },
 };

@@ -19,7 +19,7 @@ public class RevenueController {
     private RevenueService revenueService;
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/countSingleBooking")
+    @GetMapping("/count-single-booking")
     public ResponseEntity<BaseResponse> countSingleBooking() {
         int result = revenueService.countBookingByType(false);
         return ResponseEntity.ok(
@@ -28,7 +28,7 @@ public class RevenueController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/countRecurringBooking")
+    @GetMapping("/count-recurring")
     public ResponseEntity<BaseResponse> countRecurringBooking() {
         int result = revenueService.countRecurringBooking();
         return ResponseEntity.ok(
@@ -38,7 +38,7 @@ public class RevenueController {
 
     // đếm số lượng recurring theo chu kì (ví dụ: đếm xem có bao nhiêu booking đặt theo kiểu WEEKLY, DAILY)
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/countRecurringBookingByType")
+    @GetMapping("/count-recurring-by-type")
     public ResponseEntity<BaseResponse> countRecurringBookingByType(@RequestParam("type") RecurringIntervalType type) {
         int result = revenueService.countRecurringByType(type);
         return ResponseEntity.ok(

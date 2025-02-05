@@ -2,7 +2,7 @@ import axiosClient from '../axiosClient';
 
 const paymentApi = {
     pay(vnpayRequest) {
-        const url = '/payment/create_payment';
+        const url = '/payment/create-payment';
         return axiosClient.post(url, vnpayRequest);
     },
 };

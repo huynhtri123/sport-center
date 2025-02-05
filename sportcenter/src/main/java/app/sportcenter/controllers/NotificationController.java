@@ -22,31 +22,31 @@ public class NotificationController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @GetMapping("/getById/{notificationId}")
+    @GetMapping("/{notificationId}")
     public ResponseEntity<BaseResponse> getById(@PathVariable String notificationId) {
         return notificationService.getById(notificationId);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/getAllActive")
+    @GetMapping("/all-active")
     public ResponseEntity<BaseResponse> getAllActive() {
         return notificationService.getAllActive();
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/getAllSoftDeleted")
+    @GetMapping("/soft-deleted")
     public ResponseEntity<BaseResponse> getAllSoftDeleted() {
         return notificationService.getAllSoftDeleted();
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/findByUserId/{userId}")
+    @GetMapping("/user/{userId}")
     public ResponseEntity<BaseResponse> findByUserId(@PathVariable String userId) {
         return notificationService.findByUserId(userId);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/findByTitle/{title}")
+    @GetMapping("/title/{title}")
     public ResponseEntity<BaseResponse> findByTitle(@PathVariable String title) {
         return notificationService.findByTitle(title);
     }
@@ -58,7 +58,7 @@ public class NotificationController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PatchMapping("/softDelete/{notificationId}")
+    @PatchMapping("/soft-delete/{notificationId}")
     public ResponseEntity<BaseResponse> softDelete(@PathVariable String notificationId) {
         return notificationService.softDelete(notificationId);
     }
@@ -70,7 +70,7 @@ public class NotificationController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @DeleteMapping("/forceDelete/{notificationId}")
+    @DeleteMapping("/force-delete/{notificationId}")
     public ResponseEntity<BaseResponse> forceDelete(@PathVariable String notificationId) {
         return notificationService.forceDelete(notificationId);
     }
@@ -78,7 +78,7 @@ public class NotificationController {
     // người dùng tự lấy danh sách thông báo của mình
     // (chỉ được phép khi thông tin đăng nhập hiện tại khớp với userId trên url)
     @PreAuthorize("hasAnyAuthority('CUSTOMER')")
-    @GetMapping("/myNotifications/{userId}")
+    @GetMapping("/my-notifications/{userId}")
     public ResponseEntity<BaseResponse> getMyNotifications(@PathVariable String userId) {
         return notificationService.getNotificationsForCurrentUser(userId);
     }

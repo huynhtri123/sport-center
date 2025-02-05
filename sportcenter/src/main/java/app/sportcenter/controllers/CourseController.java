@@ -22,20 +22,20 @@ public class CourseController {
         return courseService.create(courseRequest);
     }
 
-    @GetMapping("/public/course/getAllActive")
+    @GetMapping("/public/course/all-active")
     public ResponseEntity<BaseResponse> getAllActive(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return courseService.getAllActive(page, size);
     }
 
-    @GetMapping("/public/course/getById/{courseId}")
+    @GetMapping("/public/course/{courseId}")
     public ResponseEntity<BaseResponse> getById(@PathVariable("courseId") String courseId) {
         return courseService.getById(courseId);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PatchMapping("/course/softDelete/{courseId}")
+    @PatchMapping("/course/soft-delete/{courseId}")
     public ResponseEntity<BaseResponse> softDelete(@PathVariable("courseId") String courseId) {
         return courseService.softDelete(courseId);
     }
@@ -47,26 +47,26 @@ public class CourseController {
     }
 
 
-    @GetMapping("/public/course/searchByName")
+    @GetMapping("/public/course/search-by-name")
     public ResponseEntity<BaseResponse> searchByNameContainingIgnoreCase(
             @RequestParam("courseName") String courseName) {
         return courseService.searchByNameContainingIgnoreCase(courseName);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PutMapping("/course/updateById/{courseId}")
+    @PutMapping("/course/update/{courseId}")
     public ResponseEntity<BaseResponse> updateById(@PathVariable(value = "courseId") String courseId,
                                                    @Valid @RequestBody CourseRequest courseRequest) {
         return courseService.updateById(courseId, courseRequest);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @DeleteMapping("/course/deleteLesson/{courseId}/lessons/{lessonId}")
+    @DeleteMapping("/course/{courseId}/lessons/{lessonId}")
     public ResponseEntity<BaseResponse> deleteLesson(@PathVariable String courseId, @PathVariable String lessonId) {
         return courseService.deleteLessonFromCourse(courseId, lessonId);
     }
 
-    @GetMapping("/public/course/searchByNameAndPaginate")
+    @GetMapping("/public/course/search-by-name-page")
     public ResponseEntity<BaseResponse> searchByNameAndPaginate(
             @RequestParam("courseName") String courseName,
             @RequestParam(defaultValue = "0") int page,

@@ -36,20 +36,20 @@ public class TeamController {
 
     // public
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @GetMapping("/getById/{teamId}")
+    @GetMapping("/{teamId}")
     public ResponseEntity<BaseResponse> getById(@PathVariable String teamId) {
         return teamService.getById(teamId);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/getAll")
+    @GetMapping("/all")
     public ResponseEntity<BaseResponse> getAll() {
         return teamService.getAll();
     }
 
     // chỉ có chủ sở hữu team được dùng
     @PreAuthorize("hasAnyAuthority('CUSTOMER')")
-    @GetMapping("/myTeams")
+    @GetMapping("/my-teams")
     public ResponseEntity<BaseResponse> myTeams() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
@@ -70,7 +70,7 @@ public class TeamController {
 
     // chỉ có chủ sở hữu team và admin được dùng
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @PatchMapping("/softDelete/{teamId}")
+    @PatchMapping("/soft-delete/{teamId}")
     public ResponseEntity<BaseResponse> softDelete(@PathVariable String teamId) {
         return teamService.softDelete(teamId);
     }
@@ -84,13 +84,13 @@ public class TeamController {
 
     // chỉ có chủ sở hữu team và admin được dùng
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @DeleteMapping("/forceDelete/{teamId}")
+    @DeleteMapping("/force-delete/{teamId}")
     public ResponseEntity<BaseResponse> forceDelete(@PathVariable String teamId) {
         return teamService.forceDelete(teamId);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @GetMapping("/checkExistedName")
+    @GetMapping("/check-existed-name")
     public ResponseEntity<BaseResponse> checkExistedName(@RequestParam("teamName") String teamName) {
         boolean isExisted = teamService.checkExistedTeam(teamName);
         if (isExisted) {

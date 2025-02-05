@@ -40,17 +40,17 @@ public class AuthenticationController {
         return authenticationService.signin(signinRequest, response);
     }
 
-    @PostMapping("/auth/refreshToken")
+    @PostMapping("/auth/refresh-token")
     public ResponseEntity<BaseResponse> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         return authenticationService.refreshToken(request, response);
     }
 
-    @PostMapping("/auth/getVerify")
+    @PostMapping("/auth/get-verify")
     public ResponseEntity<BaseResponse> sendVerifyRequest(@Valid @RequestBody ForgotPasswordRequest forgotPasswordRequest) {
         return authenticationService.sendVerifyRequest(forgotPasswordRequest);
     }
 
-    @PatchMapping("/auth/renewPassword/{userId}")
+    @PatchMapping("/auth/renew-password/{userId}")
     public ResponseEntity<BaseResponse> renewPassword(@PathVariable("userId") String userId,
                                                       @Valid @RequestBody RenewPasswordRequest renewPasswordRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(

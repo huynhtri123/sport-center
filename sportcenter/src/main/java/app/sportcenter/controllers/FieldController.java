@@ -24,7 +24,7 @@ public class FieldController {
     }
 
     // public - Lấy tất cả Field đang hoạt động (active & not deleted)
-    @GetMapping("/public/field/getAllActive")
+    @GetMapping("/public/field/all-active")
     public ResponseEntity<BaseResponse> getAllActive(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size) {
@@ -32,13 +32,13 @@ public class FieldController {
     }
 
     // public
-    @GetMapping("/public/field/getById/{fieldId}")
+    @GetMapping("/public/field/{fieldId}")
     public ResponseEntity<BaseResponse> getById(@PathVariable("fieldId") String fieldId) {
         return fieldService.getById(fieldId);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/field/getAllSoftDeleted")
+    @GetMapping("/field/soft-deleted")
     public ResponseEntity<BaseResponse> getAllSoftDeleted() {
         return fieldService.getAllSoftDeleted();
     }
@@ -51,13 +51,13 @@ public class FieldController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PatchMapping("/field/toggleActiveStatus/{fieldId}")
+    @PatchMapping("/field/toggle-active-status/{fieldId}")
     public ResponseEntity<BaseResponse> toggleActiveStatus(@PathVariable("fieldId") String fieldId) {
         return fieldService.toggleActiveStatus(fieldId);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PatchMapping("/field/softDelete/{fieldId}")
+    @PatchMapping("/field/soft-delete/{fieldId}")
     public ResponseEntity<BaseResponse> softDelete(@PathVariable("fieldId") String fieldId) {
         return fieldService.softDeleted(fieldId);
     }
@@ -69,31 +69,25 @@ public class FieldController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @DeleteMapping("/field/forceDelete/{fieldId}")
+    @DeleteMapping("/field/force-delete/{fieldId}")
     public ResponseEntity<BaseResponse> forceDelete(@PathVariable("fieldId") String fieldId) {
         return fieldService.forceDelete(fieldId);
     }
 
     // public
-    @GetMapping("/public/field/searchByName")
+    @GetMapping("/public/field/search-by-name")
     public ResponseEntity<BaseResponse> searchByNameContainingIgnoreCase(
             @RequestParam("fieldName") String fieldName) {
         return fieldService.searchByNameContainingIgnoreCase(fieldName);
     }
 
-    // public
-//    @GetMapping("/public/field/findByType")
-//    public ResponseEntity<BaseResponse> findByFieldType(@RequestParam("type") FieldType fieldType) {
-//        return fieldService.findByFieldType(fieldType);
-//    }
-
-    @GetMapping("/public/field/findBySportId/{sportId}")
+    @GetMapping("/public/field/sport/{sportId}")
     public ResponseEntity<BaseResponse> findBySportId(@PathVariable("sportId") String sportId) {
         return fieldService.findBySportId(sportId);
     }
 
 
-    @GetMapping("/public/field/searchByNameAndPaginate")
+    @GetMapping("/public/field/search-by-name-paginate")
     public ResponseEntity<BaseResponse> searchByNameAndPaginate(
             @RequestParam("fieldName") String fieldName,
             @RequestParam(defaultValue = "0") int page,

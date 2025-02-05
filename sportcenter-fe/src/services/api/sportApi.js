@@ -8,12 +8,12 @@ const sportApi = {
 
     // Get a sport by ID
     getById(sportId) {
-        return axiosClient.get(`/public/sport/getById/${sportId}`);
+        return axiosClient.get(`/public/sport/${sportId}`);
     },
 
     // Update a sport by ID
     update(sportId, sportRequest) {
-        return axiosClient.put(`/sport/updateById/${sportId}`, sportRequest);
+        return axiosClient.put(`/sport/update/${sportId}`, sportRequest);
     },
 
     // Permanently delete a sport by ID
@@ -23,7 +23,7 @@ const sportApi = {
 
     // Soft delete a sport by ID
     softDelete(sportId) {
-        return axiosClient.patch(`/sport/softDelete/${sportId}`);
+        return axiosClient.patch(`/sport/soft-delete/${sportId}`);
     },
 
     // Restore a soft-deleted sport by ID
@@ -33,7 +33,7 @@ const sportApi = {
 
     // Get all active sports
     getAllActive: (page, size) => {
-        return axiosClient.get(`/public/sport/getAllActive?page=${page}&size=${size}`);
+        return axiosClient.get(`/public/sport/all-active?page=${page}&size=${size}`);
     },
 };
 

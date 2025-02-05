@@ -21,25 +21,25 @@ public class SportController {
         return sportService.create(sportRequest);
     }
 
-    @GetMapping("/public/sport/getById/{sportId}")
+    @GetMapping("/public/sport/{sportId}")
     public ResponseEntity<BaseResponse> getById(@PathVariable String sportId) {
         return sportService.getById(sportId);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PutMapping("/sport/updateById/{sportId}")
+    @PutMapping("/sport/update/{sportId}")
     public ResponseEntity<BaseResponse> update(@PathVariable String sportId,@Valid @RequestBody SportRequest sportRequest) {
         return sportService.update(sportId, sportRequest);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PatchMapping("/sport/softDelete/{sportId}")
+    @PatchMapping("/sport/soft-delete/{sportId}")
     public ResponseEntity<BaseResponse> softDelete(@PathVariable String sportId) {
         return sportService.softDelete(sportId);
     }
 
     // api này public được nên ko cần xác thực
-    @GetMapping("/public/sport/getAllActive")
+    @GetMapping("/public/sport/all-active")
     public ResponseEntity<BaseResponse> getAllActive(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size) {

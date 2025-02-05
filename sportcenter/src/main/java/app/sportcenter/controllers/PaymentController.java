@@ -35,7 +35,7 @@ public class PaymentController {
     private final UserService userService;
 
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
-    @PostMapping("/payment/create_payment")
+    @PostMapping("/payment/create-payment")
     public ResponseEntity<?> createPayment(HttpServletRequest request, @RequestBody @Valid VNPayRequest vnPayRequest) {
         return ResponseEntity.ok(paymentService.createPayment(request, vnPayRequest));
     }
@@ -81,7 +81,6 @@ public class PaymentController {
             response.sendRedirect(vnPayConfig.getReturnClientUrlFailed());
         }
         response.sendRedirect(vnPayConfig.getReturnClientUrlSuccess());
-
     }
 
 }

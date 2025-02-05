@@ -26,7 +26,7 @@ public class UserController {
     private CloudinaryService cloudinaryService;
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @PutMapping("/updateProfile")
+    @PutMapping("/update-profile")
     public ResponseEntity<BaseResponse> updateCurrentUser(@RequestPart("userRequest") @Valid UserRequest userRequest,
                                                           @RequestPart(name = "file", required = false) MultipartFile file) {
         if (file != null && !file.isEmpty()) {
@@ -41,42 +41,42 @@ public class UserController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @GetMapping("/myProfile")
+    @GetMapping("/my-profile")
     public ResponseEntity<BaseResponse> getCurrentProfile() {
         return userService.getCurrentProfile();
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @GetMapping("/getAllActive")
+    @GetMapping("/all-active")
     public ResponseEntity<BaseResponse> getAll() {
         return userService.getAll();
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @DeleteMapping("/softDelete/{userId}")
+    @DeleteMapping("/soft-delete/{userId}")
     public ResponseEntity<BaseResponse> softDelete(@PathVariable String userId) {
         return userService.softDelete(userId);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @PutMapping("/addPayment/{userId}")
+    @PutMapping("/add-payment/{userId}")
     public ResponseEntity<BaseResponse> addPaymentInfo(@PathVariable String userId, @Valid @RequestBody PaymentRequest paymentRequest) {
         return userService.addPaymentInfoToUser(userId, paymentRequest);
     }
 
-    @DeleteMapping("/deletePayment/{userId}/{paymentInfoId}")
+    @DeleteMapping("/payment/{userId}/{paymentInfoId}")
     public ResponseEntity<BaseResponse> removePaymentInfoFromUser(@PathVariable String userId, @PathVariable String paymentInfoId) {
         return userService.removePaymentInfoFromUser(userId, paymentInfoId);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @PutMapping("/updatePayment/{userId}/{paymentInfoId}")
+    @PutMapping("/update-payment/{userId}/{paymentInfoId}")
     public ResponseEntity<BaseResponse> updatePaymentInfo(@PathVariable String userId, @PathVariable String paymentInfoId, @Valid @RequestBody PaymentRequest paymentRequest) {
         return userService.updatePaymentInfoForUser(userId, paymentInfoId, paymentRequest);
     }
 
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
-    @GetMapping("/getAccountBalance")
+    @GetMapping("/account-balance")
     public ResponseEntity<BaseResponse> getAccountBalance() {
         return userService.getAccountBalance();
     }
@@ -91,7 +91,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @GetMapping("/getCurrentUser")
+    @GetMapping("/current-user")
     public ResponseEntity<BaseResponse> getCurrentUser() {
         return ResponseEntity.ok(
                 new BaseResponse("Lấy thông tin người dùng hiện tại thành công",
@@ -101,7 +101,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/getUserById/{userId}")
+    @GetMapping("/{userId}")
     public ResponseEntity<BaseResponse> getUserById(@PathVariable("userId") String userId) {
         return ResponseEntity.ok(
                 new BaseResponse("Find user by id successfully",

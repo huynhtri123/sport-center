@@ -37,21 +37,21 @@ public class BookingController {
 
 
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
-    @PostMapping("/booking/createRecurring")
+    @PostMapping("/recurring/create")
     public ResponseEntity<BaseResponse> createRecurringBooking(
             @Valid @RequestBody RecurringBookingRequest recurringBookingRequest) {
         return bookingService.createRecurringBooking(recurringBookingRequest);
     }
 
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
-    @PutMapping("/booking/confirmRecurring/{recurringBookingId}")
+    @PutMapping("/recurring/confirm/{recurringBookingId}")
     public ResponseEntity<BaseResponse> confirmRecurring(@PathVariable("recurringBookingId") String recurringBookingId) {
         return bookingService.confirmRecurringBooking(recurringBookingId);
     }
 
     // lấy giá đặt sân lẻ
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
-    @PostMapping("/booking/getBookingPrice")
+    @PostMapping("/booking/price")
     public ResponseEntity<BaseResponse> getBookingPrice(@Valid @RequestBody BookingRequest bookingRequest) {
         Double price = bookingService.getBookingPrice(bookingRequest);
         return ResponseEntity.ok(
@@ -61,7 +61,7 @@ public class BookingController {
 
     // lấy giá đặt sân theo lịch cứng
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
-    @PostMapping("/booking/getRecurringBookingPrice")
+    @PostMapping("/recurring/price")
     public ResponseEntity<BaseResponse> getRecurringBookingPrice(
             @Valid @RequestBody RecurringBookingRequest recurringBookingRequest) {
         Double price = bookingService.getRecurringBookingPrice(recurringBookingRequest);
@@ -72,7 +72,7 @@ public class BookingController {
 
     // lấy RecurringBooking nào có chứa bookingId (tìm chủ nhân của booking kiểu recurring)
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
-    @GetMapping("/recurring/getByBookingId")
+    @GetMapping("/recurring/by-booking")
     public ResponseEntity<BaseResponse> getRecurringBookingByContainBookingId(
             @RequestParam("bookingId") String bookingId) {
         return bookingService.getRecurringBookingByContainBookingId(bookingId);
@@ -85,31 +85,31 @@ public class BookingController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/booking/getByUserId/{userId}")
+    @GetMapping("/booking/by-user/{userId}")
     public ResponseEntity<BaseResponse> getByUserId(@PathVariable String userId) {
         return bookingService.getBookingByUserId(userId);
     }
 
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
-    @GetMapping("/booking/myBookings/{userId}")
+    @GetMapping("/booking/my-bookings/{userId}")
     public ResponseEntity<BaseResponse> getCurrentBookingsOfCurrentUser(@PathVariable String userId) {
         return bookingService.getCurrentBookingsOfCurrentUser(userId);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/booking/getByFieldId/{fieldId}")
+    @GetMapping("/booking/by-field/{fieldId}")
     public ResponseEntity<BaseResponse> getByFieldId(@PathVariable String fieldId) {
         return bookingService.getBookingByFieldId(fieldId);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/booking/byStartTime/{startTime}")
+    @GetMapping("/booking/start-time/{startTime}")
     public ResponseEntity<BaseResponse> getBookingsByStartTime(@PathVariable("startTime") ZonedDateTime startTime) {
         return bookingService.getBookingsByStartTime(startTime);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/booking/getAllActive")
+    @GetMapping("/booking/all-active")
     public ResponseEntity<BaseResponse> getBookingsByStartTime(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size) {
@@ -117,7 +117,7 @@ public class BookingController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PatchMapping("/booking/softDelete/{bookingId}")
+    @PatchMapping("/booking/soft-delete/{bookingId}")
     public ResponseEntity<BaseResponse> softDelete(@PathVariable String bookingId) {
         boolean newIsDeleted = true;
         return bookingService.changeIsDeleted(bookingId, newIsDeleted);
@@ -131,14 +131,14 @@ public class BookingController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @DeleteMapping("/booking/forceDelete/{bookingId}")
+    @DeleteMapping("/booking/force-delete/{bookingId}")
     public ResponseEntity<BaseResponse> forceDelete(@PathVariable String bookingId) {
         return bookingService.forceDelete(bookingId);
     }
 
     // lấy tất cả booking theo khoảng thời gian cụ thể. Ví dụ theo ngày (7:00 ngày 1/1/2024 - 22:00 ngày 1/1/2024)
     // public
-    @PutMapping("/public/booking/updateAndGetSchedule")
+    @PutMapping("/public/booking/update-and-get-schedule")
     public ResponseEntity<BaseResponse> getFieldSchedule(@Valid @RequestBody OnDayScheduleRequest onDayScheduleRequest) {
         String fieldId = onDayScheduleRequest.getFieldId();
         ZonedDateTime startOfDay = onDayScheduleRequest.getStartOfDay();
@@ -159,7 +159,7 @@ public class BookingController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @GetMapping("/recurring/getRemainingPrice/{bookingId}")
+    @GetMapping("/recurring/remaining-price/{bookingId}")
     public ResponseEntity<BaseResponse> getRemainingAmountOfRecurringByBookingId(@PathVariable("bookingId") String bookingId) {
         return ResponseEntity.ok(
                 new BaseResponse("Lấy giá còn lại của Recurring thành công", HttpStatus.OK.value(),
@@ -168,7 +168,7 @@ public class BookingController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/booking/searchByFieldNameAndPaginate")
+    @GetMapping("/booking/search-by-field-name")
     public ResponseEntity<BaseResponse> searchByFieldNameAndPaginate(
             @RequestParam("fieldName") String fieldName,
             @RequestParam(defaultValue = "0") int page,
@@ -176,7 +176,7 @@ public class BookingController {
         return bookingService.searchByFieldNameAndPaginate(fieldName, page, size);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/booking/revenue/lastSixMonths")
+    @GetMapping("/booking/revenue/last-six-months")
     public ResponseEntity<BaseResponse> getRevenueLastSixMonths() {
         Map<String, Double> revenueData = bookingService.getRevenueLastSixMonths();
         return ResponseEntity.ok(new BaseResponse("Lấy doanh thu thành công!", HttpStatus.OK.value(), revenueData));

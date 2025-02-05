@@ -23,19 +23,19 @@ public class LessonController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @GetMapping("/getAllActive")
+    @GetMapping("/all-active")
     public ResponseEntity<BaseResponse> getAllActive() {
         return lessonService.getAllActive();
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @GetMapping("/getById/{lessonId}")
+    @GetMapping("/{lessonId}")
     public ResponseEntity<BaseResponse> getById(@PathVariable("lessonId") String lessonId) {
         return lessonService.getById(lessonId);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PatchMapping("/softDelete/{lessonId}")
+    @PatchMapping("/soft-delete/{lessonId}")
     public ResponseEntity<BaseResponse> softDelete(@PathVariable("lessonId") String lessonId) {
         return lessonService.softDelete(lessonId);
     }
@@ -47,7 +47,7 @@ public class LessonController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @GetMapping("/searchByName")
+    @GetMapping("/search-by-name")
     public ResponseEntity<BaseResponse> searchByNameContainingIgnoreCase(
             @RequestParam("lessonName") String lessonName) {
         return lessonService.searchByNameContainingIgnoreCase(lessonName);
@@ -55,7 +55,7 @@ public class LessonController {
 
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @GetMapping("/findByType")
+    @GetMapping("/find-by-type")
     public ResponseEntity<BaseResponse> findByCourseSportType(@RequestParam("type") CourseSportType courseSportType) {
         return lessonService.findByCourseSportType(courseSportType);
     }
