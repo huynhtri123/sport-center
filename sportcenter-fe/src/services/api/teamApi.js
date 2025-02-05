@@ -58,7 +58,7 @@ const teamApi = {
 
     // Get all teams
     getAll: () => {
-        const url = '/team/getAll';
+        const url = '/team/all';
         return axiosClient.get(url);
     },
 
@@ -83,16 +83,16 @@ const teamApi = {
     },
     // eslint-disable-next-line no-dupe-keys
     softDelete(teamId) {
-        const url = `/team/softDelete/${teamId}`;
+        const url = `/team/soft-delete/${teamId}`;
         return axiosClient.patch(url);
     },
     forceDelete(teamId) {
-        const url = `/team/forceDelete/${teamId}`;
+        const url = `/team/force-delete/${teamId}`;
         return axiosClient.delete(url);
     },
 
     checkExistedName(teamName) {
-        const url = `/team/checkExistedName?teamName=${teamName}`;
+        const url = `/team/check-existed-name?teamName=${teamName}`;
         return axiosClient.get(url);
     },
 };

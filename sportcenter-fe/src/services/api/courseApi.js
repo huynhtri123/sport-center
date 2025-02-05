@@ -8,17 +8,17 @@ const courseApi = {
 
     // Get a course by ID
     getById(courseId) {
-        return axiosClient.get(`/public/course/getById/${courseId}`);
+        return axiosClient.get(`/public/course/${courseId}`);
     },
 
     // Update a course by ID
     update(courseId, courseRequest) {
-        return axiosClient.put(`/course/updateById/${courseId}`, courseRequest);
+        return axiosClient.put(`/course/update/${courseId}`, courseRequest);
     },
 
     // Soft delete a course by ID
     softDelete(courseId) {
-        return axiosClient.patch(`/course/softDelete/${courseId}`);
+        return axiosClient.patch(`/course/soft-delete/${courseId}`);
     },
 
     // Restore a soft-deleted course by ID
@@ -28,13 +28,12 @@ const courseApi = {
 
     // Get all active courses
     getAllActive(page, size) {
-        return axiosClient.get(`/public/course/getAllActive?page=${page}&size=${size}`);
+        return axiosClient.get(`/public/course/all-active?page=${page}&size=${size}`);
     },
 
     searchByNameAndPaginate(courseName, page = 0, size = 5) {
-        return axiosClient.get('/public/course/searchByNameAndPaginate', { params: { courseName, page, size } });
+        return axiosClient.get('/public/course/search-by-name-page', { params: { courseName, page, size } });
     },
-
 };
 
 export default courseApi;

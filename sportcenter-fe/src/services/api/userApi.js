@@ -2,11 +2,11 @@ import axiosClient from './axiosClient';
 
 const userApi = {
     myProfile() {
-        const url = '/user/myProfile';
+        const url = '/user/my-profile';
         return axiosClient.get(url);
     },
     updateProfile(formData) {
-        const url = '/user/updateProfile';
+        const url = '/user/update-profile';
         return axiosClient.put(url, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data', // Header để gửi FormData
@@ -16,17 +16,17 @@ const userApi = {
 
     // bookings
     myBookings(userId) {
-        const url = `/booking/myBookings/${userId}`;
+        const url = `/booking/my-bookings/${userId}`;
         return axiosClient.get(url);
     },
 
     // registered tournaments
     myTournaments() {
-        const url = '/tounament/myTournaments';
+        const url = '/tounament/my-tournaments';
         return axiosClient.get(url);
     },
     myTeamInTournament(tournamentId) {
-        const url = `/tounament/myTeamInTournament/${tournamentId}`;
+        const url = `/tounament/my-team/${tournamentId}`;
         return axiosClient.get(url);
     },
     unregisterTournament(unregisterRequest) {
@@ -34,35 +34,35 @@ const userApi = {
         return axiosClient.patch(url, unregisterRequest);
     },
     myTeams() {
-        const url = '/team/myTeams';
+        const url = '/team/my-teams';
         return axiosClient.get(url);
     },
 
     getAllActive() {
-        return axiosClient.get('/user/getAllActive');
+        return axiosClient.get('/user/all-active');
     },
 
     // Soft delete a user by ID
     softDelete(userId) {
-        return axiosClient.delete(`/user/softDelete/${userId}`);
+        return axiosClient.delete(`/user/soft-delete/${userId}`);
     },
     // Payment
     addPaymentInfo(newPayment, userId) {
-        const url = `/user/addPayment/${userId}`;
+        const url = `/user/add-payment/${userId}`;
         return axiosClient.put(url, newPayment); // Use PUT for adding payment info
     },
 
     updatePaymentInfo(updatedPayment, userId, paymentId) {
-        const url = `/user/updatePayment/${userId}/${paymentId}`; // Include userId and paymentId in the URL
+        const url = `/user/update-payment/${userId}/${paymentId}`; // Include userId and paymentId in the URL
         return axiosClient.put(url, updatedPayment); // Sending updated payment data in the body
     },
     deletePaymentInfo(userId, paymentId) {
-        const url = `/user/deletePayment/${userId}/${paymentId}`;
+        const url = `/user/payment/${userId}/${paymentId}`;
         return axiosClient.delete(url); // Use DELETE for removing payment info
     },
 
     getAccountBalance() {
-        const url = '/user/getAccountBalance';
+        const url = '/user/account-balance';
         return axiosClient.get(url);
     },
     makePaymentByBalance(amountToPay, transactionType) {
@@ -70,11 +70,11 @@ const userApi = {
         return axiosClient.patch(url);
     },
     getCurrentUser() {
-        const url = '/user/getCurrentUser';
+        const url = '/user/current-user';
         return axiosClient.get(url);
     },
     getUserById(userId) {
-        const url = `/user/getUserById/${userId}`;
+        const url = `/user/${userId}`;
         return axiosClient.get(url);
     },
 };

@@ -28,7 +28,7 @@ public class TournamentController {
     }
 
     // public
-    @GetMapping("/public/tounament/getAllActive")
+    @GetMapping("/public/tounament/all-active")
     public ResponseEntity<BaseResponse> getAllActive(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size) {
@@ -36,31 +36,31 @@ public class TournamentController {
     }
 
     // public
-    @GetMapping("/public/tounament/getById/{tournamentId}")
+    @GetMapping("/public/tounament/{tournamentId}")
     public ResponseEntity<BaseResponse> getById(@PathVariable("tournamentId") String tournamentId) {
         return tournamentService.getById(tournamentId);
     }
 
     // public
-    @GetMapping("/public/tounament/getBySportId")
+    @GetMapping("/public/tounament/sport")
     public ResponseEntity<BaseResponse> getBySportId(@RequestParam("sportId") String sportId) {
         return tournamentService.getBySportId(sportId);
     }
 
     // public
-    @GetMapping("/public/tounament/getRegistedTeams/{tournamentId}")
+    @GetMapping("/public/tounament/registed-teams/{tournamentId}")
     public ResponseEntity<BaseResponse> getRegistedTeams(@PathVariable("tournamentId") String tournamentId) {
         return tournamentService.getRegistedTeams(tournamentId);
     }
 
     @PreAuthorize("hasAuthority('CUSTOMER')")
-    @GetMapping("/tounament/myTournaments")
+    @GetMapping("/tounament/my-tournaments")
     public ResponseEntity<BaseResponse> myTournaments() {
         return tournamentService.myRegistered();
     }
 
     @PreAuthorize("hasAuthority('CUSTOMER')")
-    @GetMapping("/tounament/myTeamInTournament/{tournamentId}")
+    @GetMapping("/tounament/my-team/{tournamentId}")
     public ResponseEntity<BaseResponse> myTeamInTournament(@PathVariable("tournamentId") String tournamentId) {
         return tournamentService.getMyRegisteredTeamInTournament(tournamentId);
     }
@@ -73,7 +73,7 @@ public class TournamentController {
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PatchMapping("/tounament/softDelete/{tournamentId}")
+    @PatchMapping("/tounament/soft-delete/{tournamentId}")
     public ResponseEntity<BaseResponse> softDelete(@PathVariable("tournamentId") String tournamentId) {
         boolean newIsDeleted = true;
         return tournamentService.toggleDelete(tournamentId, newIsDeleted);
@@ -87,7 +87,7 @@ public class TournamentController {
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @DeleteMapping("/tounament/forceDelete/{tournamentId}")
+    @DeleteMapping("/tounament/force-delete/{tournamentId}")
     public ResponseEntity<BaseResponse> forceDelete(@PathVariable("tournamentId") String tournamentId) {
         return tournamentService.forceDelete(tournamentId);
     }
@@ -100,7 +100,7 @@ public class TournamentController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @PatchMapping("/tounament/checkRegistrationEligibility")
+    @PatchMapping("/tounament/check-registration-eligibility")
     public ResponseEntity<BaseResponse> checkRegistrationEligibility(@Valid @RequestBody TournamentRegisterRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
@@ -124,7 +124,7 @@ public class TournamentController {
         return tournamentService.unregister(request);
     }
 
-    @GetMapping("/public/tounament/searchByNameAndPaginate")
+    @GetMapping("/public/tounament/search-by-name")
     public ResponseEntity<BaseResponse> searchByNameAndPaginate(
             @RequestParam("tournamentName") String tournamentName,
             @RequestParam(defaultValue = "0") int page,

@@ -3,7 +3,7 @@ import axiosClient from '../axiosClient';
 const bookingApi = {
     // đầu vào phải là giờ việt nam và kiểu +7
     updateAndGetSchedule(onDayScheduleRequest) {
-        const url = '/public/booking/updateAndGetSchedule';
+        const url = '/public/booking/update-and-get-schedule';
         return axiosClient.put(url, onDayScheduleRequest);
     },
     // đầu vào phải là giờ việt nam nhưng kiểu +0
@@ -22,29 +22,29 @@ const bookingApi = {
 
     // đặt theo lịch cứng
     createRecurringBooking(recurringBookingRequest) {
-        const url = '/booking/createRecurring';
+        const url = '/recurring/create';
         return axiosClient.post(url, recurringBookingRequest);
     },
     confirmRecurring(recurringBookingId) {
-        const url = `/booking/confirmRecurring/${recurringBookingId}`;
+        const url = `/recurring/confirm/${recurringBookingId}`;
         return axiosClient.put(url);
     },
 
     // lấy giá tiền trước khi đặt
     getBookingPrice(bookingRequest) {
-        const url = '/booking/getBookingPrice';
+        const url = '/booking/price';
         return axiosClient.post(url, bookingRequest);
     },
     getRecurringBookingPrice(recurringBookingRequest) {
-        const url = '/booking/getRecurringBookingPrice';
+        const url = '/recurring/price';
         return axiosClient.post(url, recurringBookingRequest);
     },
     getAllActive(page = 0, size = 3) {
-        const url = `/booking/getAllActive?page=${page}&size=${size}`;
+        const url = `/booking/all-active?page=${page}&size=${size}`;
         return axiosClient.get(url);
     },
     getRecurringByBookingId(bookingId) {
-        const url = `/recurring/getByBookingId?bookingId=${bookingId}`;
+        const url = `/recurring/by-booking?bookingId=${bookingId}`;
         return axiosClient.get(url);
     },
     cancelRecurring(bookingId) {
@@ -52,11 +52,11 @@ const bookingApi = {
         return axiosClient.put(url);
     },
     getRemainingAmout(bookingId) {
-        const url = `/recurring/getRemainingPrice/${bookingId}`;
+        const url = `/recurring/remaining-price/${bookingId}`;
         return axiosClient.get(url);
     },
     searchByFieldName(fieldName, page = 0, size = 5) {
-        const url = `/booking/searchByFieldNameAndPaginate?fieldName=${fieldName}&page=${page}&size=${size}`;
+        const url = `/booking/search-by-field-name?fieldName=${fieldName}&page=${page}&size=${size}`;
         return axiosClient.get(url);
     },
 };

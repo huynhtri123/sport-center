@@ -6,7 +6,7 @@ const authApi = {
         return axiosClient.post(url, signinRequest);
     },
     refreshToken() {
-        const url = '/auth/refreshToken';
+        const url = '/auth/refresh-token';
         return axiosClient.post(url);
     },
     signup(signupRequest) {
@@ -18,11 +18,11 @@ const authApi = {
         return axiosClient.post(url, verifyRequest);
     },
     getVerify(getVerifyRequest) {
-        const url = '/auth/getVerify';
+        const url = '/auth/get-verify';
         return axiosClient.post(url, getVerifyRequest);
     },
     renewPassword(userId, renewPasswordRequest) {
-        const url = `/auth/renewPassword/${userId}`;
+        const url = `/auth/renew-password/${userId}`;
         return axiosClient.patch(url, renewPasswordRequest);
     },
     signout() {

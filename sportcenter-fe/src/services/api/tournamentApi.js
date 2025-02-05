@@ -10,15 +10,15 @@ const tournamentApi = {
         return axiosClient.put(url, formData);
     },
     getAllActive(page, size) {
-        const url = `/public/tounament/getAllActive?page=${page}&size=${size}`;
+        const url = `/public/tounament/all-active?page=${page}&size=${size}`;
         return axiosClient.get(url);
     },
     getById(tournamentId) {
-        const url = `/public/tounament/getById/${tournamentId}`;
+        const url = `/public/tounament/${tournamentId}`;
         return axiosClient.get(url);
     },
     getRegistedTeams(tournamentId) {
-        const url = `/public/tounament/getRegistedTeams/${tournamentId}`;
+        const url = `/public/tounament/registed-teams/${tournamentId}`;
         return axiosClient.get(url);
     },
     register(registerRequest) {
@@ -30,15 +30,15 @@ const tournamentApi = {
         return axiosClient.patch(url, registerRequest);
     },
     softDelete(tournamentId) {
-        const url = `/tounament/softDelete/${tournamentId}`;
+        const url = `/tounament/soft-delete/${tournamentId}`;
         return axiosClient.patch(url);
     },
     searchTournaments(query, page, size) {
-        const url = `/public/tounament/searchByNameAndPaginate?tournamentName=${query}&page=${page}&size=${size}`;
+        const url = `/public/tounament/search-by-name?tournamentName=${query}&page=${page}&size=${size}`;
         return axiosClient.get(url);
     },
     getRegisteredTeams(tournamentId) {
-        const url = `/public/tounament/getRegistedTeams/${tournamentId}`;
+        const url = `/public/tounament/registed-teams/${tournamentId}`;
         return axiosClient.get(url);
     },
 };

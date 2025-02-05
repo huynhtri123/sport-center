@@ -30,7 +30,7 @@ public class InvoiceController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/getAllActive")
+    @GetMapping("/all-active")
     public ResponseEntity<BaseResponse> getAllActive() {
         return ResponseEntity.ok(
                 new BaseResponse("Lấy danh sách hoá đơn đang hoạt động thành công",
@@ -40,16 +40,16 @@ public class InvoiceController {
     }
 
     @PreAuthorize("hasAnyAuthority('CUSTOMER')")
-    @GetMapping("/myInvoices")
+    @GetMapping("/my-invoices")
     public ResponseEntity<BaseResponse> myInvoices() {
         return ResponseEntity.ok(
-                new BaseResponse("Lấy danh sách booking của người dùng hiện tại thành công",
+                new BaseResponse("Lấy danh sách invoice của người dùng hiện tại thành công",
                         HttpStatus.OK.value(), invoiceService.myInvoices())
         );
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @PutMapping("/softDelete/{invoiceId}")
+    @PutMapping("/soft-delete/{invoiceId}")
     public ResponseEntity<BaseResponse> softDelete(@PathVariable("invoiceId") String invoiceId) {
         boolean newIsDeleted = true;
         InvoiceResponse response = invoiceService.toggleDelete(invoiceId, newIsDeleted);
@@ -69,7 +69,7 @@ public class InvoiceController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @DeleteMapping("/forceDelete/{invoiceId}")
+    @DeleteMapping("/force-delete/{invoiceId}")
     public ResponseEntity<BaseResponse> forceDelete(@PathVariable("invoiceId") String invoiceId) {
         InvoiceResponse response = invoiceService.forceDelete(invoiceId);
         return ResponseEntity.ok(
@@ -78,7 +78,7 @@ public class InvoiceController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @GetMapping("/revenue/lastSixMonths")
+    @GetMapping("/revenue/last-six-months")
     public ResponseEntity<BaseResponse> getRevenueLastSixMonths() {
         Map<String, Double> revenueData = invoiceService.getRevenueLastSixMonths();
         return ResponseEntity.ok(
