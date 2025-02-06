@@ -6,7 +6,6 @@ import styles from '../../../assets/css/Tournament/tournamentRegister.module.scs
 import Button from '../../../components/Button/Button';
 import tournamentApi from '../../../services/api/tournamentApi';
 import { useTournament } from '../../../customs/hooks';
-import fileApi from '../../../services/api/fileApi';
 import teamApi from '../../../services/api/teamApi';
 import { Loading } from '../../../components/Loading/Loading';
 import PaymentModal from '../../../components/Modal/PaymentModal';
@@ -15,7 +14,8 @@ import { defaultIcon } from '../../../utils/defaultIcon';
 function TournamentRegister() {
     const [tournament] = useTournament();
     const [teamName, setTeamName] = useState('');
-    const [teamLogoUrl, setTeamLogoUrl] = useState(defaultIcon); // URL mặc định cho logo
+    const [teamLogoUrl, setTeamLogoUrl] = useState(null); // file truyền đi
+    const [previewImage, setPreviewImage] = useState(defaultIcon);
     const [numPlayers, setNumPlayers] = useState(1);
     const [players, setPlayers] = useState([{ name: '', position: '', number: '' }]);
     const [errorMessage, setErrorMessage] = useState('');
@@ -26,8 +26,6 @@ function TournamentRegister() {
     const toggleModalOpen = () => {
         setIsModalOpen(!isModalOpen);
     };
-
-    const [isChecking, setIsChecking] = useState(false);
 
     const checkExistedTeam = async () => {
         try {
@@ -94,43 +92,35 @@ function TournamentRegister() {
         setPlayers(updatedPlayers);
     };
 
-    const handleFileChange = async (e) => {
+    const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            try {
-                setIsLoading(true);
-                const uploadResponse = await fileApi.uploadImage(file);
-                setTeamLogoUrl(uploadResponse.data.url);
-                toast.info('Updated logo!');
-            } catch (err) {
-                console.error(err);
-            } finally {
-                setIsLoading(false);
-            }
+            const imageUrl = URL.createObjectURL(file); // Tạo URL cho file ảnh ddeer preview
+
+            setPreviewImage(imageUrl); // preview
+
+            setTeamLogoUrl(file); // file
         }
     };
 
     const handleRegister = async () => {
-        let createdTeamId = null;
-
         try {
             setIsLoading(true);
+            const formData = new FormData();
             const teamRequest = {
                 teamName,
                 players,
-                teamLogoUrl: teamLogoUrl,
-                enrolledTournamentIds: [tournament.id],
             };
-
-            const teamResponse = await teamApi.create(teamRequest);
-            // toast.success(teamResponse.message);
-            createdTeamId = teamResponse.data.id;
 
             const registerRequest = {
                 tournamentId: tournament.id,
-                teamId: teamResponse.data.id,
+                teamRequest: teamRequest,
             };
-            const registerResponse = await tournamentApi.register(registerRequest);
+            formData.append('request', new Blob([JSON.stringify(registerRequest)], { type: 'application/json' }));
+            if (teamLogoUrl) {
+                formData.append('file', teamLogoUrl);
+            }
+            const registerResponse = await tournamentApi.register(formData);
             toast.success(registerResponse.message);
             localStorage.setItem('selectedTournament', JSON.stringify(registerResponse.data));
             //navigate('/tournament/detail');
@@ -138,15 +128,6 @@ function TournamentRegister() {
         } catch (error) {
             console.error('Registration failed:', error);
             setErrorMessage('An error occurred, please try again!');
-            if (createdTeamId) {
-                try {
-                    // eslint-disable-next-line no-unused-vars
-                    const forceDeleteResponse = await teamApi.forceDelete(createdTeamId);
-                    // console.log(forceDeleteResponse);
-                } catch (err) {
-                    console.error(err);
-                }
-            }
             return null;
         } finally {
             setIsLoading(false);
@@ -179,8 +160,13 @@ function TournamentRegister() {
                     </label>
                     <div className={styles.logoUpload}>
                         <div className={styles.logoWrapper}>
-                            <img src={teamLogoUrl} alt='Team Logo' className={styles.teamLogoPreview} />
-                            <input type='file' onChange={handleFileChange} className={styles.fileInput} />
+                            <img src={previewImage} alt='Team Logo' className={styles.teamLogoPreview} />
+                            <input
+                                type='file'
+                                accept='image/*'
+                                onChange={handleImageChange}
+                                className={styles.fileInput}
+                            />
                         </div>
                     </div>
                     <label>Number of members:</label>

@@ -1,8 +1,10 @@
 package app.sportcenter.services;
 
 import app.sportcenter.commons.BaseResponse;
+import app.sportcenter.models.dto.TeamResponse;
 import app.sportcenter.models.dto.TournamentRegisterRequest;
 import app.sportcenter.models.dto.TournamentRequest;
+import app.sportcenter.models.dto.UnregisterTournamentRequest;
 import app.sportcenter.models.entities.User;
 import org.springframework.http.ResponseEntity;
 
@@ -30,9 +32,11 @@ public interface TournamentService {
     // for customer
     public ResponseEntity<BaseResponse> register(TournamentRegisterRequest request);
 
-    public ResponseEntity<BaseResponse> unregister(TournamentRegisterRequest request);
+    public ResponseEntity<BaseResponse> unregister(UnregisterTournamentRequest request);
 
-    public void checkRegistrationEligibility(String tournamentId, String teamId, User currentUser);
+    public TeamResponse updateTeam(TournamentRegisterRequest request, String teamId);
+
+    public void checkRegistrationEligibility(String tournamentId, User currentUser);
 
     public ResponseEntity<BaseResponse> searchByNameAndPaginate(String tournamentName, int page, int size);
 }

@@ -4,17 +4,19 @@ import styles from '../../../assets/css/Profile/myTournaments.module.scss';
 import userApi from '../../../services/api/userApi';
 import { Loading } from '../../../components/Loading/Loading';
 import ConfirmModal from '../../../components/Modal/ConfirmModal';
+import TeamEditModal from '../../../components/Modal/TeamEditModal';
+import tournamentApi from '../../../services/api/tournamentApi';
 
 function MyTournaments({ tournaments }) {
-    const [localTournamets, setLocalTournaments] = useState([]);
+    const [localTournaments, setLocalTournaments] = useState([]);
     useEffect(() => {
         setLocalTournaments(tournaments);
     }, [tournaments]);
 
     return (
         <div className={styles.myTournamentsContainer}>
-            {localTournamets.length > 0 ? (
-                localTournamets.map((tournament) => (
+            {localTournaments.length > 0 ? (
+                localTournaments.map((tournament) => (
                     <TournamentCard
                         key={tournament.id}
                         tournament={tournament}
@@ -31,62 +33,97 @@ function MyTournaments({ tournaments }) {
 function TournamentCard({ tournament, setLocalTournaments }) {
     const [isLoading, setIsLoading] = useState(false);
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [team, setTeam] = useState(tournament.team);
 
     const handleToggleConfirmModal = () => {
         setIsConfirmModalOpen(!isConfirmModalOpen);
     };
 
-    const team = tournament.team; // Lấy thông tin đội
-    const handleUnregister = async (tounamentId) => {
+    const handleToggleEditModal = () => {
+        setIsEditModalOpen(!isEditModalOpen);
+    };
+
+    const handleUnregister = async (tournamentId) => {
         try {
             setIsLoading(true);
-            const unregisterRequest = {
-                tournamentId: tounamentId,
-                teamId: team.id,
-            };
-            // console.log(unregisterRequest);
+            const unregisterRequest = { tournamentId, teamId: team.id };
             const unregisterResponse = await userApi.unregisterTournament(unregisterRequest);
             toast.success(unregisterResponse.message);
-            setLocalTournaments((prevTournaments) => prevTournaments.filter((t) => t.id !== tounamentId));
+            setLocalTournaments((prev) => prev.filter((t) => t.id !== tournamentId));
             setIsConfirmModalOpen(false);
-            // console.log(unregisterResponse);
         } catch (err) {
             console.error(err);
         } finally {
             setIsLoading(false);
         }
     };
+
+    const handleUpdateTeam = async (updatedTeam, file) => {
+        try {
+            setIsLoading(true);
+            const formData = new FormData();
+
+            const updateRequest = { tournamentId: tournament.id, teamRequest: updatedTeam };
+            formData.append('request', new Blob([JSON.stringify(updateRequest)], { type: 'application/json' }));
+
+            // Nếu có tệp logo, thêm vào FormData
+            if (file) {
+                formData.append('file', file);
+            }
+
+            const response = await tournamentApi.updateTeam(formData, updatedTeam.id);
+
+            setTeam(response.data);
+            toast.success('Team updated successfully!');
+            setIsEditModalOpen(false);
+        } catch (err) {
+            console.error(err);
+            toast.error('Failed to update team!');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <div className={styles.tournamentCard}>
-            {isLoading && <Loading></Loading>}
+            {isLoading && <Loading />}
             <div className={styles.tournamentInfo}>
                 <h4>{tournament.tournamentName}</h4>
                 <p>Sport: {tournament.sport?.sportName}</p>
                 <p>Start Date: {new Date(tournament.startDate).toLocaleDateString()}</p>
                 <p>End Date: {new Date(tournament.endDate).toLocaleDateString()}</p>
-                <p>Registered Teams: {tournament.registeredTeamIds.length}</p>
-                <p>Max Teams: {tournament.maxTeams}</p>
+                <p>
+                    Registered Teams: {tournament.registeredTeamIds.length} / {tournament.maxTeams}
+                </p>
             </div>
-            {team && ( // Kiểm tra nếu có thông tin đội
+            {team && (
                 <div className={styles.teamInfo}>
-                    <h5 className={styles.teamTitle}>My Team</h5> {/* Thêm tiêu đề cho phần team */}
+                    <h5 className={styles.teamTitle}>My Team</h5>
                     <img src={team.teamLogoUrl} alt={team.teamName} className={styles.teamLogo} />
                     <div className={styles.teamName}>{team.teamName}</div>
-                    <div className={styles.teamPlayers}>
-                        Players: {team.players.map((player) => player.name).join(', ')}
-                    </div>
-                    <button className={styles.cancelButton} onClick={() => handleToggleConfirmModal()}>
+                    <div className={styles.teamPlayers}>Players: {team.players.map((p) => p.name).join(', ')}</div>
+                    <button className={styles.editButton} onClick={handleToggleEditModal}>
+                        Update Info
+                    </button>
+                    <button className={styles.cancelButton} onClick={handleToggleConfirmModal}>
                         Cancel Registration
-                    </button>{' '}
+                    </button>
                     {isConfirmModalOpen && (
                         <ConfirmModal
-                            title={
-                                'Are you sure you want to cancel your tournament registration? This action is non-refundable and cannot be undone!'
-                            }
+                            title='Are you sure you want to cancel your registration?'
                             isOpen={isConfirmModalOpen}
                             onClose={handleToggleConfirmModal}
                             onSubmit={() => handleUnregister(tournament.id)}
-                        ></ConfirmModal>
+                        />
+                    )}
+                    {isEditModalOpen && (
+                        <TeamEditModal
+                            isOpen={isEditModalOpen}
+                            team={team}
+                            onClose={handleToggleEditModal}
+                            onSave={handleUpdateTeam}
+                        />
                     )}
                 </div>
             )}

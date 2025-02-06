@@ -15,6 +15,7 @@ import app.sportcenter.repositories.TournamentRepository;
 import app.sportcenter.services.CloudinaryService;
 import app.sportcenter.services.TeamService;
 import app.sportcenter.utils.mappers.TeamMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,23 +32,17 @@ import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class TeamServiceImpl implements TeamService {
-    @Autowired
-    private TeamRepository teamRepository;
-    @Autowired
-    private TournamentRepository tournamentRepository;
-    @Autowired
-    private CloudinaryService cloudinaryService;
-    @Autowired
-    private AppConfig appConfig;
-
-    @Autowired
-    private TeamMapper teamMapper;
+    private final TeamRepository teamRepository;
+    private final TournamentRepository tournamentRepository;
+    private final CloudinaryService cloudinaryService;
+    private final AppConfig appConfig;
+    private final TeamMapper teamMapper;
 
     @Transactional
     @Override
-    public ResponseEntity<BaseResponse> create(TeamRequest teamRequest) {
-        // lấy thông tin người đang đăng nhập làm chủ sở hữu team
+    public TeamResponse create(TeamRequest teamRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
         if (currentUser == null) {
@@ -66,13 +61,8 @@ public class TeamServiceImpl implements TeamService {
         }
 
         Team team = teamMapper.convertToEntity(teamRequest, userId);
-        TeamResponse responseTeam = teamMapper.convertToDTO(teamRepository.save(team));
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                new BaseResponse("Team created successfully!",
-                        HttpStatus.CREATED.value(),
-                        responseTeam)
-        );
+        return teamMapper.convertToDTO(teamRepository.save(team));
     }
 
     @Override
@@ -122,12 +112,10 @@ public class TeamServiceImpl implements TeamService {
 
     @Transactional
     @Override
-    public ResponseEntity<BaseResponse> update(String id, TeamRequest teamRequest) {
+    public TeamResponse update(String id, TeamRequest teamRequest) {
         Team team = teamRepository.getTeamById(id);
         if (team == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("No team found for update", HttpStatus.NOT_FOUND.value(), null)
-            );
+            throw new NotFoundException("No team found for update");
         }
 
         // kiểm tra xem người đăng nhập hiện tại có đúng là chủ tạo team không
@@ -143,10 +131,7 @@ public class TeamServiceImpl implements TeamService {
             Team updatedTeam = teamMapper.updateEntityFromRequest(teamRequest, team);
             teamRepository.save(updatedTeam);
 
-            TeamResponse responseTeam = teamMapper.convertToDTO(updatedTeam);
-            return ResponseEntity.status(HttpStatus.OK).body(
-                    new BaseResponse("Team updated successfully", HttpStatus.OK.value(), responseTeam)
-            );
+            return teamMapper.convertToDTO(updatedTeam);
         } else {
             throw new CustomException("You do not have permission to update someone else's team!", HttpStatus.BAD_REQUEST.value());
         }

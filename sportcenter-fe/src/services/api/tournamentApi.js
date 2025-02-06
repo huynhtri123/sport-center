@@ -23,7 +23,11 @@ const tournamentApi = {
     },
     register(registerRequest) {
         const url = '/tounament/register';
-        return axiosClient.patch(url, registerRequest);
+        return axiosClient.patch(url, registerRequest, {
+            headers: {
+                'Content-Type': 'multipart/form-data', // Header để gửi FormData
+            },
+        });
     },
     checkRegistrationEligibility(registerRequest) {
         const url = '/tournament/checkRegistrationEligibility';
@@ -40,6 +44,14 @@ const tournamentApi = {
     getRegisteredTeams(tournamentId) {
         const url = `/public/tounament/registed-teams/${tournamentId}`;
         return axiosClient.get(url);
+    },
+    updateTeam(tournamentRegisterRequest, teamId) {
+        const url = `/tournament/team/${teamId}`;
+        return axiosClient.put(url, tournamentRegisterRequest, {
+            headers: {
+                'Content-Type': 'multipart/form-data', // Header để gửi FormData
+            },
+        });
     },
 };
 
