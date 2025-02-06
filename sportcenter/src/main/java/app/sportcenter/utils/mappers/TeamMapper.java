@@ -5,8 +5,8 @@ import app.sportcenter.models.dto.TeamResponse;
 import app.sportcenter.models.entities.Team;
 import app.sportcenter.models.entities.Tournament;
 import app.sportcenter.repositories.TournamentRepository;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -15,11 +15,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class TeamMapper {
-    @Autowired
-    private ModelMapper modelMapper;
-    @Autowired
-    private TournamentRepository tournamentRepository;
+    private final ModelMapper modelMapper;
+    private final TournamentRepository tournamentRepository;
 
     private Tournament fetchTournamentById(String tournamentId) {
         Optional<Tournament> tournamentOpt = tournamentRepository.findById(tournamentId);
@@ -50,15 +49,12 @@ public class TeamMapper {
         if (teamRequest == null) {
             return null;
         }
-        Team team = Team.builder()
+        return Team.builder()
                 .userId(userId)
                 .teamName(teamRequest.getTeamName())
                 .players(teamRequest.getPlayers())
-                .enrolledTournamentIds(teamRequest.getEnrolledTournamentIds())
                 .teamLogoUrl(teamRequest.getTeamLogoUrl())
-                .wonPrizes(teamRequest.getWonPrizes())
                 .build();
-        return team;
     }
 
     public Team updateEntityFromRequest(TeamRequest teamRequest, Team team) {
@@ -66,8 +62,6 @@ public class TeamMapper {
             team.setTeamName(teamRequest.getTeamName());
             team.setPlayers(teamRequest.getPlayers());
             team.setTeamLogoUrl(teamRequest.getTeamLogoUrl());
-            team.setEnrolledTournamentIds(teamRequest.getEnrolledTournamentIds());
-            team.setWonPrizes(teamRequest.getWonPrizes());
             return team;
         }
         return null;

@@ -3,35 +3,31 @@ package app.sportcenter.controllers;
 
 import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.exceptions.CustomException;
-import app.sportcenter.models.dto.CloudinaryResponse;
 import app.sportcenter.models.dto.TeamRequest;
 import app.sportcenter.models.entities.User;
-import app.sportcenter.services.CloudinaryService;
 import app.sportcenter.services.TeamService;
-import app.sportcenter.utils.FileUploadUtil;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/team")
+@RequiredArgsConstructor
 public class TeamController {
-    @Autowired
-    private TeamService teamService;
-    @Autowired
-    private CloudinaryService cloudinaryService;
+    private final TeamService teamService;
 
     // chỉ có người đang đăng nhập mới có thể tự tạo team cho mình
     @PreAuthorize("hasAnyAuthority('CUSTOMER')")
     @PostMapping("/create")
     public ResponseEntity<BaseResponse> create(@Valid @RequestBody TeamRequest teamRequest) {
-        return teamService.create(teamRequest);
+        return ResponseEntity.ok(
+                new BaseResponse("Create team successfully!", 201, teamService.create(teamRequest))
+        );
     }
 
     // public
@@ -65,7 +61,9 @@ public class TeamController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
     @PutMapping("/update/{teamId}")
     public ResponseEntity<BaseResponse> update(@PathVariable String teamId,@Valid @RequestBody TeamRequest teamRequest) {
-        return teamService.update(teamId, teamRequest);
+        return ResponseEntity.ok(
+                new BaseResponse("Update team successfully!", 200, teamService.update(teamId, teamRequest))
+        );
     }
 
     // chỉ có chủ sở hữu team và admin được dùng

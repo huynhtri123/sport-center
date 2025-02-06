@@ -84,12 +84,12 @@ function ManageTeams() {
             <table className={styles.teamsTable}>
                 <thead>
                     <tr>
-                        <th>STT</th>
+                        <th>Order</th>
                         <th>Team Name</th>
                         <th>Owner</th>
                         <th>Logo</th>
                         <th>Players</th>
-                        <th>Enrolled Tournaments</th>
+                        {/* <th>Enrolled Tournaments</th> */}
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -119,16 +119,22 @@ function ManageTeams() {
                                     )}
                                 </td>
                                 <td>
-                                    {team.players && team.players.length > 0
-                                        ? team.players.map((player, idx) => (
-                                              <span key={idx}>
-                                                  {player.name}
-                                                  {idx < team.players.length - 1 ? ', ' : ''}
-                                              </span>
-                                          ))
-                                        : 'No Players'}
+                                    {team.players && team.players.length > 0 ? (
+                                        <ul className={styles.playerList}>
+                                            {team.players.map((player, idx) => (
+                                                <li key={idx}>
+                                                    <strong>{player.name}</strong>
+                                                    <span className={styles.position}>{player.position}</span>
+                                                    <span className={styles.number}>#{player.number}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        'No Players'
+                                    )}
                                 </td>
-                                <td>
+
+                                {/* <td>
                                     {team.enrolledTournaments && team.enrolledTournaments.length > 0
                                         ? team.enrolledTournaments.map((tournament, idx) => (
                                               <span key={idx}>
@@ -137,7 +143,7 @@ function ManageTeams() {
                                               </span>
                                           ))
                                         : 'No Tournaments'}
-                                </td>
+                                </td> */}
                                 <td>
                                     <button
                                         className={`btn ${styles.deleteButton}`}

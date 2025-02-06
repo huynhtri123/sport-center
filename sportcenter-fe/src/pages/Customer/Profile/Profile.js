@@ -334,7 +334,7 @@ function Profile() {
                 </div>
             )}
 
-            {!isAdmin && (
+            {/* {!isAdmin && (
                 <div className={styles.section}>
                     <h3 onClick={handleToggleTeams}>
                         <i className='fa-solid fa-people-group'></i>
@@ -343,7 +343,7 @@ function Profile() {
                     <p>See your teams and their accomplishments.</p>
                     {showTeams && <MyTeam teams={teams}></MyTeam>}
                 </div>
-            )}
+            )} */}
 
             {isAdmin && (
                 <Link className={styles.link} to={'/admin'}>

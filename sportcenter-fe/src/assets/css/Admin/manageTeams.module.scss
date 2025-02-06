@@ -48,6 +48,45 @@
         }
     }
 
+    .playerList {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        text-align: left;
+        font-size: 16px;
+
+        li {
+            display: flex;
+            align-items: center; // Căn giữa theo chiều dọc
+            justify-content: space-between; // Căn đều các phần tử trong danh sách
+            padding: 8px 10px;
+            border-bottom: 1px solid #ddd;
+
+            &:last-child {
+                border-bottom: none;
+            }
+        }
+
+        strong {
+            flex: 2; // Dành nhiều không gian hơn cho tên
+            color: #2c3e50;
+        }
+
+        .position {
+            flex: 1; // Giữ khoảng cách đều giữa các phần
+            font-style: italic;
+            color: #7f8c8d;
+            text-align: center;
+        }
+
+        .number {
+            flex: 1; // Giữ khoảng cách đều giữa các phần
+            font-weight: bold;
+            color: $yellow-hover;
+            text-align: right;
+        }
+    }
+
     .formContainer {
         margin-top: 20px;
         background-color: #f9f9f9;

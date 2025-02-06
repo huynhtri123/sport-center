@@ -4,6 +4,7 @@ import app.sportcenter.models.entities.Player;
 import app.sportcenter.models.entities.Prize;
 import app.sportcenter.models.entities.Tournament;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,14 +17,11 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class TeamRequest extends BaseRequestDTO {
 
-    @NotBlank(message = "Bạn chưa nhập tên cho đội!")
+    @NotBlank(message = "Team name is required!")
+    @Size(min = 1, max = 100, message = "Team name must be between {min} and {max} characters long.")
     private String teamName;
 
-    private List<Player> players;              // nếu có 1 mình mình thì FE chọn gì đó, xong lấy thông tin tạo Player
+    private List<Player> players;
 
     private String teamLogoUrl;
-
-    private List<String> enrolledTournamentIds;
-
-    private List<Prize> wonPrizes;
 }

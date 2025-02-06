@@ -1,0 +1,195 @@
+@import '../../assets/css/variables';
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    overflow: hidden; /* Prevent background content from scrolling */
+}
+
+.modalContainer {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    width: fit-content; /* Wider container */
+    max-height: 80vh; /* Maximum height 80% of the screen */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transform: scale(0.9);
+    animation: fadeIn 0.2s ease-out forwards;
+}
+
+.modalContent {
+    flex-grow: 1; /* Allow content to grow */
+    overflow-y: auto; /* Enable vertical scrolling when content is too long */
+    overflow-x: hidden; /* Disable horizontal scrolling */
+    padding-right: 10px; /* Prevent content from being hidden behind the scrollbar */
+    max-height: 60vh; /* Adjust as needed */
+}
+
+.buttonGroup {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #ccc; /* Separator line */
+    background: white;
+    position: sticky;
+    bottom: 0;
+}
+
+.editModalTitle {
+    color: #ccc;
+    font-size: 24px;
+    font-weight: 500;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px; /* Reduced space between label and input */
+    font-size: 16px; /* Slightly larger font size for labels */
+    text-align: left; /* Align labels to the left */
+}
+
+input {
+    width: 100%; /* Input fields take up full width */
+    padding: 10px; /* Increase padding for larger inputs */
+    margin-bottom: 15px; /* Add margin between inputs */
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px; /* Increase font size for readability */
+}
+
+.playersSection {
+    margin-top: 15px;
+    text-align: left;
+}
+
+.playerRow {
+    display: flex;
+    align-items: center; /* Vertically align the button with the inputs */
+    justify-content: space-between; /* Distribute space between input fields and the remove button */
+    margin-bottom: 10px; /* Space between player rows */
+}
+
+.inputGroup {
+    display: flex;
+    gap: 10px; /* Space between input fields */
+    flex-grow: 1; /* Allow input fields to take up available space */
+}
+
+.inputGroup input {
+    padding: 8px;
+    font-size: 14px;
+}
+
+.playerNameInput {
+    width: 200px; /* Wider input for the player's name */
+}
+
+.playerPositionInput,
+.playerNumberInput {
+    width: 120px; /* Smaller width for position and number */
+}
+
+/* Align the remove button to the right and ensure it's vertically centered */
+.removeButton {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: 10px; /* Space between input fields and remove button */
+    align-self: flex-start; /* Align it to the top, not the center */
+}
+
+.addButton {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px; /* Increase padding */
+    width: 100%; /* Full width button */
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 15px;
+    font-size: 16px; /* Larger font size for the button */
+}
+
+.saveButton,
+.cancelButton {
+    background: $blue-prime;
+    color: white;
+    border: none;
+    padding: 10px 20px; /* Larger padding for save and cancel buttons */
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px; /* Larger font size */
+
+    &:hover {
+        background: $dark-blue-light;
+    }
+}
+
+.cancelButton {
+    background: #6c757d;
+
+    &:hover {
+        background: #545a60;
+    }
+}
+
+.avatarContainer {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+    margin: 15px auto;
+}
+
+.avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.uploadLabel {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 15px; /* Increase size of the upload button */
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    display: inline-block;
+}
+
+.fileInput {
+    display: none;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

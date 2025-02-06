@@ -1,82 +1,99 @@
 @import '../variables';
 
 .myTournamentsContainer {
-    background-color: $dark-blue-strong;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 1rem;
-
-    h2 {
-        font-size: 1.8rem;
-        color: $yellow-prime;
-        margin-bottom: 1rem;
-    }
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    padding: 20px;
 }
 
 .tournamentCard {
-    background-color: #fff;
-    border: 1px solid $yellow-hover;
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    color: black;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 100%; /* Adjust width to full width by default */
+    max-width: 800px; /* Limit the max width of the card */
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    justify-content: space-between; /* Align children (tournament info and team info) horizontally */
+    gap: 20px; /* Add space between left and right parts */
+    transition: transform 0.3s ease-in-out;
+}
 
-    h4 {
-        font-size: 1.5rem;
-        color: $blue-prime-hover;
-        margin-bottom: 0.5rem;
+h4 {
+    color: $dark-green;
+}
+
+.tournamentInfo {
+    text-align: left; /* Align text to the left */
+    flex: 1; /* Take up remaining space */
+}
+
+.teamInfo {
+    text-align: left;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    width: 250px; /* Set a fixed width for the team info */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.teamTitle {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.teamLogo {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+.teamName {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+.teamPlayers {
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.editButton,
+.cancelButton {
+    display: block;
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 8px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.editButton {
+    background: #ccc;
+    color: #fff;
+
+    &:hover {
+        background: #0056b3;
     }
+}
 
-    p {
-        font-size: 1rem;
-        color: $dark-sage;
-        margin: 0.2rem 0;
-    }
+.cancelButton {
+    background: #ccc;
+    color: #fff;
 
-    .teamInfo {
-        text-align: center;
-        margin-left: 1rem;
-        flex: 0 0 40%;
-        display: flex;
-        flex-direction: column;
-        position: relative;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .teamTitle {
-        font-size: 1.4rem;
-        color: $blue-prime-hover;
-        margin-bottom: 0.5rem;
-    }
-
-    .teamLogo {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-    }
-
-    .teamPlayers {
-        font-size: 0.9rem;
-        color: $dark-sage;
-        margin-bottom: 0.5rem;
-    }
-
-    .cancelButton {
-        background-color: #ccc;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        padding: 0.5rem 1rem;
-        cursor: pointer;
-        margin-top: auto;
-        transition: background-color 0.3s;
-
-        &:hover {
-            background-color: darken(#ccc, 10%);
-        }
+    &:hover {
+        background: #b02a37;
     }
 }
