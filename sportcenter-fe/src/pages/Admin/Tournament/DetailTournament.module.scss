@@ -1,3 +1,5 @@
+@import '../../../assets/css/variables';
+
 .modalOverlay {
     position: fixed;
     top: 0;
@@ -5,7 +7,7 @@
     width: 100vw;
     height: 100vh;
     background-color: rgba(0, 0, 0, 0.2);
-    z-index: 1000; /* Đảm bảo modal nằm trên các thành phần khác */
+    z-index: 999; /* Đảm bảo modal nằm trên các thành phần khác */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -36,12 +38,13 @@
 }
 
 /* Tiêu đề modal */
-.modalContent h2 {
+.modalContent h4 {
     font-size: 1.5rem;
     font-weight: bold;
-    color: #333333;
+    color: $blue-prime;
     margin-bottom: 20px;
     text-align: center;
+    border-bottom: 1px solid #ccc;
 }
 
 /* Danh sách đội */

@@ -108,7 +108,7 @@ function TournamentTable({
                                             <DetailModal
                                                 isOpen={isViewDetailModalOpen}
                                                 onClose={toggleViewDetail}
-                                                title={`Participant Teams of ${selectedTournament?.tournamentName}:`}
+                                                title={`${selectedTournament?.tournamentName} Participants:`}
                                                 registeredTeams={registeredTeams.data}
                                             />
                                         )}
