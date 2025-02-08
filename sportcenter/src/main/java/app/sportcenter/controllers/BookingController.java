@@ -1,13 +1,10 @@
 package app.sportcenter.controllers;
 
 import app.sportcenter.commons.BaseResponse;
-import app.sportcenter.models.dto.BookingRequest;
-import app.sportcenter.models.dto.OnDayScheduleRequest;
-import app.sportcenter.models.dto.RecurringBookingRequest;
-import app.sportcenter.models.dto.TimeRequest;
+import app.sportcenter.models.dto.*;
 import app.sportcenter.services.BookingService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,22 +16,27 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class BookingController {
-    @Autowired
-    private BookingService bookingService;
+    private final BookingService bookingService;
 
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
     @PostMapping("/booking/create")
     public ResponseEntity<BaseResponse> createBooking(@Valid @RequestBody BookingRequest bookingRequest) {
-        return bookingService.createBooking(bookingRequest);
+        return ResponseEntity.ok(
+                new BaseResponse("Success, please make the payment to confirm your booking!", 200,
+                        bookingService.createBooking(bookingRequest))
+        );
     }
 
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
     @PutMapping("/booking/confirm/{bookingId}")
     public ResponseEntity<BaseResponse> confirmBooking(@PathVariable("bookingId") String bookingId) {
-        return bookingService.confirmBooking(bookingId);
+        return ResponseEntity.ok(
+                new BaseResponse("Court booking confirmed successfully.", 200,
+                        bookingService.confirmBooking(bookingId))
+        );
     }
-
 
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
     @PostMapping("/recurring/create")
@@ -46,7 +48,12 @@ public class BookingController {
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
     @PutMapping("/recurring/confirm/{recurringBookingId}")
     public ResponseEntity<BaseResponse> confirmRecurring(@PathVariable("recurringBookingId") String recurringBookingId) {
-        return bookingService.confirmRecurringBooking(recurringBookingId);
+        RecurringBookingResponse response = bookingService.confirmRecurringBooking(recurringBookingId);
+        String message = "Confirm recurring booking according to the fixed schedule. (" + response.getInterval() + "/"
+                + response.getPackageDurationMonths() + " months) successfully!";
+        return ResponseEntity.ok(
+                new BaseResponse(message, 200, response)
+        );
     }
 
     // lấy giá đặt sân lẻ

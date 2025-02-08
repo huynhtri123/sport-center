@@ -12,7 +12,6 @@ import app.sportcenter.services.TournamentService;
 import app.sportcenter.utils.FileUploadUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -100,9 +99,9 @@ public class TournamentController {
         return tournamentService.forceDelete(tournamentId);
     }
 
-    // for customer
+    // register step 1
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @PatchMapping("/tounament/register")
+    @PostMapping("/tounament/register")
     public ResponseEntity<BaseResponse> register(@Valid @RequestPart("request") TournamentRegisterRequest request,
                                                  @RequestPart(name = "file", required = false) MultipartFile file) {
         if (file != null && !file.isEmpty()) {
@@ -113,7 +112,20 @@ public class TournamentController {
             request.getTeamRequest().setTeamLogoUrl(response.getUrl());
         }
 
-        return tournamentService.register(request);
+        return ResponseEntity.ok(
+                new BaseResponse("Register tournament step 1 successfully!", 200,
+                        tournamentService.register(request))
+        );
+    }
+
+    // register step 2
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
+    @PutMapping("/tounament/confirm/{registerOrderId}")
+    public ResponseEntity<BaseResponse> confirmRegister(@PathVariable("registerOrderId") String registerOrderId) {
+        return ResponseEntity.ok(
+                new BaseResponse("Confirm register successfully!", 200,
+                        tournamentService.confirmRegister(registerOrderId))
+        );
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")

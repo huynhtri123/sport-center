@@ -23,11 +23,15 @@ const tournamentApi = {
     },
     register(registerRequest) {
         const url = '/tounament/register';
-        return axiosClient.patch(url, registerRequest, {
+        return axiosClient.post(url, registerRequest, {
             headers: {
                 'Content-Type': 'multipart/form-data', // Header để gửi FormData
             },
         });
+    },
+    confirmRegister(registerOrderId) {
+        const url = `/tounament/confirm/${registerOrderId}`;
+        return axiosClient.put(url);
     },
     checkRegistrationEligibility(registerRequest) {
         const url = '/tournament/checkRegistrationEligibility';

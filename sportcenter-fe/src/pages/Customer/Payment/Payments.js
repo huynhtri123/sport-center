@@ -9,19 +9,13 @@ import formatCurrency from '../../../utils/formatCurrency';
 import { TransactionType } from '../../../utils/enums/TransactionType';
 import paymentApi from '../../../services/api/payment/paymentApi';
 
-// cải tiến: trưởng hợp thanh toán CARD thất bại
 export default function Payments() {
     const [paymentData] = usePaymentData(); // nạp dữ liệu payment được set từ PaymentModal (gồm có các hàm,...)
     const [user, setUser] = useUser();
     const { amount, onSubmit, type, createInvoice, confirmBooking, makePaymentByBalance, amountByBalance } =
         paymentData || {};
     const [isLoading, setIsLoading] = useState(false);
-    const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // console.log('check user', user);
-    // console.log('check ammout by balance:', amountByBalance);
-
-    // chưa hoàn thiện, quăng đặt sân b2 qua BE chỗ thanh toán luôn
     const cardPaymentForBooking = async () => {
         try {
             // 1. đặt sân bước 1
@@ -30,26 +24,19 @@ export default function Payments() {
 
             // 2. nếu đặt sân bước 1 thành công -> thanh toán
             // thanh toán bằng vnpay (nếu có số dư thì BE xử lý luôn r)
-            // BE: Thanh toán bằng số dư, tạo hoá đơn + thanh toán bằng vnpay, tạo hoá đơn
             const transactionType = TransactionType.BOOKING;
             const invoiceAmount = amountByBalance ? amount - amountByBalance : amount;
+            const bookingId = bookingResponse.id;
             const vnpayRequest = {
                 userId: user.id,
                 amount: invoiceAmount,
                 amountByBalance: amountByBalance || 0,
                 transactionType: transactionType,
+                bookingId: bookingId || '',
             };
+            // thanh toán + đặt sân bước 2 luôn
             const response = await paymentApi.pay(vnpayRequest);
             window.location.href = response.url;
-
-            // 3. thanh toán đầy đủ thành công -> gọi api đặt sân bước 2
-            // chỗ này đem qua BE luôn
-            // BE: nếu sân không còn trống -> hoàn tiền (có thể cải tiến hoàn 200% hay tặng voucher thay lời xin lỗi)
-            if (response && response.url) {
-                const bookingId = bookingResponse.id;
-                const confirmResponse = await confirmBooking(bookingId);
-                if (!confirmResponse) return;
-            }
 
             // sau khi thanh toán, BE tự điều hướng
         } catch (err) {
@@ -64,6 +51,7 @@ export default function Payments() {
             if (!registerTournamentResponse) {
                 return;
             }
+            const registerOrderId = registerTournamentResponse.id || '';
 
             // 2. thanh toán
             const transactionType = TransactionType.REGISTRATION_FEE;
@@ -73,10 +61,10 @@ export default function Payments() {
                 amount: invoiceAmount,
                 amountByBalance: amountByBalance || 0,
                 transactionType: transactionType,
+                registerOrderId,
             };
             const response = await paymentApi.pay(vnpayRequest);
             window.location.href = response.url;
-            // thanh toán không thành công thì gọi hàm huỷ register
 
             // BE tự điều hướng về
         } catch (err) {

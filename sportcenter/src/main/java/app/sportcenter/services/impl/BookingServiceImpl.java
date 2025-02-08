@@ -8,14 +8,13 @@ import app.sportcenter.models.entities.*;
 import app.sportcenter.repositories.*;
 import app.sportcenter.services.BookingService;
 import app.sportcenter.services.InvoiceService;
-import app.sportcenter.services.MailService;
 import app.sportcenter.services.UserService;
 import app.sportcenter.utils.kafkaUsage.MessageWrapper;
 import app.sportcenter.utils.mappers.BookingMapper;
 import app.sportcenter.utils.mappers.FieldMapper;
 import app.sportcenter.utils.mappers.RecurringBookingMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,37 +32,27 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
-    @Autowired
-    private BookingRepository bookingRepository;
-    @Autowired
-    private BookingMapper bookingMapper;
-    @Autowired
-    private RecurringBookingRepository recurringBookingRepository;
-    @Autowired
-    private RecurringBookingMapper recurringBookingMapper;
-    @Autowired
-    private FieldRepository fieldRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private InvoiceService invoiceService;
-    @Autowired
-    private FieldMapper fieldMapper;
-    @Autowired
-    private KafkaTemplate<String, Object> kafkaTemplate;
+    private final BookingRepository bookingRepository;
+    private final BookingMapper bookingMapper;
+    private final RecurringBookingRepository recurringBookingRepository;
+    private final RecurringBookingMapper recurringBookingMapper;
+    private final FieldRepository fieldRepository;
+    private final UserRepository userRepository;
+    private final UserService userService;
+    private final InvoiceService invoiceService;
+    private final FieldMapper fieldMapper;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    // đặt lẻ
+    // đặt lẻ bước 1
     @Transactional
     @Override
-    public ResponseEntity<BaseResponse> createBooking(BookingRequest bookingRequest) {
+    public BookingResponse createBooking(BookingRequest bookingRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
 
@@ -82,7 +71,7 @@ public class BookingServiceImpl implements BookingService {
         boolean isAvailableField = checkAvailableField(field.getId(), startTime, endTime);
         // nếu có nghĩa là kẹt lịch, out
         if (isAvailableField) {
-            // tạo ra các timeSlot AVAILABLE cho khoảng tgian đặt (ví dụ 7-9h -> tạo 2 timeSlot AVAILABLE
+            // tạo ra các timeSlot AVAILABLE cho khoảng tgian đặt (ví dụ 7-9h -> tạo 2 timeSlot AVAILABLE)
             field.createTimeSlots(startTime, endTime);
 
             // đổi trạng thái của các TimeSlot liên quan đến booking thành IN_USE
@@ -98,22 +87,18 @@ public class BookingServiceImpl implements BookingService {
             // Tạo booking mới với trạng thái sân đã được cập nhật
             bookingRequest.setStartTime(startTime);
             Booking booking = bookingMapper.convertToEntity(bookingRequest, field, currentUser);
-            booking.setRecurring(false);        // đánh dấu đây là đặt lẻ
-            // tắt trạng thái active, chờ thanh toán
-            booking.setIsActive(false);
+            booking.setRecurring(false);        // single booking
+            booking.setIsActive(true);
+            booking.setProcessing(true);        // wait thanh toan
             Booking savedBooking = bookingRepository.save(booking);
 
             BookingResponse response = bookingMapper.convertToResponse(savedBooking);
 
-            log.info("Đặt sân bước 1 thành công" + response.getId());
-            return ResponseEntity.ok(
-                    new BaseResponse("Success, please make the payment to confirm your booking!", HttpStatus.OK.value(), response)
-            );
+            log.info("Đặt sân bước 1 thành công {}", response.getId());
+            return response;
         }
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(
-                new BaseResponse("Failed. The field is not available at this time!", HttpStatus.CONFLICT.value(), null)
-        );
+        throw new CustomException("Failed. The field is not available at this time!", HttpStatus.CONFLICT.value());
     }
 
     // kiểm tra xem trong khoảng thời gian nhất định, sân đó có trống không
@@ -125,15 +110,11 @@ public class BookingServiceImpl implements BookingService {
         return inUseBookingList.isEmpty();
     }
 
+    // đặt lẻ bước 2: xác nhận
     @Override
-    public ResponseEntity<BaseResponse> confirmBooking(String bookingId) {
+    public BookingResponse confirmBooking(String bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Booking to confirm not found."));
-
-        // kiểm tra coi booking này có thật sự cần được xác nhận không (chua duoc active va chưa bị xoá mới đc)
-        if (booking.getIsActive() || booking.getIsDeleted()) {
-            throw new CustomException("This booking does not meet the requirements for confirmation.", HttpStatus.BAD_REQUEST.value());
-        }
 
         // kiem tra quyen
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -142,42 +123,17 @@ public class BookingServiceImpl implements BookingService {
             throw new CustomException("You do not have permission to confirm this booking.", HttpStatus.BAD_REQUEST.value());
         }
 
-        // kiểm tra sân có còn trống không
-        ZonedDateTime startTime = booking.getStartTime();
-        ZonedDateTime endTime = startTime.plusHours(booking.getNumberOfHours());
-        boolean isAvailableField = checkAvailableField(booking.getField().getId(), startTime, endTime);
-        // nếu sân không còn trống -> hoàn tiền, tạo hoá đơn
-        if (!isAvailableField) {
-            // xoá booking đó để tránh việc nó đc hoàn tiền nhiều lần
-            booking.setIsDeleted(true);
-            bookingRepository.save(booking);
-            // hoàn tiền
-            User owner = userRepository.findById(booking.getUser().getId())
-                            .orElseThrow(() -> new NotFoundException("Cannot find the owner of this booking to process the refund."));
-            userService.refund(owner, booking.getPrice());
-            // tạo hoá đơn
-            InvoiceRequest invoiceRequest = new InvoiceRequest();
-            invoiceRequest.setUserId(booking.getUser().getId());
-            invoiceRequest.setAmount(booking.getPrice());
-            invoiceRequest.setPaymentMethod(PaymentMethod.ACCOUNT_BALANCE);
-            invoiceRequest.setPaymentStatus(PaymentStatus.PAID);
-            invoiceRequest.setTransactionType(TransactionType.REFUND);
-
-            InvoiceResponse invoiceResponse = invoiceService.create(invoiceRequest);
-            log.info("Sân không còn trống, bạn đã được hoàn tiền vào số dư! " + bookingId);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    new BaseResponse("The field is no longer available, you have been refunded to your balance!",
-                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            invoiceResponse)
-            );
+        // kiểm tra coi booking này có thật sự cần được xác nhận không (dang xu ly va chưa bị xoa)
+        if (!booking.isProcessing() || booking.getIsDeleted()) {
+            throw new CustomException("This booking does not meet the requirements for confirmation.", HttpStatus.BAD_REQUEST.value());
         }
 
         // ok -> thực hiện xác nhận
-        // bật active lên
-        booking.setIsActive(true);
+        booking.setProcessing(false);   // danh dau la xu ly xong
+
         Booking activeBooking = bookingRepository.save(booking);
         BookingResponse response = bookingMapper.convertToResponse(activeBooking);
-        log.info("Đặt sân bước 2 thành công! " + bookingId);
+        log.info("Đặt sân bước 2 thành công! {}", bookingId);
 
         // send mail
         MessageWrapper messageWrapper = MessageWrapper.builder()
@@ -188,12 +144,10 @@ public class BookingServiceImpl implements BookingService {
                 .build();
         kafkaTemplate.send("notification-delivery", messageWrapper);
 
-        return ResponseEntity.ok(
-                new BaseResponse("Court booking confirmed successfully.", HttpStatus.OK.value(), response)
-        );
+        return response;
     }
 
-    // đặt theo lịch cứng
+    // đặt cứng bước 1
     @Transactional
     @Override
     public ResponseEntity<BaseResponse> createRecurringBooking(RecurringBookingRequest recurringBookingRequest) {
@@ -202,8 +156,8 @@ public class BookingServiceImpl implements BookingService {
 
         Field field = fieldRepository.findById(recurringBookingRequest.getFieldId())
                 .orElseThrow(() -> new NotFoundException("Field with this ID not found."));
-        log.info("RecurringBooking user: " + currentUser.getFullName());
-        log.info("RecurringBooking field: " + field.getFieldName());
+        log.info("RecurringBooking user: {}", currentUser.getFullName());
+        log.info("RecurringBooking field: {}", field.getFieldName());
 
         RecurringBooking recurringBooking = recurringBookingMapper.convertToEntity(recurringBookingRequest, field, currentUser);
         recurringBooking.setStartDate(recurringBooking.getStartDate().minusHours(7));
@@ -239,19 +193,21 @@ public class BookingServiceImpl implements BookingService {
             }
 
             Booking booking = bookingMapper.convertToEntity(bookingRequest, field, currentUser);
-            booking.setRecurring(true);         // đánh dấu đây là đặt cứng
-            booking.setIsActive(false);         // tắt trạng thái active, chờ thanh toán
+            booking.setRecurring(true);         // recurring booking
+            booking.setIsActive(true);
+            booking.setProcessing(true);        // wait thanh toan
             bookingsToSave.add((booking));
         }
         fieldRepository.save(field);
         bookingRepository.saveAll(bookingsToSave);
         recurringBooking.setBookingIds(bookingsToSave.stream().map(Booking::getId).collect(Collectors.toList()));
-        recurringBooking.setIsActive(false);    // tắt trạng thái active, chờ thanh toán
+        recurringBooking.setIsActive(false);    // wait thanh toan
+        recurringBooking.setProcessing(true);   // wait thanh toan
 
         RecurringBooking savedRecurringBooking = recurringBookingRepository.save(recurringBooking);
         RecurringBookingResponse response = recurringBookingMapper.convertToDTO(savedRecurringBooking);
 
-        log.info("Đặt sân (recurring) bước 1 thành công " + response.getId());
+        log.info("Đặt sân (recurring) bước 1 thành công {}", response.getId());
         return ResponseEntity.ok(
                 new BaseResponse("Success, please make the payment to confirm your court booking!", HttpStatus.OK.value(), response)
         );
@@ -271,13 +227,12 @@ public class BookingServiceImpl implements BookingService {
         return true;
     }
 
+    // đặt cứng bước 2: xác nhận
     @Override
-    public ResponseEntity<BaseResponse> confirmRecurringBooking(String recurringId) {
+    public RecurringBookingResponse confirmRecurringBooking(String recurringId) {
         // lấy thông tin RecurringBooking
         RecurringBooking recurringBooking = recurringBookingRepository.findById(recurringId)
                 .orElseThrow(() -> new NotFoundException("RecurringBooking with this ID not found."));
-        Field recuringField = recurringBooking.getField();
-        List<TimeSlot> recurringTimeSlots = recurringBooking.generateTimeSlots();
         List<Booking> relatedBookings = bookingRepository.findAllById(recurringBooking.getBookingIds());
 
         // kiểm tra quyền thực hiện
@@ -287,49 +242,18 @@ public class BookingServiceImpl implements BookingService {
             throw new CustomException("You do not have permission to confirm this recurring booking.", HttpStatus.BAD_REQUEST.value());
         }
 
-        // kiểm tra trạng thái recurring
-        if (recurringBooking.getIsActive() || recurringBooking.getIsDeleted()) {
+        // kiểm tra trạng thái recurring (chi khi isProcessinng & active=false & delete=false moi can xac nhan)
+        if (!recurringBooking.isProcessing() || recurringBooking.getIsActive() || recurringBooking.getIsDeleted()) {
             throw new CustomException("This recurring booking does not meet the requirements for confirmation.", HttpStatus.BAD_REQUEST.value());
         }
 
-        // kiểm tra tình trạng sân
-        boolean isAvailableRecurring = checkAvailableRecurring(recuringField.getId(), recurringTimeSlots);
-        if (!isAvailableRecurring) {
-            // sân đã bị chiếm -> hoàn tiền và xoá dữ liệu
-            // 1. xoá recurringBooking và các booking liên quan
-            recurringBooking.setIsDeleted(true);
-            for (Booking booking : relatedBookings) {
-                booking.setIsDeleted(true);
-            }
-            recurringBookingRepository.save(recurringBooking);
-            bookingRepository.saveAll(relatedBookings);
-
-            // 2. hoàn tiền
-            User owner = userRepository.findById(recurringBooking.getUser().getId())
-                    .orElseThrow(() -> new NotFoundException("Cannot find the owner of this recurring booking to process the refund."));
-            userService.refund(owner, recurringBooking.getPrice());
-            // 3. tạo hoá đơn
-            InvoiceRequest invoiceRequest = new InvoiceRequest();
-            invoiceRequest.setUserId(recurringBooking.getUser().getId());
-            invoiceRequest.setAmount(recurringBooking.getPrice());
-            invoiceRequest.setPaymentMethod(PaymentMethod.ACCOUNT_BALANCE);
-            invoiceRequest.setPaymentStatus(PaymentStatus.PAID);
-            invoiceRequest.setTransactionType(TransactionType.REFUND);
-
-            InvoiceResponse invoiceResponse = invoiceService.create(invoiceRequest);
-            log.info("Đặt sân (recurring) bước 2 không thành công, đã hoàn tiền," + recurringId);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    new BaseResponse("Failed, there is at least 1 timeslot that is not available during this time in the future. " +
-                            "You have been refunded to your balance!",
-                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            invoiceResponse)
-            );
-        }
-        // sân trống, có thể xác nhận recurring
-        recurringBooking.setIsActive(true);
+        // ok -> có thể xác nhận recurring
         for (Booking booking : relatedBookings) {
-            booking.setIsActive(true);
+            booking.setProcessing(false);       // danh dau la hoan tat
         }
+        recurringBooking.setIsActive(true);     // danh dau la hoan tat
+        recurringBooking.setProcessing(false);  // danh dau la hoan tat
+
         bookingRepository.saveAll(relatedBookings);
         RecurringBooking confirmedRecurring = recurringBookingRepository.save(recurringBooking);
         RecurringBookingResponse response = recurringBookingMapper.convertToDTO(confirmedRecurring);
@@ -343,12 +267,8 @@ public class BookingServiceImpl implements BookingService {
                 .build();
         kafkaTemplate.send("notification-delivery", messageWrapper);
 
-        String message = "Confirm recurring booking according to the fixed schedule. (" + recurringBooking.getInterval() + "/"
-                + recurringBooking.getPackageDurationMonths() + " months) successfully!";
-        log.info("Đặt sân (recurring) bước 2 thành công," + recurringId);
-        return ResponseEntity.ok(
-                new BaseResponse(message, HttpStatus.OK.value(), response)
-        );
+        log.info("Đặt sân (recurring) bước 2 thành công,{}", recurringId);
+        return response;
     }
 
     @Override
@@ -490,7 +410,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     // 1. tạo ra (18) timeSLot AVAILABLE trải dài nguyên ngày,
-    // 2. duyệt "bookings" của field đó trong ngày đso nếu có thì
+    // 2. duyệt "bookings" của field đó trong ngày đo nếu có thì
     // hàm update sẽ kiểm tra để đổi trạng thái những timeSLot đã bị đặt thành in use,
     // nếu không thì 18 slot đó vẫn là AVAILABLE
     @Transactional
@@ -733,12 +653,6 @@ public class BookingServiceImpl implements BookingService {
         //Pageable pageable = PageRequest.of(page, size);
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Booking> bookingPage = bookingRepository.searchByFieldName(fieldName, pageable);
-
-//        if (bookingPage.isEmpty()) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-//                    new BaseResponse("Không tìm thấy Booking nào với tên sân này.", HttpStatus.NOT_FOUND.value(), null)
-//            );
-//        }
 
         List<BookingResponse> responseList = bookingPage.getContent().stream()
                 .map(bookingMapper::convertToResponse)

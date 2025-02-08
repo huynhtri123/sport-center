@@ -5,17 +5,16 @@ import app.sportcenter.configs.AppConfig;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
 import app.sportcenter.models.dto.*;
+import app.sportcenter.models.entities.RegisterOrder;
 import app.sportcenter.models.entities.Team;
 import app.sportcenter.models.entities.Tournament;
+import app.sportcenter.repositories.*;
 import app.sportcenter.services.TeamService;
 import app.sportcenter.utils.kafkaUsage.MessageWrapper;
 import app.sportcenter.utils.kafkaUsage.TournamentTeamPayload;
 import app.sportcenter.models.entities.User;
-import app.sportcenter.repositories.SportRepository;
-import app.sportcenter.repositories.TeamRepository;
-import app.sportcenter.repositories.TournamentRepository;
-import app.sportcenter.repositories.UserRepository;
 import app.sportcenter.services.TournamentService;
+import app.sportcenter.utils.mappers.RegisterOrderMapper;
 import app.sportcenter.utils.mappers.TeamMapper;
 import app.sportcenter.utils.mappers.TournamentMapper;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +35,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -52,6 +52,8 @@ public class TournamentServiceImpl implements TournamentService {
     private final TeamMapper teamMapper;
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final TeamService teamService;
+    private final RegisterOrderRepository registerOrderRepository;
+    private final RegisterOrderMapper registerOrderMapper;
 
     private void checkFutureDate(ZonedDateTime startDate, ZonedDateTime endDate, ZonedDateTime deadlineDate) {
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
@@ -172,9 +174,10 @@ public class TournamentServiceImpl implements TournamentService {
             );
         }
         List<Team> teams = listTeamId.stream()
-                .map(id -> teamRepository.findById(id)
-                        .orElseThrow(() -> new NotFoundException("Team not found.")))
+                .map(teamRepository::getByIdAndIsActiveTrueAndIsDeletedFalse)
+                .filter(Objects::nonNull) // Loại bỏ giá trị null
                 .toList();
+
         List<TeamResponse> teamsResponse = teams.stream().map(teamMapper::convertToDTO).toList();
         return ResponseEntity.ok(
                 new BaseResponse("Found the list of teams participating in the tournament.", HttpStatus.OK.value(), teamsResponse)
@@ -307,10 +310,9 @@ public class TournamentServiceImpl implements TournamentService {
         );
     }
 
-    // for customer:
     @Transactional
     @Override
-    public ResponseEntity<BaseResponse> register(TournamentRegisterRequest request) {
+    public RegisterOrderResponse register(TournamentRegisterRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
 
@@ -324,30 +326,21 @@ public class TournamentServiceImpl implements TournamentService {
         Tournament tournament = tournamentRepository.findById(request.getTournamentId())
                 .orElseThrow(() -> new NotFoundException("Tournament with this ID not found."));
 
-        // 2. create Team
-        TeamResponse team = teamService.create(request.getTeamRequest());
+        // 2. create inactive Team
+        TeamResponse team = teamService.temporaryCreate(request.getTeamRequest());
 
-        // 3. register
+        // 3. update tournament (+1 virtual participant)
         tournament.getRegisteredTeamIds().add(team.getId());
         TournamentResponse response = tournamentMapper.convertToDTO(tournamentRepository.save(tournament));
 
-        // 4. send mail
-        TournamentResponse tournamentResponse = tournamentMapper.convertToDTO(tournament);
-        TournamentTeamPayload payload = TournamentTeamPayload.builder()
-                .tournament(tournamentResponse)
-                .team(team)
+        // 4. create PENDING Order
+        RegisterOrder registerOrder = RegisterOrder.builder()
+                .ownerId(currentUser.getId())
+                .teamId(team.getId())
+                .tournamentId(response.getId())
+                .orderStatus(OrderStatus.PENDING)
                 .build();
-        MessageWrapper messageWrapper = MessageWrapper.builder()
-                .type(SendMailType.REGISTER_TOURNAMENT.name())
-                .payload(payload)
-                .toEmail(currentUser.getEmail())
-                .toFullName(currentUser.getFullName())
-                .build();
-        kafkaTemplate.send("notification-delivery", messageWrapper);
-
-        return ResponseEntity.ok(new BaseResponse(
-                "Tournament registration successful.", HttpStatus.OK.value(), response)
-        );
+        return registerOrderMapper.convertToResponse(registerOrderRepository.save(registerOrder));
     }
 
     @Override
@@ -483,5 +476,43 @@ public class TournamentServiceImpl implements TournamentService {
         return ResponseEntity.ok(
                 new BaseResponse("Tournament list found.", HttpStatus.OK.value(), paginatedResponse)
         );
+    }
+
+    @Override
+    public TournamentResponse confirmRegister(String registerOrderId) {
+        RegisterOrder registerOrder = registerOrderRepository.findById(registerOrderId)
+                .orElseThrow(() -> new NotFoundException("Register Order cannot found to confirm register!"));
+        Team team = teamRepository.findById(registerOrder.getTeamId())
+                .orElseThrow(() -> new NotFoundException("Team cannot found to confirm register!"));
+        Tournament tournament = tournamentRepository.findById(registerOrder.getTournamentId())
+                .orElseThrow(() -> new NotFoundException("Tournament cannot found to confirm register!"));
+
+        // 1. active Team
+        team.setIsActive(true);
+
+        TeamResponse teamResponse = teamMapper.convertToDTO(teamRepository.save(team));
+        TournamentResponse tournamentResponse = tournamentMapper.convertToDTO(tournament);
+
+        User owner = userRepository.findById(registerOrder.getOwnerId())
+                .orElseThrow(() -> new NotFoundException("Request owner cannot found to confirm register!"));
+
+        // 2. inactive Order
+        registerOrder.setOrderStatus(OrderStatus.DONE);
+        registerOrderRepository.save(registerOrder);
+
+        // 3. send mail
+        TournamentTeamPayload payload = TournamentTeamPayload.builder()
+                .tournament(tournamentResponse)
+                .team(teamResponse)
+                .build();
+        MessageWrapper messageWrapper = MessageWrapper.builder()
+                .type(SendMailType.REGISTER_TOURNAMENT.name())
+                .payload(payload)
+                .toEmail(owner.getEmail())
+                .toFullName(owner.getFullName())
+                .build();
+        kafkaTemplate.send("notification-delivery", messageWrapper);
+
+        return tournamentResponse;
     }
 }

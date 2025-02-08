@@ -17,7 +17,6 @@ import app.sportcenter.services.TeamService;
 import app.sportcenter.utils.mappers.TeamMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -61,6 +60,32 @@ public class TeamServiceImpl implements TeamService {
         }
 
         Team team = teamMapper.convertToEntity(teamRequest, userId);
+
+        return teamMapper.convertToDTO(teamRepository.save(team));
+    }
+
+    @Override
+    public TeamResponse temporaryCreate(TeamRequest teamRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+        if (currentUser == null) {
+            throw new CustomException("Login information not found!", HttpStatus.BAD_REQUEST.value());
+        }
+        String userId = currentUser.getId();
+
+        // kiểm tra xem có đội nào có tên này chưa
+        if (checkExistedTeam(teamRequest.getTeamName())) {
+            throw new CustomException("Team name already exists, please choose a different name!", HttpStatus.BAD_REQUEST.value());
+        }
+
+        // nếu image input trống thì tạo bằng ảnh mặc định
+        if (teamRequest.getTeamLogoUrl() == null || teamRequest.getTeamLogoUrl().isEmpty()) {
+            teamRequest.setTeamLogoUrl(appConfig.getDefaultIcon());
+        }
+
+        Team team = teamMapper.convertToEntity(teamRequest, userId);
+        // off
+        team.setIsActive(false);
 
         return teamMapper.convertToDTO(teamRepository.save(team));
     }

@@ -5,7 +5,6 @@ import app.sportcenter.commons.PricedItem;
 import app.sportcenter.commons.RecurringIntervalType;
 import lombok.*;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.ZonedDateTime;
@@ -29,6 +28,7 @@ public class RecurringBooking extends BaseEntity implements PricedItem {
     private Integer numberOfHours;             // Số giờ đặt mỗi lần đặt (để tính endTime mỗi lần đặt)
     private Integer packageDurationMonths;       // Số tháng của gói (1, 3, 6, ...)
     private List<String> bookingIds = new ArrayList<>();
+    private boolean isProcessing;
 
     // tính giờ kết thúc của mỗi lần đặt
     public ZonedDateTime getEndTime() {

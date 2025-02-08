@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.ResourceBundle;
 
 @Repository
 public interface BookingRepository extends MongoRepository<Booking, String> {
@@ -21,6 +20,13 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
     // tìm danh sách booking đã hết hạn (endTime < now)
     @Query("{ 'endTime' : { $lt: ?0 }, 'isActive': true, 'isDeleted': false }")
     public List<Booking> findExpiredBookings(ZonedDateTime now);
+
+    // tìm danh sách: booking đã hết hạn (endTime < now) || overtime processing
+    @Query("{'$or': [ " +
+            "{ 'endTime' : { $lt: ?0 }, 'isActive': true, 'isDeleted': false }, " +
+            "{ 'isProcessing': true, 'createdAt': { $lt: ?1 }, 'isActive': true, 'isDeleted': false }" +
+            "]}")
+    List<Booking> findExpiredOrStaleProcessingBookings(ZonedDateTime now, ZonedDateTime threshold);
 
     @Query("{ 'user._id':  ?0, 'isActive': true, 'isDeleted': false }")
     public List<Booking> findBookingByUserId(String userId);
@@ -52,9 +58,9 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
     @Query("{ 'field.fieldName': { $regex: ?0, $options: 'i' }, 'isDeleted': false, 'isActive': true }")
     Page<Booking> searchByFieldName(String fieldName, Pageable pageable);
 
-    @Query("SELECT b FROM Booking b WHERE b.bookingDate >= :startDate")
+    @Query("{ 'bookingDate': { $gte: ?0 } }")
     List<Booking> findBookingsLastSixMonths(@Param("startDate") ZonedDateTime startDate);
 
-    @Query("SELECT b FROM Booking b WHERE b.recurringBooking.id = :recurringBookingId")
+    @Query("{ 'recurringBooking.id': ?0 }")
     List<Booking> findByRecurringBookingId(@Param("recurringBookingId") String recurringBookingId);
 }

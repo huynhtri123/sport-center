@@ -1,10 +1,7 @@
 package app.sportcenter.services;
 
 import app.sportcenter.commons.BaseResponse;
-import app.sportcenter.models.dto.TeamResponse;
-import app.sportcenter.models.dto.TournamentRegisterRequest;
-import app.sportcenter.models.dto.TournamentRequest;
-import app.sportcenter.models.dto.UnregisterTournamentRequest;
+import app.sportcenter.models.dto.*;
 import app.sportcenter.models.entities.User;
 import org.springframework.http.ResponseEntity;
 
@@ -29,8 +26,7 @@ public interface TournamentService {
 
     public ResponseEntity<BaseResponse> forceDelete(String tournamentId);
 
-    // for customer
-    public ResponseEntity<BaseResponse> register(TournamentRegisterRequest request);
+    public RegisterOrderResponse register(TournamentRegisterRequest request);
 
     public ResponseEntity<BaseResponse> unregister(UnregisterTournamentRequest request);
 
@@ -39,4 +35,6 @@ public interface TournamentService {
     public void checkRegistrationEligibility(String tournamentId, User currentUser);
 
     public ResponseEntity<BaseResponse> searchByNameAndPaginate(String tournamentName, int page, int size);
+
+    public TournamentResponse confirmRegister(String registerOrderId);
 }

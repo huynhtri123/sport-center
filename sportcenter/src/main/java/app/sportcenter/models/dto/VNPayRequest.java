@@ -1,7 +1,5 @@
 package app.sportcenter.models.dto;
 
-import app.sportcenter.commons.PaymentMethod;
-import app.sportcenter.commons.PaymentStatus;
 import app.sportcenter.commons.TransactionType;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -29,5 +27,9 @@ public class VNPayRequest extends BaseRequestDTO {
 
     @NotNull(message = "Bạn chưa nhập loại giao dịch")
     private TransactionType transactionType;
+
+    private String bookingId;
+
+    private String registerOrderId;
 
 }

@@ -12,4 +12,5 @@ public interface TeamRepository extends MongoRepository<Team, String> {
     public List<Team> getByIsDeletedFalseAndIsActiveTrue();
     public List<Team> getTeamByUserIdAndIsActiveTrueAndIsDeletedFalse(String userId);
     public List<Team> getTeamByTeamName(String teamName);
+    public Team getByIdAndIsActiveTrueAndIsDeletedFalse(String id);
 }

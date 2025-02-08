@@ -3,11 +3,11 @@ package app.sportcenter.services;
 import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.models.dto.TeamRequest;
 import app.sportcenter.models.dto.TeamResponse;
-import app.sportcenter.models.entities.Team;
 import org.springframework.http.ResponseEntity;
 
 public interface TeamService {
     public TeamResponse create(TeamRequest teamRequest);
+    public TeamResponse temporaryCreate(TeamRequest teamRequest);
 
     public ResponseEntity<BaseResponse> getById(String id);
     public ResponseEntity<BaseResponse> getAll();

@@ -34,7 +34,7 @@ const TournamentDetail = () => {
             getRegisteredTeams(tournament.id);
         }
     }, [tournament]);
-    const numberOfParticipants = registeredTeams ? registeredTeams.length : 0;
+    const numberOfParticipants = tournament.registeredTeamIds ? tournament.registeredTeamIds.length : 0;
 
     const prizes = tournament.prizes || [];
 
