@@ -1,22 +1,13 @@
 package app.sportcenter.controllers;
 
-import app.sportcenter.commons.PaymentMethod;
-import app.sportcenter.commons.PaymentStatus;
-import app.sportcenter.commons.TransactionType;
 import app.sportcenter.configs.vnpay.VNPayConfig;
-import app.sportcenter.exceptions.CustomException;
-import app.sportcenter.models.dto.InvoiceRequest;
-import app.sportcenter.models.dto.InvoiceResponse;
 import app.sportcenter.models.dto.VNPayRequest;
-import app.sportcenter.services.InvoiceService;
 import app.sportcenter.services.PaymentService;
-import app.sportcenter.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -30,9 +21,7 @@ import java.io.IOException;
 public class PaymentController {
 
     private final PaymentService paymentService;
-    private final InvoiceService invoiceService;
     private final VNPayConfig vnPayConfig;
-    private final UserService userService;
 
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
     @PostMapping("/payment/create-payment")
@@ -47,40 +36,20 @@ public class PaymentController {
                             @RequestParam(value = "vnp_OrderInfo") String orderInfo,
                             @RequestParam(value = "vnp_ResponseCode") String responseCode) throws IOException {
 
+        String redirectUrl = vnPayConfig.getReturnClientUrlFailed();
+
         if (responseCode.equals("00")) {
-            String[] orderInfoParts = orderInfo.split("\\.");
-            if (orderInfoParts.length != 3) {
-                throw new CustomException("Invalid order info format!", HttpStatus.BAD_REQUEST.value());
-            }
-
-            String userId = orderInfoParts[0];
-            String transactionType = orderInfoParts[1].toUpperCase();
-            String amountByBalance = orderInfoParts[2];
-
             try {
-                double amountBalance = Double.parseDouble(amountByBalance);
-                if (amountBalance != 0) {
-                    InvoiceResponse invoiceBalanceResponse = userService.makePaymentByBalance(amountBalance, transactionType);
-                }
-
-                InvoiceRequest invoiceRequest = new InvoiceRequest();
-                invoiceRequest.setUserId(userId);
-                invoiceRequest.setAmount(Double.parseDouble(amount) / 100);
-                invoiceRequest.setPaymentMethod(PaymentMethod.CARD);
-                invoiceRequest.setPaymentStatus(PaymentStatus.PAID);
-                invoiceRequest.setTransactionType(TransactionType.valueOf(transactionType));
-                InvoiceResponse invoiceResponse = invoiceService.create(invoiceRequest);
-                //System.out.println(userId + "|" + transactionType);
+                paymentService.paymentSuccessCallback(amount, orderInfo);
+                redirectUrl = vnPayConfig.getReturnClientUrlSuccess();
             } catch (Exception e) {
-                log.error("Create invoice failed! Payment with vnpay failed!");
-                response.sendRedirect(vnPayConfig.getReturnClientUrlFailed());
+                log.error("Payment with vnpay failed! {}", e.getMessage());
             }
 
         } else {
-            log.error("Payment with vnpay failed!");
-            response.sendRedirect(vnPayConfig.getReturnClientUrlFailed());
+            paymentService.paymentFailed(orderInfo);
         }
-        response.sendRedirect(vnPayConfig.getReturnClientUrlSuccess());
+        response.sendRedirect(redirectUrl);
     }
 
 }

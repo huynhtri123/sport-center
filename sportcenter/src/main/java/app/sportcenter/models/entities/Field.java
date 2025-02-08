@@ -1,7 +1,6 @@
 package app.sportcenter.models.entities;
 
 import app.sportcenter.commons.FieldStatus;
-import app.sportcenter.commons.FieldType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,7 +21,6 @@ import java.util.List;
 public class Field extends BaseEntity {
     @Id
     private String id;
-//    private FieldType fieldType;
     @DBRef
     private Sport sport;
 
@@ -99,11 +97,12 @@ public class Field extends BaseEntity {
             ZonedDateTime start = booking.getStartTime();
             ZonedDateTime end = booking.getEndTime();
 
-            // vì nếu bookingEnd>now thì cái này hết hạn rồi (trong quá khứ rồi),
-            // và nếu bị huỷ thì isActive=false -> không cập nhật thành IN_USE
-            if (end.isAfter(ZonedDateTime.now()) || !booking.getIsActive()) {
+            // Những booking còn hạn: end>now & isActive & !isDeleted
+            // bookings đầu vào chỉ có isActive=true & isDeleted=false
+            if (end.isAfter(ZonedDateTime.now())) {
                 for (TimeSlot slot : this.timeSlots) {
-                    // các slot còn hạn sử dụng (còn trong khoảng tgian booking)
+                    // dò các slot của field, cái mà nằm trong khoảng tgian của booking này
+                    // nghĩa là các slot của field thuộc booking còn hạn
                     if (slot.getStartTime().isBefore(end) && slot.getEndTime().isAfter(start)) {
                         slot.setStatus(FieldStatus.IN_USE);
                     }

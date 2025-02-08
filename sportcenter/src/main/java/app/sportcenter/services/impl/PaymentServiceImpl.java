@@ -1,18 +1,19 @@
 package app.sportcenter.services.impl;
 
+import app.sportcenter.commons.PaymentMethod;
+import app.sportcenter.commons.PaymentStatus;
 import app.sportcenter.commons.TransactionType;
 import app.sportcenter.configs.vnpay.VNPayConfig;
-import app.sportcenter.models.dto.InvoiceRequest;
-import app.sportcenter.models.dto.VNPayRequest;
-import app.sportcenter.models.dto.VnpayResponse;
-import app.sportcenter.services.PaymentService;
+import app.sportcenter.exceptions.CustomException;
+import app.sportcenter.models.dto.*;
+import app.sportcenter.models.entities.RecurringBooking;
+import app.sportcenter.repositories.RecurringBookingRepository;
+import app.sportcenter.services.*;
 import app.sportcenter.utils.vnpay.VNPayUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
@@ -26,6 +27,11 @@ import java.util.*;
 public class PaymentServiceImpl implements PaymentService {
 
     private final VNPayConfig vnpayConfig;
+    private final UserService userService;
+    private final InvoiceService invoiceService;
+    private final BookingService bookingService;
+    private final RecurringBookingRepository recurringBookingRepository;
+    private final TournamentService tournamentService;
 
     @Override
     public VnpayResponse createPayment(HttpServletRequest request, VNPayRequest vnPayRequest) {
@@ -63,9 +69,9 @@ public class PaymentServiceImpl implements PaymentService {
 
         vnp_Params.put("vnp_OrderInfo", formatOrderInfo(vnPayRequest.getUserId(),
                 vnPayRequest.getTransactionType(),
-                vnPayRequest.getAmountByBalance()));
-        //String orderInfo = invoiceRequest.getUserId() + invoiceRequest.getTransactionType();
-        //vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + orderInfo);
+                vnPayRequest.getAmountByBalance(),
+                vnPayRequest.getBookingId(),
+                vnPayRequest.getRegisterOrderId()));
 
         vnp_Params.put("vnp_Locale", "vn");
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
@@ -84,13 +90,12 @@ public class PaymentServiceImpl implements PaymentService {
         return vnp_Params;
     }
 
-    private String formatOrderInfo(String userId, TransactionType transactionType, Double amountByBalance) {
+    private String formatOrderInfo(String userId, TransactionType transactionType, Double amountByBalance,
+                                   String bookingId, String registerOrderId) {
         // amountByBalance có phần thập phân .0, loại bỏ nó
         String amountByBalanceStr = String.format("%.0f", amountByBalance);
-        return  userId + "." + transactionType.name() + "." + amountByBalanceStr;
+        return  userId + "|" + transactionType.name() + "|" + amountByBalanceStr + "|" + bookingId + "|" + registerOrderId;
     }
-
-
 
     private String buildPaymentUrl(Map<String, String> vnp_Params) {
         List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
@@ -123,4 +128,61 @@ public class PaymentServiceImpl implements PaymentService {
         String vnp_SecureHash = VNPayUtil.hmacSHA512(vnpayConfig.getSecretKey(), hashData.toString());
         return vnpayConfig.getPayUrl() + "?" + query.toString() + "&vnp_SecureHash=" + vnp_SecureHash;
     }
+
+    @Override
+    public void paymentSuccessCallback(String amount, String orderInfo) {
+        String[] orderInfoParts = orderInfo.split("\\|");
+        if (orderInfoParts.length != 5) {
+            throw new CustomException("Invalid order info format!", HttpStatus.BAD_REQUEST.value());
+        }
+
+        String userId = orderInfoParts[0];
+        String transactionType = orderInfoParts[1].toUpperCase();
+        String amountByBalance = orderInfoParts[2];
+        String bookingId = orderInfoParts[3];
+        String registerOrderId = orderInfoParts[4];
+
+//        log.error("userID: {}", userId);
+//        log.error("transactionType: {}", transactionType);
+//        log.error("amount by balance: {}", amountByBalance);
+//        log.error("bookingID: {}", bookingId);
+//        log.error("registerOrderId: {}", registerOrderId);
+
+        // dat san buoc 2 (neu la booking)
+        if (TransactionType.valueOf(transactionType) == TransactionType.BOOKING && bookingId != null) {
+            RecurringBooking recurringBooking = recurringBookingRepository.findById(bookingId).orElse(null);
+            if (recurringBooking == null) {
+                // is Booking
+                BookingResponse bookingResponse = bookingService.confirmBooking(bookingId);
+            } else {
+                // is Recurring
+                RecurringBookingResponse recurringResponse = bookingService.confirmRecurringBooking(bookingId);
+            }
+        }
+        // register (neu la tournament)
+        if (TransactionType.valueOf(transactionType) == TransactionType.REGISTRATION_FEE && registerOrderId != null) {
+            TournamentResponse tournamentResponse = tournamentService.confirmRegister(registerOrderId);
+        }
+
+        // thanh toan = balance (neu co)
+        double amountBalance = Double.parseDouble(amountByBalance);
+        if (amountBalance != 0) {
+            InvoiceResponse invoiceBalanceResponse = userService.makePaymentByBalance(amountBalance, transactionType);
+        }
+
+        // tao hoa don (card)
+        InvoiceRequest invoiceRequest = new InvoiceRequest();
+        invoiceRequest.setUserId(userId);
+        invoiceRequest.setAmount(Double.parseDouble(amount) / 100);
+        invoiceRequest.setPaymentMethod(PaymentMethod.CARD);
+        invoiceRequest.setPaymentStatus(PaymentStatus.PAID);
+        invoiceRequest.setTransactionType(TransactionType.valueOf(transactionType));
+        InvoiceResponse invoiceResponse = invoiceService.create(invoiceRequest);
+    }
+
+    @Override
+    public void paymentFailed(String orderInfo) {
+        log.error("Payment with vnpay failed! Order info: {}" , orderInfo);
+    }
+
 }

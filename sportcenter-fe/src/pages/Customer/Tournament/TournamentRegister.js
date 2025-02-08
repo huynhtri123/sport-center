@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
 
 import styles from '../../../assets/css/Tournament/tournamentRegister.module.scss';
 import Button from '../../../components/Button/Button';
@@ -29,7 +28,6 @@ function TournamentRegister() {
 
     const checkExistedTeam = async () => {
         try {
-            // console.log(teamName);
             const isNotExisted = await teamApi.checkExistedName(teamName);
             // nếu trùng là ko có response
             if (!isNotExisted) {
@@ -121,7 +119,7 @@ function TournamentRegister() {
                 formData.append('file', teamLogoUrl);
             }
             const registerResponse = await tournamentApi.register(formData);
-            toast.success(registerResponse.message);
+            // toast.success(registerResponse.message);
             localStorage.setItem('selectedTournament', JSON.stringify(registerResponse.data));
             //navigate('/tournament/detail');
             return registerResponse.data;

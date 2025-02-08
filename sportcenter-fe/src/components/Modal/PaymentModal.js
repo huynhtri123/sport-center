@@ -1,17 +1,16 @@
 /* eslint-disable no-unused-vars */
-// src/components/PaymentModal.js
 import styles from './paymentModal.module.scss';
 import userApi from '../../services/api/userApi';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useUser } from '../../customs/hooks';
-import { PaymentMethod } from '../../utils/enums/PaymentMethod';
 import { PaymentStatus } from '../../utils/enums/PaymentStatus';
 import { TransactionType } from '../../utils/enums/TransactionType';
 import { useNavigate } from 'react-router-dom';
 import invoiceApi from '../../services/api/invoiceApi';
 import bookingApi from '../../services/api/booking/bookingApi';
 import { usePaymentData } from '../../customs/hooks';
+import tournamentApi from '../../services/api/tournamentApi';
 
 function PaymentModal({
     isOpen,
@@ -76,7 +75,6 @@ function PaymentModal({
 
     const confirmBooking = async (bookingId) => {
         try {
-            // console.log(isRecurring);
             const response = isRecurring
                 ? await bookingApi.confirmRecurring(bookingId)
                 : await bookingApi.confirm(bookingId);
@@ -123,19 +121,14 @@ function PaymentModal({
             // console.log(bookingResponse);
             if (!bookingResponse) return;
 
-            // đặt sân bước 1 thành công -> thanh toán
+            // đặt sân bước 1 thành công -> thanh toán (BE da tao hoa don)
             const balancePaymentResponse = await makePaymentByBalance(price, TransactionType.BOOKING);
             if (!balancePaymentResponse) return;
 
             // thanh toán thành công -> gọi api đặt sân bước 2
-            // console.log(bookingResponse);
             const bookingId = bookingResponse.id;
             const confirmResponse = await confirmBooking(bookingId);
             if (!confirmResponse) return;
-
-            // đặt sân bước 2 thành công -> tạo hoá đơn
-            const transactionType = TransactionType.BOOKING;
-            await createInvoice(user.id, price, transactionType, PaymentMethod.ACCOUNT_BALANCE);
         } catch (err) {
             console.error('Error during balance payment:', err);
         }
@@ -150,6 +143,10 @@ function PaymentModal({
             // đăng kí bước 1 thành công -> thanh toán
             const balancePaymentResponse = await makePaymentByBalance(price, TransactionType.REGISTRATION_FEE);
             if (!balancePaymentResponse) return;
+
+            const registerOrderId = registerResponse.id || '';
+            const confirmResponse = await tournamentApi.confirmRegister(registerOrderId);
+            toast.success(confirmResponse.message);
         } catch (err) {
             console.error('Error during balance payment:', err);
         }
@@ -165,7 +162,6 @@ function PaymentModal({
     };
 
     const handleRemainingPaymentAndSubmit = async (remainingAmount) => {
-        // toast.info('thanh toán nửa nạc nửa mỡ: ', remainingAmount);
         const paymentData = {
             amount: price,
             onSubmit: onSubmit,
