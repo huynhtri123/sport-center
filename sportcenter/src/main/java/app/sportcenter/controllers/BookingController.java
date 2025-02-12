@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,22 +20,30 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class BookingController {
     private final BookingService bookingService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
     @PostMapping("/booking/create")
     public ResponseEntity<BaseResponse> createBooking(@Valid @RequestBody BookingRequest bookingRequest) {
+        BookingResponse bookingResponse = bookingService.createBooking(bookingRequest);
+        // websocket: send notification
+        messagingTemplate.convertAndSend("/topic/booking-updates", Map.of("message", "Update field status!"));
+
         return ResponseEntity.ok(
                 new BaseResponse("Success, please make the payment to confirm your booking!", 200,
-                        bookingService.createBooking(bookingRequest))
+                        bookingResponse)
         );
     }
 
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
     @PutMapping("/booking/confirm/{bookingId}")
     public ResponseEntity<BaseResponse> confirmBooking(@PathVariable("bookingId") String bookingId) {
+        BookingResponse bookingResponse = bookingService.confirmBooking(bookingId);
+        messagingTemplate.convertAndSend("/topic/booking-updates", Map.of("message", "Update field status!"));
+
         return ResponseEntity.ok(
                 new BaseResponse("Court booking confirmed successfully.", 200,
-                        bookingService.confirmBooking(bookingId))
+                        bookingResponse)
         );
     }
 
@@ -42,13 +51,20 @@ public class BookingController {
     @PostMapping("/recurring/create")
     public ResponseEntity<BaseResponse> createRecurringBooking(
             @Valid @RequestBody RecurringBookingRequest recurringBookingRequest) {
-        return bookingService.createRecurringBooking(recurringBookingRequest);
+        RecurringBookingResponse response = bookingService.createRecurringBooking(recurringBookingRequest);
+        messagingTemplate.convertAndSend("/topic/booking-updates", Map.of("message", "Update field status!"));
+
+        return ResponseEntity.ok(
+                new BaseResponse("Success, please make the payment to confirm your court booking!", 200, response)
+        );
     }
 
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
     @PutMapping("/recurring/confirm/{recurringBookingId}")
     public ResponseEntity<BaseResponse> confirmRecurring(@PathVariable("recurringBookingId") String recurringBookingId) {
         RecurringBookingResponse response = bookingService.confirmRecurringBooking(recurringBookingId);
+        messagingTemplate.convertAndSend("/topic/booking-updates", Map.of("message", "Update field status!"));
+
         String message = "Confirm recurring booking according to the fixed schedule. (" + response.getInterval() + "/"
                 + response.getPackageDurationMonths() + " months) successfully!";
         return ResponseEntity.ok(
@@ -156,13 +172,24 @@ public class BookingController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
     @PutMapping("/booking/cancel/{bookingId}")
     public ResponseEntity<BaseResponse> cancelBooking(@PathVariable("bookingId") String bookingId) {
-        return bookingService.cancelBooking(bookingId);
+        BookingResponse response = bookingService.cancelBooking(bookingId);
+        messagingTemplate.convertAndSend("/topic/booking-updates", Map.of("message", "Update field status!"));
+
+        return ResponseEntity.ok(
+                new BaseResponse("Court booking canceled successfully.", 200, response)
+        );
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
     @PutMapping("/recurring/cancel/{bookingId}")
     public ResponseEntity<BaseResponse> cancelRecurringByBookingId(@PathVariable("bookingId") String bookingId) {
-        return bookingService.cancelRecurringByBookingId(bookingId);
+        RecurringBookingResponse response = bookingService.cancelRecurringByBookingId(bookingId);
+        messagingTemplate.convertAndSend("/topic/booking-updates", Map.of("message", "Update field status!"));
+
+        return ResponseEntity.ok(
+                new BaseResponse("Recurring booking hard cancel successful, 50% of the amount has been refunded to your balance.",
+                        200, response)
+        );
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")

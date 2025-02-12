@@ -150,7 +150,7 @@ public class BookingServiceImpl implements BookingService {
     // đặt cứng bước 1
     @Transactional
     @Override
-    public ResponseEntity<BaseResponse> createRecurringBooking(RecurringBookingRequest recurringBookingRequest) {
+    public RecurringBookingResponse createRecurringBooking(RecurringBookingRequest recurringBookingRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
 
@@ -208,9 +208,7 @@ public class BookingServiceImpl implements BookingService {
         RecurringBookingResponse response = recurringBookingMapper.convertToDTO(savedRecurringBooking);
 
         log.info("Đặt sân (recurring) bước 1 thành công {}", response.getId());
-        return ResponseEntity.ok(
-                new BaseResponse("Success, please make the payment to confirm your court booking!", HttpStatus.OK.value(), response)
-        );
+        return response;
 
     }
 
@@ -467,7 +465,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public ResponseEntity<BaseResponse> cancelBooking(String bookingId) {
+    public BookingResponse cancelBooking(String bookingId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
 
@@ -527,9 +525,7 @@ public class BookingServiceImpl implements BookingService {
                     .build();
             kafkaTemplate.send("notification-delivery", messageWrapper);
 
-            return ResponseEntity.ok(
-                    new BaseResponse("Court booking canceled successfully.", HttpStatus.OK.value(), response)
-            );
+            return response;
 
         } else {
             throw new CustomException("You do not have permission to cancel another user's court booking.", HttpStatus.FORBIDDEN.value());
@@ -576,7 +572,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    public ResponseEntity<BaseResponse> cancelRecurringByBookingId(String bookingId) {
+    public RecurringBookingResponse cancelRecurringByBookingId(String bookingId) {
         RecurringBooking recurrParent = recurringBookingRepository.getByContainBookingId(bookingId);
         if (recurrParent == null) {
             throw new NotFoundException("No recurring booking found with this bookingId!");
@@ -641,10 +637,7 @@ public class BookingServiceImpl implements BookingService {
                 .build();
         kafkaTemplate.send("notification-delivery", messageWrapper);
 
-        return ResponseEntity.ok(
-                new BaseResponse("Recurring booking hard cancel successful, 50% of the amount has been refunded to your balance.",
-                        HttpStatus.OK.value(), response)
-        );
+        return response;
     }
 
     @Transactional

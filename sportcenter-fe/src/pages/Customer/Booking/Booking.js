@@ -10,10 +10,12 @@ import { RecurringIntervalType } from '../../../utils/enums/RecurringIntervalTyp
 import PaymentModal from '../../../components/Modal/PaymentModal';
 import formatCurrency from '../../../utils/formatCurrency';
 import Video from '../../../components/Video/Video';
+import { connectWebSocket, disconnectWebSocket } from '../../../services/websocket/connect';
+import { useSelectDateForBooking } from '../../../customs/hooks';
 
 function Booking() {
     const [field, setField] = useGetField();
-    const [selectedDate, setSelectedDate] = useState('');
+    const [selectedDate, setSelectedDate] = useSelectDateForBooking();
     const [timeSlots, setTimeSlots] = useState([]);
     const [numberOfHours, setNumberOfHours] = useState(0);
     const [startTime, setStartTime] = useState('');
@@ -31,6 +33,24 @@ function Booking() {
         window.scrollTo(0, 0);
     }, []);
 
+    useEffect(() => {
+        // Khi component mount, kết nối WebSocket
+        connectWebSocket((updatedBooking) => {
+            //console.log('📢 Cập nhật booking mới:', updatedBooking);
+            //console.log('check selected date: ', selectedDate);
+            if (selectedDate) {
+                fetchTimeSlots(selectedDate);
+            }
+        });
+
+        // Cleanup khi component bị unmount (rời khỏi trang)
+        return () => {
+            console.log('🔌 Ngắt kết nối WebSocket');
+            disconnectWebSocket(); // Ngắt kết nối WebSocket khi component unmount
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedDate]); // Chỉ chạy 1 lần khi component mount
+
     const fetchTimeSlots = useCallback(
         async (date) => {
             if (!field || !field.id) {
@@ -47,6 +67,7 @@ function Booking() {
 
             try {
                 const response = await bookingApi.updateAndGetSchedule(onDaySchedule);
+                //console.log(response.data);
                 setTimeSlots(response.data.timeSlots);
             } catch (error) {
                 console.error('Error fetching time slots:', error);
@@ -65,6 +86,10 @@ function Booking() {
             console.log(date);
         }
     };
+
+    useEffect(() => {
+        console.log('Selected date has changed:', selectedDate);
+    }, [selectedDate]);
 
     const getPrice = async (isRecurring, date) => {
         if (!startTimeRef.current.value) {
