@@ -2,10 +2,7 @@ package app.sportcenter.controllers;
 
 import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.exceptions.CustomException;
-import app.sportcenter.models.dto.CloudinaryResponse;
-import app.sportcenter.models.dto.TournamentRegisterRequest;
-import app.sportcenter.models.dto.TournamentRequest;
-import app.sportcenter.models.dto.UnregisterTournamentRequest;
+import app.sportcenter.models.dto.*;
 import app.sportcenter.models.entities.User;
 import app.sportcenter.services.CloudinaryService;
 import app.sportcenter.services.TournamentService;
@@ -19,6 +16,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -112,9 +111,11 @@ public class TournamentController {
             request.getTeamRequest().setTeamLogoUrl(response.getUrl());
         }
 
+        RegisterOrderResponse response = tournamentService.register(request);
+
         return ResponseEntity.ok(
                 new BaseResponse("Register tournament step 1 successfully!", 200,
-                        tournamentService.register(request))
+                        response)
         );
     }
 

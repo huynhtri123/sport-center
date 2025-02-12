@@ -3,10 +3,12 @@ package app.sportcenter.configs;
 import app.sportcenter.commons.OrderStatus;
 import app.sportcenter.models.entities.*;
 import app.sportcenter.repositories.*;
+import app.sportcenter.utils.mappers.BookingMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +33,8 @@ public class SchedulerConfig {
     private final TournamentRepository tournamentRepository;
     private final TeamRepository teamRepository;
     private final RecurringBookingRepository recurringBookingRepository;
+    private final SimpMessagingTemplate messagingTemplate;
+    private final BookingMapper bookingMapper;
 
     @Bean
     public ScheduledExecutorService scheduledExecutorService() {
@@ -45,8 +49,12 @@ public class SchedulerConfig {
         log.info("Check booking expire. Thời gian hiện tại (+7): {}", now);
 
         // get all expired bookings (endTime<now || isProcessing=true > 15p)
-        ZonedDateTime minutesAgo = ZonedDateTime.now().minusMinutes(15);
+        ZonedDateTime minutesAgo = ZonedDateTime.now().minusMinutes(1);
         List<Booking> expiredBookings = bookingRepository.findExpiredOrStaleProcessingBookings(now, minutesAgo);
+
+        if (expiredBookings.isEmpty()) {
+            return; // Không có thay đổi, thoát luôn
+        }
         log.info("Check expired bookings: {}", expiredBookings.size());
 
         List<Field> fieldsToSave = new ArrayList<>();
@@ -68,6 +76,8 @@ public class SchedulerConfig {
         }
         fieldRepository.saveAll(fieldsToSave);
         bookingRepository.saveAll(bookingsToSave);
+
+        messagingTemplate.convertAndSend("/topic/booking-updates", Map.of("message", "Update field status!"));
     }
 
     // check RECURRING status

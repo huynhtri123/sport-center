@@ -15,7 +15,7 @@ public interface BookingService {
     public BookingResponse confirmBooking(String bookingId);
 
     // ĐẶT CỨNG
-    public ResponseEntity<BaseResponse> createRecurringBooking(RecurringBookingRequest recurringBookingRequest);
+    public RecurringBookingResponse createRecurringBooking(RecurringBookingRequest recurringBookingRequest);
 
     public RecurringBookingResponse confirmRecurringBooking(String recurringId);
 
@@ -26,10 +26,10 @@ public interface BookingService {
     public ResponseEntity<BaseResponse> forceDelete(String bookingId);
 
     // huỷ lẻ
-    public ResponseEntity<BaseResponse> cancelBooking(String bookingId);
+    public BookingResponse cancelBooking(String bookingId);
 
     // huỷ cứng
-    public ResponseEntity<BaseResponse> cancelRecurringByBookingId(String bookingId);
+    public RecurringBookingResponse cancelRecurringByBookingId(String bookingId);
 
     // GET
     public ResponseEntity<BaseResponse> getBookingById(String id);

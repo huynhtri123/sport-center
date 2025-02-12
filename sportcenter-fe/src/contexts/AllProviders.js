@@ -6,6 +6,7 @@ import GetFieldsProvider from './Field/GetFieldsProvider';
 import UserProvider from './UserContext/UserProvider';
 import BookingPaymentProvider from './Booking/BookingPaymentProvider';
 import PaymentProvider from './Payment/PaymentProvider';
+import SelectDateProvider from './Booking/SelectDateProvider';
 
 function AllProviders({ children }) {
     return (
@@ -16,7 +17,9 @@ function AllProviders({ children }) {
                         <BookingPaymentProvider>
                             <TournamentProvider>
                                 <UserProvider>
-                                    <GetFieldsProvider>{children}</GetFieldsProvider>
+                                    <SelectDateProvider>
+                                        <GetFieldsProvider>{children}</GetFieldsProvider>
+                                    </SelectDateProvider>
                                 </UserProvider>
                             </TournamentProvider>
                         </BookingPaymentProvider>
