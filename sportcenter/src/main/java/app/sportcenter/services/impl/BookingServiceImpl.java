@@ -201,7 +201,7 @@ public class BookingServiceImpl implements BookingService {
         fieldRepository.save(field);
         bookingRepository.saveAll(bookingsToSave);
         recurringBooking.setBookingIds(bookingsToSave.stream().map(Booking::getId).collect(Collectors.toList()));
-        recurringBooking.setIsActive(false);    // wait thanh toan
+        recurringBooking.setIsActive(true);
         recurringBooking.setProcessing(true);   // wait thanh toan
 
         RecurringBooking savedRecurringBooking = recurringBookingRepository.save(recurringBooking);
@@ -240,8 +240,8 @@ public class BookingServiceImpl implements BookingService {
             throw new CustomException("You do not have permission to confirm this recurring booking.", HttpStatus.BAD_REQUEST.value());
         }
 
-        // kiểm tra trạng thái recurring (chi khi isProcessinng & active=false & delete=false moi can xac nhan)
-        if (!recurringBooking.isProcessing() || recurringBooking.getIsActive() || recurringBooking.getIsDeleted()) {
+        // kiểm tra trạng thái recurring (chi khi isProcessinng & delete=false moi can xac nhan)
+        if (!recurringBooking.isProcessing() || recurringBooking.getIsDeleted()) {
             throw new CustomException("This recurring booking does not meet the requirements for confirmation.", HttpStatus.BAD_REQUEST.value());
         }
 
@@ -471,6 +471,12 @@ public class BookingServiceImpl implements BookingService {
 
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("This booking not found."));
+
+        // check xem Booking co dang xu ly (chua thanh toan xong) khong
+        if (booking.isProcessing()) {
+            throw new CustomException("This booking is processing (expired after 5p), you cannot cancel it!", 400);
+        }
+
         // chỉ chủ sỡ hữu hoặc admin mới có quyền huỷ booking
         if (booking.getUser().getId().equals(currentUser.getId()) || currentUser.getRole().equals(Role.ADMIN)) {
             Field field = booking.getField();
@@ -576,6 +582,10 @@ public class BookingServiceImpl implements BookingService {
         RecurringBooking recurrParent = recurringBookingRepository.getByContainBookingId(bookingId);
         if (recurrParent == null) {
             throw new NotFoundException("No recurring booking found with this bookingId!");
+        }
+
+        if (recurrParent.isProcessing()) {
+            throw new CustomException("This booking is processing (expired after 5p), you cannot cancel it!", 400);
         }
 
         Double remainingAmount = 0.0;

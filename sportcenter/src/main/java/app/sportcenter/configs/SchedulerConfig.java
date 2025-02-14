@@ -3,7 +3,6 @@ package app.sportcenter.configs;
 import app.sportcenter.commons.OrderStatus;
 import app.sportcenter.models.entities.*;
 import app.sportcenter.repositories.*;
-import app.sportcenter.utils.mappers.BookingMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -34,7 +33,6 @@ public class SchedulerConfig {
     private final TeamRepository teamRepository;
     private final RecurringBookingRepository recurringBookingRepository;
     private final SimpMessagingTemplate messagingTemplate;
-    private final BookingMapper bookingMapper;
 
     @Bean
     public ScheduledExecutorService scheduledExecutorService() {
@@ -48,8 +46,8 @@ public class SchedulerConfig {
         ZonedDateTime now = ZonedDateTime.now();
         log.info("Check booking expire. Thời gian hiện tại (+7): {}", now);
 
-        // get all expired bookings (endTime<now || isProcessing=true > 15p)
-        ZonedDateTime minutesAgo = ZonedDateTime.now().minusMinutes(1);
+        // get all expired bookings (endTime<now || isProcessing=true > 5p)
+        ZonedDateTime minutesAgo = ZonedDateTime.now().minusMinutes(5);
         List<Booking> expiredBookings = bookingRepository.findExpiredOrStaleProcessingBookings(now, minutesAgo);
 
         if (expiredBookings.isEmpty()) {
@@ -71,6 +69,7 @@ public class SchedulerConfig {
             fieldsToSave.add(field);
             booking.setIsActive(false);
             booking.setProcessing(false);
+            booking.setIsDeleted(true);
             bookingsToSave.add(booking);
             log.info("Đặt sân hết hạn, vừa cập nhật về AVAILABLE (bookingId: {})", booking.getId());
         }
@@ -81,12 +80,12 @@ public class SchedulerConfig {
     }
 
     // check RECURRING status
-    // isProcessing > 15p -> off
+    // isProcessing > 5p -> off
     @Transactional
     @Scheduled(fixedRate = 60000) // chạy moi 1p
     public void checkExpiredRecurrings() {
-        // get all recurrings: isProcessing > 15p
-        ZonedDateTime minutesAgo = ZonedDateTime.now().minusMinutes(15);
+        // get all recurrings: isProcessing > 5p
+        ZonedDateTime minutesAgo = ZonedDateTime.now().minusMinutes(5);
         List<RecurringBooking> expiredProcessings = recurringBookingRepository.findByIsProcessingTrueAndCreatedAtBefore(minutesAgo);
         log.info("Check recurring: {}" , expiredProcessings.size());
 
@@ -94,6 +93,7 @@ public class SchedulerConfig {
         for (RecurringBooking recurringBooking : expiredProcessings) {
             recurringBooking.setProcessing(false);
             recurringBooking.setIsActive(false);
+            recurringBooking.setIsDeleted(true);
             savedList.add(recurringBooking);
             log.warn("Recurring processing overtime -> off!");
         }
@@ -104,8 +104,8 @@ public class SchedulerConfig {
     @Transactional
     @Scheduled(fixedRate = 60000)   // chay moi 1 phut
     public void checkExpiredOrders() {
-        // get all expired orders: PENDING > 15p
-        ZonedDateTime minutesAgo = ZonedDateTime.now().minusMinutes(15);
+        // get all expired orders: PENDING > 5p
+        ZonedDateTime minutesAgo = ZonedDateTime.now().minusMinutes(5);
         List<RegisterOrder> expiredOrders = registerOrderRepository.findByOrderStatusAndCreatedAtBefore(
                 OrderStatus.PENDING, minutesAgo
         );
