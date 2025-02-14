@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
@@ -7,6 +8,7 @@ import { Loading } from '../../components/Loading/Loading';
 import ConfirmModal from '../../components/Modal/ConfirmModal';
 import Button from '../../components/Button/Button';
 import formatCurrency from '../../utils/formatCurrency';
+import { connectWebSocket, disconnectWebSocket } from '../../services/websocket/connect';
 
 function ManageBookings() {
     const [bookings, setBookings] = useState([]);
@@ -46,6 +48,20 @@ function ManageBookings() {
     const toggleOpenModal = () => {
         setIsModalOpen(!isModalOpen);
     };
+
+    useEffect(() => {
+        // Khi component mount, kết nối WebSocket
+        connectWebSocket((updatedBooking) => {
+            //console.log('📢 Cập nhật booking mới:', updatedBooking);
+            fetchBookings();
+        });
+
+        // Cleanup khi component bị unmount (rời khỏi trang)
+        return () => {
+            console.log('🔌 Ngắt kết nối WebSocket');
+            disconnectWebSocket(); // Ngắt kết nối WebSocket khi component unmount
+        };
+    }, []);
 
     const fetchBookings = useCallback(async () => {
         try {

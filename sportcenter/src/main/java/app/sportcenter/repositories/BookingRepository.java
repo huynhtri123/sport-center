@@ -31,7 +31,7 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
     @Query("{ 'user._id':  ?0, 'isActive': true, 'isDeleted': false }")
     public List<Booking> findBookingByUserId(String userId);
 
-    @Query("{ 'user._id':  ?0, 'endTime' : { $gt: ?1 }, 'field.timeSlots': { $elemMatch: { 'status': ?2 }}, 'isActive': true, 'isDeleted': false }")
+    @Query("{ 'user._id':  ?0, 'endTime' : { $gt: ?1 }, 'field.timeSlots': { $elemMatch: { 'status': ?2 }}, 'isActive': true, 'isDeleted': false, 'isProcessing': false }")
     public List<Booking> getCurrentBookingsOfCurrentUser(String userId, ZonedDateTime now, String fieldStatus);
 
     @Query("{ 'field._id':  ?0, 'isActive': true, 'isDeleted': false }")

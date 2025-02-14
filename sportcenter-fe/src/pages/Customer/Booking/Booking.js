@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { toast } from 'react-toastify';
 import clsx from 'clsx';
@@ -48,7 +49,6 @@ function Booking() {
             console.log('🔌 Ngắt kết nối WebSocket');
             disconnectWebSocket(); // Ngắt kết nối WebSocket khi component unmount
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedDate]); // Chỉ chạy 1 lần khi component mount
 
     const fetchTimeSlots = useCallback(
