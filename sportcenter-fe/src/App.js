@@ -27,6 +27,7 @@ import { useCleanupStorage } from './customs/hooks';
 import TournamentHome from './pages/Customer/Tournament/TournamentHome';
 import TournamentDetail from './pages/Customer/Tournament/TournamentDetail';
 import TournamentRegister from './pages/Customer/Tournament/TournamentRegister';
+import Notification from './pages/Notification/Notification';
 
 import AllProviders from './contexts/AllProviders';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -57,6 +58,7 @@ function App() {
                             <Route path='/sign-up' element={<Signup />} />
                             <Route path='/sign-in' element={<Signin />} />
                             <Route path='/forgot-password' element={<ForgotPassword />} />
+                            <Route path='/notifications' element={<Notification />} />
 
                             {/* <Route path='/sport/:sportId' element={<DynamicSportHome />} /> */}
                             <Route path='/sport/fields' element={<FieldList />} />

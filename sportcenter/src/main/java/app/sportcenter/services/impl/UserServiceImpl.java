@@ -18,7 +18,6 @@ import app.sportcenter.utils.mappers.InvoiceMapper;
 import app.sportcenter.utils.mappers.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -29,10 +28,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.swing.text.html.HTML;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,8 +39,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final InvoiceMapper invoiceMapper;
     private final InvoiceRepository invoiceRepository;
-    @Autowired
-    private PaymentInfoRepository paymentInfoRepository;
+    private final PaymentInfoRepository paymentInfoRepository;
 
 
     @Override
@@ -189,31 +185,12 @@ public class UserServiceImpl implements UserService {
         return userMapper.convertToDTO(user);
     }
 
+    @Override
+    public List<UserResponse> getAllActive() {
+        return userRepository.findAllByIsActiveTrueAndIsDeletedFalse()
+                .stream().map(userMapper::convertToDTO).toList();
+    }
 
-//    @Override
-//    public ResponseEntity<BaseResponse> getById(String id) {
-//        User user = userRepository.findById(id).orElseThrow(() -> new CustomException("Người dùng không tồn tại", HttpStatus.NOT_FOUND.value()));
-//        UserResponse response = new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getPhoneNumber(), user.getAddress(), user.getDateOfBirth(), user.getAvatarUrl(), user.getRole(), user.getCart(), user.getPaymentInfos());
-//        return ResponseEntity.ok(new BaseResponse("Tìm thấy người dùng", HttpStatus.OK.value(), response));
-//    }
-
-
-//    @Override
-//    public ResponseEntity<BaseResponse> delete(String id) {
-//        User user = userRepository.findById(id).orElseThrow(() -> new CustomException("Người dùng không tồn tại", HttpStatus.NOT_FOUND.value()));
-//        userRepository.delete(user);
-//        return ResponseEntity.ok(new BaseResponse("Xóa người dùng thành công", HttpStatus.OK.value(), null));
-//    }
-
-//    @Override
-//    public ResponseEntity<BaseResponse> getAll() {
-//        List<User> users = userRepository.findAll();
-//        List<UserResponse> responses = users.stream()
-//                .map(user -> new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getPassword(), user.getPhoneNumber(), user.getAddress(), user.getDateOfBirth(), user.getAvatarUrl(), user.getRole(), user.getCart(), user.getPaymentInfos()))
-//                .collect(Collectors.toList());
-//
-//        return ResponseEntity.ok(new BaseResponse("Danh sách người dùng", HttpStatus.OK.value(), responses));
-//    }
     @Override
     public ResponseEntity<BaseResponse> getAll() {
         List<User> userList = userRepository.findByIsDeletedFalseAndIsActiveTrue();

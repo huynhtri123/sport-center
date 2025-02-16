@@ -1,0 +1,151 @@
+@import '../variables';
+
+.notificationContainer {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+    text-align: center;
+    font-size: 26px;
+    font-weight: bold;
+    margin-bottom: 16px;
+    color: $blue-prime;
+}
+
+.notificationList {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); // Grid layout giúp tận dụng chiều rộng tối đa
+    gap: 15px;
+
+    p {
+        margin-top: 4px;
+    }
+}
+
+.notificationItem {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease-in-out;
+
+    &:hover {
+        transform: translateY(-3px);
+    }
+}
+
+.notificationContent {
+    flex: 1;
+
+    h3 {
+        font-size: 18px;
+        margin: 0;
+        color: #007bff;
+    }
+
+    p {
+        font-size: 14px;
+        color: #555;
+    }
+}
+
+.date {
+    font-size: 13px;
+    color: gray;
+    margin-top: 10px;
+    align-self: flex-end;
+}
+
+/* Phân trang */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+
+    button {
+        padding: 10px 15px;
+        margin: 0 8px;
+        border: none;
+        background: #007bff;
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.3s;
+
+        &:hover {
+            background: #0056b3;
+        }
+
+        &:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+    }
+}
+
+/* 🌍 Responsive Styles */
+@media (max-width: 768px) {
+    .notificationContainer {
+        max-width: 95%;
+        padding: 15px;
+    }
+
+    .title {
+        font-size: 22px;
+    }
+
+    .notificationList {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); // Điều chỉnh số cột cho tablet
+    }
+
+    .notificationItem {
+        padding: 15px;
+    }
+
+    .pagination button {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .notificationContainer {
+        max-width: 100%;
+        padding: 10px;
+    }
+
+    .title {
+        font-size: 20px;
+    }
+
+    .notificationList {
+        grid-template-columns: 1fr; // Chuyển về 1 cột cho điện thoại
+    }
+
+    .notificationItem {
+        padding: 12px;
+    }
+
+    .pagination {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .pagination button {
+        width: 100%;
+        font-size: 14px;
+    }
+}

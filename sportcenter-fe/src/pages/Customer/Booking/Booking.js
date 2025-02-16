@@ -36,13 +36,19 @@ function Booking() {
 
     useEffect(() => {
         // Khi component mount, kết nối WebSocket
-        connectWebSocket((updatedBooking) => {
-            //console.log('📢 Cập nhật booking mới:', updatedBooking);
-            //console.log('check selected date: ', selectedDate);
-            if (selectedDate) {
-                fetchTimeSlots(selectedDate);
+        connectWebSocket(
+            (updatedBooking) => {
+                // Xử lý cập nhật booking
+                console.log('📢 Cập nhật booking mới:', updatedBooking);
+                if (selectedDate) {
+                    fetchTimeSlots(selectedDate);
+                }
+            },
+            (newNotification) => {
+                // Xử lý notification mới
+                console.log('🔔 Notification mới nhận:', newNotification);
             }
-        });
+        );
 
         // Cleanup khi component bị unmount (rời khỏi trang)
         return () => {

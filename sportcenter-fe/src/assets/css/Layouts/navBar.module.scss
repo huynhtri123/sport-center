@@ -61,6 +61,23 @@
 }
 
 // right navbar
+.notificationBadge {
+    position: absolute;
+    top: 0;
+    right: 10px;
+    background-color: red;
+    font-family: Arial, sans-serif;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .iconContainer {
     gap: 20px;
     font-size: 1.25em;
