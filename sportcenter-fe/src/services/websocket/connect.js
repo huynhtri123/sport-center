@@ -6,7 +6,7 @@ const SOCKET_URL = process.env.REACT_APP_SERVER_URI + '/ws'; // URL WebSocket en
 let stompClient = null; // Biến lưu trữ STOMP client
 
 // Hàm kết nối WebSocket và lắng nghe cập nhật từ server
-export const connectWebSocket = (onBookingUpdate) => {
+export const connectWebSocket = (onBookingUpdate, onNotificationUpdate) => {
     const socket = new SockJS(SOCKET_URL); // Tạo kết nối SockJS tới endpoint WebSocket
 
     stompClient = new Client({
@@ -24,6 +24,13 @@ export const connectWebSocket = (onBookingUpdate) => {
 
                 // Gọi callback onBookingUpdate với dữ liệu nhận được
                 onBookingUpdate(updatedBooking);
+            });
+
+            // Lắng nghe cập nhật notification
+            stompClient.subscribe('/topic/notification-updates', (message) => {
+                console.log('🔔 Notification Update:', message);
+                const updatedNotification = JSON.parse(message.body);
+                onNotificationUpdate(updatedNotification);
             });
         },
         onStompError: (error) => {

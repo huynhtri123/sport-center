@@ -2,74 +2,97 @@ package app.sportcenter.services.impl;
 
 import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.exceptions.CustomException;
+import app.sportcenter.exceptions.NotFoundException;
 import app.sportcenter.models.dto.NotificationRequest;
 import app.sportcenter.models.dto.NotificationResponse;
+import app.sportcenter.models.dto.UserResponse;
 import app.sportcenter.models.entities.Notification;
-import app.sportcenter.models.entities.User;
+import app.sportcenter.models.entities.UserNotification;
 import app.sportcenter.repositories.NotificationRepository;
+import app.sportcenter.repositories.UserNotificationRepository;
 import app.sportcenter.services.NotificationService;
+import app.sportcenter.services.UserService;
 import app.sportcenter.utils.mappers.NotificationMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
 
-    @Autowired
-    private NotificationRepository notificationRepo;
-    @Autowired
-    private NotificationMapper mapper;
+    private final NotificationRepository notificationRepo;
+    private final NotificationMapper mapper;
+    private final UserService userService;
+    private final UserNotificationRepository userNotificationRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional
     @Override
-    public ResponseEntity<BaseResponse> create(NotificationRequest notificationRequest) {
+    public NotificationResponse create(NotificationRequest notificationRequest) {
         if (notificationRequest == null) {
             throw new CustomException("No input provided!", HttpStatus.BAD_REQUEST.value());
         }
 
         Notification notification = mapper.convertToEntity(notificationRequest);
         Notification savedNotification = notificationRepo.save(notification);
+        String notificationId = savedNotification.getId();
 
-        NotificationResponse response = mapper.convertToDTO(savedNotification);
+        List<UserResponse> allUsers = userService.getAllActive();
+        List<String> userIds = allUsers.stream().map(UserResponse::getId).toList();
 
-        return ResponseEntity.ok(
-                new BaseResponse("Notification created successfully.", HttpStatus.OK.value(), response)
-        );
-    }
+        // Lấy danh sách user đã có thông báo để tránh duplicate
+        Set<String> existingUserIds = new HashSet<>(userNotificationRepository.findUserIdsByNotificationId(notificationId));
 
-    @Override
-    public ResponseEntity<BaseResponse> getById(String notiId) {
-        Notification notification = notificationRepo.findById(notiId)
-                .orElseThrow(() -> new CustomException("No notification found with this ID.", HttpStatus.NOT_FOUND.value()));
-
-        NotificationResponse response = mapper.convertToDTO(notification);
-        return ResponseEntity.ok(
-                new BaseResponse("Notification found with this ID.", HttpStatus.OK.value(), response)
-        );
-    }
-
-    @Override
-    public ResponseEntity<BaseResponse> getAllActive() {
-        List<NotificationResponse> responseList = notificationRepo.getNotificationByIsDeletedFalseAndIsActiveTrue()
-                .stream()
-                .map(mapper::convertToDTO)
+        List<UserNotification> newUserNotifications = userIds.stream()
+                .filter(userId -> !existingUserIds.contains(userId)) // Bỏ qua user đã có thông báo
+                .map(userId -> new UserNotification(null, userId, notificationId, false, null))
                 .toList();
-        if (responseList.isEmpty()) {
-            throw new CustomException("Notification list not found!", HttpStatus.NOT_FOUND.value());
+
+        if (!newUserNotifications.isEmpty()) {
+            userNotificationRepository.saveAll(newUserNotifications);
         }
 
-        return ResponseEntity.ok(
-                new BaseResponse("Notification list found.", HttpStatus.OK.value(), responseList)
-        );
+        // websocket: send notification
+        messagingTemplate.convertAndSend("/topic/notification-updates", Map.of("message", "New notification!"));
+
+        return mapper.convertToDTO(savedNotification);
+    }
+
+    @Override
+    public NotificationResponse getById(String notiId) {
+        Notification notification = notificationRepo.findById(notiId)
+                .orElseThrow(() -> new CustomException("No notification found with id: " + notiId, HttpStatus.NOT_FOUND.value()));
+
+        return mapper.convertToDTO(notification);
+    }
+
+    @Override
+    public Page<NotificationResponse> getAllActive(int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Notification> notificationPage = notificationRepo.getNotificationByIsDeletedFalseAndIsActiveTrue(pageable);
+
+        if (notificationPage.isEmpty()) {
+            throw new CustomException("No active notifications found!", HttpStatus.NOT_FOUND.value());
+        }
+
+        return notificationPage.map(mapper::convertToDTO);
     }
 
     @Override
@@ -84,24 +107,6 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         return ResponseEntity.ok(new BaseResponse("Soft-deleted notification found.", HttpStatus.OK.value(), responseList));
-    }
-
-    @Override
-    public ResponseEntity<BaseResponse> findByUserId(String userId) {
-        List<NotificationResponse> responseList = notificationRepo.findByUser_IdAndIsDeletedFalseAndIsActiveTrue(userId)
-                .stream()
-                .map(mapper::convertToDTO)
-                .toList();
-
-        if (responseList.isEmpty()) {
-            return ResponseEntity.ok(
-                    new BaseResponse("No notification found for userId: " + userId, HttpStatus.NOT_FOUND.value(), responseList)
-            );
-        }
-
-        return ResponseEntity.ok(
-                new BaseResponse("Notification found for userId: " + userId, HttpStatus.OK.value(), responseList)
-        );
     }
 
     @Override
@@ -175,29 +180,18 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public ResponseEntity<BaseResponse> getNotificationsForCurrentUser(String userId) {
-        // Lấy thông tin người dùng hiện tại từ SecurityContext
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) authentication.getPrincipal();
-        String currentUserId = currentUser.getId();
-        log.info(currentUserId);
-
-        // Kiểm tra xem userId truyền vào có trùng với userId trong JWT hay không
-        if (!currentUserId.equals(userId)) {
-            throw new CustomException("You do not have permission to access someone else's notification.", HttpStatus.FORBIDDEN.value());
+    public Page<NotificationResponse> getNotificationsForUser(String userId, Pageable pageable) {
+        UserResponse user = userService.getUserById(userId);
+        if (user == null) {
+            throw new NotFoundException("User cannot found with id: " + userId);
         }
 
-        List<NotificationResponse> responseList = notificationRepo.findByUser_IdAndIsDeletedFalseAndIsActiveTrue(currentUserId)
-                .stream()
-                .map(mapper::convertToDTO)
+        List<String> notificationIds = userNotificationRepository.getByUserId(userId)
+                .stream().map(UserNotification::getNotificationId)
                 .toList();
 
-        if (responseList.isEmpty()) {
-            return ResponseEntity.ok(new BaseResponse("No notification found for the current user.", HttpStatus.NOT_FOUND.value(), responseList));
-        }
-
-        return ResponseEntity.ok(new BaseResponse("Notification found for the current user.", HttpStatus.OK.value(), responseList));
+        return notificationRepo.findByIdInAndIsActiveTrueAndIsDeletedFalse(notificationIds, pageable)
+                .map(mapper::convertToDTO);
     }
-
 
 }

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
@@ -5,6 +6,10 @@ import styles from '../assets/css/Layouts/navBar.module.scss';
 import { useCheckSignedIn } from '../customs/hooks';
 import { useGetSports } from '../customs/hooks';
 import sportApi from '../services/api/sportApi';
+import { connectWebSocket, disconnectWebSocket } from '../services/websocket/connect';
+import notificationApi from '../services/api/notification/notificationApi';
+import { useUser } from '../customs/hooks';
+import userApi from '../services/api/userApi';
 
 function NavBar() {
     const [sports, setSports] = useGetSports();
@@ -12,6 +17,61 @@ function NavBar() {
     const location = useLocation();
     // eslint-disable-next-line no-unused-vars
     const [isSignedIn, setIsSignedIn] = useCheckSignedIn();
+    const [user, setUser] = useUser();
+    const [myNotifications, setMyNotifications] = useState([]);
+    const [unreadCount, setUnreadCount] = useState(0); // Số lượng notification chưa đọc
+
+    useEffect(() => {
+        fetchUserAndNotification();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const fetchUserAndNotification = async () => {
+        try {
+            // fetch current user
+            const userResponse = await userApi.getCurrentUser();
+            setUser(userResponse.data);
+
+            // fetch notifications
+            const response = await notificationApi.getAllByUserId(userResponse.data.id);
+            const notifications = response.data;
+            setMyNotifications(notifications);
+
+            // count unred notifications
+            const unreadNotifications = notifications.filter((noti) => !noti.read).length;
+            setUnreadCount(unreadNotifications);
+        } catch (err) {
+            console.error('Error fetching user:', err);
+        }
+    };
+
+    // ws
+    useEffect(() => {
+        connectWebSocket(
+            (updatedBooking) => {
+                console.log('📢 Cập nhật booking mới:', updatedBooking);
+            },
+            (updatedNotification) => {
+                console.log('🔔 Cập nhật notification mới:', updatedNotification);
+                setUnreadCount((prevCount) => prevCount + 1);
+            }
+        );
+
+        return () => {
+            console.log('🔌 Ngắt kết nối WebSocket');
+            disconnectWebSocket();
+        };
+    }, []);
+
+    // khi click vao cai chuong thi đánh dấu tất cả là đã đọc
+    const handleMarkAllAsRead = async () => {
+        try {
+            await notificationApi.setReadAll(user.id);
+            setUnreadCount(0);
+        } catch (error) {
+            console.error('Lỗi khi cập nhật trạng thái đọc của thông báo:', error);
+        }
+    };
 
     const handleChangeSelect = (e) => {
         setSelectedSport(e.target.value);
@@ -122,6 +182,18 @@ function NavBar() {
                     ) : (
                         <Link className={`nav-link font-cera-round-pro-medium`} to='/sign-in'>
                             <i className={`fa-regular fa-circle-user ${styles.iconLogin}`}></i>
+                        </Link>
+                    )}
+
+                    {/* notification */}
+                    {isSignedIn && (
+                        <Link
+                            className='nav-link font-cera-round-pro-medium position-relative'
+                            to='/notifications'
+                            onClick={handleMarkAllAsRead}
+                        >
+                            <i className='fa-regular fa-bell' style={{ fontSize: '24px', marginRight: '15px' }}></i>
+                            {unreadCount > 0 && <span className={styles.notificationBadge}>{unreadCount}</span>}
                         </Link>
                     )}
                 </div>

@@ -51,10 +51,16 @@ function ManageBookings() {
 
     useEffect(() => {
         // Khi component mount, kết nối WebSocket
-        connectWebSocket((updatedBooking) => {
-            //console.log('📢 Cập nhật booking mới:', updatedBooking);
-            fetchBookings();
-        });
+        connectWebSocket(
+            (updatedBooking) => {
+                // Xử lý cập nhật booking
+                fetchBookings();
+            },
+            (newNotification) => {
+                // Xử lý notification mới
+                console.log('🔔 Notification mới nhận:', newNotification);
+            }
+        );
 
         // Cleanup khi component bị unmount (rời khỏi trang)
         return () => {

@@ -10,6 +10,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import ManageCourses from './ManageCourses';
 import ManageTournaments from './Tournament/ManageTournaments';
 import ManageBookings from './ManageBookings';
+import ManageNotifications from './Notification/ManageNotifications';
 import revenueApi from '../../services/api/revenueApi';
 import { RecurringIntervalType } from '../../utils/enums/RecurringIntervalType';
 import { Link } from 'react-router-dom';
@@ -77,6 +78,7 @@ function AdminDashboard() {
         { name: 'Manage Invoices', icon: 'fa-solid fa-money-bill' },
         { name: 'Manage Teams', icon: 'fa-solid fa-people-group' },
         { name: 'Manage Tournaments', icon: 'fa-solid fa-trophy' },
+        { name: 'Manage Notifications', icon: 'fa-solid fa-bell' },
     ];
 
     useEffect(() => {
@@ -218,6 +220,8 @@ function AdminDashboard() {
                 return <ManageTeams />;
             case 'Manage Invoices':
                 return <ManageInvoices />;
+            case 'Manage Notifications':
+                return <ManageNotifications />;
             default:
                 return <h2>Welcome to Admin Dashboard</h2>;
         }
