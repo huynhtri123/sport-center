@@ -48,8 +48,10 @@ public class UserController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
     @GetMapping("/all-active")
-    public ResponseEntity<BaseResponse> getAll() {
-        return userService.getAll();
+    public ResponseEntity<BaseResponse> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return userService.getAll(page, size);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
@@ -109,5 +111,28 @@ public class UserController {
                         userService.getUserById(userId))
         );
     }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
+    @GetMapping("/my-invoices")
+    public ResponseEntity<BaseResponse> getInvoicesForCurrentUser() {
+        return userService.getInvoicesForCurrentUser();
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
+    @DeleteMapping("/my-invoices/{invoiceId}")
+    public ResponseEntity<BaseResponse> deleteInvoice(@PathVariable String invoiceId) {
+        try {
+            // Call the service to delete the invoice
+            userService.deleteInvoice(invoiceId);
+
+            // Return 204 No Content status, no need for a response body
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new BaseResponse("Failed to delete invoice", HttpStatus.INTERNAL_SERVER_ERROR.value(), null));
+        }
+    }
+
+
 
 }

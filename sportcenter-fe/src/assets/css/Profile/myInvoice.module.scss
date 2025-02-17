@@ -183,7 +183,6 @@
     background-color: #bd2130; /* Even darker red when clicked */
 }
 
-/* Optional: Add an icon before the text */
 .deleteButton::before {
     content: '\f1f8'; /* Font Awesome icon for trash (you can replace this with your desired icon) */
     font-family: 'Font Awesome 5 Free'; /* Font Awesome 5 icon font */

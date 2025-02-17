@@ -45,7 +45,6 @@ function ManageUsers() {
 
     return (
         <div className={styles.manageUsers}>
-            {/* <h2>Manage Users</h2> */}
             {loading ? (
                 <Loading /> // Hiển thị component Loading khi đang tải
             ) : users.length > 0 ? (
