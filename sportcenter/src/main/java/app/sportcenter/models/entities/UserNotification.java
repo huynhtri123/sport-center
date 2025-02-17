@@ -7,14 +7,22 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "notifications")
+import java.time.ZonedDateTime;
+
+@Document(collection = "user_notification")
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class Notification extends BaseEntity {
+@AllArgsConstructor
+public class UserNotification extends BaseEntity {
     @Id
     private String id;
-    private String title;       // tiêu đề thông báo
-    private String content;     // nội dung thông báo
+
+    private String userId;
+
+    private String notificationId;
+
+    private boolean isRead = false;
+
+    private ZonedDateTime readAt;
 }
