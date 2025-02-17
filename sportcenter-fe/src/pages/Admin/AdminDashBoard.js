@@ -10,6 +10,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import ManageCourses from './ManageCourses';
 import ManageTournaments from './Tournament/ManageTournaments';
 import ManageBookings from './ManageBookings';
+import ManageUser from './ManageUser';
 import ManageNotifications from './Notification/ManageNotifications';
 import revenueApi from '../../services/api/revenueApi';
 import { RecurringIntervalType } from '../../utils/enums/RecurringIntervalType';
@@ -78,6 +79,7 @@ function AdminDashboard() {
         { name: 'Manage Invoices', icon: 'fa-solid fa-money-bill' },
         { name: 'Manage Teams', icon: 'fa-solid fa-people-group' },
         { name: 'Manage Tournaments', icon: 'fa-solid fa-trophy' },
+        { name: 'Manage Users', icon: 'fa-solid fa-users' },
         { name: 'Manage Notifications', icon: 'fa-solid fa-bell' },
     ];
 
@@ -220,6 +222,8 @@ function AdminDashboard() {
                 return <ManageTeams />;
             case 'Manage Invoices':
                 return <ManageInvoices />;
+            case 'Manage Users':
+                return <ManageUser />;
             case 'Manage Notifications':
                 return <ManageNotifications />;
             default:
