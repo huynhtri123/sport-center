@@ -1,9 +1,6 @@
 package app.sportcenter.services.impl;
 
-import app.sportcenter.commons.BaseResponse;
-import app.sportcenter.commons.PaymentMethod;
-import app.sportcenter.commons.PaymentStatus;
-import app.sportcenter.commons.TransactionType;
+import app.sportcenter.commons.*;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
 import app.sportcenter.models.dto.*;
@@ -19,6 +16,10 @@ import app.sportcenter.utils.mappers.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -214,22 +215,55 @@ public class UserServiceImpl implements UserService {
 //
 //        return ResponseEntity.ok(new BaseResponse("Danh sách người dùng", HttpStatus.OK.value(), responses));
 //    }
-    @Override
-    public ResponseEntity<BaseResponse> getAll() {
-        List<User> userList = userRepository.findByIsDeletedFalseAndIsActiveTrue();
+//    @Override
+//    public ResponseEntity<BaseResponse> getAll() {
+//        List<User> userList = userRepository.findByIsDeletedFalseAndIsActiveTrue();
+//
+//        if (userList.isEmpty()) {
+//            return ResponseEntity.status(HttpStatus.OK).body(
+//                    new BaseResponse("User not found", HttpStatus.OK.value(), null)
+//            );
+//        }
+//
+//        List<UserResponse> userResponseList = userList.stream()
+//                .map(userMapper::convertToDTO)
+//                .toList();
+//
+//        return ResponseEntity.status(HttpStatus.OK).body(
+//                new BaseResponse("User list", HttpStatus.OK.value(), userResponseList)
+//        );
+//    }
 
-        if (userList.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.OK).body(
-                    new BaseResponse("User not found", HttpStatus.OK.value(), null)
+
+    @Override
+    public ResponseEntity<BaseResponse> getAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<User> userPage = userRepository.findByIsDeletedFalseAndIsActiveTrue(pageable);
+
+        if (userPage.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    new BaseResponse("No users found", HttpStatus.NOT_FOUND.value(), null)
             );
         }
 
-        List<UserResponse> userResponseList = userList.stream()
+        List<UserResponse> userResponseList = userPage.getContent()
+                .stream()
                 .map(userMapper::convertToDTO)
                 .toList();
 
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("User list", HttpStatus.OK.value(), userResponseList)
+        // Create a PaginatedResponse object
+        PaginatedResponse<UserResponse> paginatedResponse = new PaginatedResponse<>(
+                userResponseList,
+                userPage.getTotalPages(),
+                userPage.getTotalElements()
+        );
+
+        return ResponseEntity.ok(
+                new BaseResponse(
+                        "User list retrieved successfully",
+                        HttpStatus.OK.value(),
+                        paginatedResponse
+                )
         );
     }
 
@@ -366,5 +400,50 @@ public class UserServiceImpl implements UserService {
                 new BaseResponse("Payment information updated successfully", HttpStatus.OK.value(), paymentResponse)
         );
     }
+
+    @Override
+    public ResponseEntity<BaseResponse> getInvoicesForCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        if (currentUser == null) {
+            throw new NotFoundException("User currently logged in not found!");
+        }
+
+        // Fetch invoices associated with the current user
+        List<Invoice> invoices = invoiceRepository.findByUserIdAndIsActiveTrueAndIsDeletedFalse(currentUser.getId());
+
+        if (invoices.isEmpty()) {
+            return ResponseEntity.ok(
+                    new BaseResponse("No invoices found for the current user", HttpStatus.OK.value(), new ArrayList<>())
+            );
+        }
+
+        List<InvoiceResponse> response = invoices.stream()
+                .map(invoiceMapper::convertToDTO)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(
+                new BaseResponse("Found invoices for the current user", HttpStatus.OK.value(), response)
+        );
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<BaseResponse> deleteInvoice(String invoiceId) {
+        // Check if the invoice exists in the repository
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new NotFoundException("Invoice with ID " + invoiceId + " not found"));
+
+        // Delete the invoice from the repository
+        invoiceRepository.delete(invoice);
+
+        // Return success response
+        return ResponseEntity.ok(
+                new BaseResponse("Invoice deleted successfully", HttpStatus.OK.value(), null)
+        );
+    }
+
+
 
 }

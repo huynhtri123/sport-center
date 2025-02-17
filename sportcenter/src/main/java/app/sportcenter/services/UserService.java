@@ -21,7 +21,7 @@ public interface UserService {
 
     ResponseEntity<BaseResponse> softDelete(String id);
 
-    ResponseEntity<BaseResponse> getAll();
+    ResponseEntity<BaseResponse> getAll(int page, int size);
 
     public ResponseEntity<BaseResponse> addPaymentInfoToUser(String userId, PaymentRequest paymentRequest);
 
@@ -38,4 +38,8 @@ public interface UserService {
     public UserResponse getCurrentUser();
 
     public UserResponse getUserById(String userId);
+
+    public ResponseEntity<BaseResponse> getInvoicesForCurrentUser();
+
+    public ResponseEntity<BaseResponse> deleteInvoice(String invoiceId);
 }

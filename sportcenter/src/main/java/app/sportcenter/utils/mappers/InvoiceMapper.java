@@ -3,6 +3,7 @@ package app.sportcenter.utils.mappers;
 import app.sportcenter.exceptions.NotFoundException;
 import app.sportcenter.models.dto.InvoiceRequest;
 import app.sportcenter.models.dto.InvoiceResponse;
+import app.sportcenter.models.dto.UserResponse;
 import app.sportcenter.models.entities.Invoice;
 import app.sportcenter.models.entities.User;
 import app.sportcenter.repositories.UserRepository;
@@ -33,6 +34,10 @@ public class InvoiceMapper {
         response.setUserFullName(invoice.getUser().getFullName());
 
         return response;
+    }
+
+    public InvoiceResponse convertToDTO(Invoice invoice) {
+        return (invoice != null) ? modelMapper.map(invoice, InvoiceResponse.class) : null;
     }
 
 }

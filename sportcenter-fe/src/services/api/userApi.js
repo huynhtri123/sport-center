@@ -83,7 +83,7 @@ const userApi = {
     },
     deleteInvoice(invoiceId) {
         const url = `/user/my-invoices/${invoiceId}`;  // The URL for deleting an invoice
-        return axiosClient.delete(url);  // Use DELETE method to remove the invoice
+        return axiosClient.delete(url);  // Use1 DELETE method to remove the invoice
     }
 
 };
