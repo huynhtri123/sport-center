@@ -119,6 +119,7 @@ function InvoiceCard({ invoice, onDelete, onToggleDetails, isExpanded }) {
                 {/* Remove Button with icon 1*/}
                 <button onClick={onDelete} className={styles.removeButton}>
                     <span className="material-icons">Delete</span> {/* Delete icon */}
+
                 </button>
             </div>
 

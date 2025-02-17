@@ -2,47 +2,89 @@ package app.sportcenter.controllers;
 
 import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.models.dto.NotificationRequest;
+import app.sportcenter.models.dto.NotificationResponse;
 import app.sportcenter.services.NotificationService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/notification")
+@RequiredArgsConstructor
 public class NotificationController {
-    @Autowired
-    private NotificationService notificationService;
+    private final NotificationService notificationService;
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<BaseResponse> create(@Valid @RequestBody NotificationRequest notificationRequest) {
-        return notificationService.create(notificationRequest);
+        return ResponseEntity.ok(
+                new BaseResponse("Notification created successfully.", 200,
+                        notificationService.create(notificationRequest))
+        );
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
     @GetMapping("/{notificationId}")
     public ResponseEntity<BaseResponse> getById(@PathVariable String notificationId) {
-        return notificationService.getById(notificationId);
+        return ResponseEntity.ok(
+                new BaseResponse("Get notification by id successfully!", 200,
+                        notificationService.getById(notificationId))
+        );
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/all-active")
-    public ResponseEntity<BaseResponse> getAllActive() {
-        return notificationService.getAllActive();
+    public ResponseEntity<Map<String, Object>> getAllActive(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ) {
+        Page<NotificationResponse> notificationPage = notificationService.getAllActive(page, size, sortBy, sortDir);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Get active notifications successfully!");
+        response.put("status", 200);
+        response.put("data", notificationPage.getContent());
+        response.put("totalPages", notificationPage.getTotalPages());
+
+        return ResponseEntity.ok(response);
     }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<BaseResponse> getNotificationsForUser(
+            @PathVariable("userId") String userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ) {
+        Sort.Direction direction = sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+
+        Page<NotificationResponse> notifications = notificationService.getNotificationsForUser(userId, pageable);
+
+        String message = "Get notifications for user " + userId + " successfully!";
+        return ResponseEntity.ok(
+                new BaseResponse(message, 200, notifications)
+        );
+    }
+
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/soft-deleted")
     public ResponseEntity<BaseResponse> getAllSoftDeleted() {
         return notificationService.getAllSoftDeleted();
-    }
-
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<BaseResponse> findByUserId(@PathVariable String userId) {
-        return notificationService.findByUserId(userId);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
@@ -73,14 +115,6 @@ public class NotificationController {
     @DeleteMapping("/force-delete/{notificationId}")
     public ResponseEntity<BaseResponse> forceDelete(@PathVariable String notificationId) {
         return notificationService.forceDelete(notificationId);
-    }
-
-    // người dùng tự lấy danh sách thông báo của mình
-    // (chỉ được phép khi thông tin đăng nhập hiện tại khớp với userId trên url)
-    @PreAuthorize("hasAnyAuthority('CUSTOMER')")
-    @GetMapping("/my-notifications/{userId}")
-    public ResponseEntity<BaseResponse> getMyNotifications(@PathVariable String userId) {
-        return notificationService.getNotificationsForCurrentUser(userId);
     }
 
 }

@@ -10,8 +10,8 @@ import app.sportcenter.models.dto.TeamResponse;
 import app.sportcenter.models.dto.TournamentResponse;
 import app.sportcenter.services.MailService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -22,13 +22,12 @@ import java.time.format.DateTimeFormatter;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class MailController {
 
-    @Autowired
-    private MailService mailService;
+    private final MailService mailService;
 
-    @Autowired
-    private ObjectMapper objectMapper; // Jackson ObjectMapper để deserialize JSON
+    private final ObjectMapper objectMapper; // Jackson ObjectMapper để deserialize JSON
 
     @KafkaListener(topics = "notification-delivery")
     public void listenNotificationDelivery(MessageWrapper p) {

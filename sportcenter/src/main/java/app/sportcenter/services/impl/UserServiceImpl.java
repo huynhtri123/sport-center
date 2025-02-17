@@ -30,10 +30,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.swing.text.html.HTML;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,8 +41,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final InvoiceMapper invoiceMapper;
     private final InvoiceRepository invoiceRepository;
-    @Autowired
-    private PaymentInfoRepository paymentInfoRepository;
+    private final PaymentInfoRepository paymentInfoRepository;
 
 
     @Override
@@ -188,6 +185,12 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User cannot found with id=" + userId));
         return userMapper.convertToDTO(user);
+    }
+
+    @Override
+    public List<UserResponse> getAllActive() {
+        return userRepository.findAllByIsActiveTrueAndIsDeletedFalse()
+                .stream().map(userMapper::convertToDTO).toList();
     }
 
 

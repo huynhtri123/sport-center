@@ -5,10 +5,11 @@ import app.sportcenter.models.dto.InvoiceResponse;
 import app.sportcenter.models.dto.PaymentRequest;
 import app.sportcenter.models.dto.UserRequest;
 import app.sportcenter.models.dto.UserResponse;
-import app.sportcenter.models.entities.PaymentInfo;
 import app.sportcenter.models.entities.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
+
+import java.util.List;
 
 public interface UserService {
     public UserDetailsService userDetailsService();
@@ -39,7 +40,11 @@ public interface UserService {
 
     public UserResponse getUserById(String userId);
 
+
     public ResponseEntity<BaseResponse> getInvoicesForCurrentUser();
 
     public ResponseEntity<BaseResponse> deleteInvoice(String invoiceId);
+
+    public List<UserResponse> getAllActive();
+
 }

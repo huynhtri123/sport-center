@@ -337,7 +337,7 @@ function Profile() {
                 {showPaymentInfo && <MyPaymentInfo />}
             </div>
 
-            {/* Invoice Info Section 1*/}
+
             <div className={styles.section}>
                 <h3 onClick={handleToggleInvoiceInfo}>
                     <i className='fa-solid fa-file-invoice'></i>
