@@ -103,3 +103,34 @@
         }
     }
 }
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 10px; /* Khoảng cách giữa các nút */
+
+    button {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        background-color: #007bff; /* Màu chính */
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s;
+
+        &:disabled {
+            background-color: #ccc; /* Màu khi bị vô hiệu hóa */
+            cursor: not-allowed;
+        }
+
+        &:hover:not(:disabled) {
+            background-color: #0056b3; /* Màu đậm hơn khi hover */
+        }
+    }
+
+    span {
+        font-weight: bold;
+        color: #333; /* Màu chữ của số trang */
+    }
+}

@@ -38,8 +38,8 @@ const userApi = {
         return axiosClient.get(url);
     },
 
-    getAllActive() {
-        return axiosClient.get('/user/all-active');
+    getAllActive(page, size) {
+        return axiosClient.get(`/user/all-active?page=${page}&size=${size}`);
     },
 
     // Soft delete a user by ID
@@ -77,6 +77,15 @@ const userApi = {
         const url = `/user/${userId}`;
         return axiosClient.get(url);
     },
+    getMyInvoices() {
+        const url = '/user/my-invoices';
+        return axiosClient.get(url);
+    },
+    deleteInvoice(invoiceId) {
+        const url = `/user/my-invoices/${invoiceId}`;  // The URL for deleting an invoice
+        return axiosClient.delete(url);  // Use DELETE method to remove the invoice
+    }
+
 };
 
 export default userApi;

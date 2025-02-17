@@ -11,6 +11,7 @@ import Signout from '../../Auth/Signout';
 import MyBookings from './MyBookings';
 import MyCart from './MyCart';
 import MyPaymentInfo from './MyPaymentInfo';
+import MyInvoice from './MyInvoice';
 import MyTournaments from './MyTournaments';
 import MyTeam from './MyTeams';
 import formatCurrency from '../../../utils/formatCurrency';
@@ -26,6 +27,7 @@ function Profile() {
     // show hoặc hide các thông tin khác
     const [showCart, setShowCart] = useState(false);
     const [showPaymentInfo, setShowPaymentInfo] = useState(false);
+    const [showInvoiceInfo, setShowInvoiceInfo] = useState(false);
     const [showBookings, setShowBookings] = useState(false);
     const [showTournaments, setShowTournaments] = useState(false);
     const [showTeams, setShowTeams] = useState(false);
@@ -37,6 +39,9 @@ function Profile() {
     // handles
     const handleToggleCart = () => setShowCart(!showCart);
     const handleTogglePaymentInfo = () => setShowPaymentInfo(!showPaymentInfo);
+    const handleToggleInvoiceInfo = () => {
+        setShowInvoiceInfo(!showInvoiceInfo);
+    };
 
     const isAdmin = profile.role === 'ADMIN';
 
@@ -321,6 +326,25 @@ function Profile() {
                         getMyProfile={getMyProfile}
                     ></MyBookings>
                 )}
+            </div>
+
+            <div className={styles.section}>
+                <h3 onClick={handleTogglePaymentInfo}>
+                    <i className='fa-solid fa-money-check-dollar'></i>
+                    <span className='ms-3'>Payment info</span>
+                </h3>
+                <p>Manage your saved payment methods.</p>
+                {showPaymentInfo && <MyPaymentInfo />}
+            </div>
+
+            {/* Invoice Info Section */}
+            <div className={styles.section}>
+                <h3 onClick={handleToggleInvoiceInfo}>
+                    <i className='fa-solid fa-file-invoice'></i>
+                    <span className='ms-3'>Invoice info</span>
+                </h3>
+                <p>Manage your saved invoices.</p>
+                {showInvoiceInfo && <MyInvoice />}
             </div>
 
             {!isAdmin && (
