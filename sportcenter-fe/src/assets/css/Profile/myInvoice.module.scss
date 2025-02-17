@@ -1,191 +1,169 @@
 @import '../variables';
 
+/* Container chính */
 .myInvoiceContainer {
     padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+    border-radius: 10px;
     background-color: #f9f9f9;
+    color: #000;
 }
 
-.invoiceCard {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 15px;
+/* Bảng Invoice */
+.invoiceTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
     background-color: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.invoiceTable th,
+.invoiceTable td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.invoiceTable th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+/* Hover hiệu ứng trên hàng */
+.invoiceTable tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Nút xem chi tiết */
+.viewButton {
+    background-color: #007bff;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+}
+
+.viewButton:hover {
+    background-color: #0056b3;
+}
+
+/* Nút xóa */
+.deleteButton {
+    background-color: #dc3545;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+    margin-left: 5px;
+}
+
+.deleteButton:hover {
+    background-color: #c82333;
+}
+
+/* Modal hiển thị chi tiết Invoice */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
-    flex-direction: column;
-    gap: 10px;
+    align-items: center;
+    justify-content: center;
 }
 
-.invoiceCard h4 {
-    margin-bottom: 10px;
-    color: #333;
+.modalContent {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.modalHeader h2 {
     font-size: 1.2em;
+    color: #333;
 }
 
-.invoiceCard p {
-    margin: 5px 0;
+.modalCloseButton {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #555;
+}
+
+.modalCloseButton:hover {
+    color: #000;
+}
+
+.modalBody p {
+    margin: 10px 0;
     font-size: 1em;
     color: #555;
 }
 
-.invoiceCard span {
+.modalBody p span {
     font-weight: bold;
 }
 
-/* Button styles for Add, Edit, Delete */
-.addInvoiceButton,
-.editButton,
-.deleteButton {
-    padding: 10px 20px;
+/* Responsive */
+@media screen and (max-width: 768px) {
+
+    .invoiceTable th,
+    .invoiceTable td {
+        padding: 8px;
+        font-size: 0.9em;
+    }
+
+    .viewButton,
+    .deleteButton {
+        padding: 6px 10px;
+        font-size: 0.8em;
+    }
+
+    .modalContent {
+        max-width: 90%;
+    }
+}
+
+/* Nút Close */
+.closeButton {
+    background-color: #4b82b9;
+    /* Màu nền nhạt */
+    color: #6c757d;
+    /* Màu chữ xám */
+    padding: 8px 12px;
     border: none;
-    border-radius: 5px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 1em;
-    font-weight: bold;
+    font-size: 0.9em;
     transition: all 0.3s ease;
 }
 
-/* Add Invoice button */
-.addInvoiceButton {
-    background-color: #28a745; /* Green */
-    color: white;
-}
-
-.addInvoiceButton:hover {
-    background-color: #218838; /* Darker Green */
-}
-
-/* Edit Invoice button */
-.editButton {
-    background-color: #007bff; /* Blue */
-    color: white;
-}
-
-.editButton:hover {
-    background-color: #0056b3; /* Darker Blue */
-}
-
-/* Delete Invoice button */
-.deleteButton {
-    background-color: #dc3545; /* Red */
-    color: white;
-}
-
-.deleteButton:hover {
-    background-color: #c82333; /* Darker Red */
-}
-
-/* Add some spacing between the buttons */
-.invoiceCard button {
-    margin-top: 10px;
-}
-
-/* Optional: Make buttons larger for better accessibility */
-.invoiceCard button {
-    padding: 12px 25px;
-    font-size: 1.1em;
-}
-
-/* Update button styles for the 'Cập nhật' button */
-.updateButton {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1em;
-    font-weight: bold;
-    background-color: #ffc107; /* Yellow */
-    color: white;
-    transition: all 0.3s ease;
-}
-
-.updateButton:hover {
-    background-color: #e0a800; /* Darker Yellow */
-}
-
-/* Expand Button container: Wrap both buttons in a square box */
-.buttonContainer {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px; /* Add extra gap between buttons */
-    padding: 15px;
-    border: 2px solid #ddd; /* Square box around the buttons */
-    border-radius: 8px;
-    background-color: #f7f7f7; /* Light background for button container */
-}
-
-/* Expand Button styles */
-.expandButton {
-    padding: 12px 25px;
-    border: 1px solid #007bff; /* Border color matching the Edit button */
-    border-radius: 5px;
-    background-color: #007bff; /* Blue background */
-    color: white; /* White text */
-    font-size: 1em;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-align: center;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%; /* Ensure button occupies full width inside container */
-}
-
-/* Hover and active state for Expand button */
-.expandButton:hover {
-    background-color: #0056b3; /* Darker blue background on hover */
-    border-color: #0056b3; /* Darker blue border on hover */
-    color: white;
-}
-
-.expandButton:active {
-    background-color: #003f7f; /* Even darker blue when clicked */
-}
-
-/* Optional: Add an icon before the text */
-.expandButton::before {
-    content: '\f067'; /* Font Awesome icon for expand (you can replace this with your desired icon) */
-    font-family: 'Font Awesome 5 Free'; /* Font Awesome 5 icon font */
-    font-weight: 900; /* Ensure icon is bold */
-    margin-right: 8px; /* Space between icon and text */
-}
-
-/* Delete Button styles */
-.deleteButton {
-    padding: 12px 25px;
-    border: 1px solid #dc3545; /* Red border */
-    border-radius: 5px;
-    background-color: #dc3545; /* Red background */
-    color: white; /* White text */
-    font-size: 1em;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-align: center;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%; /* Ensure button occupies full width inside container */
-}
-
-/* Hover and active state for Delete button */
-.deleteButton:hover {
-    background-color: #c82333; /* Darker red background on hover */
-    border-color: #c82333; /* Darker red border on hover */
-    color: white;
-}
-
-.deleteButton:active {
-    background-color: #bd2130; /* Even darker red when clicked */
-}
-
-.deleteButton::before {
-    content: '\f1f8'; /* Font Awesome icon for trash (you can replace this with your desired icon) */
-    font-family: 'Font Awesome 5 Free'; /* Font Awesome 5 icon font */
-    font-weight: 900; /* Ensure icon is bold */
-    margin-right: 8px; /* Space between icon and text */
+.closeButton:hover {
+    background-color: #e2e6ea;
+    /* Màu nền khi hover */
+    color: #495057;
+    /* Màu chữ khi hover */
 }
