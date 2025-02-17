@@ -328,14 +328,14 @@ function Profile() {
                 )}
             </div>
 
-            <div className={styles.section}>
+            {/* <div className={styles.section}>
                 <h3 onClick={handleTogglePaymentInfo}>
                     <i className='fa-solid fa-money-check-dollar'></i>
                     <span className='ms-3'>Payment info</span>
                 </h3>
                 <p>Manage your saved payment methods.</p>
                 {showPaymentInfo && <MyPaymentInfo />}
-            </div>
+            </div> */}
 
 
             <div className={styles.section}>
