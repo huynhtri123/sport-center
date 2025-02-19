@@ -6,10 +6,10 @@ import clsx from 'clsx';
 
 // Icons for different lesson levels
 const levelIcons = {
-    BEGINNER: <i class='fas fa-child' aria-hidden='true'></i>,
-    INTERMEDIATE: <i class='fas fa-user-graduate' aria-hidden='true'></i>,
-    ADVANCED: <i class='fas fa-award' aria-hidden='true'></i>,
-    EXPERT: <i class='fas fa-crown' aria-hidden='true'></i>,
+    BEGINNER: <i className='fas fa-child' aria-hidden='true'></i>,
+    INTERMEDIATE: <i className='fas fa-user-graduate' aria-hidden='true'></i>,
+    ADVANCED: <i className='fas fa-award' aria-hidden='true'></i>,
+    EXPERT: <i className='fas fa-crown' aria-hidden='true'></i>,
 };
 
 // Labels for lesson levels

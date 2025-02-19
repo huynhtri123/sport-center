@@ -1,19 +1,16 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import Button from '../../../components/Button/Button';
 import styles from '../../../assets/css/Profile/profile.module.scss';
 import userApi from '../../../services/api/userApi';
-import fileApi from '../../../services/api/fileApi';
 import { formatDateToZoneDateTime } from '../../../utils/DateTimeConverter';
 import { Loading } from '../../../components/Loading/Loading';
 import Signout from '../../Auth/Signout';
 import MyBookings from './MyBookings';
-import MyCart from './MyCart';
-import MyPaymentInfo from './MyPaymentInfo';
 import MyInvoice from './MyInvoice';
 import MyTournaments from './MyTournaments';
-import MyTeam from './MyTeams';
 import formatCurrency from '../../../utils/formatCurrency';
 import { Link } from 'react-router-dom';
 
@@ -304,21 +301,12 @@ function Profile() {
                 {showCart && <MyCart></MyCart>}
             </div> */}
 
-            {/* <div className={styles.section}>
-                <h3 onClick={handleTogglePaymentInfo}>
-                    <i className='fa-solid fa-money-check-dollar'></i>
-                    <span className='ms-3'>Payment info</span>
-                </h3>
-                <p>Manage your saved payment methods.</p>
-                {showPaymentInfo && <MyPaymentInfo></MyPaymentInfo>}
-            </div> */}
-
             <div className={styles.section}>
                 <h3 onClick={handleToggleBookings}>
                     <i className='fa-regular fa-calendar-days'></i>
                     <span className='ms-3'>Bookings</span>
                 </h3>
-                <p>Check your current bookings field.</p>
+                <p>Check your all bookings.</p>
                 {showBookings && (
                     <MyBookings
                         bookings={myBooking}
@@ -328,22 +316,12 @@ function Profile() {
                 )}
             </div>
 
-            {/* <div className={styles.section}>
-                <h3 onClick={handleTogglePaymentInfo}>
-                    <i className='fa-solid fa-money-check-dollar'></i>
-                    <span className='ms-3'>Payment info</span>
-                </h3>
-                <p>Manage your saved payment methods.</p>
-                {showPaymentInfo && <MyPaymentInfo />}
-            </div> */}
-
-
             <div className={styles.section}>
                 <h3 onClick={handleToggleInvoiceInfo}>
                     <i className='fa-solid fa-file-invoice'></i>
-                    <span className='ms-3'>Invoice info</span>
+                    <span className='ms-3'>Invoices</span>
                 </h3>
-                <p>Manage your saved invoices.</p>
+                <p>Manage your invoices.</p>
                 {showInvoiceInfo && <MyInvoice />}
             </div>
 
@@ -371,7 +349,7 @@ function Profile() {
 
             {isAdmin && (
                 <Link className={styles.link} to={'/admin'}>
-                    <i class='fa-solid fa-arrow-right-long me-2'></i>
+                    <i className='fa-solid fa-arrow-right-long me-2'></i>
                     Go to Admin Dashboard
                 </Link>
             )}

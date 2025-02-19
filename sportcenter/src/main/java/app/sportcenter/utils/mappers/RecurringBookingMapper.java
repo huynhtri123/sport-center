@@ -1,7 +1,7 @@
 package app.sportcenter.utils.mappers;
 
-import app.sportcenter.models.dto.RecurringBookingRequest;
-import app.sportcenter.models.dto.RecurringBookingResponse;
+import app.sportcenter.models.dto.request.RecurringBookingRequest;
+import app.sportcenter.models.dto.response.RecurringBookingResponse;
 import app.sportcenter.models.entities.Field;
 import app.sportcenter.models.entities.RecurringBooking;
 import app.sportcenter.models.entities.User;

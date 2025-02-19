@@ -1,8 +1,8 @@
 package app.sportcenter.utils.mappers;
 
 import app.sportcenter.exceptions.CustomException;
-import app.sportcenter.models.dto.TournamentRequest;
-import app.sportcenter.models.dto.TournamentResponse;
+import app.sportcenter.models.dto.request.TournamentRequest;
+import app.sportcenter.models.dto.response.TournamentResponse;
 import app.sportcenter.models.entities.Sport;
 import app.sportcenter.models.entities.Tournament;
 import app.sportcenter.repositories.SportRepository;

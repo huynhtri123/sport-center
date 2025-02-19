@@ -1,14 +1,13 @@
 package app.sportcenter.services.impl;
 
 import app.sportcenter.commons.BaseResponse;
-import app.sportcenter.commons.FieldType;
 import app.sportcenter.commons.PaginatedResponse;
 import app.sportcenter.configs.AppConfig;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
-import app.sportcenter.models.dto.FieldRequest;
-import app.sportcenter.models.dto.FieldResponse;
-import app.sportcenter.models.dto.PricePolicyRequest;
+import app.sportcenter.models.dto.request.FieldRequest;
+import app.sportcenter.models.dto.response.FieldResponse;
+import app.sportcenter.models.dto.request.PricePolicyRequest;
 import app.sportcenter.models.entities.Booking;
 import app.sportcenter.models.entities.Field;
 import app.sportcenter.repositories.BookingRepository;
@@ -16,8 +15,8 @@ import app.sportcenter.repositories.FieldRepository;
 import app.sportcenter.services.CloudinaryService;
 import app.sportcenter.services.FieldService;
 import app.sportcenter.utils.mappers.FieldMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,18 +36,14 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class FieldServiceImpl implements FieldService {
 
-    @Autowired
-    private FieldRepository fieldRepository;
-    @Autowired
-    private BookingRepository bookingRepository;
-    @Autowired
-    private FieldMapper fieldMapper;
-    @Autowired
-    private AppConfig appConfig;
-    @Autowired
-    private CloudinaryService cloudinaryService;
+    private final FieldRepository fieldRepository;
+    private final BookingRepository bookingRepository;
+    private final FieldMapper fieldMapper;
+    private final AppConfig appConfig;
+    private final CloudinaryService cloudinaryService;
 
     @Transactional
     @Override

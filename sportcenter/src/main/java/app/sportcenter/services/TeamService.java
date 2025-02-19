@@ -1,8 +1,8 @@
 package app.sportcenter.services;
 
 import app.sportcenter.commons.BaseResponse;
-import app.sportcenter.models.dto.TeamRequest;
-import app.sportcenter.models.dto.TeamResponse;
+import app.sportcenter.models.dto.request.TeamRequest;
+import app.sportcenter.models.dto.response.TeamResponse;
 import org.springframework.http.ResponseEntity;
 
 public interface TeamService {

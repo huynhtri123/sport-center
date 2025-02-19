@@ -1,13 +1,12 @@
 package app.sportcenter.controllers;
 
 import app.sportcenter.commons.BaseResponse;
-import app.sportcenter.models.dto.InvoiceRequest;
-import app.sportcenter.models.dto.InvoiceResponse;
+import app.sportcenter.models.dto.request.InvoiceRequest;
+import app.sportcenter.models.dto.response.InvoiceResponse;
 import app.sportcenter.services.InvoiceService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -16,9 +15,9 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/invoice")
+@RequiredArgsConstructor
 public class InvoiceController {
-    @Autowired
-    private InvoiceService invoiceService;
+    private final InvoiceService invoiceService;
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
     @PostMapping("/create")

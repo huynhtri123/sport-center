@@ -1,19 +1,15 @@
 package app.sportcenter.utils.mappers;
 
 import app.sportcenter.exceptions.CustomException;
-import app.sportcenter.models.dto.BookingRequest;
-import app.sportcenter.models.dto.BookingResponse;
-import app.sportcenter.models.dto.FieldResponse;
+import app.sportcenter.models.dto.request.BookingRequest;
+import app.sportcenter.models.dto.response.BookingResponse;
+import app.sportcenter.models.dto.response.FieldResponse;
 import app.sportcenter.models.entities.Booking;
 import app.sportcenter.models.entities.Field;
 import app.sportcenter.models.entities.User;
-import app.sportcenter.repositories.FieldRepository;
 import app.sportcenter.repositories.UserRepository;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.time.ZonedDateTime;

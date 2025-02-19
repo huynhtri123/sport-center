@@ -1,7 +1,7 @@
 package app.sportcenter.utils.kafkaUsage;
 
-import app.sportcenter.models.dto.TeamResponse;
-import app.sportcenter.models.dto.TournamentResponse;
+import app.sportcenter.models.dto.response.TeamResponse;
+import app.sportcenter.models.dto.response.TournamentResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

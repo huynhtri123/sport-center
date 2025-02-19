@@ -72,7 +72,7 @@ const TournamentDetail = () => {
                         </time>
                     </div>
                     <div className={styles.dateInfo}>
-                        <i class='fa-solid fa-hourglass-start'></i>
+                        <i className='fa-solid fa-hourglass-start'></i>
                         <span>Registration Deadline: </span>
                         <time>
                             {formatDate(tournament.registrationDeadline)}

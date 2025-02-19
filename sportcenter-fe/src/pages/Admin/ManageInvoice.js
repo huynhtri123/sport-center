@@ -128,9 +128,9 @@ function ManageInvoices() {
                         <th onClick={handleSort} style={{ cursor: 'pointer' }}>
                             Amount{' '}
                             {sortOrder === 'asc' ? (
-                                <i class='ms-2 fa-solid fa-arrow-up-short-wide'></i>
+                                <i className='ms-2 fa-solid fa-arrow-up-short-wide'></i>
                             ) : (
-                                <i class='ms-2 fa-solid fa-arrow-down-short-wide'></i>
+                                <i className='ms-2 fa-solid fa-arrow-down-short-wide'></i>
                             )}
                         </th>
                         <th>Payment Status</th>

@@ -2,19 +2,19 @@ package app.sportcenter.controllers;
 
 
 import app.sportcenter.commons.BaseResponse;
-import app.sportcenter.models.dto.CourseRequest;
+import app.sportcenter.models.dto.request.CourseRequest;
 import app.sportcenter.services.CourseService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class CourseController {
-    @Autowired
-    private CourseService courseService;
+    private final CourseService courseService;
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/course/create")

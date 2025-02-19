@@ -3,13 +3,13 @@ package app.sportcenter.services.impl;
 import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.commons.CourseSportType;
 import app.sportcenter.exceptions.NotFoundException;
-import app.sportcenter.models.dto.LessonRequest;
-import app.sportcenter.models.dto.LessonResponse;
+import app.sportcenter.models.dto.request.LessonRequest;
+import app.sportcenter.models.dto.response.LessonResponse;
 import app.sportcenter.models.entities.Lesson;
 import app.sportcenter.repositories.LessonRepository;
 import app.sportcenter.services.LessonService;
 import app.sportcenter.utils.mappers.LessonMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -17,11 +17,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class LessonServiceImpl implements LessonService {
-    @Autowired
-    private LessonRepository lessonRepository;
-    @Autowired
-    private LessonMapper lessonMapper;
+    private final LessonRepository lessonRepository;
+    private final LessonMapper lessonMapper;
 
     @Override
     public ResponseEntity<BaseResponse> create(LessonRequest lessonRequest) {

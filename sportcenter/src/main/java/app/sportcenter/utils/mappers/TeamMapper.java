@@ -1,7 +1,7 @@
 package app.sportcenter.utils.mappers;
 
-import app.sportcenter.models.dto.TeamRequest;
-import app.sportcenter.models.dto.TeamResponse;
+import app.sportcenter.models.dto.request.TeamRequest;
+import app.sportcenter.models.dto.response.TeamResponse;
 import app.sportcenter.models.entities.Team;
 import app.sportcenter.models.entities.Tournament;
 import app.sportcenter.repositories.TournamentRepository;

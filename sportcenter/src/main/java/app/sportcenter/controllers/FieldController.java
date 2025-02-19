@@ -1,21 +1,19 @@
 package app.sportcenter.controllers;
 
 import app.sportcenter.commons.BaseResponse;
-import app.sportcenter.commons.FieldStatus;
-import app.sportcenter.commons.FieldType;
-import app.sportcenter.models.dto.FieldRequest;
+import app.sportcenter.models.dto.request.FieldRequest;
 import app.sportcenter.services.FieldService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class FieldController {
-    @Autowired
-    private FieldService fieldService;
+    private final FieldService fieldService;
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/field/create")

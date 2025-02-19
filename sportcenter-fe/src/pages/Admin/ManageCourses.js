@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import styles from '../../assets/css/Admin/manageCourses.module.scss';

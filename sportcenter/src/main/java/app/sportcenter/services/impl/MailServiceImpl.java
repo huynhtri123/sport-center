@@ -1,12 +1,9 @@
 package app.sportcenter.services.impl;
 
 import app.sportcenter.exceptions.CustomException;
-import app.sportcenter.models.dto.BookingResponse;
-import app.sportcenter.models.dto.TeamResponse;
-import app.sportcenter.models.entities.Team;
+import app.sportcenter.models.dto.response.TeamResponse;
 import app.sportcenter.services.MailService;
-import jakarta.mail.internet.MimeMessage;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -18,11 +15,10 @@ import org.thymeleaf.context.Context;
 import java.time.ZonedDateTime;
 
 @Service
+@RequiredArgsConstructor
 public class MailServiceImpl implements MailService {
-    @Autowired
-    private JavaMailSender mailSender;
-    @Autowired
-    private TemplateEngine templateEngine;
+    private final JavaMailSender mailSender;
+    private final TemplateEngine templateEngine;
 
     private void sendEmail(String toEmail, String subject, String templateFile, Context context) {
         try {

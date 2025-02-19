@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import styles from '../../assets/css/Admin/manageSports.module.scss';

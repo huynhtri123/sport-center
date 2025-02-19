@@ -3,15 +3,15 @@ package app.sportcenter.services.impl;
 import app.sportcenter.commons.Role;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
-import app.sportcenter.models.dto.InvoiceRequest;
-import app.sportcenter.models.dto.InvoiceResponse;
+import app.sportcenter.models.dto.request.InvoiceRequest;
+import app.sportcenter.models.dto.response.InvoiceResponse;
 import app.sportcenter.models.entities.Invoice;
 import app.sportcenter.models.entities.User;
 import app.sportcenter.repositories.InvoiceRepository;
 import app.sportcenter.services.InvoiceService;
 import app.sportcenter.utils.mappers.InvoiceMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,12 +22,11 @@ import java.util.*;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class InvoiceServiceImpl implements InvoiceService {
 
-    @Autowired
-    private InvoiceRepository invoiceRepository;
-    @Autowired
-    private InvoiceMapper invoiceMapper;
+    private final InvoiceRepository invoiceRepository;
+    private final InvoiceMapper invoiceMapper;
 
     @Override
     public InvoiceResponse create(InvoiceRequest invoiceRequest) {

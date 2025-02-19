@@ -2,10 +2,10 @@ package app.sportcenter.controllers;
 
 import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.exceptions.CustomException;
-import app.sportcenter.models.dto.CloudinaryResponse;
+import app.sportcenter.models.dto.response.CloudinaryResponse;
 import app.sportcenter.services.CloudinaryService;
-import app.sportcenter.utils.FileUploadUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import app.sportcenter.utils.file.FileUploadUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,9 +16,9 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/file")
+@RequiredArgsConstructor
 public class FileController {
-    @Autowired
-    private CloudinaryService cloudinaryService;
+    private final CloudinaryService cloudinaryService;
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
     @PostMapping("/image/upload")

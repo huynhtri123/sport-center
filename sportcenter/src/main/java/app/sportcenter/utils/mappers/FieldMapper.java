@@ -1,8 +1,8 @@
 package app.sportcenter.utils.mappers;
 
 import app.sportcenter.exceptions.CustomException;
-import app.sportcenter.models.dto.FieldRequest;
-import app.sportcenter.models.dto.FieldResponse;
+import app.sportcenter.models.dto.request.FieldRequest;
+import app.sportcenter.models.dto.response.FieldResponse;
 import app.sportcenter.models.entities.Field;
 import app.sportcenter.models.entities.PricePolicy;
 import app.sportcenter.models.entities.Sport;

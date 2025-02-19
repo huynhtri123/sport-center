@@ -1,8 +1,6 @@
 package app.sportcenter.services;
 
-import app.sportcenter.models.dto.BookingResponse;
-import app.sportcenter.models.dto.TeamResponse;
-import app.sportcenter.models.entities.Team;
+import app.sportcenter.models.dto.response.TeamResponse;
 
 import java.time.ZonedDateTime;
 

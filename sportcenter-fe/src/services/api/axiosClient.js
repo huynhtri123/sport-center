@@ -102,6 +102,9 @@ axiosClient.interceptors.response.use(
                     console.warn('Access Denied: ', data.message);
                     toast.error('You do not have permission to access this resource.');
                     break;
+                case 404:
+                    console.log(data.message || 'An error occurred, please try again later.');
+                    break;
 
                 default: // các lỗi khác
                     console.log(data.message || 'An error occurred, please try again later.');
@@ -121,9 +124,7 @@ axiosClient.interceptors.response.use(
 );
 
 function redirectToLogin() {
-    // window.location.href = '/#/sign-in'; // chuyển hướng đến trang đăng nhập
-    const basePath = window.location.pathname.split('/')[1]; // Lấy basePath từ URL
-    window.location.href = `/${basePath}/#/sign-in`;
+    window.location.replace('/#/sign-in'); // Chuyển hướng đến trang đăng nhập
 }
 
 export default axiosClient;

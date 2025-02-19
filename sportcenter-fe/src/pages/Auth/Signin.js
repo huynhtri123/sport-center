@@ -13,6 +13,7 @@ import { Role } from '../../utils/enums/Role';
 
 function Signin() {
     const [showPassword, setShowPassword] = useState(false);
+
     const togglePasswordVisibility = () => {
         setShowPassword((prevState) => !prevState);
     };
@@ -99,9 +100,9 @@ function Signin() {
                             Password{' '}
                             <span onClick={togglePasswordVisibility} className={styles.iconShowHide}>
                                 {showPassword ? (
-                                    <i class='fa-regular fa-eye' title='Hide password?'></i>
+                                    <i className='fa-regular fa-eye' title='Hide password?'></i>
                                 ) : (
-                                    <i class='fa-regular fa-eye-slash' title='Show password?'></i>
+                                    <i className='fa-regular fa-eye-slash' title='Show password?'></i>
                                 )}
                             </span>
                         </label>

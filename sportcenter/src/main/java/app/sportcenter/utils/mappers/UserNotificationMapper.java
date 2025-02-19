@@ -1,7 +1,7 @@
 package app.sportcenter.utils.mappers;
 
-import app.sportcenter.models.dto.UserNotificationRequest;
-import app.sportcenter.models.dto.UserNotificationResponse;
+import app.sportcenter.models.dto.request.UserNotificationRequest;
+import app.sportcenter.models.dto.response.UserNotificationResponse;
 import app.sportcenter.models.entities.UserNotification;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;

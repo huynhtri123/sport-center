@@ -1,19 +1,17 @@
 package app.sportcenter.services.impl;
 
 import app.sportcenter.commons.BaseResponse;
-import app.sportcenter.commons.CourseSportType;
 import app.sportcenter.commons.PaginatedResponse;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
-import app.sportcenter.models.dto.CourseRequest;
-import app.sportcenter.models.dto.CourseResponse;
+import app.sportcenter.models.dto.request.CourseRequest;
+import app.sportcenter.models.dto.response.CourseResponse;
 import app.sportcenter.models.entities.Course;
 import app.sportcenter.models.entities.Lesson;
 import app.sportcenter.repositories.CourseRepository;
 import app.sportcenter.services.CourseService;
 import app.sportcenter.utils.mappers.CourseMapper;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,13 +25,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class CourseServiceImpl implements CourseService {
-    @Autowired
-    private CourseRepository courseRepository;
-    @Autowired
-    private CourseMapper courseMapper;
-    @Autowired
-    private ModelMapper modelMapper;
+    private final CourseRepository courseRepository;
+    private final CourseMapper courseMapper;
 
     @Override
     public ResponseEntity<BaseResponse> create(CourseRequest courseRequest) {

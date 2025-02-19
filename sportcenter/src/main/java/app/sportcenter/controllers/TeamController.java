@@ -3,7 +3,7 @@ package app.sportcenter.controllers;
 
 import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.exceptions.CustomException;
-import app.sportcenter.models.dto.TeamRequest;
+import app.sportcenter.models.dto.request.TeamRequest;
 import app.sportcenter.models.entities.User;
 import app.sportcenter.services.TeamService;
 import jakarta.validation.Valid;

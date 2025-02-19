@@ -1,9 +1,9 @@
 package app.sportcenter.utils.mappers;
 
 import app.sportcenter.exceptions.CustomException;
-import app.sportcenter.models.dto.CourseRequest;
-import app.sportcenter.models.dto.CourseResponse;
-import app.sportcenter.models.dto.LessonResponse;
+import app.sportcenter.models.dto.request.CourseRequest;
+import app.sportcenter.models.dto.response.CourseResponse;
+import app.sportcenter.models.dto.response.LessonResponse;
 import app.sportcenter.models.entities.Course;
 import app.sportcenter.models.entities.Lesson;
 import app.sportcenter.models.entities.Sport;

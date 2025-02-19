@@ -1,7 +1,7 @@
 package app.sportcenter.controllers;
 
 import app.sportcenter.commons.BaseResponse;
-import app.sportcenter.models.dto.*;
+import app.sportcenter.models.dto.request.*;
 import app.sportcenter.services.AuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,7 +21,7 @@ public class AuthenticationController {
     @PostMapping("/auth/signup")
     public ResponseEntity<BaseResponse> signup(@Valid @RequestBody SignupRequest signupRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("Mã xác thực đã được gửi đến email: " + signupRequest.getEmail(),
+                new BaseResponse("Verification code has been sent to email: " + signupRequest.getEmail(),
                         HttpStatus.OK.value(),
                         authenticationService.signup(signupRequest))
         );
@@ -30,7 +30,7 @@ public class AuthenticationController {
     public ResponseEntity<BaseResponse> signupStep2(@PathVariable("userId") String userId,
                                                     @Valid @RequestBody VerifyRequest verifyRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("Đăng ký tài khoản thành công!",
+                new BaseResponse("Sign up successfully!",
                         HttpStatus.OK.value(), authenticationService.verifyUser(userId, verifyRequest))
         );
     }
