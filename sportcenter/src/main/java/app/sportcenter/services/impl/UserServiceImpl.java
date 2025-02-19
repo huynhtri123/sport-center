@@ -3,7 +3,11 @@ package app.sportcenter.services.impl;
 import app.sportcenter.commons.*;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
-import app.sportcenter.models.dto.*;
+import app.sportcenter.models.dto.request.PaymentRequest;
+import app.sportcenter.models.dto.request.UserRequest;
+import app.sportcenter.models.dto.response.InvoiceResponse;
+import app.sportcenter.models.dto.response.PaymentResponse;
+import app.sportcenter.models.dto.response.UserResponse;
 import app.sportcenter.models.entities.Invoice;
 import app.sportcenter.models.entities.PaymentInfo;
 import app.sportcenter.models.entities.User;
@@ -13,9 +17,10 @@ import app.sportcenter.repositories.UserRepository;
 import app.sportcenter.services.UserService;
 import app.sportcenter.utils.mappers.InvoiceMapper;
 import app.sportcenter.utils.mappers.UserMapper;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -43,7 +48,6 @@ public class UserServiceImpl implements UserService {
     private final InvoiceMapper invoiceMapper;
     private final InvoiceRepository invoiceRepository;
     private final PaymentInfoRepository paymentInfoRepository;
-
 
     @Override
     public UserDetailsService userDetailsService() {
@@ -169,16 +173,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        // Kiểm tra nếu authentication null hoặc không xác thực
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new SecurityException("No users are currently logged in");
+    public UserResponse getCurrentUser(HttpServletRequest request) {
+        String jwt = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName())) {
+                    jwt = cookie.getValue();
+                    break;
+                }
+            }
         }
-
-        User currUser = (User) authentication.getPrincipal();
-        return userMapper.convertToDTO(currUser);
+        if (jwt == null) {
+            throw new CustomException("No users are currently logged in", 404);
+        } else {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User currUser = (User) authentication.getPrincipal();
+            return userMapper.convertToDTO(currUser);
+        }
     }
 
     @Override
@@ -193,51 +205,6 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAllByIsActiveTrueAndIsDeletedFalse()
                 .stream().map(userMapper::convertToDTO).toList();
     }
-
-
-//    @Override
-//    public ResponseEntity<BaseResponse> getById(String id) {
-//        User user = userRepository.findById(id).orElseThrow(() -> new CustomException("Người dùng không tồn tại", HttpStatus.NOT_FOUND.value()));
-//        UserResponse response = new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getPhoneNumber(), user.getAddress(), user.getDateOfBirth(), user.getAvatarUrl(), user.getRole(), user.getCart(), user.getPaymentInfos());
-//        return ResponseEntity.ok(new BaseResponse("Tìm thấy người dùng", HttpStatus.OK.value(), response));
-//    }
-
-
-//    @Override
-//    public ResponseEntity<BaseResponse> delete(String id) {
-//        User user = userRepository.findById(id).orElseThrow(() -> new CustomException("Người dùng không tồn tại", HttpStatus.NOT_FOUND.value()));
-//        userRepository.delete(user);
-//        return ResponseEntity.ok(new BaseResponse("Xóa người dùng thành công", HttpStatus.OK.value(), null));
-//    }
-
-//    @Override
-//    public ResponseEntity<BaseResponse> getAll() {
-//        List<User> users = userRepository.findAll();
-//        List<UserResponse> responses = users.stream()
-//                .map(user -> new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getPassword(), user.getPhoneNumber(), user.getAddress(), user.getDateOfBirth(), user.getAvatarUrl(), user.getRole(), user.getCart(), user.getPaymentInfos()))
-//                .collect(Collectors.toList());
-//
-//        return ResponseEntity.ok(new BaseResponse("Danh sách người dùng", HttpStatus.OK.value(), responses));
-//    }
-//    @Override
-//    public ResponseEntity<BaseResponse> getAll() {
-//        List<User> userList = userRepository.findByIsDeletedFalseAndIsActiveTrue();
-//
-//        if (userList.isEmpty()) {
-//            return ResponseEntity.status(HttpStatus.OK).body(
-//                    new BaseResponse("User not found", HttpStatus.OK.value(), null)
-//            );
-//        }
-//
-//        List<UserResponse> userResponseList = userList.stream()
-//                .map(userMapper::convertToDTO)
-//                .toList();
-//
-//        return ResponseEntity.status(HttpStatus.OK).body(
-//                new BaseResponse("User list", HttpStatus.OK.value(), userResponseList)
-//        );
-//    }
-
 
     @Override
     public ResponseEntity<BaseResponse> getAll(int page, int size) {
@@ -255,7 +222,6 @@ public class UserServiceImpl implements UserService {
                 .map(userMapper::convertToDTO)
                 .toList();
 
-        // Create a PaginatedResponse object
         PaginatedResponse<UserResponse> paginatedResponse = new PaginatedResponse<>(
                 userResponseList,
                 userPage.getTotalPages(),
@@ -273,21 +239,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<BaseResponse> softDelete(String id) {
-        // Retrieve the user by ID
         User user = userRepository.findById(id).orElse(null);
-
-        // Check if the user exists
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     new BaseResponse("No user found to delete", HttpStatus.NOT_FOUND.value(), null)
             );
         }
 
-        // Mark the user as deleted
         user.setIsDeleted(true);
         userRepository.save(user);
 
-        // Convert the user entity to a DTO for the response (if necessary)
         UserResponse responseUser = userMapper.convertToDTO(user);
 
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -348,24 +309,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<BaseResponse> removePaymentInfoFromUser(String userId, String paymentInfoId) {
-        // Find the user by userId
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
 
-        // Find the payment info by paymentInfoId
         PaymentInfo paymentInfo = paymentInfoRepository.findById(paymentInfoId)
                 .orElseThrow(() -> new RuntimeException("Payment information not found with ID: " + paymentInfoId));
 
-        // Remove the payment info from the user's list of payment information
         user.getPaymentInfos().remove(paymentInfo);
 
-        // Save the updated user to the repository
         userRepository.save(user);
-
-        // Delete the payment info from the paymentInfo repository
         paymentInfoRepository.delete(paymentInfo);
 
-        // Return a response indicating success
         return ResponseEntity.status(HttpStatus.OK).body(
                 new BaseResponse("Payment information deleted successfully", HttpStatus.OK.value(), null)
         );
@@ -373,24 +327,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<BaseResponse> updatePaymentInfoForUser(String userId, String paymentInfoId, PaymentRequest paymentRequest) {
-        // Find the user by userId
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
 
-        // Find the payment info by paymentInfoId
         PaymentInfo paymentInfo = paymentInfoRepository.findById(paymentInfoId)
                 .orElseThrow(() -> new RuntimeException("Payment information not found with ID: " + paymentInfoId));
 
-        // Update the payment info fields with the new values
         paymentInfo.setBankName(paymentRequest.getBankName());
         paymentInfo.setCardNumber(paymentRequest.getCardNumber());
         paymentInfo.setCardHolderName(paymentRequest.getCardHolderName());
         paymentInfo.setIssueDate(paymentRequest.getIssueDate());
 
-        // Save the updated payment info back to the repository
         paymentInfoRepository.save(paymentInfo);
 
-        // Create a PaymentResponse to return
         PaymentResponse paymentResponse = new PaymentResponse(
                 paymentInfo.getBankName(),
                 paymentInfo.getCardNumber(),
@@ -399,7 +348,6 @@ public class UserServiceImpl implements UserService {
                 userId
         );
 
-        // Return a success response with the updated payment info
         return ResponseEntity.status(HttpStatus.OK).body(
                 new BaseResponse("Payment information updated successfully", HttpStatus.OK.value(), paymentResponse)
         );
@@ -435,19 +383,14 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public ResponseEntity<BaseResponse> deleteInvoice(String invoiceId) {
-        // Check if the invoice exists in the repository
         Invoice invoice = invoiceRepository.findById(invoiceId)
                 .orElseThrow(() -> new NotFoundException("Invoice with ID " + invoiceId + " not found"));
 
-        // Delete the invoice from the repository
         invoiceRepository.delete(invoice);
 
-        // Return success response
         return ResponseEntity.ok(
                 new BaseResponse("Invoice deleted successfully", HttpStatus.OK.value(), null)
         );
     }
-
-
 
 }

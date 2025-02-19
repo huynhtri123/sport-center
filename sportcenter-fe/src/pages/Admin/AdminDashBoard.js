@@ -252,7 +252,7 @@ function AdminDashboard() {
                 </ul>
 
                 <Link className={styles.link} to={'/'}>
-                    <i class='fa-solid fa-arrow-right-long me-2'></i>
+                    <i className='fa-solid fa-arrow-right-long me-2'></i>
                     Go to Home Page
                 </Link>
             </nav>

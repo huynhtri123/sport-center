@@ -1,8 +1,8 @@
 package app.sportcenter.utils.mappers;
 
-import app.sportcenter.models.dto.PaymentRequest;
-import app.sportcenter.models.dto.UserRequest;
-import app.sportcenter.models.dto.UserResponse;
+import app.sportcenter.models.dto.request.PaymentRequest;
+import app.sportcenter.models.dto.request.UserRequest;
+import app.sportcenter.models.dto.response.UserResponse;
 import app.sportcenter.models.entities.PaymentInfo;
 import app.sportcenter.models.entities.User;
 import org.modelmapper.ModelMapper;

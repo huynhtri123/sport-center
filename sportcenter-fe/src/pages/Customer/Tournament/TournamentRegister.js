@@ -144,7 +144,7 @@ function TournamentRegister() {
             <div className={styles.formContainer}>
                 <div className={styles.teamInfo}>
                     <label>
-                        <i class='fa-solid fa-signature'></i> Team Name:
+                        <i className='fa-solid fa-signature'></i> Team Name:
                     </label>
                     <input
                         type='text'
@@ -154,7 +154,7 @@ function TournamentRegister() {
                         required
                     />
                     <label>
-                        <i class='fa-regular fa-image'></i> Team Logo:
+                        <i className='fa-regular fa-image'></i> Team Logo:
                     </label>
                     <div className={styles.logoUpload}>
                         <div className={styles.logoWrapper}>
@@ -180,7 +180,7 @@ function TournamentRegister() {
                     {players.map((player, index) => (
                         <div key={index} className={styles.playerInput}>
                             <label>
-                                <i class='fa-solid fa-person-circle-plus'></i> Member {index + 1}
+                                <i className='fa-solid fa-person-circle-plus'></i> Member {index + 1}
                             </label>
                             <input
                                 type='text'

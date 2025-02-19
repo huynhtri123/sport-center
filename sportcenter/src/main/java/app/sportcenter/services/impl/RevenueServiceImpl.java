@@ -6,18 +6,17 @@ import app.sportcenter.models.entities.RecurringBooking;
 import app.sportcenter.repositories.BookingRepository;
 import app.sportcenter.repositories.RecurringBookingRepository;
 import app.sportcenter.services.RevenueService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class RevenueServiceImpl implements RevenueService {
 
-    @Autowired
-    private BookingRepository bookingRepository;
-    @Autowired
-    private RecurringBookingRepository recurringBookingRepository;
+    private final BookingRepository bookingRepository;
+    private final RecurringBookingRepository recurringBookingRepository;
 
     @Override
     public int countBookingByType(boolean isRecurring) {

@@ -3,8 +3,8 @@ package app.sportcenter.services.impl;
 import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.commons.PaginatedResponse;
 import app.sportcenter.exceptions.CustomException;
-import app.sportcenter.models.dto.SportRequest;
-import app.sportcenter.models.dto.SportResponse;
+import app.sportcenter.models.dto.request.SportRequest;
+import app.sportcenter.models.dto.response.SportResponse;
 import app.sportcenter.models.entities.Field;
 import app.sportcenter.models.entities.Sport;
 import app.sportcenter.repositories.FieldRepository;
@@ -12,7 +12,7 @@ import app.sportcenter.repositories.SportRepository;
 import app.sportcenter.repositories.TournamentRepository;
 import app.sportcenter.services.SportService;
 import app.sportcenter.utils.mappers.SportMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,15 +25,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class SportServiceImpl implements SportService {
-    @Autowired
-    private SportRepository sportRepository;
-    @Autowired
-    private SportMapper sportMapper;
-    @Autowired
-    private TournamentRepository tournamentRepository;
-    @Autowired
-    private FieldRepository fieldRepository;
+    private final SportRepository sportRepository;
+    private final SportMapper sportMapper;
+    private final TournamentRepository tournamentRepository;
+    private final FieldRepository fieldRepository;
 
     @Override
     public ResponseEntity<BaseResponse> create(SportRequest sportRequest) {

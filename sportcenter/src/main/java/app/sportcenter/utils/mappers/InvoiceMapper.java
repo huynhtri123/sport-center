@@ -1,9 +1,8 @@
 package app.sportcenter.utils.mappers;
 
 import app.sportcenter.exceptions.NotFoundException;
-import app.sportcenter.models.dto.InvoiceRequest;
-import app.sportcenter.models.dto.InvoiceResponse;
-import app.sportcenter.models.dto.UserResponse;
+import app.sportcenter.models.dto.request.InvoiceRequest;
+import app.sportcenter.models.dto.response.InvoiceResponse;
 import app.sportcenter.models.entities.Invoice;
 import app.sportcenter.models.entities.User;
 import app.sportcenter.repositories.UserRepository;

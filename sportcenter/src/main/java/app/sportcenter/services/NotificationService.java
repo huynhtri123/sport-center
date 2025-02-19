@@ -1,8 +1,8 @@
 package app.sportcenter.services;
 
 import app.sportcenter.commons.BaseResponse;
-import app.sportcenter.models.dto.NotificationRequest;
-import app.sportcenter.models.dto.NotificationResponse;
+import app.sportcenter.models.dto.request.NotificationRequest;
+import app.sportcenter.models.dto.response.NotificationResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;

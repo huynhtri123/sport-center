@@ -32,17 +32,6 @@ public class RestExceptionHandler {
         );
     }
 
-//    @ExceptionHandler(MethodArgumentNotValidException.class)
-//    public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
-//        Map<String, String> errors = new HashMap<>();
-//        ex.getBindingResult().getAllErrors().forEach((error) -> {
-//            String fieldName = ((FieldError) error).getField();
-//            String errorMessage = error.getDefaultMessage();
-//            errors.put(fieldName, errorMessage);
-//        });
-//
-//        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-//    }e
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<BaseResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         // Tạo Map để lưu các lỗi theo định dạng field -> message
@@ -57,8 +46,8 @@ public class RestExceptionHandler {
             // Kiểm tra nếu lỗi liên quan đến @Future (Ngày phải trong tương lai)
             if (fieldError.getCode() != null && fieldError.getCode().contains("Future")) {
                 // Nếu là lỗi về ngày không phải trong tương lai, tạo thông báo chi tiết cho lỗi này
-                errorMessage = "Trường '" + fieldName + "' phải là một ngày trong tương lai.";
-                specificErrorMessage = "Ngày bắt đầu phải là một ngày trong tương lai."; // Thông báo lỗi cụ thể cho trường hợp này
+                errorMessage = "Field '" + fieldName + "' must be a date in the future.";
+                specificErrorMessage = "The start date must be a date in the future."; // Thông báo lỗi cụ thể cho trường hợp này
             }
 
             // Thêm lỗi vào Map (field -> message)
@@ -77,7 +66,7 @@ public class RestExceptionHandler {
 
         // Trường hợp còn lại, lỗi không phải Future
         BaseResponse response = new BaseResponse();
-        response.setMessage("Dữ liệu không hợp lệ");
+        response.setMessage("Invalid input");
         response.setStatus(HttpStatus.BAD_REQUEST.value());
         response.setData(errors); // Gán lỗi vào data
 
@@ -116,7 +105,7 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<BaseResponse> handleCustomException(CustomException e) {
-        log.warn("Custom Exception: " + e.getMessage());
+        log.warn("Custom Exception: {}", e.getMessage());
         BaseResponse response = new BaseResponse();
         response.setStatus(e.getStatusCode());
         response.setMessage(e.getMessage());
@@ -126,9 +115,8 @@ public class RestExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<BaseResponse> handleAccessDeniedException(AccessDeniedException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(new BaseResponse("(tự custom): " + ex.getMessage(),
+                .body(new BaseResponse(ex.getMessage(),
                         HttpStatus.FORBIDDEN.value(), null));
     }
-
 
 }

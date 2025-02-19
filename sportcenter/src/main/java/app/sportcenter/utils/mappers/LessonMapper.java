@@ -1,8 +1,8 @@
 package app.sportcenter.utils.mappers;
 
 import app.sportcenter.exceptions.CustomException;
-import app.sportcenter.models.dto.LessonRequest;
-import app.sportcenter.models.dto.LessonResponse;
+import app.sportcenter.models.dto.request.LessonRequest;
+import app.sportcenter.models.dto.response.LessonResponse;
 import app.sportcenter.models.entities.Lesson;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

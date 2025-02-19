@@ -1,17 +1,19 @@
 package app.sportcenter.services;
 
 import app.sportcenter.commons.BaseResponse;
-import app.sportcenter.models.dto.InvoiceResponse;
-import app.sportcenter.models.dto.PaymentRequest;
-import app.sportcenter.models.dto.UserRequest;
-import app.sportcenter.models.dto.UserResponse;
+import app.sportcenter.models.dto.response.InvoiceResponse;
+import app.sportcenter.models.dto.request.PaymentRequest;
+import app.sportcenter.models.dto.request.UserRequest;
+import app.sportcenter.models.dto.response.UserResponse;
 import app.sportcenter.models.entities.User;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
 
 public interface UserService {
+
     public UserDetailsService userDetailsService();
 
     public User getUserByEmail(String email);
@@ -36,7 +38,7 @@ public interface UserService {
 
     public boolean refund(User user, Double price);
 
-    public UserResponse getCurrentUser();
+    public UserResponse getCurrentUser(HttpServletRequest request);
 
     public UserResponse getUserById(String userId);
 

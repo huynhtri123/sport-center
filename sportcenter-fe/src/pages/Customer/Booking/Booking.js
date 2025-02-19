@@ -52,7 +52,7 @@ function Booking() {
 
         // Cleanup khi component bị unmount (rời khỏi trang)
         return () => {
-            console.log('🔌 Ngắt kết nối WebSocket');
+            //console.log('🔌 Ngắt kết nối WebSocket');
             disconnectWebSocket(); // Ngắt kết nối WebSocket khi component unmount
         };
     }, [selectedDate]); // Chỉ chạy 1 lần khi component mount
@@ -93,9 +93,9 @@ function Booking() {
         }
     };
 
-    useEffect(() => {
-        console.log('Selected date has changed:', selectedDate);
-    }, [selectedDate]);
+    // useEffect(() => {
+    //     console.log('Selected date has changed:', selectedDate);
+    // }, [selectedDate]);
 
     const getPrice = async (isRecurring, date) => {
         if (!startTimeRef.current.value) {
@@ -124,7 +124,7 @@ function Booking() {
 
             isRecurring ? setRecurringBookingPrice(priceResponse.data) : setBookingPrice(priceResponse.data);
         } catch (err) {
-            console.error(err);
+            //console.error(err);
         } finally {
             setIsLoading(false);
         }

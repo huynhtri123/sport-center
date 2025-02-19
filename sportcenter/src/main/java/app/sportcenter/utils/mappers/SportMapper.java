@@ -1,7 +1,7 @@
 package app.sportcenter.utils.mappers;
 
-import app.sportcenter.models.dto.SportRequest;
-import app.sportcenter.models.dto.SportResponse;
+import app.sportcenter.models.dto.request.SportRequest;
+import app.sportcenter.models.dto.response.SportResponse;
 import app.sportcenter.models.entities.Sport;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

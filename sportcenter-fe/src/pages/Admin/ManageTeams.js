@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import teamApi from '../../services/api/teamApi'; // Đảm bảo đúng đường dẫn
 import styles from '../../assets/css/Admin/manageTeams.module.scss'; // Đảm bảo đúng đường dẫn

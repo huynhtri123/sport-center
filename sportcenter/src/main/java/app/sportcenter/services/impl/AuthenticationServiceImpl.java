@@ -1,13 +1,15 @@
 package app.sportcenter.services.impl;
 
 import app.sportcenter.commons.BaseResponse;
+import app.sportcenter.models.dto.request.*;
+import app.sportcenter.models.dto.response.JWTAuthResponse;
+import app.sportcenter.models.dto.response.UserResponse;
+import app.sportcenter.models.dto.response.VerifyResponse;
 import app.sportcenter.utils.kafkaUsage.MessageWrapper;
 import app.sportcenter.commons.Role;
 import app.sportcenter.commons.SendMailType;
 import app.sportcenter.configs.AppConfig;
 import app.sportcenter.exceptions.CustomException;
-import app.sportcenter.exceptions.NotFoundException;
-import app.sportcenter.models.dto.*;
 import app.sportcenter.models.entities.BackListToken;
 import app.sportcenter.models.entities.User;
 import app.sportcenter.models.entities.Verify;
@@ -15,7 +17,6 @@ import app.sportcenter.repositories.BackListTokenRepository;
 import app.sportcenter.repositories.UserRepository;
 import app.sportcenter.services.AuthenticationService;
 import app.sportcenter.services.JWTService;
-import app.sportcenter.services.MailService;
 import app.sportcenter.services.UserService;
 import app.sportcenter.utils.mappers.UserMapper;
 import jakarta.servlet.http.Cookie;
@@ -35,7 +36,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.Random;
@@ -49,7 +49,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AppConfig appConfig;
     private final AuthenticationManager authenticationManager;
     private final JWTService jwtService;
-    private final MailService mailService;
     private final UserMapper userMapper;
     private final UserService userService;
     private final BackListTokenRepository backListTokenRepository;
@@ -89,20 +88,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return verifyCode.toString();
     }
 
-    // Đăng ký bước 1
+    // Signup step 1
     @Transactional(rollbackFor = Exception.class)
     @Override
     public VerifyResponse signup(SignupRequest signupRequest) {
-        // kiểm tra xem email đã tồn tại chưa
+        // 1. kiểm tra xem email đã tồn tại chưa
         if (userRepository.existsByEmail(signupRequest.getEmail())) {
-            throw new IllegalArgumentException("Existed Email!");
+            throw new IllegalArgumentException("Email already exists, please select another email!");
         }
 
-        // check mật khẩu và xác nhận mật khẩu
+        // 2. check match password
         if (!checkMatchPassword(signupRequest.getPassword(), signupRequest.getPasswordConfirm())) {
             throw new IllegalArgumentException("Password and confirm password do not match!");
         }
 
+        // 3. tạo user & verify (chưa xác nhận)
         User user = new User();
         user.setFullName(signupRequest.getFullName());
         user.setEmail(signupRequest.getEmail());
@@ -111,9 +111,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         String verifyCode = getVerifyCode();
         Verify verify = new Verify(BCrypt.hashpw(verifyCode, BCrypt.gensalt(appConfig.getLogRounds())),
-                ZonedDateTime.now().plus(appConfig.getVerifyExpireTime(), ChronoUnit.MINUTES));
+                ZonedDateTime.now().plusMinutes(appConfig.getVerifyExpireTime()));
 
-        // gửi otp qua mail:
+        // 4. gửi otp qua mail
         try {
             MessageWrapper messageWrapper = MessageWrapper.builder()
                     .type(SendMailType.OTP_VERIFY.name())
@@ -124,14 +124,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             kafkaTemplate.send("notification-delivery", messageWrapper);
 
         } catch (Exception e) {
-            log.error("Lỗi khi gửi email xác thực cho người dùng: " + user.getEmail(), e);
+            log.error("Lỗi khi gửi email xác thực cho người dùng: {}", user.getEmail(), e);
             throw new RuntimeException("Error sending verification email. Please try again later.", e);
         }
 
         user.setVerify(verify);
         userRepository.save(user);
 
-        log.info("Create new User succesfully! UserId: " + user.getId());
+        log.info("Create new User succesfully! UserId: {}", user.getId());
 
         return VerifyResponse.builder()
                 .id(user.getId())
@@ -139,34 +139,34 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
     }
 
-    // Đăng ký bước 2 (Kiểm tra OTP)
+    // Signup step 2: verify OTP
     @Override
     public UserResponse verifyUser(String userId, VerifyRequest verifyRequest) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Your account does not exist."));
+                .orElseThrow(() -> new CustomException("Your account does not exist.", 400));
 
-        // kiểm tra xem có mã xác thực không
+        // kiểm tra xem user có mã xác thực không
         if (user.getVerify() == null) {
-            throw new NotFoundException("The verification code does not exist.");
+            throw new CustomException("The verification code does not exist.", 400);
         }
 
         // kiểm tra xem tài khoản đã đươc xác thực trước đó chưa
         if (user.getIsEmailVerified()) {
-            throw new CustomException("This account has already been verified.", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("This account has already been verified.", 400);
         }
 
-        // kiểm tra mã xác thực hết hạn chưa
+        // OTP hết hạn
         if (user.getVerify().getExpireAt().isBefore(ZonedDateTime.now())) {
-            log.error("Verify code is expired: " + user.getEmail());
-            user.setVerify(null); // Xóa mã xác thực đã hết hạn
+            user.setVerify(null);
             userRepository.save(user);
-            throw new CustomException("The verification code has expired!", HttpStatus.UNAUTHORIZED.value());
+            log.error("Verify code is expired: {}", user.getEmail());
+            throw new CustomException("The verification code has expired!", 400);
         }
 
         // check code
         if (!BCrypt.checkpw(verifyRequest.getCode(), user.getVerify().getCode())) {
-            log.error("Verify code is incorrect: " + user.getEmail());
-            throw new CustomException("The verification code is incorrect.", HttpStatus.UNAUTHORIZED.value());
+            log.error("Verify code is incorrect: {}" , user.getEmail());
+            throw new CustomException("The verification code is incorrect.", 400);
         }
 
         // pass, đánh dấu tài khoản là đã được xác thực
@@ -174,11 +174,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setVerify(null);
         userRepository.save(user);
 
-        log.info("Verify User succesfully! UserId: " + user.getId());
+        log.info("Verify user succesfully! User id: {}" , user.getId());
 
         return userMapper.convertToDTO(user);
     }
-
 
     @Override
     public ResponseEntity<BaseResponse> signin(SigninRequest signinRequest, HttpServletResponse response) {
@@ -192,7 +191,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         } catch (IllegalArgumentException e) {
             throw new CustomException("Invalid email or password!", HttpStatus.UNAUTHORIZED.value());
         } catch (Exception e) {
-            log.error("Error during authentication: " + e.getMessage(), e);
+            log.error("Error during authentication: {}" , e.getMessage());
             throw new CustomException("An unknown error occurred. Please try again.", HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
 
@@ -237,7 +236,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         addSameSiteAttribute(response, accessTokenCookie, "None");
         addSameSiteAttribute(response, refreshTokenCookie, "None");
 
-        log.info("Login successfully! UserId: " + user.getId() + " Role: " + user.getRole());
+        log.info("Login successfully! User id: {}" , user.getId() + " Role: " + user.getRole());
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 new BaseResponse("Login successfully",
@@ -246,7 +245,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         );
     }
 
-    // Hàm thêm thuộc tính SameSite vào cookie
+    // thêm thuộc tính SameSite vào cookie
     private void addSameSiteAttribute(HttpServletResponse response, Cookie cookie, String sameSite) {
         String cookieValue = String.format("%s=%s; HttpOnly; Secure; Path=%s; Max-Age=%d; SameSite=%s",
                 cookie.getName(),
@@ -260,7 +259,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public ResponseEntity<BaseResponse> refreshToken(HttpServletRequest request, HttpServletResponse response) {
-        // lấy refreshToken từ cookie
         String refreshToken = null;
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
@@ -271,10 +269,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 }
             }
         }
-        //log.error("check refreshTokenCookie: " + refreshToken);
 
         if (refreshToken == null) {
-            // Refresh token not found
             throw new CustomException("Invalid credentials, please log in again!", HttpStatus.BAD_REQUEST.value());
         }
 
@@ -324,7 +320,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public ResponseEntity<BaseResponse> sendVerifyRequest(ForgotPasswordRequest forgotPasswordRequest) {
         User user = userService.getUserByEmail(forgotPasswordRequest.getEmail());
         if (user == null) {
-            throw new CustomException("No user found with this email!", HttpStatus.NOT_FOUND.value());
+            throw new CustomException("No user found with this email!", HttpStatus.BAD_REQUEST.value());
         }
 
         // kiểm tra xem user này được xác thực chưa
@@ -340,7 +336,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         // gửi OTP
         String verifyCode = getVerifyCode();
         Verify verify = new Verify(BCrypt.hashpw(verifyCode, BCrypt.gensalt(appConfig.getLogRounds())),
-                ZonedDateTime.now().plus(appConfig.getVerifyExpireTime(), ChronoUnit.MINUTES));
+                ZonedDateTime.now().plusMinutes(appConfig.getVerifyExpireTime()));
 
         // gửi otp qua mail:
         try {
@@ -353,7 +349,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             kafkaTemplate.send("notification-delivery", messageWrapper);
 
         } catch (Exception e) {
-            log.error("Lỗi khi gửi email xác thực cho người dùng: " + user.getEmail(), e);
+            log.error("Lỗi khi gửi email xác thực cho người dùng: {}" , user.getEmail(), e);
             throw new RuntimeException("Error sending verification email. Please try again later.", e);
         }
 
@@ -365,7 +361,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .expiredAt(verify.getExpireAt())
                 .build();
 
-        log.info("Send verify request succesfully! UserId: " + user.getId());
+        log.info("Send verify request succesfully! User id: {}", user.getId());
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 new BaseResponse(message, HttpStatus.OK.value(), verifyResponse)
@@ -375,36 +371,30 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public UserResponse renewPassword(String userId, RenewPasswordRequest renewPasswordRequest) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found."));
+                .orElseThrow(() -> new CustomException("User not found.", 400));
 
         // kiểm tra xem có mã xác thực không
         if (user.getVerify() == null) {
-            throw new NotFoundException("The verification code does not exist.");
+            throw new CustomException("The verification code does not exist.", 400);
         }
-
-        // kiểm tra xem tài khoản này đã được xác thực chưa (không cần thiết)
-//        if (!user.getIsEmailVerified()) {
-//            throw new CustomException("Tài khoản này chưa được xác thực. Vui lòng xác thực bằng cách gọi api đăng ký bước 2",
-//                    HttpStatus.BAD_REQUEST.value());
-//        }
 
         // kiểm tra mã xác thực hết hạn chưa
         if (user.getVerify().getExpireAt().isBefore(ZonedDateTime.now())) {
-            log.error("Verify code is expired: " + user.getEmail());
-            user.setVerify(null); // Xóa mã xác thực đã hết hạn
+            user.setVerify(null);
             userRepository.save(user);
-            throw new CustomException("The verification code has expired!", HttpStatus.UNAUTHORIZED.value());
+            log.error("Verify code is expired!");
+            throw new CustomException("The verification code has expired!", 400);
         }
 
         // check mã khôi phục
         if (!BCrypt.checkpw(renewPasswordRequest.getResetPasswordCode(), user.getVerify().getCode())) {
-            log.error("Verify code is incorrect: " + user.getEmail());
-            throw new CustomException("The verification code is incorrect.", HttpStatus.UNAUTHORIZED.value());
+            log.error("Verify code is incorrect!");
+            throw new CustomException("The verification code is incorrect.", 400);
         }
 
         // check mật khẩu và xác nhận mật khẩu
         if (!checkMatchPassword(renewPasswordRequest.getPassword(), renewPasswordRequest.getComfirmPassword())) {
-            throw new IllegalArgumentException("Password and confirmation password do not match.");
+            throw new CustomException("Password and confirmation password do not match.", 400);
         }
 
         // pass, tạo mật khẩu mới
@@ -413,7 +403,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setIsEmailVerified(true);
         userRepository.save(user);
 
-        log.info("Change password succesfully! UserId: " + user.getId());
+        log.info("Change password succesfully! User id: {}", user.getId());
 
         return userMapper.convertToDTO(user);
     }

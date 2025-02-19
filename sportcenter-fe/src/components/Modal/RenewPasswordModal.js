@@ -179,9 +179,9 @@ function RenewPasswordModal({ isModalOpen, onClose, email, getVerifyResponse }) 
                             Password{' '}
                             <span onClick={togglePasswordVisibility} className={styles.iconShowHide}>
                                 {showPassword ? (
-                                    <i class='fa-regular fa-eye' title='Hide password?'></i>
+                                    <i className='fa-regular fa-eye' title='Hide password?'></i>
                                 ) : (
-                                    <i class='fa-regular fa-eye-slash' title='Show password?'></i>
+                                    <i className='fa-regular fa-eye-slash' title='Show password?'></i>
                                 )}
                             </span>
                         </label>
@@ -203,9 +203,9 @@ function RenewPasswordModal({ isModalOpen, onClose, email, getVerifyResponse }) 
                             Confirm Password{' '}
                             <span onClick={toggleConfirmPasswordVisibility} className={styles.iconShowHide}>
                                 {showConfirmPassword ? (
-                                    <i class='fa-regular fa-eye' title='Hide password?'></i>
+                                    <i className='fa-regular fa-eye' title='Hide password?'></i>
                                 ) : (
-                                    <i class='fa-regular fa-eye-slash' title='Show password?'></i>
+                                    <i className='fa-regular fa-eye-slash' title='Show password?'></i>
                                 )}
                             </span>
                         </label>

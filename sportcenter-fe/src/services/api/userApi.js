@@ -70,7 +70,7 @@ const userApi = {
         return axiosClient.patch(url);
     },
     getCurrentUser() {
-        const url = '/user/current-user';
+        const url = '/public/user/current-user';
         return axiosClient.get(url);
     },
     getUserById(userId) {
@@ -82,11 +82,9 @@ const userApi = {
         return axiosClient.get(url);
     },
     deleteInvoice(invoiceId) {
-        const url = `/user/my-invoices/${invoiceId}`;  // The URL for deleting an invoice
-        return axiosClient.delete(url);  // Use DELETE method to remove the invoice
-
-    }
-
+        const url = `/user/my-invoices/${invoiceId}`; // The URL for deleting an invoice
+        return axiosClient.delete(url); // Use DELETE method to remove the invoice
+    },
 };
 
 export default userApi;

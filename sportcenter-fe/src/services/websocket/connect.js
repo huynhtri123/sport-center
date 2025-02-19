@@ -11,7 +11,7 @@ export const connectWebSocket = (onBookingUpdate, onNotificationUpdate) => {
 
     stompClient = new Client({
         webSocketFactory: () => socket, // Sử dụng SockJS cho kết nối WebSocket
-        debug: (str) => console.log(str), // Ghi log debug (tuỳ chọn)
+        // debug: (str) => console.log(str), // Ghi log debug (tuỳ chọn)
         onConnect: () => {
             console.log('✅ Connected to WebSocket');
 

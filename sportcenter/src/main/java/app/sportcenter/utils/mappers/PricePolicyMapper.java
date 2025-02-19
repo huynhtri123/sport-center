@@ -1,7 +1,7 @@
 package app.sportcenter.utils.mappers;
 
-import app.sportcenter.models.dto.PricePolicyRequest;
-import app.sportcenter.models.dto.PricePolicyResponse;
+import app.sportcenter.models.dto.request.PricePolicyRequest;
+import app.sportcenter.models.dto.response.PricePolicyResponse;
 import app.sportcenter.models.entities.PricePolicy;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

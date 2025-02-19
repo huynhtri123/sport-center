@@ -1,7 +1,10 @@
 package app.sportcenter.services;
 
 import app.sportcenter.commons.BaseResponse;
-import app.sportcenter.models.dto.*;
+import app.sportcenter.models.dto.request.BookingRequest;
+import app.sportcenter.models.dto.request.RecurringBookingRequest;
+import app.sportcenter.models.dto.response.BookingResponse;
+import app.sportcenter.models.dto.response.RecurringBookingResponse;
 import org.springframework.http.ResponseEntity;
 
 import java.time.ZonedDateTime;

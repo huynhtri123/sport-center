@@ -1,7 +1,7 @@
 package app.sportcenter.controllers;
 
 import app.sportcenter.commons.BaseResponse;
-import app.sportcenter.models.dto.UserNotificationRequest;
+import app.sportcenter.models.dto.request.UserNotificationRequest;
 import app.sportcenter.services.UserNotificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

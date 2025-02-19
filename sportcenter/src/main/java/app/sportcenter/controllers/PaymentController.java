@@ -1,7 +1,7 @@
 package app.sportcenter.controllers;
 
 import app.sportcenter.configs.vnpay.VNPayConfig;
-import app.sportcenter.models.dto.VNPayRequest;
+import app.sportcenter.models.dto.request.VNPayRequest;
 import app.sportcenter.services.PaymentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

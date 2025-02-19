@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import styles from '../../../assets/css/Profile/myPayments.module.scss';

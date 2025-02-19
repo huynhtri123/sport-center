@@ -2,10 +2,10 @@ package app.sportcenter.services.impl;
 
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
-import app.sportcenter.models.dto.NotificationResponse;
-import app.sportcenter.models.dto.UserNotificationRequest;
-import app.sportcenter.models.dto.UserNotificationResponse;
-import app.sportcenter.models.dto.UserResponse;
+import app.sportcenter.models.dto.response.NotificationResponse;
+import app.sportcenter.models.dto.request.UserNotificationRequest;
+import app.sportcenter.models.dto.response.UserNotificationResponse;
+import app.sportcenter.models.dto.response.UserResponse;
 import app.sportcenter.models.entities.UserNotification;
 import app.sportcenter.repositories.UserNotificationRepository;
 import app.sportcenter.services.NotificationService;

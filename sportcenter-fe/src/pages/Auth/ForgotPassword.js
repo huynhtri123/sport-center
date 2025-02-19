@@ -1,7 +1,6 @@
 import styles from '../../assets/css/Auth/auth.module.scss';
 import clsx from 'clsx';
 import { useState } from 'react';
-import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 
 import Input from '../../components/Input/Input';
@@ -51,7 +50,7 @@ function ForgotPassword() {
             setIsLoading(true);
             const response = await authApi.getVerify({ email: email });
             setGetVerifyResponse(response);
-            toast.success(response.message);
+            //toast.success(response.message);
             setIsModalOpen(true);
         } catch (err) {
             if (err.response && err.response.data) {

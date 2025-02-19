@@ -1,10 +1,7 @@
 package app.sportcenter.services;
 
 import app.sportcenter.commons.BaseResponse;
-import app.sportcenter.commons.FieldStatus;
-import app.sportcenter.commons.FieldType;
-import app.sportcenter.models.dto.FieldRequest;
-import app.sportcenter.models.dto.FieldResponse;
+import app.sportcenter.models.dto.request.FieldRequest;
 import org.springframework.http.ResponseEntity;
 
 public interface FieldService {

@@ -1,6 +1,6 @@
 package app.sportcenter.utils.mappers;
 
-import app.sportcenter.models.dto.RegisterOrderResponse;
+import app.sportcenter.models.dto.response.RegisterOrderResponse;
 import app.sportcenter.models.entities.RegisterOrder;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;

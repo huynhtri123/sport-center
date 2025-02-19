@@ -1,11 +1,11 @@
 package app.sportcenter.services.impl;
 
 import app.sportcenter.exceptions.CustomException;
-import app.sportcenter.models.dto.CloudinaryResponse;
+import app.sportcenter.models.dto.response.CloudinaryResponse;
 import app.sportcenter.services.CloudinaryService;
 import com.cloudinary.Cloudinary;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,9 +16,9 @@ import java.util.Map;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class CloudinaryServiceImpl implements CloudinaryService {
-    @Autowired
-    private Cloudinary cloudinary;
+    private final Cloudinary cloudinary;
 
     @Transactional
     @Override

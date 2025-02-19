@@ -24,7 +24,7 @@ function NavBar() {
     useEffect(() => {
         fetchUserAndNotification();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [isSignedIn]); // đăng nhập xong thì nó sẽ đc gọi lại
 
     const fetchUserAndNotification = async () => {
         try {
@@ -41,7 +41,7 @@ function NavBar() {
             const unreadNotifications = notifications.filter((noti) => !noti.read).length;
             setUnreadCount(unreadNotifications);
         } catch (err) {
-            console.error('Error fetching user:', err);
+            //console.error('Error fetching user:', err);
         }
     };
 

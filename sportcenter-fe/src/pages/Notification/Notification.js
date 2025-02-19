@@ -68,7 +68,7 @@ function Notification() {
             <h2 className={styles.title}>
                 Notifications{' '}
                 <span className='ms-2'>
-                    <i class='fa fa-volume-up'></i>
+                    <i className='fa fa-volume-up'></i>
                 </span>
             </h2>
 

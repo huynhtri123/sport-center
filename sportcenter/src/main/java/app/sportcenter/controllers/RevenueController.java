@@ -3,7 +3,7 @@ package app.sportcenter.controllers;
 import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.commons.RecurringIntervalType;
 import app.sportcenter.services.RevenueService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/revenue")
+@RequiredArgsConstructor
 public class RevenueController {
-    @Autowired
-    private RevenueService revenueService;
+    private final RevenueService revenueService;
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/count-single-booking")
