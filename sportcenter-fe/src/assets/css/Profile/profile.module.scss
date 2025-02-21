@@ -1,31 +1,32 @@
 @import '../variables';
 
 .profileContainer {
-    margin: 24px;
+    margin: 24px auto;
     padding: 20px;
     background-color: #f8f8f8;
     border-radius: 10px;
-    max-width: 1000px;
-    margin: 0 auto;
+    max-width: 90%; /* Tăng chiều rộng */
+    width: 1000px;
 }
 
 .profileHeader {
     display: flex;
-    width: 800px;
     align-items: center;
+    justify-content: space-between;
     margin-bottom: 20px;
     background-color: #ffffff;
-    padding: 15px;
+    padding: 20px;
     border-radius: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .avatarContainer {
-    width: 200px;
-    height: 200px;
+    width: 180px;
+    height: 180px;
     border-radius: 50%;
     overflow: hidden;
-    position: relative; /* Đặt vị trí tương đối để định vị upload button */
+    position: relative;
+    flex-shrink: 0;
 }
 
 .avatar {
@@ -49,41 +50,40 @@
 }
 
 .fileInput {
-    display: none; /* Ẩn input thực tế */
+    display: none;
 }
 
 .userInfo {
-    margin-left: 50px;
     flex: 1;
     display: flex;
     flex-direction: column;
+    max-width: 100%;
+    padding-left: 20px;
+}
 
-    h2 {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 500px; /* Điều chỉnh chiều rộng tối đa theo ý muốn */
-    }
+h2 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .inputField {
-    padding: 8px;
+    padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
     width: 100%;
-    max-width: 300px; /* Đảm bảo các ô nhập liệu không quá rộng */
 }
 
 .editButton {
     background-color: $blue-prime;
     color: white;
-    padding: 8px 15px;
+    padding: 10px 20px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     margin-top: 10px;
-    align-self: flex-end; /* Nút sẽ nằm bên trái */
     transition: background-color 0.3s ease;
 }
 
@@ -99,18 +99,13 @@
     margin-bottom: 15px;
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s ease;
-}
-
-.section:hover {
-    h3 {
-        color: $yellow-prime;
+    span {
+        cursor: pointer;
     }
 }
 
-.section h3 {
-    margin-bottom: 10px;
-    cursor: pointer;
+.section:hover h3 {
+    color: $yellow-prime;
 }
 
 .link {
@@ -121,10 +116,46 @@
     text-align: center;
     border-radius: 4px;
     transition: background-color 0.2s ease;
-    text-align: center;
-    align-items: center;
 }
 
 .link:hover {
-    color: $yellow-hover; /* Màu xanh đậm hơn khi hover */
+    color: $yellow-hover;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .profileHeader {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .userInfo {
+        padding-left: 15px;
+    }
+}
+
+@media (max-width: 768px) {
+    .profileContainer {
+        width: 95%;
+        padding: 15px;
+    }
+
+    .profileHeader {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .userInfo {
+        padding-left: 0;
+    }
+
+    .avatarContainer {
+        width: 150px;
+        height: 150px;
+    }
+
+    .inputField {
+        max-width: 100%;
+    }
 }

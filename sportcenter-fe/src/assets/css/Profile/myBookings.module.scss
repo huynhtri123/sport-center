@@ -1,81 +1,80 @@
-// myBookings.module.scss
-@import '../variables';
-
-.myBookingsContainer {
-    background-color: $dark-blue-light;
+.container {
+    background-color: #f4f6f9;
     border-radius: 8px;
     padding: 2rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto;
-
-    h2 {
-        font-size: 1.8rem;
-        color: $yellow-prime;
-        text-align: center;
-    }
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow-x: auto; /* Cho phép cuộn ngang nếu cần */
 }
 
-.bookingList {
+.buttonGroup {
     display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    margin-top: 1.5rem;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap; /* Cho phép nút xuống dòng khi thiếu chỗ */
 }
 
-.bookingCard.recurring {
-    background-color: $yellow-nhat-bg;
-    border: 1px solid #f7e34d;
+.cancelRecurringBtn {
+    margin-left: 0;
 }
 
-.bookingCard.nonRecurring {
-    background-color: $blue-nhat-bg;
-    border: 1px solid #5bc0de;
+.noBooking {
+    text-align: center;
+    color: #888;
 }
 
-.bookingCard {
-    background-color: #fff;
-    border: 1px solid $yellow-hover;
-    border-radius: 8px;
+.card {
+    background: #fff;
     padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: border-left 0.3s;
+}
 
-    h4 {
-        font-size: 1.3rem;
-        color: $blue-prime-hover;
-        margin-bottom: 0.5rem;
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .container {
+        padding: 1.5rem;
+        width: 95%;
     }
 
-    p {
-        font-size: 0.95rem;
-        color: $dark-sage;
-        margin: 0.2rem 0;
-        display: flex;
-        justify-content: space-between;
-        padding: 0.3rem 0;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    .buttonGroup {
+        justify-content: center; /* Căn giữa các nút khi thiếu không gian */
+    }
+}
 
-        &:last-child {
-            border-bottom: none;
-        }
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
     }
 
-    .cancelBtn {
-        background-color: #ccc;
-        color: $blue-prime;
-        border: none;
-        border-radius: 4px;
-        padding: 0.5rem 1rem;
-        cursor: pointer;
-        margin-top: auto;
-        transition: background-color 0.3s;
-        margin: 8px;
+    .card {
+        padding: 1rem;
+    }
 
-        &:hover {
-            background-color: darken(#ccc, 10%);
-        }
+    .buttonGroup {
+        flex-direction: column; /* Xếp nút theo cột khi màn hình nhỏ */
+        gap: 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0.8rem;
+    }
+
+    .card {
+        padding: 0.8rem;
+    }
+
+    .buttonGroup {
+        flex-direction: column;
+        width: 100%;
+        gap: 5px;
+    }
+
+    .buttonGroup button {
+        width: 100%; /* Cho nút full chiều ngang để dễ bấm */
     }
 }

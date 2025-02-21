@@ -1,169 +1,61 @@
 @import '../variables';
 
-/* Container chính */
 .myInvoiceContainer {
     padding: 20px;
     border-radius: 10px;
     background-color: #f9f9f9;
     color: #000;
+    overflow-x: auto; // Hỗ trợ cuộn ngang khi cần
+
+    @media (max-width: 768px) {
+        padding: 10px;
+    }
 }
 
-/* Bảng Invoice */
-.invoiceTable {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
+.ant-table {
     background-color: #ffffff;
     border-radius: 8px;
-    overflow: hidden;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.invoiceTable th,
-.invoiceTable td {
-    padding: 12px;
-    border: 1px solid #ddd;
+.ant-table-thead > tr > th {
+    background-color: #f4f4f4;
+    font-weight: bold;
     text-align: center;
 }
 
-.invoiceTable th {
-    background-color: #f4f4f4;
-    font-weight: bold;
+.ant-table-tbody > tr > td {
+    text-align: center;
 }
 
-/* Hover hiệu ứng trên hàng */
-.invoiceTable tbody tr:hover {
-    background-color: #f1f1f1;
-}
-
-/* Nút xem chi tiết */
-.viewButton {
-    background-color: #007bff;
-    color: white;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9em;
-    transition: all 0.3s ease;
-}
-
-.viewButton:hover {
-    background-color: #0056b3;
-}
-
-/* Nút xóa */
-.deleteButton {
+.ant-btn-danger {
     background-color: #dc3545;
     color: white;
-    padding: 8px 12px;
     border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9em;
-    transition: all 0.3s ease;
-    margin-left: 5px;
 }
 
-.deleteButton:hover {
+.ant-btn-danger:hover {
     background-color: #c82333;
 }
 
-/* Modal hiển thị chi tiết Invoice */
-.modalOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.modalContent {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    max-width: 400px;
-    width: 90%;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-}
-
-.modalHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 10px;
-    margin-bottom: 15px;
-}
-
-.modalHeader h2 {
-    font-size: 1.2em;
-    color: #333;
-}
-
-.modalCloseButton {
-    background: none;
-    border: none;
-    font-size: 1.5em;
-    cursor: pointer;
-    color: #555;
-}
-
-.modalCloseButton:hover {
-    color: #000;
-}
-
-.modalBody p {
-    margin: 10px 0;
-    font-size: 1em;
-    color: #555;
-}
-
-.modalBody p span {
-    font-weight: bold;
-}
-
-/* Responsive */
-@media screen and (max-width: 768px) {
-
-    .invoiceTable th,
-    .invoiceTable td {
-        padding: 8px;
-        font-size: 0.9em;
-    }
-
-    .viewButton,
-    .deleteButton {
-        padding: 6px 10px;
-        font-size: 0.8em;
-    }
-
-    .modalContent {
-        max-width: 90%;
+/* Responsive Table */
+@media (max-width: 1024px) {
+    .ant-table-thead > tr > th:nth-child(3),  // Ẩn cột Status
+    .ant-table-thead > tr > th:nth-child(6),  // Ẩn cột Created At
+    .ant-table-tbody > tr > td:nth-child(3),
+    .ant-table-tbody > tr > td:nth-child(6) {
+        display: none;
     }
 }
 
-/* Nút Close */
-.closeButton {
-    background-color: #4b82b9;
-    /* Màu nền nhạt */
-    color: #6c757d;
-    /* Màu chữ xám */
-    padding: 8px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9em;
-    transition: all 0.3s ease;
-}
+@media (max-width: 768px) {
+    .ant-table-thead > tr > th:nth-child(5),  // Ẩn cột Amount
+    .ant-table-tbody > tr > td:nth-child(5) {
+        display: none;
+    }
 
-.closeButton:hover {
-    background-color: #e2e6ea;
-    /* Màu nền khi hover */
-    color: #495057;
-    /* Màu chữ khi hover */
+    .ant-btn {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
 }

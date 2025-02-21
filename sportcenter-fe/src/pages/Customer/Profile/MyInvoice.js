@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import { Table, Button, Modal, Badge } from 'antd';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { Tooltip } from 'antd';
 import styles from '../../../assets/css/Profile/myInvoice.module.scss';
 import userApi from '../../../services/api/userApi';
 import { Loading } from '../../../components/Loading/Loading';
-import ConfirmModal from '../../../components/Modal/ConfirmModal';
-import clsx from 'clsx';
-import { CheckCircle, FileText } from 'lucide-react'; // Import icons
+import formatCurrency from '../../../utils/formatCurrency';
+
+const { confirm } = Modal;
 
 function MyInvoice() {
     const [invoices, setInvoices] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-    const [invoiceToDelete, setInvoiceToDelete] = useState(null);
-    const [selectedInvoice, setSelectedInvoice] = useState(null); // Invoice được chọn để hiển thị modal
+
+    useEffect(() => {
+        fetchUserInvoices();
+    }, []);
 
     const fetchUserInvoices = async () => {
         try {
@@ -27,137 +31,103 @@ function MyInvoice() {
         }
     };
 
-    useEffect(() => {
-        fetchUserInvoices();
-    }, []);
-
     const handleDeleteInvoice = (invoiceId) => {
-        setInvoiceToDelete(invoiceId);
-        setIsConfirmModalOpen(true);
+        confirm({
+            title: 'Are you sure you want to delete this invoice?',
+            icon: <ExclamationCircleOutlined />,
+            onOk: async () => {
+                try {
+                    await userApi.deleteInvoice(invoiceId);
+                    setInvoices((prev) => prev.filter((invoice) => invoice.id !== invoiceId));
+                    toast.success('Invoice deleted successfully');
+                } catch (error) {
+                    console.error('Error deleting invoice:', error);
+                    toast.error('Failed to delete invoice.');
+                }
+            },
+        });
     };
 
-    const confirmDeleteInvoice = async () => {
-        if (!invoiceToDelete) {
-            toast.error('Invoice ID is required.');
-            return;
-        }
-        try {
-            await userApi.deleteInvoice(invoiceToDelete);
-            setInvoices((prevInvoices) => prevInvoices.filter((invoice) => invoice.id !== invoiceToDelete));
-            toast.success('Invoice deleted successfully');
-        } catch (error) {
-            console.error('Error deleting invoice:', error);
-            toast.error('Failed to delete invoice.');
-        } finally {
-            setIsConfirmModalOpen(false);
-            setInvoiceToDelete(null);
-        }
-    };
+    const columns = [
+        {
+            title: 'ID',
+            dataIndex: 'id',
+            key: 'id',
+            width: 100,
+            render: (id) => <Tooltip title={id}>{id.length > 10 ? `${id.slice(0, 6)}...` : id}</Tooltip>,
+        },
+        {
+            title: 'Method',
+            dataIndex: 'paymentMethod',
+            key: 'paymentMethod',
+            filters: [
+                { text: 'CARD', value: 'CARD' },
+                { text: 'ACCOUNT_BALANCE', value: 'ACCOUNT_BALANCE' },
+            ],
+            onFilter: (value, record) => record.paymentMethod === value,
+            width: 150,
+        },
+        {
+            title: 'Status',
+            dataIndex: 'paymentStatus',
+            key: 'paymentStatus',
+            render: (status) => <Badge color={status === 'Paid' ? 'red' : 'blue'} text={status} />,
+            width: 120,
+        },
+        {
+            title: 'Reason',
+            dataIndex: 'transactionType',
+            key: 'transactionType',
+            filters: [
+                { text: 'BOOKING', value: 'BOOKING' },
+                { text: 'REGISTRATION_FEE', value: 'REGISTRATION_FEE' },
+                { text: 'REFUND', value: 'REFUND' },
+            ],
+            onFilter: (value, record) => record.transactionType === value,
+            width: 160,
+        },
+        {
+            title: 'Amount',
+            dataIndex: 'amount',
+            key: 'amount',
+            render: formatCurrency,
+            sorter: (a, b) => a.amount - b.amount,
+            width: 140,
+        },
+        {
+            title: 'Created At',
+            dataIndex: 'createdAt',
+            key: 'createdAt',
+            render: (createdAt) => new Date(createdAt).toLocaleString('vi-VN', { hour12: false }),
+            sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+            defaultSortOrder: 'descend', // Mặc định sắp xếp giảm dần (mới nhất lên đầu)
+            width: 260,
+        },
 
-    const handleViewInvoice = (invoice) => {
-        setSelectedInvoice(invoice);
-    };
+        {
+            title: 'Actions',
+            key: 'actions',
+            render: (_, invoice) => (
+                <Button
+                    type='default'
+                    style={{ background: '#9abacb ', color: '#fff' }}
+                    onClick={() => handleDeleteInvoice(invoice.id)}
+                >
+                    Delete
+                </Button>
+            ),
+            width: 120,
+        },
+    ];
 
     return (
         <div className={styles.myInvoiceContainer}>
             {isLoading && <Loading />}
-            {invoices.length > 0 ? (
-                <table className={styles.invoiceTable}>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Method</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {invoices.map((invoice) => (
-                            <tr key={invoice.id}>
-                                <td>{invoice.id}</td>
-                                <td>{invoice.paymentMethod}</td>
-                                <td>{invoice.paymentStatus}</td>
-                                <td>
-                                    <button
-                                        className={clsx(styles.viewButton, 'btn', 'btn-primary')}
-                                        onClick={() => handleViewInvoice(invoice)}
-                                    >
-                                        View Invoice
-                                    </button>
-                                    <button
-                                        className={clsx(styles.deleteButton, 'btn', 'btn-danger', 'color: white')}
-                                        onClick={() => handleDeleteInvoice(invoice.id)}
-                                    >
-                                        Delete
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            ) : (
-                <p>No invoices found.</p>
-            )}
-
-            {/* Modal Xác Nhận Xóa */}
-            {isConfirmModalOpen && (
-                <ConfirmModal
-                    title="Are you sure you want to delete this invoice?"
-                    isOpen={isConfirmModalOpen}
-                    onClose={() => setIsConfirmModalOpen(false)}
-                    onSubmit={confirmDeleteInvoice}
-                />
-            )}
-
-            {/* Modal Hiển Thị Chi Tiết Invoice */}
-            {selectedInvoice && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                    <div className="bg-white p-6 rounded-lg max-w-sm w-full text-center shadow-lg">
-                        {/* Biểu tượng hóa đơn */}
-                        <div className="flex justify-center mb-4">
-                            <div className="bg-gray-100 p-4 rounded-full relative">
-                                <FileText size={40} className="text-gray-600" />
-                                <CheckCircle size={20} className="text-green-500 absolute right-0 bottom-0" />
-                            </div>
-                        </div>
-
-                        {/* Thông tin chính */}
-                        <h3 className="text-gray-500 text-sm">Invoice paid</h3>
-                        <p className="text-3xl font-bold text-gray-900 mt-1">
-                            {selectedInvoice.amount.toFixed(2)}
-                        </p>
-
-
-                        {/* Thông tin hóa đơn */}
-                        <div className="mt-4 text-left text-gray-700 text-sm">
-                            <p className="flex justify-between">
-                                <span className="font-medium">Invoice number:</span>
-                                <span>{selectedInvoice.id}</span>
-                            </p>
-                            <p className="flex justify-between mt-2">
-                                <span className="font-medium">Payment date:</span>
-                                <span>{new Date(selectedInvoice.createdAt).toLocaleDateString('en-GB')}</span>
-                            </p>
-                            <p className="flex justify-between mt-2">
-                                <span className="font-medium">Payment method:</span>
-                                <span>
-                                    {selectedInvoice.paymentMethod}{selectedInvoice.cardLast4}
-                                </span>
-                            </p>
-                        </div>
-
-                        {/* Nút đóng */}
-                        <button
-                            style={{
-                                backgroundColor: '#f44336', color: 'white', padding: '10px 20px', borderRadius: '5px', border: 'none', cursor: 'pointer', fontSize: '16px',
-                            }}
-                            onClick={() => setSelectedInvoice(null)}
-                        >
-                            Close
-                        </button>
-                    </div>
-                </div>
-            )}
+            <Table
+                columns={columns}
+                dataSource={invoices.map((invoice) => ({ ...invoice, key: invoice.id }))}
+                pagination={{ pageSize: 5, showSizeChanger: false }}
+            />
         </div>
     );
 }
