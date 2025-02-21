@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
-
-import styles from '../../../assets/css/Profile/myBookings.module.scss';
+import { Table, Button, Badge, Modal } from 'antd';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 import bookingApi from '../../../services/api/booking/bookingApi';
-import ConfirmModal from '../../../components/Modal/ConfirmModal';
-import { Loading } from '../../../components/Loading/Loading';
 import formatCurrency from '../../../utils/formatCurrency';
-import formatCurenncy from '../../../utils/formatCurrency';
-import { formatDate } from '../../../utils/DateTimeConverter';
+import styles from '../../../assets/css/Profile/myBookings.module.scss';
+import { Loading } from '../../../components/Loading/Loading';
+
+const { confirm } = Modal;
 
 function MyBookings({ bookings, setMyBookings, getMyProfile }) {
     const [isLoading, setIsLoading] = useState(false);
@@ -15,14 +15,12 @@ function MyBookings({ bookings, setMyBookings, getMyProfile }) {
     const handleCancelBookingSubmit = async (bookingId) => {
         try {
             setIsLoading(true);
-            const cancelResponse = await bookingApi.cancelBooking(bookingId);
-            console.log(cancelResponse);
-            toast.info(cancelResponse.message);
-            // refetch bookings
-            setMyBookings((prevBookings) => prevBookings.filter((booking) => booking.id !== bookingId));
+            const response = await bookingApi.cancelBooking(bookingId);
+            toast.info(response.message);
+            setMyBookings((prev) => prev.filter((b) => b.id !== bookingId));
             getMyProfile();
-        } catch (err) {
-            console.error(err);
+        } catch (error) {
+            console.error(error);
         } finally {
             setIsLoading(false);
         }
@@ -31,148 +29,126 @@ function MyBookings({ bookings, setMyBookings, getMyProfile }) {
     const handleCancelRecurring = async (bookingId) => {
         try {
             setIsLoading(true);
-
-            const cancelRecurringResponse = await bookingApi.cancelRecurring(bookingId);
-            console.log(cancelRecurringResponse);
-
-            // refetch bookings
-            const canceledBookingIds = cancelRecurringResponse.data.bookingIds;
-            setMyBookings((prevBookings) => prevBookings.filter((booking) => !canceledBookingIds.includes(booking.id)));
-
-            toast.success(cancelRecurringResponse.message);
+            const response = await bookingApi.cancelRecurring(bookingId);
+            toast.success(response.message);
+            setMyBookings((prev) => prev.filter((b) => !response.data.bookingIds.includes(b.id)));
             getMyProfile();
-        } catch (err) {
-            console.log(err);
+        } catch (error) {
+            console.error(error);
         } finally {
             setIsLoading(false);
         }
     };
 
-    return (
-        <div className={styles.myBookingsContainer}>
-            {isLoading && <Loading></Loading>}
-            <div className={styles.bookingList}>
-                {bookings.length > 0 ? (
-                    bookings.map((booking) => (
-                        <BookingCard
-                            key={booking.id}
-                            booking={booking}
-                            handleCancelBookingSubmit={handleCancelBookingSubmit}
-                            handleCancelRecurring={handleCancelRecurring}
-                            isLoading={isLoading}
-                            setIsLoading={setIsLoading}
-                        />
-                    ))
-                ) : (
-                    <p>No bookings available.</p>
-                )}
-            </div>
-        </div>
-    );
-}
-
-function BookingCard({ booking, handleCancelBookingSubmit, handleCancelRecurring, isLoading, setIsLoading }) {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isCancelRecurringModalOpen, setIsCancelRecurringModalOpen] = useState(false);
-    // const [recurringBooking, setRecurringBooking] = useState({});
-    const [remainingAmout, setRemainingAmount] = useState(0);
-    const toggleModalOpen = () => {
-        setIsModalOpen(!isModalOpen);
+    const showCancelConfirm = (booking) => {
+        confirm({
+            title: `Are you sure you want to cancel this booking?`,
+            icon: <ExclamationCircleOutlined />,
+            content: booking.recurring
+                ? 'This is part of a recurring booking. Only this session will be canceled, and you will not receive a refund.'
+                : 'You will receive a full refund.',
+            onOk() {
+                handleCancelBookingSubmit(booking.id);
+            },
+        });
     };
 
-    const toggleCancelRecurringModalOpen = async () => {
-        if (!isCancelRecurringModalOpen) {
-            try {
-                setIsLoading(true);
-                // const getRecurring = await bookingApi.getRecurringByBookingId(booking.id);
-                // setRecurringBooking(getRecurring.data);
-                const remainingAmoutResponse = await bookingApi.getRemainingAmout(booking.id);
-                // console.log(remainingAmoutResponse);
-                setRemainingAmount(remainingAmoutResponse.data);
-                // console.log(getRecurring);
-            } catch (err) {
-                console.error(err);
-            } finally {
-                setIsLoading(false);
-            }
-        }
-        setIsCancelRecurringModalOpen(!isCancelRecurringModalOpen);
+    const showCancelRecurringConfirm = (booking) => {
+        confirm({
+            title: `Are you sure you want to cancel the entire recurring booking?`,
+            icon: <ExclamationCircleOutlined />,
+            content: 'You will receive a 50% refund of the total remaining bookings in the cycle.',
+            onOk() {
+                handleCancelRecurring(booking.id);
+            },
+        });
     };
 
-    const modalTitle = booking.recurring
-        ? 'This is a fixed schedule! If you cancel this booking, you will not receive a refund. Are you sure you want to cancel?'
-        : 'Are you sure you want to cancel the booking? The court booking amount will be refunded to your balance!';
-
-    const cardClass = booking.recurring
-        ? `${styles.bookingCard} ${styles.recurring}`
-        : `${styles.bookingCard} ${styles.nonRecurring}`;
-
-    return (
-        <div className={cardClass}>
-            {isLoading && <Loading></Loading>}
-            <h4>
-                {booking.recurring ? `RECURRING - ${booking.fieldResponse.fieldName}` : booking.fieldResponse.fieldName}
-            </h4>
-            <p>
-                <span>Booking Date:</span>
-                <span>
-                    {formatDate(booking.bookingDate)} - {new Date(booking.bookingDate).toLocaleTimeString()}
-                </span>
-            </p>
-            <p>
-                <span>Start Time:</span>
-                <span>
-                    {formatDate(booking.startTime)} - {new Date(booking.startTime).toLocaleTimeString()}
-                </span>
-            </p>
-            <p>
-                <span>End Time:</span>
-                <span>
-                    {formatDate(booking.endTime)} - {new Date(booking.endTime).toLocaleTimeString()}
-                </span>
-            </p>
-            <p>
-                <span>Hours:</span>
-                <span>{booking.numberOfHours}</span>
-            </p>
-            <p>
-                <span>Total Price:</span>
-                <span>{formatCurenncy(booking.totalPrice)}</span>
-            </p>
-
-            {booking.recurring ? (
-                <div>
-                    <button className={styles.cancelBtn} onClick={() => toggleModalOpen()}>
-                        Single cancel
-                    </button>
-                    <button className={styles.cancelBtn} onClick={() => toggleCancelRecurringModalOpen()}>
-                        Recurring Cancel
-                    </button>
-                    {isCancelRecurringModalOpen && (
-                        <ConfirmModal
-                            title={`You will be refunded ${formatCurrency(
-                                remainingAmout / 2
-                            )} (50% of the remaining booking amount)! Are you sure you want to cancel the fixed schedule?`}
-                            onClose={toggleCancelRecurringModalOpen}
-                            onSubmit={() => handleCancelRecurring(booking.id)}
-                            isOpen={isCancelRecurringModalOpen}
-                        ></ConfirmModal>
+    const columns = [
+        {
+            title: 'Field Name',
+            dataIndex: 'fieldResponse',
+            key: 'field',
+            render: (field) => field.fieldName,
+            width: 240,
+        },
+        {
+            title: 'Start Time',
+            dataIndex: 'startTime',
+            key: 'startTime',
+            render: (startTime) => new Date(startTime).toLocaleString('vi-VN', { hour12: false }),
+            sorter: (a, b) => new Date(a.startTime) - new Date(b.startTime),
+            width: 180,
+        },
+        {
+            title: 'End Time',
+            dataIndex: 'endTime',
+            key: 'endTime',
+            render: (endTime) => new Date(endTime).toLocaleString('vi-VN', { hour12: false }),
+            sorter: (a, b) => new Date(a.endTime) - new Date(b.endTime),
+            width: 180,
+        },
+        {
+            title: 'Total Price',
+            dataIndex: 'totalPrice',
+            key: 'price',
+            render: formatCurrency,
+            sorter: (a, b) => a.totalPrice - b.totalPrice,
+            width: 140,
+        },
+        {
+            title: 'Booking Type',
+            dataIndex: 'recurring',
+            key: 'type',
+            render: (recurring) => (
+                <Badge color={recurring ? 'orange' : 'blue'} text={recurring ? 'Recurring' : 'One-time'} />
+            ),
+            filters: [
+                { text: 'One-time', value: false },
+                { text: 'Recurring', value: true },
+            ],
+            onFilter: (value, record) => record.recurring === value,
+            width: 180,
+        },
+        {
+            title: 'Actions',
+            key: 'actions',
+            render: (_, booking) => (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <Button
+                        type='default'
+                        style={{ background: '#d4dfea', color: '#fff' }}
+                        onClick={() => showCancelConfirm(booking)}
+                    >
+                        Cancel
+                    </Button>
+                    {booking.recurring && (
+                        <Button
+                            type='default'
+                            style={{ background: '#dcd7c8 ', color: '#fff' }}
+                            onClick={() => showCancelRecurringConfirm(booking)}
+                        >
+                            Cancel Recurring
+                        </Button>
                     )}
                 </div>
-            ) : (
-                <button className={styles.cancelBtn} onClick={() => toggleModalOpen()}>
-                    Cancel booking
-                </button>
-            )}
+            ),
+            width: 100,
+        },
+    ];
 
-            {isModalOpen && (
-                <ConfirmModal
-                    title={modalTitle}
-                    isOpen={isModalOpen}
-                    onClose={toggleModalOpen}
-                    onSubmit={() => handleCancelBookingSubmit(booking.id)}
-                ></ConfirmModal>
-            )}
+    return (
+        <div className={styles.container}>
+            {isLoading && <Loading />}
+            <Table
+                columns={columns}
+                dataSource={bookings.map((b) => ({ ...b, key: b.id }))}
+                pagination={{ pageSize: 5 }}
+                onChange={(pagination, filters, sorter) => {
+                    // Xử lý sort theo yêu cầu
+                    //console.log('Sorter:', sorter);
+                }}
+            />
         </div>
     );
 }

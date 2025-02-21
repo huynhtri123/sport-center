@@ -56,12 +56,14 @@ function Profile() {
     };
     const handleToggleTournaments = async () => {
         setShowTournaments(!showTournaments);
-        if (showTournaments === false && profile?.id && tournaments.length === 0) {
+
+        if (!showTournaments) {
+            // Khi mở danh sách tournaments, luôn gọi API
             try {
                 const tournamentsResponse = await userApi.myTournaments();
                 const tournamentsData = tournamentsResponse.data;
 
-                // tìm team cho từng tournament
+                // Tìm team cho từng tournament
                 const tournamentsWithTeams = await Promise.all(
                     tournamentsData.map(async (tournament) => {
                         try {
@@ -76,10 +78,14 @@ function Profile() {
 
                 setTournaments(tournamentsWithTeams);
             } catch (err) {
-                console.error(err);
+                console.error('Lỗi khi lấy danh sách tournaments:', err);
             }
+        } else {
+            // đóng modal -> xoá danh sách
+            setTournaments([]);
         }
     };
+
     const handleToggleTeams = async () => {
         setShowTeams(!showTeams);
         try {
@@ -286,6 +292,7 @@ function Profile() {
                             <p className={styles.price}>Account balance: {formatCurrency(accountBalance || 0)}</p>
                             <Button onClick={handleEditToggle} className={styles.editButton}>
                                 Edit
+                                <i className='fa-solid fa-pen-to-square ms-2'></i>
                             </Button>
                         </>
                     )}
@@ -306,7 +313,7 @@ function Profile() {
                     <i className='fa-regular fa-calendar-days'></i>
                     <span className='ms-3'>Bookings</span>
                 </h3>
-                <p>Check your all bookings.</p>
+                <p>Check your current bookings.</p>
                 {showBookings && (
                     <MyBookings
                         bookings={myBooking}

@@ -1,22 +1,32 @@
 import React, { useEffect, useState } from 'react';
+import { Pagination, Modal } from 'antd';
 import { toast } from 'react-toastify';
 import styles from '../../../assets/css/Profile/myTournaments.module.scss';
 import userApi from '../../../services/api/userApi';
 import { Loading } from '../../../components/Loading/Loading';
-import ConfirmModal from '../../../components/Modal/ConfirmModal';
 import TeamEditModal from '../../../components/Modal/TeamEditModal';
 import tournamentApi from '../../../services/api/tournamentApi';
+import formatCurrency from '../../../utils/formatCurrency';
 
 function MyTournaments({ tournaments }) {
     const [localTournaments, setLocalTournaments] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 1;
+
     useEffect(() => {
         setLocalTournaments(tournaments);
     }, [tournaments]);
 
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
+    const paginatedTournaments = localTournaments.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
     return (
         <div className={styles.myTournamentsContainer}>
-            {localTournaments.length > 0 ? (
-                localTournaments.map((tournament) => (
+            {paginatedTournaments.length > 0 ? (
+                paginatedTournaments.map((tournament) => (
                     <TournamentCard
                         key={tournament.id}
                         tournament={tournament}
@@ -26,19 +36,21 @@ function MyTournaments({ tournaments }) {
             ) : (
                 <p>No tournaments available.</p>
             )}
+            <Pagination
+                current={currentPage}
+                pageSize={itemsPerPage}
+                total={localTournaments.length}
+                onChange={handlePageChange}
+                className={styles.pagination}
+            />
         </div>
     );
 }
 
 function TournamentCard({ tournament, setLocalTournaments }) {
     const [isLoading, setIsLoading] = useState(false);
-    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [team, setTeam] = useState(tournament.team);
-
-    const handleToggleConfirmModal = () => {
-        setIsConfirmModalOpen(!isConfirmModalOpen);
-    };
 
     const handleToggleEditModal = () => {
         setIsEditModalOpen(!isEditModalOpen);
@@ -49,14 +61,25 @@ function TournamentCard({ tournament, setLocalTournaments }) {
             setIsLoading(true);
             const unregisterRequest = { tournamentId, teamId: team.id };
             const unregisterResponse = await userApi.unregisterTournament(unregisterRequest);
+
             toast.success(unregisterResponse.message);
-            setLocalTournaments((prev) => prev.filter((t) => t.id !== tournamentId));
-            setIsConfirmModalOpen(false);
+            setLocalTournaments((prevTournaments) => prevTournaments.filter((t) => t.id !== tournamentId));
         } catch (err) {
             console.error(err);
+            toast.error('Failed to unregister from the tournament!');
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const showConfirm = () => {
+        Modal.confirm({
+            title: 'Are you sure you want to cancel your registration?',
+            content: 'This action will not be refunded.',
+            okText: 'Yes, Cancel',
+            cancelText: 'No',
+            onOk: () => handleUnregister(tournament.id),
+        });
     };
 
     const handleUpdateTeam = async (updatedTeam, file) => {
@@ -67,7 +90,6 @@ function TournamentCard({ tournament, setLocalTournaments }) {
             const updateRequest = { tournamentId: tournament.id, teamRequest: updatedTeam };
             formData.append('request', new Blob([JSON.stringify(updateRequest)], { type: 'application/json' }));
 
-            // Nếu có tệp logo, thêm vào FormData
             if (file) {
                 formData.append('file', file);
             }
@@ -89,14 +111,48 @@ function TournamentCard({ tournament, setLocalTournaments }) {
         <div className={styles.tournamentCard}>
             {isLoading && <Loading />}
             <div className={styles.tournamentInfo}>
+                {/* Ảnh Thumbnail */}
+                {tournament.thumUrl && (
+                    <img src={tournament.thumUrl} alt='Tournament Thumbnail' className={styles.thumbnail} />
+                )}
+
                 <h4>{tournament.tournamentName}</h4>
-                <p>Sport: {tournament.sport?.sportName}</p>
+                <p style={{ color: '#7393B3' }}>Sport: {tournament.sport?.sportName}</p>
                 <p>Start Date: {new Date(tournament.startDate).toLocaleDateString()}</p>
                 <p>End Date: {new Date(tournament.endDate).toLocaleDateString()}</p>
+                <p>Registration fee: {formatCurrency(tournament.registrationFee)}</p>
                 <p>
                     Registered Teams: {tournament.registeredTeamIds.length} / {tournament.maxTeams}
                 </p>
+
+                {/* Danh sách giải thưởng */}
+                {tournament.prizes?.length > 0 && (
+                    <div className={styles.prizes}>
+                        <h5>🏆 Prizes</h5>
+                        <ul>
+                            {tournament.prizes.map((prize, index) => (
+                                <li key={index}>
+                                    <strong>Position {prize.position}:</strong> {prize.description} -{' '}
+                                    {formatCurrency(prize.reward)}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+
+                {/* Danh sách quy định */}
+                {tournament.rules?.length > 0 && (
+                    <div className={styles.rules}>
+                        <h5>📜 Rules</h5>
+                        <ul>
+                            {tournament.rules.map((rule, index) => (
+                                <li key={index}>{rule}</li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
             </div>
+
             {team && (
                 <div className={styles.teamInfo}>
                     <h5 className={styles.teamTitle}>My Team</h5>
@@ -106,17 +162,9 @@ function TournamentCard({ tournament, setLocalTournaments }) {
                     <button className={styles.editButton} onClick={handleToggleEditModal}>
                         Update Info
                     </button>
-                    <button className={styles.cancelButton} onClick={handleToggleConfirmModal}>
+                    <button className={styles.cancelButton} onClick={showConfirm}>
                         Cancel Registration
                     </button>
-                    {isConfirmModalOpen && (
-                        <ConfirmModal
-                            title='Are you sure you want to cancel your registration?'
-                            isOpen={isConfirmModalOpen}
-                            onClose={handleToggleConfirmModal}
-                            onSubmit={() => handleUnregister(tournament.id)}
-                        />
-                    )}
                     {isEditModalOpen && (
                         <TeamEditModal
                             isOpen={isEditModalOpen}

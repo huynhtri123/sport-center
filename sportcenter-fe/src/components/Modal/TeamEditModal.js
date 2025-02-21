@@ -1,42 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import styles from './teamEditModal.module.scss';
-import { Loading } from '../Loading/Loading';
+import { Modal, Form, Input, Button, Upload, Avatar, Spin, Space } from 'antd';
+import { PlusOutlined, UploadOutlined, UserOutlined, DeleteOutlined } from '@ant-design/icons';
+import styles from './editTeamModal.module.scss';
 
 function TeamEditModal({ isOpen, team, onClose, onSave }) {
     const [teamData, setTeamData] = useState({ ...team });
     const [previewImage, setPreviewImage] = useState(team.teamLogoUrl);
     const [isLoading, setIsLoading] = useState(false);
+    const [form] = Form.useForm();
 
     useEffect(() => {
-        // Lock scrolling when modal is open
         if (isOpen) {
             document.body.style.overflow = 'hidden';
+            form.setFieldsValue({ ...team });
         } else {
-            document.body.style.overflow = 'auto'; // Restore scroll when modal is closed
+            document.body.style.overflow = 'auto';
         }
-
-        // Clean up on unmount or when isOpen changes
         return () => {
             document.body.style.overflow = 'auto';
         };
-    }, [isOpen]);
+    }, [isOpen, team, form]);
 
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
+    const handleImageChange = (info) => {
+        if (info.file.status === 'done') {
+            const file = info.file.originFileObj;
             const imageUrl = URL.createObjectURL(file);
-
-            setTeamData((prevData) => ({
-                ...prevData,
-                teamLogoFile: file,
-            }));
-
             setPreviewImage(imageUrl);
+            setTeamData((prevData) => ({ ...prevData, teamLogoFile: file }));
         }
-    };
-
-    const handleChange = (e) => {
-        setTeamData({ ...teamData, [e.target.name]: e.target.value });
     };
 
     const handlePlayerChange = (index, key, value) => {
@@ -57,13 +48,27 @@ function TeamEditModal({ isOpen, team, onClose, onSave }) {
         setTeamData({ ...teamData, players: updatedPlayers });
     };
 
-    const handleSubmit = (e) => {
-        try {
-            setIsLoading(true);
-            e.preventDefault();
+    const handleSubmit = async () => {
+        if (!teamData.teamName.trim()) {
+            Modal.error({
+                title: 'Validation Error',
+                content: 'Team name is required.',
+            });
+            return;
+        }
 
+        if (teamData.players.some((player) => !player.name.trim())) {
+            Modal.error({
+                title: 'Validation Error',
+                content: 'Each player must have a name.',
+            });
+            return;
+        }
+
+        setIsLoading(true);
+        try {
             const file = teamData.teamLogoFile;
-            onSave(teamData, file);
+            await onSave(teamData, file);
         } catch (err) {
             console.error(err);
         } finally {
@@ -71,89 +76,72 @@ function TeamEditModal({ isOpen, team, onClose, onSave }) {
         }
     };
 
-    if (!isOpen) return null;
-
     return (
-        <div className={styles.modalOverlay}>
-            {isLoading && <Loading />}
-            <div className={styles.modalContainer}>
-                <span className={styles.editModalTitle}>UPDATE TEAM INFO</span>
-                <div className={styles.modalContent}>
-                    <form onSubmit={handleSubmit}>
-                        <label>Team Name:</label>
-                        <input type='text' name='teamName' value={teamData.teamName} onChange={handleChange} required />
+        <div className={styles.container}>
+            <Modal
+                title='UPDATE TEAM INFO'
+                open={isOpen}
+                onCancel={onClose}
+                onOk={handleSubmit}
+                confirmLoading={isLoading}
+                width={600}
+            >
+                {isLoading && <Spin size='large' style={{ display: 'block', textAlign: 'center', marginBottom: 15 }} />}
+                <Form form={form} layout='vertical'>
+                    <Form.Item
+                        label='Team Name'
+                        name='teamName'
+                        rules={[{ required: true, message: 'Please enter team name' }]}
+                    >
+                        <Input
+                            value={teamData.teamName}
+                            onChange={(e) => setTeamData({ ...teamData, teamName: e.target.value })}
+                        />
+                    </Form.Item>
 
-                        <label>Team Logo:</label>
-                        <div className={styles.avatarContainer}>
-                            <img src={previewImage} alt='Team Logo' className={styles.avatar} />
-                            <label className={styles.uploadLabel}>
-                                Upload
-                                <input
-                                    type='file'
-                                    accept='image/*'
-                                    onChange={handleImageChange}
-                                    className={styles.fileInput}
+                    <Form.Item label='Team Logo'>
+                        <Space direction='vertical' align='center'>
+                            <Avatar size={100} src={previewImage} icon={<UserOutlined />} />
+                            <Upload showUploadList={false} beforeUpload={() => false} onChange={handleImageChange}>
+                                <Button icon={<UploadOutlined />}>Upload Logo</Button>
+                            </Upload>
+                        </Space>
+                    </Form.Item>
+
+                    <Form.Item label='Players'>
+                        {teamData.players.map((player, index) => (
+                            <Space key={index} style={{ display: 'flex', marginBottom: 8 }} align='start'>
+                                <Input
+                                    placeholder='Name'
+                                    value={player.name}
+                                    onChange={(e) => handlePlayerChange(index, 'name', e.target.value)}
+                                    required
                                 />
-                            </label>
-                        </div>
-
-                        <div className={styles.playersSection}>
-                            <h4>Players</h4>
-                            {teamData.players.map((player, index) => (
-                                <div className={styles.playerRow} key={index}>
-                                    <div className={styles.inputGroup}>
-                                        <input
-                                            type='text'
-                                            placeholder='Name'
-                                            value={player.name}
-                                            onChange={(e) => handlePlayerChange(index, 'name', e.target.value)}
-                                            required
-                                            className={styles.playerNameInput}
-                                        />
-
-                                        <input
-                                            type='text'
-                                            placeholder='Position'
-                                            value={player.position}
-                                            onChange={(e) => handlePlayerChange(index, 'position', e.target.value)}
-                                            className={styles.playerPositionInput}
-                                        />
-
-                                        <input
-                                            type='number'
-                                            placeholder='Number'
-                                            value={player.number}
-                                            onChange={(e) => handlePlayerChange(index, 'number', e.target.value)}
-                                            className={styles.playerNumberInput}
-                                        />
-                                    </div>
-
-                                    <button
-                                        type='button'
-                                        className={styles.removeButton}
-                                        onClick={() => handleRemovePlayer(index)}
-                                        title='Remove'
-                                    >
-                                        ✖
-                                    </button>
-                                </div>
-                            ))}
-                            <button type='button' className={styles.addButton} onClick={handleAddPlayer}>
-                                + Add Player
-                            </button>
-                        </div>
-
-                        <div className={styles.buttonGroup}>
-                            <button type='submit' className={styles.saveButton}>
-                                Save
-                            </button>
-                            <button type='button' className={styles.cancelButton} onClick={onClose}>
-                                Cancel
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+                                <Input
+                                    placeholder='Position'
+                                    value={player.position}
+                                    onChange={(e) => handlePlayerChange(index, 'position', e.target.value)}
+                                />
+                                <Input
+                                    placeholder='Number'
+                                    type='number'
+                                    value={player.number}
+                                    onChange={(e) => handlePlayerChange(index, 'number', e.target.value)}
+                                />
+                                <Button
+                                    type='text'
+                                    icon={<DeleteOutlined />}
+                                    onClick={() => handleRemovePlayer(index)}
+                                    danger
+                                />
+                            </Space>
+                        ))}
+                        <Button type='dashed' onClick={handleAddPlayer} icon={<PlusOutlined />} block>
+                            Add Player
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div>
     );
 }
