@@ -170,7 +170,7 @@ function Booking() {
             return response.data;
         } catch (err) {
             console.error(err);
-            toast.error(err.message);
+            //toast.error(err.message);
             return null;
         } finally {
             setIsLoading(false);

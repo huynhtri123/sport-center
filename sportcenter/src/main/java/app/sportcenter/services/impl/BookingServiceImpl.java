@@ -104,7 +104,7 @@ public class BookingServiceImpl implements BookingService {
             return response;
         }
 
-        throw new CustomException("Failed. The field is not available at this time!", HttpStatus.CONFLICT.value());
+        throw new CustomException("Failed! The field is not available at this time!", HttpStatus.CONFLICT.value());
     }
 
     // kiểm tra xem trong khoảng thời gian nhất định, sân đó có trống không
@@ -173,7 +173,7 @@ public class BookingServiceImpl implements BookingService {
         boolean isAvailableRecurring = checkAvailableRecurring(field.getId(), recurringTimeSlots);
         if (!isAvailableRecurring) {
             throw new CustomException("Failed! There is at least 1 timeslot that is not available during this time in the future.",
-                    HttpStatus.NOT_FOUND.value());
+                    HttpStatus.CONFLICT.value());
         }
 
         // thoát ra đây được nghĩa là toàn bộ timeSLot 'sẽ chiếm' đều trống trong tương lai
