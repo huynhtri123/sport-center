@@ -1,5 +1,6 @@
 @import '../variables';
 
+// Bảng đặt chỗ
 .bookingsTable {
     width: 100%;
     border-collapse: collapse;
@@ -10,12 +11,12 @@
     th,
     td {
         padding: 10px 15px;
-        text-align: center; /* Căn giữa tất cả các cột */
+        text-align: center;
         border-bottom: 1px solid #ddd;
         word-wrap: break-word;
     }
 
-    th:first-child, /* Cột đầu tiên (#) */
+    th:first-child,
     td:first-child {
         width: 75px;
     }
@@ -25,22 +26,22 @@
         width: 140px;
     }
 
-    th:nth-child(4), /* Cột Customer Info */
+    th:nth-child(4),
     td:nth-child(4) {
         width: 250px;
     }
 
-    th:nth-child(6), /* Cột time range */
+    th:nth-child(6),
     td:nth-child(6) {
         width: 160px;
     }
 
-    th:nth-child(7), /* Cột duration */
+    th:nth-child(7),
     td:nth-child(7) {
         width: 100px;
     }
 
-    th:nth-child(8), /* Cột price */
+    th:nth-child(8),
     td:nth-child(8) {
         width: 110px;
     }
@@ -86,27 +87,20 @@
         text-align: center;
     }
 
-    /* Màu sắc cho hàng recurring */
     .recurring {
-        background-color: #f1f5f9; /* Màu nền nhạt hơn cho hàng recurring */
+        background-color: #f1f5f9;
     }
 
-    /* Màu sắc cho hàng không recurring */
     .single {
-        background-color: #fff7f7; /* Màu nền trắng cho hàng không recurring */
+        background-color: #fff7f7;
     }
 
-    /* Tạo sự khác biệt nhẹ nhàng cho hàng recurring */
     .recurring td {
-        border-left: 2px solid #f0f4f8; /* Viền trái nhẹ hơn cho hàng recurring */
+        border-left: 2px solid #f0f4f8;
     }
 }
 
-.cancelButtonRecurring {
-    background-color: $blue-prime;
-    color: #fff;
-}
-
+// Responsive cho bảng
 @media (max-width: 768px) {
     .bookingsTable {
         display: block;
@@ -128,6 +122,8 @@
         text-align: center;
     }
 }
+
+// Form tìm kiếm
 .searchContainer {
     margin-bottom: 20px;
 }
@@ -137,36 +133,73 @@
     border: 1px solid #ccc;
     border-radius: 4px;
     width: 100%;
-    max-width: 400px; // Optional: Limit width
+    max-width: 400px;
 }
+
+// Phân trang
 .pagination {
     display: flex;
     justify-content: center;
     align-items: center;
     margin-top: 20px;
-    gap: 10px; /* Space between buttons */
+    gap: 10px;
 }
 
 .pagination button {
     padding: 10px 15px;
     border: none;
     border-radius: 5px;
-    background-color: #007bff; /* Bootstrap primary color */
+    background-color: #007bff;
     color: white;
     cursor: pointer;
     transition: background-color 0.3s;
 }
 
 .pagination button:disabled {
-    background-color: #ccc; /* Disabled button color */
+    background-color: #ccc;
     cursor: not-allowed;
 }
 
 .pagination button:hover:not(:disabled) {
-    background-color: #0056b3; /* Darker blue on hover */
+    background-color: #0056b3;
 }
 
 .pagination span {
     font-weight: bold;
-    color: #333; /* Color for the page number text */
+    color: #333;
+}
+
+// Chọn & tải ảnh
+.uploadContainer {
+    margin-top: 20px;
+
+    .fileInput {
+        display: none; // Ẩn input mặc định
+
+        &+label {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: $blue-prime;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-align: center;
+            transition: background-color 0.3s;
+
+            &:hover {
+                background-color: darken($blue-prime, 10%);
+            }
+        }
+    }
+
+    .previewImage {
+        margin-top: 10px;
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 2px solid $blue-prime;
+        display: block;
+    }
 }

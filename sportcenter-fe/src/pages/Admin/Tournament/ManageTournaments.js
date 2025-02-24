@@ -7,6 +7,7 @@ import { Loading } from '../../../components/Loading/Loading';
 import Button from '../../../components/Button/Button';
 import TournamentTable from './TournamentTable';
 import sportApi from '../../../services/api/sportApi';
+import fileApi from '../../../services/api/fileApi';
 
 function ManageTournaments() {
     const [tournaments, setTournaments] = useState([]);
@@ -60,6 +61,27 @@ function ManageTournaments() {
             setEditFormData({ ...editFormData, rules: updatedRules });
         } else {
             setFormData({ ...formData, rules: updatedRules });
+        }
+    };
+    /** Xử lý tải ảnh lên */
+    const handleChangeFile = async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            try {
+                setIsLoading(true);
+                const response = await fileApi.uploadImage(file);
+                if (isEditing) {
+                    setEditFormData((prevData) => ({ ...prevData, thumUrl: response.data.url }));
+                } else {
+                    setFormData((prevData) => ({ ...prevData, thumUrl: response.data.url }));
+                }
+                toast.success('Image uploaded successfully!');
+            } catch (error) {
+                console.error('Upload failed:', error);
+                toast.error('Failed to upload image');
+            } finally {
+                setIsLoading(false);
+            }
         }
     };
 
@@ -309,19 +331,13 @@ function ManageTournaments() {
                         </div>
 
                         <div className={styles.inputGroup}>
+                            {/* Upload ảnh */}
                             <div className={styles.inputGroup}>
-                                <label htmlFor='thumUrl' className='me-3'>
-                                    Tournament avatar
-                                </label>
-                                <input
-                                    id='thumUrl'
-                                    type='url'
-                                    name='thumUrl'
-                                    value={isEditing ? editFormData.thumUrl : formData.thumUrl}
-                                    placeholder='Image url'
-                                    onChange={handleChange}
-                                    required
-                                />
+                                <label>Tournament Avatar</label>
+                                <input type="file" accept="image/*" onChange={handleChangeFile} />
+                                {formData.thumUrl && (
+                                    <img src={formData.thumUrl} alt="Tournament" className={styles.imagePreview} />
+                                )}
                             </div>
 
                             <div className={styles.inputGroup}>

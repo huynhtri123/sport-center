@@ -79,7 +79,7 @@ public class InvoiceController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
     @GetMapping("/revenue/last-six-months")
     public ResponseEntity<BaseResponse> getRevenueLastSixMonths() {
-        Map<String, Double> revenueData = invoiceService.getRevenueLastSixMonths();
+        Map<String, Map<String, Double>> revenueData = invoiceService.getRevenueLastSixMonths();
         return ResponseEntity.ok(
                 new BaseResponse("Doanh thu trong 6 tháng qua", HttpStatus.OK.value(), revenueData)
         );

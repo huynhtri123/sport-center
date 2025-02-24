@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import styles from '../../assets/css/Admin/manageSports.module.scss';
 import sportApi from '../../services/api/sportApi';
+import fileApi from '../../services/api/fileApi';
 import { Loading } from '../../components/Loading/Loading';
 import ConfirmModal from '../../components/Modal/ConfirmModal';
 
@@ -23,9 +24,8 @@ function ManageSports() {
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(0);
-    const [pageSize, setPageSize] = useState(5); // Set page size to 5
+    const [pageSize, setPageSize] = useState(5);
     const [totalPages, setTotalPages] = useState(0);
-    const [totalElements, setTotalElements] = useState(0);
 
     const toggleModalOpen = (sportId = null) => {
         setDeleteSportId(sportId);
@@ -41,18 +41,38 @@ function ManageSports() {
         }
     };
 
+    const handleChangeFile = async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            try {
+                setIsLoading(true);
+                const response = await fileApi.uploadImage(file);
+                if (isEditing) {
+                    setEditingSport((prevData) => ({ ...prevData, imageUrl: response.data.url }));
+                } else {
+                    setFormData((prevData) => ({ ...prevData, imageUrl: response.data.url }));
+                }
+                toast.success('Image uploaded successfully!');
+            } catch (error) {
+                console.error('Upload failed:', error);
+                toast.error('Failed to upload image');
+            } finally {
+                setIsLoading(false);
+            }
+        }
+    };
+
     const handleAddSubmit = async (e) => {
         e.preventDefault();
-        // Kiểm tra các trường bắt buộc
         if (!formData.sportName || !formData.description || !formData.imageUrl) {
-            toast.warn('Please enter complete information for the sport.');
+            toast.warn('Please fill in all fields.');
             return;
         }
         try {
             setIsLoading(true);
             const createResponse = await sportApi.create(formData);
             toast.success(createResponse.message);
-            fetchSports(); // Refresh the sports list
+            fetchSports();
             resetFormData();
         } catch (err) {
             console.error(err);
@@ -63,16 +83,15 @@ function ManageSports() {
 
     const handleEditSubmit = async (e) => {
         e.preventDefault();
-        // Kiểm tra các trường bắt buộc
         if (!editingSport.sportName || !editingSport.description || !editingSport.imageUrl) {
-            toast.warn('Please enter complete information for the sport.');
+            toast.warn('Please fill in all fields.');
             return;
         }
         try {
             setIsLoading(true);
             const editResponse = await sportApi.update(editingSport.id, editingSport);
             toast.success(editResponse.message);
-            fetchSports(); // Refresh the sports list
+            fetchSports();
             setIsEditing(false);
             setEditingSport(null);
             resetFormData();
@@ -107,7 +126,6 @@ function ManageSports() {
             const response = await sportApi.getAllActive(currentPage, pageSize);
             setSports(response.data.content);
             setTotalPages(response.data.totalPages);
-            setTotalElements(response.data.totalElements);
         } catch (err) {
             console.error(err);
         } finally {
@@ -125,7 +143,7 @@ function ManageSports() {
             setIsLoading(true);
             const deleteResponse = await sportApi.softDelete(deleteSportId);
             toast.success(deleteResponse.message);
-            fetchSports(); // Refresh the sports list
+            fetchSports();
         } catch (err) {
             console.error(err);
         } finally {
@@ -146,7 +164,7 @@ function ManageSports() {
         <div className={styles.manageSports}>
             {isLoading && <Loading />}
             <button className={`btn ${styles.addButton}`} onClick={handleToggleShowAddSport}>
-                {isEditing ? 'Cancel edit' : 'Create new sport'}
+                {isEditing ? 'Cancel Edit' : 'Create New Sport'}
             </button>
 
             <div className={styles.searchContainer}>
@@ -165,7 +183,7 @@ function ManageSports() {
                         <input
                             type='text'
                             name='sportName'
-                            placeholder='Sport name'
+                            placeholder='Sport Name'
                             value={isEditing ? editingSport.sportName : formData.sportName}
                             onChange={handleChange}
                         />
@@ -179,10 +197,17 @@ function ManageSports() {
                         <input
                             type='text'
                             name='imageUrl'
-                            placeholder='Image Url'
+                            placeholder='Image URL'
                             value={isEditing ? editingSport.imageUrl : formData.imageUrl}
                             onChange={handleChange}
                         />
+                        <div className="fileInputContainer">
+                            <label className="fileLabel">
+                                Choose File
+                                <input type="file" className="fileInput" onChange={handleChangeFile} />
+                            </label>
+                            <span className="fileName">{formData.imageUrl ? 'File uploaded' : 'No file chosen'}</span>
+                        </div>
                         <button type='submit' className={`btn ${styles.addButton}`}>
                             {isEditing ? 'Update' : 'Create'}
                         </button>
@@ -193,11 +218,11 @@ function ManageSports() {
             <table className={`mt-4 ${styles.sportsTable}`}>
                 <thead>
                     <tr>
-                        <th>STT</th>
+                        <th>#</th>
                         <th>Sport Name</th>
                         <th>Description</th>
                         <th>Image</th>
-                        <th>Action</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -211,46 +236,23 @@ function ManageSports() {
                                     <img src={sport.imageUrl} alt={sport.sportName} className={styles.sportImage} />
                                 </td>
                                 <td>
-                                    <button
-                                        className={`btn ${styles.editButton}`}
-                                        onClick={() => handleEditClick(sport)}
-                                    >
+                                    <button className={`btn ${styles.editButton}`} onClick={() => handleEditClick(sport)}>
                                         Edit
                                     </button>
-                                    <button
-                                        className={`btn ${styles.deleteButton}`}
-                                        onClick={() => toggleModalOpen(sport.id)}
-                                    >
+                                    <button className={`btn ${styles.deleteButton}`} onClick={() => toggleModalOpen(sport.id)}>
                                         Delete
                                     </button>
                                     {isModalOpen && deleteSportId === sport.id && (
-                                        <ConfirmModal
-                                            title='Are you sure you want to delete this sport?'
-                                            isOpen={isModalOpen}
-                                            onClose={() => toggleModalOpen(null)}
-                                            onSubmit={handleSoftDelete}
-                                        />
+                                        <ConfirmModal title='Are you sure?' isOpen={isModalOpen} onClose={() => toggleModalOpen(null)} onSubmit={handleSoftDelete} />
                                     )}
                                 </td>
                             </tr>
                         ))
                     ) : (
-                        <tr>
-                            <td colSpan='5'>There are no sports available.</td>
-                        </tr>
+                        <tr><td colSpan="5">No sports available.</td></tr>
                     )}
                 </tbody>
             </table>
-
-            <div className={styles.pagination}>
-                <button disabled={currentPage === 0} onClick={() => setCurrentPage(currentPage - 1)}>
-                    Previous
-                </button>
-                <span>{`Page ${currentPage + 1} of ${totalPages}`}</span>
-                <button disabled={currentPage >= totalPages - 1} onClick={() => setCurrentPage(currentPage + 1)}>
-                    Next
-                </button>
-            </div>
         </div>
     );
 }

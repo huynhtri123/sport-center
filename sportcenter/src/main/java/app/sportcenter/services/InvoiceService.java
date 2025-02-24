@@ -18,5 +18,5 @@ public interface InvoiceService {
 
     public InvoiceResponse forceDelete(String invoiceId);
 
-    Map<String, Double> getRevenueLastSixMonths();
+    Map<String, Map<String, Double>> getRevenueLastSixMonths();
 }
