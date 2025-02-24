@@ -1,6 +1,8 @@
 package app.sportcenter.services.impl;
 
+import app.sportcenter.commons.PaymentStatus;
 import app.sportcenter.commons.Role;
+import app.sportcenter.commons.TransactionType;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
 import app.sportcenter.models.dto.request.InvoiceRequest;
@@ -94,44 +96,108 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
     }
 
-    @Override
-    public Map<String, Double> getRevenueLastSixMonths() {
-        List<Invoice> invoices = invoiceRepository.findByIsActiveTrueAndIsDeletedFalse();
-        Map<String, Double> revenueData = new LinkedHashMap<>(); // Sử dụng LinkedHashMap để duy trì thứ tự
-        LocalDate now = LocalDate.now();
+//    @Override
+//    public Map<String, Double> getRevenueLastSixMonths() {
+//        List<Invoice> invoices = invoiceRepository.findByIsActiveTrueAndIsDeletedFalse();
+//        Map<String, Double> revenueData = new LinkedHashMap<>(); // Sử dụng LinkedHashMap để duy trì thứ tự
+//        LocalDate now = LocalDate.now();
+//
+//        // Khởi tạo doanh thu cho từng tháng
+//        for (int i = 0; i < 6; i++) {
+//            LocalDate month = now.minusMonths(i);
+//            String monthKey = month.getMonth().name() + " " + month.getYear();
+//            revenueData.put(monthKey, 0.0); // Khởi tạo doanh thu cho tháng
+//        }
+//
+//        // Tính doanh thu từ hóa đơn
+//        for (Invoice invoice : invoices) {
+//            LocalDate invoiceDate = invoice.getCreatedAt().toLocalDate(); // Giả sử có trường createdAt
+//            String monthKey = invoiceDate.getMonth().name() + " " + invoiceDate.getYear();
+//
+//            // Cộng dồn doanh thu vào tháng tương ứng
+//            if (revenueData.containsKey(monthKey)) {
+//                revenueData.put(monthKey, revenueData.get(monthKey) + invoice.getAmount()); // Giả sử có trường amount
+//            }
+//        }
+//
+//        // Tạo danh sách tháng theo thứ tự tăng dần
+//        List<String> orderedMonths = new ArrayList<>();
+//        for (int i = 0; i < 6; i++) {
+//            LocalDate month = now.minusMonths(5 - i); // Sắp xếp từ tháng hiện tại đến tháng trước
+//            String monthKey = month.getMonth().name() + " " + month.getYear();
+//            orderedMonths.add(monthKey);
+//        }
+//
+//        // Tạo bản đồ doanh thu theo thứ tự tháng đã sắp xếp
+//        Map<String, Double> orderedRevenueData = new LinkedHashMap<>();
+//        for (String monthKey : orderedMonths) {
+//            orderedRevenueData.put(monthKey, revenueData.getOrDefault(monthKey, 0.0));
+//        }
+//
+//        return orderedRevenueData; // Trả về dữ liệu doanh thu theo thứ tự tháng
+//    }
+@Override
+public Map<String, Map<String, Double>> getRevenueLastSixMonths() {
+    List<Invoice> invoices = invoiceRepository.findByIsActiveTrueAndIsDeletedFalse();
+    Map<String, Double> revenueData = new LinkedHashMap<>();
+    Map<String, Double> refundFeeData = new LinkedHashMap<>();
+    LocalDate now = LocalDate.now();
 
-        // Khởi tạo doanh thu cho từng tháng
-        for (int i = 0; i < 6; i++) {
-            LocalDate month = now.minusMonths(i);
-            String monthKey = month.getMonth().name() + " " + month.getYear();
-            revenueData.put(monthKey, 0.0); // Khởi tạo doanh thu cho tháng
-        }
-
-        // Tính doanh thu từ hóa đơn
-        for (Invoice invoice : invoices) {
-            LocalDate invoiceDate = invoice.getCreatedAt().toLocalDate(); // Giả sử có trường createdAt
-            String monthKey = invoiceDate.getMonth().name() + " " + invoiceDate.getYear();
-
-            // Cộng dồn doanh thu vào tháng tương ứng
-            if (revenueData.containsKey(monthKey)) {
-                revenueData.put(monthKey, revenueData.get(monthKey) + invoice.getAmount()); // Giả sử có trường amount
-            }
-        }
-
-        // Tạo danh sách tháng theo thứ tự tăng dần
-        List<String> orderedMonths = new ArrayList<>();
-        for (int i = 0; i < 6; i++) {
-            LocalDate month = now.minusMonths(5 - i); // Sắp xếp từ tháng hiện tại đến tháng trước
-            String monthKey = month.getMonth().name() + " " + month.getYear();
-            orderedMonths.add(monthKey);
-        }
-
-        // Tạo bản đồ doanh thu theo thứ tự tháng đã sắp xếp
-        Map<String, Double> orderedRevenueData = new LinkedHashMap<>();
-        for (String monthKey : orderedMonths) {
-            orderedRevenueData.put(monthKey, revenueData.getOrDefault(monthKey, 0.0));
-        }
-
-        return orderedRevenueData; // Trả về dữ liệu doanh thu theo thứ tự tháng
+    // Khởi tạo doanh thu và phí refund cho từng tháng (6 tháng gần nhất)
+    for (int i = 0; i < 6; i++) {
+        LocalDate month = now.minusMonths(i);
+        String monthKey = month.getMonth().name() + " " + month.getYear();
+        revenueData.put(monthKey, 0.0);
+        refundFeeData.put(monthKey, 0.0);
     }
+
+    // Tính toán doanh thu từ hóa đơn
+    for (Invoice invoice : invoices) {
+        LocalDate invoiceDate = invoice.getCreatedAt().toLocalDate(); // Giả sử có trường createdAt
+        String monthKey = invoiceDate.getMonth().name() + " " + invoiceDate.getYear();
+
+        // Chỉ xử lý nếu hóa đơn thuộc 6 tháng gần nhất
+        if (revenueData.containsKey(monthKey)) {
+            double currentRevenue = revenueData.get(monthKey);
+            double currentRefundFee = refundFeeData.get(monthKey);
+
+            if (invoice.getPaymentStatus() == PaymentStatus.PAID) {
+                if (invoice.getTransactionType() == TransactionType.BOOKING ||
+                        invoice.getTransactionType() == TransactionType.REGISTRATION_FEE) {
+                    // Cộng doanh thu hợp lệ
+                    currentRevenue += invoice.getAmount();
+                } else if (invoice.getTransactionType() == TransactionType.REFUND) {
+                    // Trừ đi số tiền hoàn trả
+                    currentRevenue -= invoice.getAmount();
+                    // Ghi nhận tổng phí refund cho tháng đó
+                    currentRefundFee += invoice.getAmount();
+                }
+            }
+
+            // Cập nhật dữ liệu vào Map
+            revenueData.put(monthKey, currentRevenue);
+            refundFeeData.put(monthKey, currentRefundFee);
+        }
+    }
+
+    // Sắp xếp lại theo thứ tự từ tháng cũ nhất đến mới nhất
+    List<String> orderedMonths = new ArrayList<>();
+    for (int i = 0; i < 6; i++) {
+        LocalDate month = now.minusMonths(5 - i);
+        String monthKey = month.getMonth().name() + " " + month.getYear();
+        orderedMonths.add(monthKey);
+    }
+
+    // Định dạng lại dữ liệu theo thứ tự đã sắp xếp
+    Map<String, Map<String, Double>> finalData = new LinkedHashMap<>();
+    for (String monthKey : orderedMonths) {
+        Map<String, Double> monthData = new HashMap<>();
+        monthData.put("revenue", revenueData.getOrDefault(monthKey, 0.0));
+        monthData.put("refund_fee", refundFeeData.getOrDefault(monthKey, 0.0));
+        finalData.put(monthKey, monthData);
+    }
+
+    return finalData; // Trả về doanh thu và refund_fee theo từng tháng
+}
+
 }

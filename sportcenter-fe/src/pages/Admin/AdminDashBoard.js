@@ -105,11 +105,11 @@ function AdminDashboard() {
                 const normalizedData =
                     totalBookings > 0
                         ? [
-                              (countSingleBooking.data / totalBookings) * 100,
-                              (dailyRecurringBooking.data / totalBookings) * 100,
-                              (weeklyRecurringBooking.data / totalBookings) * 100,
-                              (monthlyRecurringBooking.data / totalBookings) * 100,
-                          ]
+                            (countSingleBooking.data / totalBookings) * 100,
+                            (dailyRecurringBooking.data / totalBookings) * 100,
+                            (weeklyRecurringBooking.data / totalBookings) * 100,
+                            (monthlyRecurringBooking.data / totalBookings) * 100,
+                        ]
                         : [0, 0, 0, 0];
 
                 setPieChartData((prev) => ({
@@ -128,18 +128,29 @@ function AdminDashboard() {
 
                 // Chuyển đổi dữ liệu thành mảng cho biểu đồ
                 const months = Object.keys(revenueData);
-                const amounts = Object.values(revenueData);
+                // const amounts = Object.values(revenueData);
+                const revenues = months.map((month) => revenueData[month].revenue)
+                const refunds = months.map((month) => revenueData[month].refund_fee);
 
-                setRevenueData((prev) => ({
-                    ...prev,
+                setRevenueData({
                     labels: months,
                     datasets: [
                         {
-                            ...prev.datasets[0],
-                            data: amounts,
+                            label: 'Revenue (VND)',
+                            data: revenues,
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1,
+                        },
+                        {
+                            label: 'Refund Fee (VND)',
+                            data: refunds,
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1,
                         },
                     ],
-                }));
+                });
             } catch (error) {
                 console.error('Failed to fetch booking data:', error);
             }
