@@ -22,6 +22,18 @@ const fileApi = {
             },
         });
     },
+
+    uploadExcel(file, type) {
+        const url = `/excel/upload`;
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('type', type);
+        return axiosClient.post(url, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+    },
 };
 
 export default fileApi;
