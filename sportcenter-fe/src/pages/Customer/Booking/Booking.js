@@ -12,7 +12,7 @@ import PaymentModal from '../../../components/Modal/PaymentModal';
 import formatCurrency from '../../../utils/formatCurrency';
 import Video from '../../../components/Video/Video';
 import { connectWebSocket, disconnectWebSocket } from '../../../services/websocket/connect';
-import { useSelectDateForBooking } from '../../../customs/hooks';
+import { useSelectDateForBooking, useLoading } from '../../../customs/hooks';
 
 function Booking() {
     const [field, setField] = useGetField();
@@ -29,6 +29,7 @@ function Booking() {
     // eslint-disable-next-line no-unused-vars
     const [bookingPrice, setBookingPrice] = useState(0);
     const [recurringBookingPrice, setRecurringBookingPrice] = useState(0);
+    const [isLoadingContext, setIsLoadingContext] = useLoading();
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -145,7 +146,7 @@ function Booking() {
 
     const handleSubmit = async (isRecurring) => {
         try {
-            setIsLoading(true);
+            setIsLoadingContext(true); // sang PaymentModal xu ly xong moi dung Context off loading
             const startDateTimeString = `${selectedDate}T${startTime}:00+00:00`;
             const startTimeUTC = new Date(startDateTimeString).toISOString();
 
@@ -173,7 +174,6 @@ function Booking() {
             //toast.error(err.message);
             return null;
         } finally {
-            setIsLoading(false);
             isRecurring ? setIsRecurringBookingModalOpen(false) : setIsBookingModalOpen(false);
         }
     };
@@ -216,7 +216,7 @@ function Booking() {
 
     return (
         <div className={styles.bookingContainer}>
-            {isLoading && <Loading></Loading>}
+            {isLoadingContext && <Loading></Loading>}
             <section className={styles.fieldDetailSection}>
                 <div className={styles.fieldImage}>
                     <img src={field.imageUrl} alt={field.fieldName} />

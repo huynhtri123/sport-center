@@ -131,7 +131,7 @@ public class BookingServiceImpl implements BookingService {
 
         // kiểm tra coi booking này có thật sự cần được xác nhận không (dang xu ly va chưa bị xoa)
         if (!booking.isProcessing() || booking.getIsDeleted()) {
-            throw new CustomException("This booking does not meet the requirements for confirmation.", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("Oops! Your booking request has expired. Please try again!", HttpStatus.BAD_REQUEST.value());
         }
 
         // ok -> thực hiện xác nhận
@@ -248,7 +248,7 @@ public class BookingServiceImpl implements BookingService {
 
         // kiểm tra trạng thái recurring (chi khi isProcessinng & delete=false moi can xac nhan)
         if (!recurringBooking.isProcessing() || recurringBooking.getIsDeleted()) {
-            throw new CustomException("This recurring booking does not meet the requirements for confirmation.", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("Oops! Your booking request has expired. Please try again!", HttpStatus.BAD_REQUEST.value());
         }
 
         // ok -> có thể xác nhận recurring

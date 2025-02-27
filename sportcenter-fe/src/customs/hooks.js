@@ -9,6 +9,7 @@ import UserContext from '../contexts/UserContext/UserContext';
 import BookingPaymentContext from '../contexts/Booking/BookingPaymentContext';
 import PaymentContext from '../contexts/Payment/PaymentContext';
 import SelectDateContext from '../contexts/Booking/SelectDateContext';
+import LoadingContext from '../contexts/Loading/LoadingContext';
 
 export const useCheckSignedIn = () => {
     const [isSignedIn, setIsSignedIn] = useContext(AuthContext);
@@ -78,4 +79,9 @@ export const usePaymentData = () => {
 export const useSelectDateForBooking = () => {
     const [selectedDate, setSelectedDate] = useContext(SelectDateContext);
     return [selectedDate, setSelectedDate];
+};
+
+export const useLoading = () => {
+    const [isLoadingContext, setIsLoadingContext] = useContext(LoadingContext);
+    return [isLoadingContext, setIsLoadingContext];
 };

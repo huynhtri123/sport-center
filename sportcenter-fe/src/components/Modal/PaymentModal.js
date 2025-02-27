@@ -11,6 +11,7 @@ import invoiceApi from '../../services/api/invoiceApi';
 import bookingApi from '../../services/api/booking/bookingApi';
 import { usePaymentData } from '../../customs/hooks';
 import tournamentApi from '../../services/api/tournamentApi';
+import { useLoading } from '../../customs/hooks';
 
 function PaymentModal({
     isOpen,
@@ -26,6 +27,7 @@ function PaymentModal({
     const [user, setUser] = useUser();
     const navigate = useNavigate();
     const [paymentData, setPaymenData] = usePaymentData();
+    const [isLoadingContext, setIsLoadingContext] = useLoading();
 
     const fetchUser = async () => {
         try {
@@ -114,6 +116,7 @@ function PaymentModal({
         }
     };
 
+    // ham xu ly chinh cho booking by balance
     const balancePaymentForBooking = async () => {
         try {
             // gọi api đặt sân bước 1 ko thành công thì out luôn
@@ -131,9 +134,13 @@ function PaymentModal({
             if (!confirmResponse) return;
         } catch (err) {
             console.error('Error during balance payment:', err);
+        } finally {
+            // tat loading o component cha
+            setIsLoadingContext(false);
         }
     };
 
+    // ham xu ly chinh cho tournament by balance
     const balancePaymentForTournament = async () => {
         try {
             // gọi hàm đăng kí giải đấu từ cha
@@ -149,6 +156,9 @@ function PaymentModal({
             toast.success(confirmResponse.message);
         } catch (err) {
             console.error('Error during balance payment:', err);
+        } finally {
+            // tat loading o component cha
+            setIsLoadingContext(false);
         }
     };
 
@@ -161,6 +171,7 @@ function PaymentModal({
         }
     };
 
+    // ham xu ly thanh toan lon xon
     const handleRemainingPaymentAndSubmit = async (remainingAmount) => {
         const paymentData = {
             amount: price,
