@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import java.io.IOException;
 
@@ -43,11 +45,17 @@ public class PaymentController {
                 paymentService.paymentSuccessCallback(amount, orderInfo);
                 redirectUrl = vnPayConfig.getReturnClientUrlSuccess();
             } catch (Exception e) {
-                log.error("Payment with vnpay failed! {}", e.getMessage());
+                String message = e.getMessage();
+                log.error("Payment with vnpay failed! {}", message);
+                redirectUrl = vnPayConfig.getReturnClientUrlFailed()
+                        + "?error=" + URLEncoder.encode(message, StandardCharsets.UTF_8);
             }
 
         } else {
             paymentService.paymentFailed(orderInfo);
+            redirectUrl = vnPayConfig.getReturnClientUrlFailed()
+                    + "?error=" + URLEncoder.encode("Transaction failed with response code: " + responseCode,
+                    StandardCharsets.UTF_8);
         }
         response.sendRedirect(redirectUrl);
     }

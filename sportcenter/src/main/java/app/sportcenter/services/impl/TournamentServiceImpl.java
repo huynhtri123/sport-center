@@ -486,11 +486,11 @@ public class TournamentServiceImpl implements TournamentService {
     @Override
     public TournamentResponse confirmRegister(String registerOrderId) {
         RegisterOrder registerOrder = registerOrderRepository.findById(registerOrderId)
-                .orElseThrow(() -> new NotFoundException("Register Order cannot found to confirm register!"));
+                .orElseThrow(() -> new NotFoundException("Register request have been expired! Please try again!"));
         Team team = teamRepository.findById(registerOrder.getTeamId())
-                .orElseThrow(() -> new NotFoundException("Team cannot found to confirm register!"));
+                .orElseThrow(() -> new NotFoundException("Register request have been expired! Please try again!"));
         Tournament tournament = tournamentRepository.findById(registerOrder.getTournamentId())
-                .orElseThrow(() -> new NotFoundException("Tournament cannot found to confirm register!"));
+                .orElseThrow(() -> new NotFoundException("Register request have been expired! Please try again!"));
 
         // 1. active Team
         team.setIsActive(true);
