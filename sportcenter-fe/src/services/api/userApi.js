@@ -20,6 +20,12 @@ const userApi = {
         return axiosClient.get(url);
     },
 
+    allBookings(userId) {
+        const url = `/booking/all-bookings/${userId}`;
+        return axiosClient.get(url);
+    },
+
+
     // registered tournaments
     myTournaments() {
         const url = '/tounament/my-tournaments';

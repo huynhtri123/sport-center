@@ -20,6 +20,7 @@ import { Link } from 'react-router-dom';
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
 function AdminDashboard() {
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [selectedSection, setSelectedSection] = useState('Dashboard');
     const [pieChartData, setPieChartData] = useState({
         labels: ['Single Bookings', 'Daily Recurring', 'Weekly Recurring', 'Monthly Recurring'],
@@ -86,6 +87,7 @@ function AdminDashboard() {
     useEffect(() => {
         const fetchData = async () => {
             try {
+
                 // Fetch booking counts
                 const countSingleBooking = await revenueApi.countSingleBooking();
                 const dailyRecurringBooking = await revenueApi.countRecurringBookingByType(RecurringIntervalType.DAILY);
@@ -123,7 +125,7 @@ function AdminDashboard() {
                 }));
 
                 // Fetch revenue for the last 6 months
-                const revenueResponse = await revenueApi.getRevenueLastSixMonths();
+                const revenueResponse = await revenueApi.getRevenueLastSixMonths(selectedYear);
                 const revenueData = revenueResponse.data;
 
                 // Chuyển đổi dữ liệu thành mảng cho biểu đồ
@@ -132,8 +134,13 @@ function AdminDashboard() {
                 const revenues = months.map((month) => revenueData[month].revenue)
                 const refunds = months.map((month) => revenueData[month].refund_fee);
 
+                const shortMonths = months.map((month) => {
+                    const [monthName] = month.split(' '); // Lấy phần tên tháng
+                    return monthName.substring(0, 3); // Cắt 3 chữ cái đầu tiên
+                });
+
                 setRevenueData({
-                    labels: months,
+                    labels: shortMonths,
                     datasets: [
                         {
                             label: 'Revenue (VND)',
@@ -157,7 +164,7 @@ function AdminDashboard() {
         };
 
         fetchData();
-    }, []);
+    }, [selectedYear]);
 
     const renderContent = () => {
         switch (selectedSection) {
@@ -166,6 +173,25 @@ function AdminDashboard() {
                     <div className={styles.dashboardExpanded}>
                         <h2>Dashboard Overview</h2>
                         <p>Some detailed statistics and data can be shown here.</p>
+                        {/* Dropdown chọn năm */}
+                        <div className="mb-4">
+                            <label className="text-lg font-semibold mr-2">Select Year:</label>
+                            <select
+                                value={selectedYear}
+                                onChange={(e) => {
+                                    const newYear = Number(e.target.value);
+                                    setSelectedYear(newYear);
+                                }}
+                                className="border p-2 rounded-md"
+                            >
+                                {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+                                    <option key={year} value={year}>
+                                        {year}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
                         <div className={styles.chartContainer}>
                             <div className={styles.chartWrapper}>
                                 <h3>Monthly Revenue</h3>

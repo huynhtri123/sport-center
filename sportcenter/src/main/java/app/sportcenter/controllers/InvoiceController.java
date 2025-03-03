@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.Map;
 
 @RestController
@@ -78,11 +79,20 @@ public class InvoiceController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
     @GetMapping("/revenue/last-six-months")
-    public ResponseEntity<BaseResponse> getRevenueLastSixMonths() {
-        Map<String, Map<String, Double>> revenueData = invoiceService.getRevenueLastSixMonths();
+    public ResponseEntity<BaseResponse> getRevenueLastSixMonths(
+            @RequestParam(value = "year", required = false) Integer year) {
+
+        // Nếu frontend không gửi year, dùng năm hiện tại
+        if (year == null) {
+            year = LocalDate.now().getYear();
+        }
+
+        Map<String, Map<String, Double>> revenueData = invoiceService.getRevenueForYear(year);
         return ResponseEntity.ok(
-                new BaseResponse("Doanh thu trong 6 tháng qua", HttpStatus.OK.value(), revenueData)
+                new BaseResponse("Doanh thu trong năm " + year, HttpStatus.OK.value(), revenueData)
         );
     }
+
+
 
 }

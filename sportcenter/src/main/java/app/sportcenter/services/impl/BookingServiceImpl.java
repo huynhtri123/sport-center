@@ -725,4 +725,35 @@ public class BookingServiceImpl implements BookingService {
 
         return revenueData;
     }
+
+    @Override
+    public ResponseEntity<BaseResponse> allBookingUser(String userId) {
+        // Lấy thông tin người dùng hiện tại từ SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+        String currentUserId = currentUser.getId();
+        log.info("Current user for get all bookings: " + currentUserId);
+
+        // Kiểm tra quyền truy cập
+        if (!currentUserId.equals(userId)) {
+            throw new CustomException("You do not have permission to access other users' bookings.", HttpStatus.FORBIDDEN.value());
+        }
+
+        // Lấy danh sách tất cả booking của user
+        List<Booking> bookingList = bookingRepository.getAllBookingsByUserId(userId);
+
+        // Kiểm tra nếu danh sách trống
+        if (bookingList.isEmpty()) {
+            throw new CustomException("You don't have any bookings yet!", HttpStatus.NOT_FOUND.value());
+        }
+
+        // Chuyển đổi danh sách sang response và sắp xếp theo ngày gần nhất
+        List<BookingResponse> responseList = bookingList.stream()
+                .sorted(Comparator.comparing(Booking::getStartTime).reversed()) // Sắp xếp giảm dần theo thời gian bắt đầu
+                .map(bookingMapper::convertToResponse)
+                .toList();
+
+        return ResponseEntity.ok(new BaseResponse("Found all bookings.", HttpStatus.OK.value(), responseList));
+    }
+
 }

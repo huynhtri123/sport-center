@@ -64,4 +64,6 @@ public interface BookingService {
 
     public Map<String, Double> getRevenueLastSixMonths();
 
+    public ResponseEntity<BaseResponse> allBookingUser(String userId);
+
 }
