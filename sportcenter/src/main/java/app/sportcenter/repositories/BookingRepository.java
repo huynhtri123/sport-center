@@ -63,4 +63,8 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
 
     @Query("{ 'recurringBooking.id': ?0 }")
     List<Booking> findByRecurringBookingId(@Param("recurringBookingId") String recurringBookingId);
+
+    @Query("{ 'user._id': ?0, 'isDeleted': false }")
+    List<Booking> getAllBookingsByUserId(String userId);
+
 }

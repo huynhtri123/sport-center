@@ -220,4 +220,10 @@ public class BookingController {
         return ResponseEntity.ok(new BaseResponse("Lấy doanh thu thành công!", HttpStatus.OK.value(), revenueData));
     }
 
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
+    @GetMapping("/booking/all-bookings/{userId}")
+    public ResponseEntity<BaseResponse> allBookingUser(@PathVariable String userId) {
+        return bookingService.allBookingUser(userId);
+    }
+
 }
