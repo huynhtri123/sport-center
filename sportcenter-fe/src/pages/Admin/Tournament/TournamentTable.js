@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from '../../../assets/css/Admin/manageTournaments.module.scss';
 import ConfirmModal from '../../../components/Modal/ConfirmModal';
 import { formatDate } from '../../../utils/DateTimeConverter';
@@ -16,25 +16,55 @@ function TournamentTable({
     handleSoftDelete,
 }) {
     const [isViewDetailModalOpen, setIsViewDetailModalOpen] = useState(false);
-    const [registeredTeams, setRegisteredTeams] = useState([]); // Lưu danh sách đội đăng ký
-    const [selectedTournament, setSelectedTournament] = useState(null); // Lưu thông tin giải đấu được chọn
+    const [registeredTeams, setRegisteredTeams] = useState([]);
+    const [selectedTournament, setSelectedTournament] = useState(null);
+
+    // Trạng thái sắp xếp
+    const [sortOrderTimePeriod, setSortOrderTimePeriod] = useState('asc');
+    const [sortOrderDeadline, setSortOrderDeadline] = useState('asc');
+    const [sortedTournaments, setSortedTournaments] = useState(filteredTournaments);
 
     const toggleViewDetail = () => {
         setIsViewDetailModalOpen(!isViewDetailModalOpen);
     };
 
+    useEffect(() => {
+        setSortedTournaments(filteredTournaments);
+    }, [filteredTournaments]);
+
     const handleViewRegisteredTeams = async (tournament) => {
         try {
             const registeredTeamsResponse = await tournamentApi.getRegistedTeams(tournament.id);
             if (registeredTeamsResponse) {
-                setRegisteredTeams(registeredTeamsResponse); // Lưu danh sách đội đăng ký
-                setSelectedTournament(tournament); // Lưu thông tin giải đấu
-                console.log(registeredTeams);
-                toggleViewDetail(); // Mở modal
+                setRegisteredTeams(registeredTeamsResponse);
+                setSelectedTournament(tournament);
+                toggleViewDetail();
             }
         } catch (err) {
             console.error(err);
         }
+    };
+
+    // Sắp xếp theo Time Period
+    const handleSortByTimePeriod = () => {
+        const sortedData = [...sortedTournaments].sort((a, b) =>
+            sortOrderTimePeriod === 'asc'
+                ? new Date(a.startDate) - new Date(b.startDate)
+                : new Date(b.startDate) - new Date(a.startDate)
+        );
+        setSortedTournaments(sortedData);
+        setSortOrderTimePeriod(sortOrderTimePeriod === 'asc' ? 'desc' : 'asc');
+    };
+
+    // Sắp xếp theo Registration Deadline
+    const handleSortByDeadline = () => {
+        const sortedData = [...sortedTournaments].sort((a, b) =>
+            sortOrderDeadline === 'asc'
+                ? new Date(a.registrationDeadline) - new Date(b.registrationDeadline)
+                : new Date(b.registrationDeadline) - new Date(a.registrationDeadline)
+        );
+        setSortedTournaments(sortedData);
+        setSortOrderDeadline(sortOrderDeadline === 'asc' ? 'desc' : 'asc');
     };
 
     return (
@@ -44,17 +74,31 @@ function TournamentTable({
                     <tr>
                         <th>Order</th>
                         <th>Tournament Name</th>
-                        <th>Time Period</th>
-                        <th>Max teams</th>
+                        <th onClick={handleSortByTimePeriod} style={{ cursor: 'pointer' }}>
+                            Time Period{' '}
+                            {sortOrderTimePeriod === 'asc' ? (
+                                <i className='fa-solid fa-arrow-up ms-2'></i>
+                            ) : (
+                                <i className='fa-solid fa-arrow-down ms-2'></i>
+                            )}
+                        </th>
                         <th>Registered teams</th>
-                        <th>Registration Deadline</th>
+                        <th>Max teams</th>
+                        <th onClick={handleSortByDeadline} style={{ cursor: 'pointer' }}>
+                            Registration Deadline{' '}
+                            {sortOrderDeadline === 'asc' ? (
+                                <i className='fa-solid fa-arrow-up ms-2'></i>
+                            ) : (
+                                <i className='fa-solid fa-arrow-down ms-2'></i>
+                            )}
+                        </th>
                         <th>Image</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredTournaments.length > 0 ? (
-                        filteredTournaments.map((tournament, index) => (
+                    {sortedTournaments.length > 0 ? (
+                        sortedTournaments.map((tournament, index) => (
                             <tr key={tournament.id}>
                                 <td>{index + 1 + currentPage * pageSize}</td>
                                 <td>{tournament.tournamentName}</td>
@@ -132,16 +176,6 @@ function TournamentTable({
                     )}
                 </tbody>
             </table>
-
-            {/* Modal hiển thị thông tin đội đã đăng ký */}
-            {/* {isViewDetailModalOpen && (
-                <ConfirmModal
-                    title='Bạn có chắc chắn muốn xóa giải đấu này không?'
-                    isOpen={isModalOpen}
-                    onClose={() => toggleModalOpen(null)}
-                    onSubmit={handleSoftDelete}
-                />
-            )} */}
         </>
     );
 }

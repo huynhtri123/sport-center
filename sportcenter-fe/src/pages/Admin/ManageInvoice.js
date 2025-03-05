@@ -3,19 +3,25 @@ import { toast } from 'react-toastify';
 import invoiceApi from '../../services/api/invoiceApi';
 import styles from '../../assets/css/Admin/manageInvoices.module.scss';
 import ConfirmModal from '../../components/Modal/ConfirmModal';
-import { PaymentStatus } from '../../utils/enums/PaymentStatus';
 import { PaymentMethod } from '../../utils/enums/PaymentMethod';
 import { TransactionType } from '../../utils/enums/TransactionType';
 
 function ManageInvoices() {
     const [invoices, setInvoices] = useState([]);
+
     const [filteredInvoices, setFilteredInvoices] = useState([]);
-    const [paymentStatusFilter, setPaymentStatusFilter] = useState('');
     const [paymentMethodFilter, setPaymentMethodFilter] = useState('');
     const [transactionTypeFilter, setTransactionTypeFilter] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [invoiceToDelete, setInvoiceToDelete] = useState(null);
-    const [sortOrder, setSortOrder] = useState('asc'); // Trạng thái sắp xếp (asc/desc)
+
+    const [sortOrderAmount, setSortOrderAmount] = useState('asc');
+    const [sortOrderCreatedAt, setSortOrderCreatedAt] = useState('asc');
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     useEffect(() => {
         fetchInvoices();
@@ -32,31 +38,42 @@ function ManageInvoices() {
         }
     };
 
-    // Lọc và sắp xếp invoices
     useEffect(() => {
         let filteredData = invoices;
-
-        if (paymentStatusFilter) {
-            filteredData = filteredData.filter((invoice) => invoice.paymentStatus === paymentStatusFilter);
-        }
 
         if (paymentMethodFilter) {
             filteredData = filteredData.filter((invoice) => invoice.paymentMethod === paymentMethodFilter);
         }
-
         if (transactionTypeFilter) {
             filteredData = filteredData.filter((invoice) => invoice.transactionType === transactionTypeFilter);
         }
-
-        // Sắp xếp theo Amount
-        if (sortOrder === 'asc') {
-            filteredData = filteredData.sort((a, b) => a.amount - b.amount); // Tăng dần
-        } else if (sortOrder === 'desc') {
-            filteredData = filteredData.sort((a, b) => b.amount - a.amount); // Giảm dần
+        if (searchQuery) {
+            filteredData = filteredData.filter((invoice) =>
+                invoice.userFullName.toLowerCase().includes(searchQuery.toLowerCase())
+            );
         }
 
         setFilteredInvoices(filteredData);
-    }, [paymentStatusFilter, paymentMethodFilter, transactionTypeFilter, invoices, sortOrder]);
+        setCurrentPage(1);
+    }, [paymentMethodFilter, transactionTypeFilter, searchQuery, invoices]);
+
+    const handleSortByAmount = () => {
+        const sortedData = [...filteredInvoices].sort((a, b) =>
+            sortOrderAmount === 'asc' ? a.amount - b.amount : b.amount - a.amount
+        );
+        setFilteredInvoices(sortedData);
+        setSortOrderAmount(sortOrderAmount === 'asc' ? 'desc' : 'asc');
+    };
+
+    const handleSortByCreatedAt = () => {
+        const sortedData = [...filteredInvoices].sort((a, b) =>
+            sortOrderCreatedAt === 'asc'
+                ? new Date(a.createdAt) - new Date(b.createdAt)
+                : new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setFilteredInvoices(sortedData);
+        setSortOrderCreatedAt(sortOrderCreatedAt === 'asc' ? 'desc' : 'asc');
+    };
 
     const handleDeleteInvoice = async () => {
         try {
@@ -80,24 +97,22 @@ function ManageInvoices() {
         setInvoiceToDelete(null);
     };
 
-    // Hàm xử lý sắp xếp
-    const handleSort = () => {
-        setSortOrder((prevSortOrder) => (prevSortOrder === 'asc' ? 'desc' : 'asc')); // Đảo ngược trạng thái sắp xếp
-    };
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredInvoices.slice(indexOfFirstItem, indexOfLastItem);
+
+    const totalPages = Math.ceil(filteredInvoices.length / itemsPerPage);
 
     return (
         <div className={styles.manageInvoices}>
             <div className={styles.filters}>
-                <label>Payment Status:</label>
-                <select value={paymentStatusFilter} onChange={(e) => setPaymentStatusFilter(e.target.value)}>
-                    <option value=''>All</option>
-                    {Object.values(PaymentStatus).map((status) => (
-                        <option key={status} value={status}>
-                            {status}
-                        </option>
-                    ))}
-                </select>
-
+                <input
+                    type='text'
+                    placeholder='Enter the characters in the user name...'
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    style={{ fontSize: '14px' }}
+                />
                 <label>Payment Method:</label>
                 <select value={paymentMethodFilter} onChange={(e) => setPaymentMethodFilter(e.target.value)}>
                     <option value=''>All</option>
@@ -107,7 +122,6 @@ function ManageInvoices() {
                         </option>
                     ))}
                 </select>
-
                 <label>Transaction Type:</label>
                 <select value={transactionTypeFilter} onChange={(e) => setTransactionTypeFilter(e.target.value)}>
                     <option value=''>All</option>
@@ -125,28 +139,35 @@ function ManageInvoices() {
                         <th>STT</th>
                         <th>User Email</th>
                         <th>User Full Name</th>
-                        <th onClick={handleSort} style={{ cursor: 'pointer' }}>
+                        <th onClick={handleSortByAmount} style={{ cursor: 'pointer' }}>
                             Amount{' '}
-                            {sortOrder === 'asc' ? (
-                                <i className='ms-2 fa-solid fa-arrow-up-short-wide'></i>
+                            {sortOrderAmount === 'asc' ? (
+                                <i className='fa-solid fa-arrow-up-short-wide ms-2'></i>
                             ) : (
-                                <i className='ms-2 fa-solid fa-arrow-down-short-wide'></i>
+                                <i className='fa-solid fa-arrow-down-short-wide ms-2'></i>
                             )}
                         </th>
-                        <th>Payment Status</th>
+                        <th onClick={handleSortByCreatedAt} style={{ cursor: 'pointer' }}>
+                            Created Date{' '}
+                            {sortOrderCreatedAt === 'asc' ? (
+                                <i className='fa-solid fa-arrow-up-short-wide ms-2'></i>
+                            ) : (
+                                <i className='fa-solid fa-arrow-down-short-wide ms-2'></i>
+                            )}
+                        </th>
                         <th>Payment Method</th>
                         <th>Transaction Type</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredInvoices.map((invoice, index) => (
+                    {currentItems.map((invoice, index) => (
                         <tr key={invoice.id}>
-                            <td>{index + 1}</td>
+                            <td>{indexOfFirstItem + index + 1}</td>
                             <td>{invoice.userEmail}</td>
                             <td>{invoice.userFullName}</td>
                             <td>{invoice.amount}</td>
-                            <td>{invoice.paymentStatus}</td>
+                            <td>{new Date(invoice.createdAt).toLocaleString('vi-VN', { hour12: false })}</td>
                             <td>{invoice.paymentMethod}</td>
                             <td>{invoice.transactionType}</td>
                             <td>
@@ -158,6 +179,21 @@ function ManageInvoices() {
                     ))}
                 </tbody>
             </table>
+
+            <div className={styles.pagination}>
+                <button onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1}>
+                    Previous
+                </button>
+                <span>
+                    Page {currentPage} of {totalPages}
+                </span>
+                <button
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                >
+                    Next
+                </button>
+            </div>
 
             <ConfirmModal
                 title='Are you sure you want to delete this invoice?'

@@ -10,6 +10,10 @@
     text-align: center;
     transition: all 0.3s ease-in-out;
 
+    .sortable {
+        cursor: pointer;
+    }
+
     @media (max-width: 1024px) {
         max-width: 95%;
         padding: 18px;
@@ -47,7 +51,7 @@
 .headerRow,
 .itemRow {
     display: grid;
-    grid-template-columns: 2fr 3fr 2fr 2fr 2fr;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     align-items: center;
     text-align: center;
     gap: 16px;
@@ -96,7 +100,7 @@
 // Input & Textarea
 input[type='text'],
 textarea {
-    width: 90%;
+    width: 100%;
     padding: 8px;
     font-size: 16px;
     border: 1px solid #ccc;
@@ -191,5 +195,12 @@ textarea {
         &:hover:not(:disabled) {
             background-color: #0056b3;
         }
+    }
+}
+
+@media (max-width: 768px) {
+    .headerRow,
+    .itemRow {
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
     }
 }

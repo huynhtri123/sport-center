@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Modal } from 'antd';
 import notificationApi from '../../../services/api/notification/notificationApi';
 import styles from '../../../assets/css/Admin/notificationList.module.scss';
 
@@ -10,6 +11,9 @@ export default function NotificationList({ refresh }) {
     const [totalPages, setTotalPages] = useState(1);
     const [editMode, setEditMode] = useState(null);
     const [editData, setEditData] = useState({ title: '', content: '' });
+
+    const [sortCreatedAt, setSortCreatedAt] = useState('asc');
+    const [sortUpdatedAt, setSortUpdatedAt] = useState('asc');
 
     useEffect(() => {
         fetchNotifications();
@@ -28,14 +32,21 @@ export default function NotificationList({ refresh }) {
         setLoading(false);
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this notification?')) return;
-        try {
-            await notificationApi.softDelete(id);
-            fetchNotifications();
-        } catch (error) {
-            console.error('Delete failed:', error);
-        }
+    const handleDelete = (id) => {
+        Modal.confirm({
+            title: 'Confirm Deletion',
+            content: 'Are you sure you want to delete this notification?',
+            okText: 'Yes, Delete',
+            cancelText: 'Cancel',
+            onOk: async () => {
+                try {
+                    await notificationApi.softDelete(id);
+                    fetchNotifications();
+                } catch (error) {
+                    console.error('Delete failed:', error);
+                }
+            },
+        });
     };
 
     const handleEdit = (noti) => {
@@ -53,6 +64,33 @@ export default function NotificationList({ refresh }) {
         }
     };
 
+    const handleSortCreatedAt = () => {
+        setSortCreatedAt((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+        setSortUpdatedAt(null); // Không ảnh hưởng đến updatedAt
+    };
+
+    const handleSortUpdatedAt = () => {
+        setSortUpdatedAt((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+        setSortCreatedAt(null); // Không ảnh hưởng đến createdAt
+    };
+
+    const sortedNotifications = [...notifications].sort((a, b) => {
+        const dateA = new Date(a.createdAt);
+        const dateB = new Date(b.createdAt);
+        const updateA = new Date(a.updatedAt);
+        const updateB = new Date(b.updatedAt);
+
+        if (sortCreatedAt) {
+            return sortCreatedAt === 'asc' ? dateA - dateB : dateB - dateA;
+        }
+
+        if (sortUpdatedAt) {
+            return sortUpdatedAt === 'asc' ? updateA - updateB : updateB - updateA;
+        }
+
+        return 0;
+    });
+
     return (
         <div className={styles.container}>
             <h2 className={styles.title}>All Notifications</h2>
@@ -64,14 +102,28 @@ export default function NotificationList({ refresh }) {
                     <div className={styles.headerRow}>
                         <span>Title</span>
                         <span>Content</span>
-                        <span>Created At</span>
-                        <span>Updated At</span>
+                        <span onClick={handleSortCreatedAt} className={styles.sortable}>
+                            Created At{' '}
+                            {sortCreatedAt === 'asc' ? (
+                                <i className='fa-solid fa-arrow-up-short-wide ms-2'></i>
+                            ) : (
+                                <i className='fa-solid fa-arrow-down-short-wide ms-2'></i>
+                            )}
+                        </span>
+                        <span onClick={handleSortUpdatedAt} className={styles.sortable}>
+                            Updated At{' '}
+                            {sortUpdatedAt === 'asc' ? (
+                                <i className='fa-solid fa-arrow-up-short-wide ms-2'></i>
+                            ) : (
+                                <i className='fa-solid fa-arrow-down-short-wide ms-2'></i>
+                            )}
+                        </span>
                         <span>Actions</span>
                     </div>
 
                     <ul className={styles.list}>
-                        {notifications.length > 0 ? (
-                            notifications.map((noti) => (
+                        {sortedNotifications.length > 0 ? (
+                            sortedNotifications.map((noti) => (
                                 <li key={noti.id} className={styles.itemRow}>
                                     {editMode === noti.id ? (
                                         <>
