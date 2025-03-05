@@ -1,5 +1,8 @@
+/* eslint-disable no-unused-vars */
 import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Button } from 'antd';
+import { motion } from 'framer-motion';
 import CourseContext from '../../contexts/Course/CourseContext';
 import courseApi from '../../services/api/courseApi';
 import sportApi from '../../services/api/sportApi';
@@ -9,20 +12,19 @@ import formatCurrency from '../../utils/formatCurrency';
 function CourseList() {
     const [courses, setCourses] = useContext(CourseContext);
     const [filteredCourses, setFilteredCourses] = useState([]);
-    const [filter, setFilter] = useState('All'); // Now filter will store sportId
+    const [filter, setFilter] = useState('All');
     const [sports, setSports] = useState([]);
 
-    const fetchSports = async () => {
-        try {
-            const sportsResponse = await sportApi.getAllActive(0, 100);
-            setSports(sportsResponse.data.content);
-        } catch (error) {
-            console.error('Error fetching sports:', error);
-        }
-    };
-
-    // Fetch danh sách courses
     useEffect(() => {
+        const fetchSports = async () => {
+            try {
+                const sportsResponse = await sportApi.getAllActive(0, 100);
+                setSports(sportsResponse.data.content);
+            } catch (error) {
+                console.error('Error fetching sports:', error);
+            }
+        };
+
         const fetchCourses = async () => {
             try {
                 const response = await courseApi.getAllActive(0, 100);
@@ -34,78 +36,59 @@ function CourseList() {
         };
 
         fetchCourses();
-        fetchSports(); // Gọi fetchSports khi component mount
+        fetchSports();
     }, [setCourses]);
 
-    // Update filtered courses khi thay đổi bộ lọc
     useEffect(() => {
-        // console.log(courses[0]);
-        if (filter === 'All') {
-            setFilteredCourses(courses);
-        } else {
-            setFilteredCourses(courses.filter((course) => course.sportId === filter));
-        }
+        setFilteredCourses(filter === 'All' ? courses : courses.filter((course) => course.sportId === filter));
     }, [filter, courses]);
-
-    const handleFilterChange = (selectedSportId) => {
-        setFilter(selectedSportId);
-    };
 
     return (
         <div className={styles.container}>
-            {/* Banner Section */}
-            <div className={styles.banner}>
-                <div className={styles.bannerOverlay}></div>
-                <h1>Unlock Your Potential</h1>
-                <p>Start your learning journey with our variety of courses today.</p>
-            </div>
-
-            {/* Filter Section */}
-            <div className={styles.filterSection}>
-                <div className={styles.filterButtons}>
-                    {/* Nút "All" luôn hiển thị */}
-                    <button
-                        className={filter === 'All' ? 'active' : ''}
-                        onClick={() => handleFilterChange('All')}
-                        aria-pressed={filter === 'All'}
-                    >
-                        All
-                    </button>
-                    {/* Render danh sách sport từ API */}
-                    {sports.map((sport) => (
-                        <button
-                            key={sport.id}
-                            className={filter === sport.id ? 'active' : ''} // Use sport.id
-                            onClick={() => handleFilterChange(sport.id)} // Pass sport.id
-                            aria-pressed={filter === sport.id}
-                        >
-                            {sport.sportName}
-                        </button>
-                    ))}
+            <section className={styles.banner}>
+                <div className={styles.bannerContent}>
+                    <h1>Discover Your Passion for Sports</h1>
+                    <p>Find the best courses to enhance your skills.</p>
                 </div>
+            </section>
+
+            <div className={styles.filterContainer}>
+                <Button
+                    className={`${styles.btnFilter} ${filter === 'All' ? styles.active : ''}`}
+                    onClick={() => setFilter('All')}
+                >
+                    All
+                </Button>
+
+                {sports.map((sport) => (
+                    <Button
+                        key={sport.id}
+                        className={`${styles.btnFilter} ${filter === sport.id ? styles.active : ''}`}
+                        onClick={() => setFilter(sport.id)}
+                    >
+                        {sport.sportName}
+                    </Button>
+                ))}
             </div>
 
-            {/* Course List Section */}
-            <ul className={styles.courseList}>
-                {filteredCourses.map((course) => (
-                    <li key={course.id} className={styles.courseItem}>
-                        <Link to={`/courses/${course.id}`} className={styles.courseLink}>
-                            <div className={styles.card}>
-                                <div className={styles.imageContainer}>
-                                    <img src={course.imageUrl} alt={course.courseName} className={styles.courseImage} />
-                                </div>
-                                <div className={styles.courseInfo}>
+            <motion.ul className={styles.courseGrid} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                {filteredCourses.length > 0 ? (
+                    filteredCourses.map((course) => (
+                        <motion.li key={course.id} className={styles.courseCard} whileHover={{ scale: 1.05 }}>
+                            <Link to={`/courses/${course.id}`}>
+                                <img src={course.imageUrl} alt={course.courseName} className={styles.courseImage} />
+                                <div className={styles.courseDetails}>
                                     <h3>{course.courseName}</h3>
-                                    <p>
-                                        <strong>Tuition:</strong> {formatCurrency(course.tuition)}
-                                    </p>
-                                    <p>{course.description}</p>
+                                    {/* <p>{formatCurrency(course.tuition)}</p> */}
+                                    <p className={styles.courseDescription}>{course.description}</p>
                                 </div>
-                            </div>
-                        </Link>
-                    </li>
-                ))}
-            </ul>
+                            </Link>
+                        </motion.li>
+                    ))
+                ) : (
+                    <p className={styles.noCourses}>No courses available for this sport.</p>
+                )}
+            </motion.ul>
         </div>
     );
 }
