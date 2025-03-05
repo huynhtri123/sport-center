@@ -12,19 +12,52 @@ import { connectWebSocket, disconnectWebSocket } from '../../services/websocket/
 
 function ManageBookings() {
     const [bookings, setBookings] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
     const [canceledBookingIds, setCanceledBookingIds] = useState([]);
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [bookingToCancel, setBookingToCancel] = useState(null); // Store the booking to be canceled
     const [recurringBooking, setRecurringBooking] = useState({});
-    const [isCancelRecurringModalOpen, setIsCancelRecurringModalOpen] = useState(false);
     const [remainingAmout, setRemainingAmount] = useState(0);
 
-    const [searchQuery, setSearchQuery] = useState(''); // State for the search query
+    const [isLoading, setIsLoading] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isCancelRecurringModalOpen, setIsCancelRecurringModalOpen] = useState(false);
+
+    // State for the search query
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchQueryUserFullName, setSearchQueryUserFullName] = useState('');
+
     const [currentPage, setCurrentPage] = useState(0);
     const [pageSize, setPageSize] = useState(5); // Set page size to 5
     const [totalPages, setTotalPages] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
+
+    const [sortOrder, setSortOrder] = useState('asc'); // Mặc định là tăng dần
+    const [sortOrderTime, setSortOrderTime] = useState('asc'); // Mặc định sắp xếp tăng dần
+    const handleSortByDate = () => {
+        const newSortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+        setSortOrder(newSortOrder);
+
+        const sortedBookings = [...bookings].sort((a, b) => {
+            const dateA = new Date(a.bookingDate);
+            const dateB = new Date(b.bookingDate);
+
+            return newSortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+        });
+
+        setBookings(sortedBookings);
+    };
+    const handleSortByTimeRange = () => {
+        const newSortOrder = sortOrderTime === 'asc' ? 'desc' : 'asc';
+        setSortOrderTime(newSortOrder);
+
+        const sortedBookings = [...bookings].sort((a, b) => {
+            const timeA = new Date(a.startTime);
+            const timeB = new Date(b.startTime);
+
+            return newSortOrder === 'asc' ? timeA - timeB : timeB - timeA;
+        });
+
+        setBookings(sortedBookings);
+    };
 
     const toggleCancelRecurringModalOpen = async (bookingId) => {
         if (!isCancelRecurringModalOpen) {
@@ -144,8 +177,10 @@ function ManageBookings() {
     // Filter bookings based on canceledBookingIds and searchQuery
     const filteredBookings = bookings.filter((booking) => {
         const matchesCancellation = !canceledBookingIds.includes(booking.id);
-        const matchesSearch = booking.fieldResponse?.fieldName.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesCancellation && matchesSearch;
+        const matchesFieldName = booking.fieldResponse?.fieldName.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesUserFullName = booking.userFullName?.toLowerCase().includes(searchQueryUserFullName.toLowerCase());
+
+        return matchesCancellation && matchesFieldName && matchesUserFullName;
     });
 
     useEffect(() => {
@@ -168,7 +203,15 @@ function ManageBookings() {
                     onChange={handleSearchChange}
                     className={styles.searchInput}
                 />
+                <input
+                    type='text'
+                    placeholder='Search by customer name...'
+                    value={searchQueryUserFullName}
+                    onChange={(e) => setSearchQueryUserFullName(e.target.value)}
+                    className={styles.searchInput}
+                />
             </div>
+
             <table className={`mt-4 ${styles.bookingsTable}`}>
                 <thead>
                     <tr>
@@ -176,8 +219,22 @@ function ManageBookings() {
                         <th>Booking ID</th>
                         <th>Field Name</th>
                         <th>Customer Info</th> {/* Gộp thành cột mới */}
-                        <th>Booking Date</th>
-                        <th>Time Range</th>
+                        <th onClick={handleSortByDate} style={{ cursor: 'pointer' }}>
+                            Booking Date{' '}
+                            {sortOrder === 'asc' ? (
+                                <i className='fa-solid fa-arrow-up-short-wide ms-2'></i>
+                            ) : (
+                                <i className='fa-solid fa-arrow-down-short-wide ms-2'></i>
+                            )}
+                        </th>
+                        <th onClick={handleSortByTimeRange} style={{ cursor: 'pointer' }}>
+                            Time Range{' '}
+                            {sortOrderTime === 'asc' ? (
+                                <i className='fa-solid fa-arrow-up-short-wide ms-2'></i>
+                            ) : (
+                                <i className='fa-solid fa-arrow-down-short-wide ms-2'></i>
+                            )}
+                        </th>
                         <th>Duration (h)</th>
                         <th>Total Price</th>
                         <th>Actions</th>
@@ -199,15 +256,17 @@ function ManageBookings() {
                                         <div>{booking.userPhoneNumber || 'N/A'}</div>
                                     </div>
                                 </td>
-                                <td className={styles.startTime}>{new Date(booking.bookingDate).toLocaleString()}</td>
+                                <td className={styles.startTime}>
+                                    {new Date(booking.bookingDate).toLocaleString('vi-VN', { hour12: false })}
+                                </td>
                                 <td>
                                     <div className={styles.timeRange}>
                                         <span className={styles.startTime}>
-                                            {new Date(booking.startTime).toLocaleString()}
+                                            {new Date(booking.startTime).toLocaleString('vi-VN', { hour12: false })}
                                         </span>
                                         <span className={styles.timeSeparator}> - </span>
                                         <span className={styles.endTime}>
-                                            {new Date(booking.endTime).toLocaleString()}
+                                            {new Date(booking.endTime).toLocaleString('vi-VN', { hour12: false })}
                                         </span>
                                     </div>
                                 </td>

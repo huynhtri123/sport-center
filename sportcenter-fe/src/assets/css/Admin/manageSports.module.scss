@@ -18,8 +18,15 @@
 
         th,
         td {
-            padding: 12px;
+            padding: 8px;
+            margin: 4px;
+            text-align: center;
             border: 1px solid #ddd;
+        }
+
+        th:nth-child(3),
+        td:nth-child(3) {
+            text-align: left;
         }
 
         th {
@@ -33,10 +40,17 @@
 
         .sportImage {
             width: 80px;
-            height: 50px;
+            height: 60px;
             object-fit: cover;
             border-radius: 4px;
             border: 2px solid $blue-prime;
+        }
+
+        /* Responsive bảng trên màn hình nhỏ */
+        @media (max-width: 768px) {
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
         }
     }
 
@@ -70,7 +84,9 @@
 
     .addButton {
         display: block;
-        margin: 1rem 0;
+        width: 100%;
+        max-width: 200px;
+        margin: 1rem auto;
         padding: 0.5rem 1rem;
         background-color: #007bff;
         color: white;
@@ -78,25 +94,19 @@
         border-radius: 5px;
         cursor: pointer;
         font-size: 16px;
-        font-family: 'Cera Round Pro Bold', Times, serif;
+        text-align: center;
 
         &:hover {
             background-color: #0f6ed4;
         }
     }
 
-    .buttonContainer {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-        gap: 10px;
-    }
-
     .editButton,
     .deleteButton {
-        width: 100px;
-        margin: 8px 8px;
-        padding: 6px 12px;
+        width: auto;
+        min-width: 80px;
+        margin: 4px;
+        padding: 6px 10px;
         border: none;
         border-radius: 4px;
         font-size: 0.875rem;
@@ -149,25 +159,6 @@
         gap: 10px;
     }
 
-    .pagination button {
-        padding: 10px 15px;
-        border: none;
-        border-radius: 5px;
-        background-color: #007bff;
-        color: white;
-        cursor: pointer;
-        transition: background-color 0.3s;
-
-        &:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
-        &:hover:not(:disabled) {
-            background-color: #0056b3;
-        }
-    }
-
     .fileInputContainer {
         display: flex;
         align-items: center;
@@ -199,100 +190,34 @@
             font-weight: bold;
         }
     }
-}
 
-/* 🌟 Responsive Design */
-@media (max-width: 1024px) {
-    .manageSports {
-        padding: 15px;
-    }
-
-    .sportsTable {
-
-        th,
-        td {
-            padding: 10px;
+    /* Responsive cho màn hình nhỏ */
+    @media (max-width: 768px) {
+        .sportsTable {
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
         }
 
-        .sportImage {
-            width: 60px;
-            height: 40px;
+        .addButton {
+            width: 100%;
         }
-    }
-}
 
-@media (max-width: 768px) {
-    .sportsTable {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
-    }
-
-    .formContainer {
-        padding: 15px;
-    }
-
-    .searchContainer {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .searchInput {
-        max-width: 100%;
-    }
-
-    .pagination {
-        flex-direction: column;
-        gap: 5px;
-    }
-
-    .buttonContainer {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .editButton,
-    .deleteButton {
-        width: 80px;
-        font-size: 14px;
-    }
-}
-
-@media (max-width: 480px) {
-    .manageSports {
-        padding: 10px;
-    }
-
-    .sportsTable {
-
-        th,
-        td {
-            padding: 8px;
+        .editButton,
+        .deleteButton {
+            width: 100%;
+            max-width: 120px;
             font-size: 14px;
+            padding: 5px;
         }
 
-        .sportImage {
-            width: 50px;
-            height: 35px;
+        .formContainer {
+            padding: 15px;
         }
-    }
 
-    .formContainer {
-        padding: 10px;
-    }
-
-    .addButton {
-        width: 100%;
-        text-align: center;
-    }
-
-    .buttonContainer {
-        flex-direction: column;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .pagination {
-        flex-direction: column;
+        .searchContainer {
+            flex-direction: column;
+            align-items: center;
+        }
     }
 }

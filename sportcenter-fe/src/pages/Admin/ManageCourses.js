@@ -1,468 +1,355 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
-import styles from '../../assets/css/Admin/manageCourses.module.scss';
+import { Table, Button, Modal, Form, Input, Select, Pagination, message } from 'antd';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 import courseApi from '../../services/api/courseApi';
-import sportApi from '../../services/api/sportApi'; // Import sport API
-import { Loading } from '../../components/Loading/Loading';
-import ConfirmModal from '../../components/Modal/ConfirmModal';
+import sportApi from '../../services/api/sportApi';
+import styles from '../../assets/css/Admin/manageCourses.module.scss';
+
+const { confirm } = Modal;
 
 function ManageCourses() {
     const [courses, setCourses] = useState([]);
-    const [newCourse, setNewCourse] = useState({
-        courseName: '',
-        description: '',
-        tuition: 0,
-        imageUrl: '',
-        sportId: '', // Added field for selected sport
-        lessons: [],
-    });
+    const [sports, setSports] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [form] = Form.useForm();
     const [editingCourse, setEditingCourse] = useState(null);
-    const [lessonCount, setLessonCount] = useState(0);
-    const [isFormVisible, setIsFormVisible] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [sports, setSports] = useState([]); // To store list of sports
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const toggleDeleteModal = () => {
-        setIsDeleteModalOpen(!isDeleteModalOpen);
-    };
-
-    // Define LevelLesson Enum for lesson levels
-    const LevelLesson = {
-        BEGINNER: 'BEGINNER',
-        INTERMEDIATE: 'INTERMEDIATE',
-        ADVANCED: 'ADVANCED',
-        EXPERT: 'EXPERT',
-    };
-
-    // Pagination state
-    const [currentPage, setCurrentPage] = useState(0);
-    const [pageSize, setPageSize] = useState(5); // Set page size to 5
-    const [totalPages, setTotalPages] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(5);
     const [totalElements, setTotalElements] = useState(0);
-    const [isLoading, setIsLoading] = useState(false);
+
+    const lessonLevels = [
+        { label: 'Beginner', value: 'BEGINNER' },
+        { label: 'Intermediate', value: 'INTERMEDIATE' },
+        { label: 'Advanced', value: 'ADVANCED' },
+        { label: 'Expert', value: 'EXPERT' },
+    ];
 
     useEffect(() => {
         fetchCourses();
-        fetchSports(); // Fetch sports on component mount
+        fetchSports();
     }, [currentPage, pageSize, searchQuery]);
 
-    // Fetch courses
     const fetchCourses = useCallback(async () => {
-        setIsLoading(true);
+        setLoading(true);
         try {
-            const response = await courseApi.getAllActive(currentPage, pageSize);
-            setCourses(response.data.content);
-            setTotalPages(response.data.totalPages);
+            const response = await courseApi.getAllActive(currentPage - 1, pageSize);
+            let filteredCourses = response.data.content;
+
+            if (searchQuery) {
+                filteredCourses = filteredCourses.filter((course) =>
+                    course.courseName.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+            }
+
+            setCourses(filteredCourses);
             setTotalElements(response.data.totalElements);
         } catch (error) {
             console.error('Failed to fetch courses:', error);
         } finally {
-            setIsLoading(false);
+            setLoading(false);
         }
-    }, [currentPage, pageSize]);
+    }, [currentPage, pageSize, searchQuery]);
 
-    // Fetch sports list
     const fetchSports = async () => {
         try {
-            const response = await sportApi.getAllActive(0, 100); // Assume this API fetches all sports
+            const response = await sportApi.getAllActive(0, 100);
             setSports(response.data.content);
         } catch (error) {
             console.error('Failed to fetch sports:', error);
-            toast.error('Failed to fetch sports. Please try again.');
+            message.error('Failed to fetch sports. Please try again.');
         }
     };
 
-    const handleSearch = async (e) => {
-        const value = e.target.value;
-        setSearchQuery(value);
-        setCurrentPage(0); // Reset to the first page when searching
-        try {
-            const response = await courseApi.searchByNameAndPaginate(value, 0, pageSize);
-            setCourses(response.data.content);
-            setTotalPages(response.data.totalPages);
-            setTotalElements(response.data.totalElements);
-        } catch (error) {
-            console.error('Failed to search courses:', error);
-        }
+    const handleSearch = (e) => {
+        setSearchQuery(e.target.value);
+        setCurrentPage(1);
     };
 
-    const handleAddCourse = async () => {
-        // Validate the form before submitting
-        if (!validateForm()) return; // Stop submission if validation fails
-
-        // Ensure tuition is not negative before adding the course
-        if (newCourse.tuition < 0) {
-            toast.warn('Tuition must be greater than or equal to 0!');
-            return;
-        }
-
-        try {
-            const response = await courseApi.create(newCourse);
-            setCourses([...courses, response.data]);
-            toast.success('Course added successfully!');
-            resetForm();
-            fetchCourses(); // Refresh the course list
-        } catch (error) {
-            console.error('Failed to add course:', error);
-        }
+    const showAddModal = () => {
+        setEditingCourse(null);
+        form.resetFields();
+        setIsModalVisible(true);
     };
 
-    const validateForm = () => {
-        // Check if courseName is filled
-        if (!newCourse.courseName) {
-            toast.warn('Please enter the course name!');
-            return false;
-        }
-
-        // Check if description is filled
-        if (!newCourse.description) {
-            toast.warn('Please enter the course description!');
-            return false;
-        }
-
-        // Check if tuition is valid
-        if (newCourse.tuition === '' || newCourse.tuition < 0) {
-            toast.warn('Please enter a valid tuition fee (greater than or equal to 0)!');
-            return false;
-        }
-
-        // Check if imageUrl is filled
-        if (!newCourse.imageUrl) {
-            toast.warn('Please provide an image URL!');
-            return false;
-        }
-
-        // Check if sportId is selected
-        if (!newCourse.sportId) {
-            toast.warn('Please select a sport!');
-            return false;
-        }
-
-        // Check if lessons are added
-        if (newCourse.lessons.length < 0) {
-            toast.warn('Please enter a valid number of lessons!');
-            return false;
-        }
-
-        // Check if all lessons have valid details
-        for (const [index, lesson] of newCourse.lessons.entries()) {
-            if (!lesson.lessonName) {
-                toast.warn(`Please enter the name for lesson ${index + 1}!`);
-                return false;
-            }
-            if (!lesson.description) {
-                toast.warn(`Please enter the description for lesson ${index + 1}!`);
-                return false;
-            }
-            if (!lesson.levelLesson) {
-                toast.warn(`Please select a level for lesson ${index + 1}!`);
-                return false;
-            }
-            if (!lesson.videoId || lesson.videoId.trim() === '') {
-                // Check if videoId is not empty or just whitespace
-                toast.warn(`Please provide a video ID for lesson ${index + 1}!`);
-                return false;
-            }
-        }
-
-        return true;
-    };
-
-    const handleEditCourse = (course) => {
+    const showEditModal = (course) => {
         setEditingCourse(course);
-        setNewCourse({
-            courseName: course.courseName,
-            description: course.description,
-            tuition: course.tuition,
-            imageUrl: course.imageUrl,
-            sportId: course.sportId || '', // Make sure to set sportId
-            lessons: course.lessons || [],
-        });
-        setLessonCount(course.lessons ? course.lessons.length : 0);
-        setIsFormVisible(true);
+        form.setFieldsValue({ ...course });
+        setIsModalVisible(true);
     };
-
-    const handleUpdateCourse = async () => {
-        // Validate the form before submitting
-        if (!validateForm()) return; // Stop submission if validation fails
-
-        // Ensure tuition is not negative before updating the course
-        if (newCourse.tuition < 0) {
-            toast.warn('Tuition must be greater than or equal to 0!');
-            return;
-        }
-
-        try {
-            const response = await courseApi.update(editingCourse.id, newCourse);
-            setCourses(courses.map((course) => (course.id === editingCourse.id ? response.data : course)));
-            toast.success('Course updated successfully!');
-            resetForm();
-            fetchCourses(); // Refresh the course list
-        } catch (error) {
-            console.error('Failed to update course:', error);
-            toast.error('Failed to update course. Please try again.');
-        }
-    };
-
-    const [courseToDelete, setCourseToDelete] = useState(null); // ID course cần xóa
 
     const handleDeleteCourse = async (courseId) => {
+        confirm({
+            title: 'Are you sure you want to delete this course?',
+            icon: <ExclamationCircleOutlined />,
+            onOk: async () => {
+                try {
+                    await courseApi.softDelete(courseId);
+                    setCourses(courses.filter((course) => course.id !== courseId));
+                    message.success('Course deleted successfully!');
+                    fetchCourses();
+                } catch (error) {
+                    console.error('Failed to delete course:', error);
+                    message.error('Failed to delete course. Please try again.');
+                }
+            },
+        });
+    };
+
+    const handleSubmit = async () => {
         try {
-            await courseApi.softDelete(courseId);
-            setCourses(courses.filter((course) => course.id !== courseId));
-            toast.success('Course deleted successfully!');
-            fetchCourses(); // Refresh the course list
+            const values = await form.validateFields();
+            const updatedLessons = values.lessons.map((lesson, index) => ({
+                ...lesson,
+                id: lesson.id || `temp-${index}`, // Nếu là bài học mới, gán ID tạm thời
+                level: lesson.level || 'BEGINNER', // Đảm bảo level luôn có giá trị
+            }));
+
+            const courseData = {
+                ...values,
+                lessons: updatedLessons,
+            };
+
+            if (editingCourse) {
+                await courseApi.update(editingCourse.id, courseData);
+                message.success('Course updated successfully!');
+            } else {
+                await courseApi.create(courseData);
+                message.success('Course added successfully!');
+            }
+            setIsModalVisible(false);
+            fetchCourses();
         } catch (error) {
-            console.error('Failed to delete course:', error);
-            toast.error('Failed to delete course. Please try again.');
+            console.error('Failed to save course:', error);
+            message.error('Failed to save course. Please try again.');
         }
     };
 
-    const resetForm = () => {
-        setNewCourse({ courseName: '', description: '', tuition: '', imageUrl: '', sportId: '', lessons: [] });
-        setLessonCount(0);
-        setEditingCourse(null);
-        setIsFormVisible(false);
-    };
-
-    // Filter courses based on search query
-    const filteredCourses = courses.filter((course) =>
-        course.courseName.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-    const handleLessonChange = (index, field, value) => {
-        const updatedLessons = [...newCourse.lessons];
-        updatedLessons[index] = { ...updatedLessons[index], [field]: value };
-        setNewCourse({ ...newCourse, lessons: updatedLessons });
-    };
-
-    const handleAddLessonFields = () => {
-        const lessons = [];
-        for (let i = 0; i < lessonCount; i++) {
-            lessons.push({
-                lessonName: '',
-                description: '',
-                levelLesson: '', // Initialize empty value for levelLesson
-                videoId: '',
-            });
-        }
-        setNewCourse({ ...newCourse, lessons });
-    };
+    const columns = [
+        {
+            title: 'Image',
+            dataIndex: 'imageUrl',
+            key: 'imageUrl',
+            className: styles.rowTable,
+            render: (url) => <img src={url} alt='Course' style={{ width: 80, height: 80, objectFit: 'cover' }} />,
+        },
+        {
+            title: 'Course Name',
+            dataIndex: 'courseName',
+            key: 'courseName',
+            className: styles.rowTable,
+            sorter: (a, b) => a.courseName.localeCompare(b.courseName),
+        },
+        {
+            title: 'Description',
+            dataIndex: 'description',
+            key: 'description',
+            className: styles.rowTable,
+        },
+        {
+            title: 'Tuition',
+            dataIndex: 'tuition',
+            key: 'tuition',
+            className: styles.rowTable,
+            sorter: (a, b) => a.tuition - b.tuition,
+        },
+        {
+            title: 'Sport',
+            dataIndex: 'sportId',
+            key: 'sportId',
+            className: styles.rowTable,
+            filters: sports.map((sport) => ({ text: sport.sportName, value: sport.id })),
+            onFilter: (value, record) => record.sportId === value,
+            render: (id) => <span>{sports.find((sport) => sport.id === id)?.sportName || 'N/A'}</span>,
+        },
+        {
+            title: 'Actions',
+            key: 'actions',
+            className: styles.rowTable,
+            render: (_, record) => (
+                <>
+                    <Button className={styles.editButton} type='link' onClick={() => showEditModal(record)}>
+                        Edit
+                    </Button>
+                    <Button
+                        className={styles.deleteButton}
+                        type='link'
+                        danger
+                        onClick={() => handleDeleteCourse(record.id)}
+                    >
+                        Delete
+                    </Button>
+                </>
+            ),
+        },
+    ];
 
     return (
-        <div className={styles.manageCourses}>
-            {isLoading && <Loading />}
+        <div className={styles.container}>
+            {/* Search & Add New Course */}
+            <Input
+                className={styles.searchBar}
+                placeholder='Search courses...'
+                value={searchQuery}
+                onChange={handleSearch}
+            />
+            <Button className={styles.addButton} type='primary' onClick={showAddModal}>
+                Add New Course
+            </Button>
 
-            <div className={styles.searchContainer}>
-                <input
-                    type='text'
-                    placeholder='Search by course name...'
-                    value={searchQuery}
-                    onChange={handleSearch}
-                    className={styles.searchInput}
-                />
-            </div>
-
-            <button
-                className={`btn ${styles.addButton}`}
-                onClick={() => {
-                    if (isFormVisible) {
-                        resetForm(); // Đóng form và reset trạng thái
-                    } else {
-                        resetForm(); // Đảm bảo reset trước khi mở form
-                        setIsFormVisible(true); // Mở form
-                    }
+            {/* Table */}
+            <Table
+                className={styles.courseTable}
+                dataSource={courses}
+                columns={columns}
+                rowKey='id'
+                loading={loading}
+                pagination={false}
+            />
+            <Pagination
+                className={styles.pagination}
+                current={currentPage}
+                total={totalElements}
+                pageSize={pageSize}
+                showSizeChanger={false}
+                onChange={(page, size) => {
+                    setCurrentPage(page);
+                    setPageSize(size);
                 }}
+            />
+
+            <Modal
+                className={styles.modal}
+                title={editingCourse ? 'Edit Course' : 'Add Course'}
+                visible={isModalVisible}
+                onOk={handleSubmit}
+                onCancel={() => setIsModalVisible(false)}
+                width={1000}
+                style={{ top: 40 }}
             >
-                {isFormVisible ? 'Cancel' : 'Add New Course'}
-            </button>
-
-            {filteredCourses.length === 0 ? (
-                <p>No courses available.</p>
-            ) : (
-                <table className={styles.coursesTable}>
-                    <thead>
-                        <tr>
-                            <th>STT</th>
-                            <th>Course Name</th>
-                            <th>Description</th>
-                            <th>Image</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredCourses.map((course, index) => (
-                            <tr key={course.id}>
-                                <td>{index + 1 + currentPage * pageSize}</td>
-                                <td>{course.courseName}</td>
-                                <td>{course.description}</td>
-                                <td>
-                                    <img src={course.imageUrl} alt={course.courseName} className={styles.courseImage} />
-                                </td>
-                                <td>
-                                    <button
-                                        className={`btn ${styles.editButton}`}
-                                        onClick={() => handleEditCourse(course)}
-                                    >
-                                        Edit
-                                    </button>
-                                    <button
-                                        className={`btn ${styles.deleteButton}`}
-                                        onClick={() => {
-                                            setCourseToDelete(course.id); // Lưu course ID
-                                            toggleDeleteModal(); // Mở modal
-                                        }}
-                                    >
-                                        Delete
-                                    </button>
-                                    <ConfirmModal
-                                        title='Are you sure you want to delete this course?'
-                                        isOpen={isDeleteModalOpen}
-                                        onClose={() => {
-                                            toggleDeleteModal(); // Đóng modal
-                                            setCourseToDelete(null); // Xóa trạng thái course cần xóa
-                                        }}
-                                        onSubmit={() => {
-                                            if (courseToDelete) {
-                                                handleDeleteCourse(courseToDelete); // Thực hiện xóa
-                                                toggleDeleteModal(); // Đóng modal
-                                                setCourseToDelete(null); // Xóa trạng thái course cần xóa
-                                            }
-                                        }}
-                                    />
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            )}
-
-            {isFormVisible && (
-                <div className={styles.formContainer}>
-                    <h3>{editingCourse ? 'Edit Course' : 'Add New Course'}</h3>
-                    <input
-                        type='text'
-                        placeholder='Course Name'
-                        value={newCourse.courseName}
-                        onChange={(e) => setNewCourse({ ...newCourse, courseName: e.target.value })}
-                    />
-                    <input
-                        type='text'
-                        placeholder='Description'
-                        value={newCourse.description}
-                        onChange={(e) => setNewCourse({ ...newCourse, description: e.target.value })}
-                    />
-                    <label htmlFor='tuition'>Tuition:</label>
-                    <input
+                <Form form={form} layout='vertical'>
+                    <Form.Item
+                        name='courseName'
+                        label='Course Name'
+                        rules={[{ required: true, message: 'Please enter the course name!' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        name='description'
+                        label='Description'
+                        rules={[{ required: true, message: 'Please enter the course description!' }]}
+                    >
+                        <Input.TextArea />
+                    </Form.Item>
+                    <Form.Item
                         name='tuition'
-                        type='number'
-                        placeholder='Tuition'
-                        value={newCourse.tuition || 0} // Ensure default value is 0
-                        onChange={(e) => {
-                            const value = parseFloat(e.target.value);
-                            // Ensure the value is between 0 and 100 million and not empty
-                            if (!isNaN(value) && value >= 0 && value <= 100000000) {
-                                setNewCourse({ ...newCourse, tuition: value });
-                            } else if (e.target.value === '') {
-                                // Prevent input from becoming empty
-                                setNewCourse({ ...newCourse, tuition: 0 });
-                            }
-                        }}
-                        min='0'
-                        max='100000000' // Giới hạn tối đa là 100 triệu
-                        step='any' // Cho phép nhập số thập phân
-                    />
-
-                    <input
-                        type='text'
-                        placeholder='Image URL'
-                        value={newCourse.imageUrl}
-                        onChange={(e) => setNewCourse({ ...newCourse, imageUrl: e.target.value })}
-                    />
-
-                    {/* Select Sport */}
-                    <select
-                        value={newCourse.sportId}
-                        onChange={(e) => setNewCourse({ ...newCourse, sportId: e.target.value })}
+                        label='Tuition'
+                        rules={[{ required: true, message: 'Please enter a valid tuition fee!' }]}
                     >
-                        <option value=''>Select Sport</option>
-                        {sports.map((sport) => (
-                            <option key={sport.id} value={sport.id}>
-                                {sport.sportName}
-                            </option>
-                        ))}
-                    </select>
+                        <Input type='number' min={0} step={1000} />
+                    </Form.Item>
 
-                    <div className={styles.inputGroup}>
-                        <label htmlFor='lessonCount'>Number of Lessons</label>
-                        <input
-                            type='number'
-                            placeholder='Number of Lessons'
-                            value={lessonCount}
-                            onChange={(e) => setLessonCount(Math.min(Number(e.target.value), 20))} // Giới hạn tối đa là 20
-                            onBlur={handleAddLessonFields}
-                            min={0}
-                            max={20} // Giới hạn tối đa là 20
-                        />
-                    </div>
-
-                    {newCourse.lessons.map((lesson, index) => (
-                        <div key={index} className={styles.lessonContainer}>
-                            <h4>{`Lesson ${index + 1}`}</h4>
-                            <input
-                                type='text'
-                                placeholder='Lesson Name'
-                                value={lesson.lessonName}
-                                onChange={(e) => handleLessonChange(index, 'lessonName', e.target.value)}
-                            />
-                            <input
-                                type='text'
-                                placeholder='Description'
-                                value={lesson.description}
-                                onChange={(e) => handleLessonChange(index, 'description', e.target.value)}
-                            />
-
-                            {/* Level select */}
-                            <select
-                                value={lesson.levelLesson}
-                                onChange={(e) => handleLessonChange(index, 'levelLesson', e.target.value)}
-                            >
-                                <option value=''>Select Level</option>
-                                <option value={LevelLesson.BEGINNER}>Beginner</option>
-                                <option value={LevelLesson.INTERMEDIATE}>Intermediate</option>
-                                <option value={LevelLesson.ADVANCED}>Advanced</option>
-                                <option value={LevelLesson.EXPERT}>Expert</option>
-                            </select>
-
-                            <input
-                                type='text'
-                                placeholder='Video ID'
-                                value={lesson.videoId}
-                                onChange={(e) => handleLessonChange(index, 'videoId', e.target.value)}
-                            />
-                        </div>
-                    ))}
-
-                    <button
-                        className={`btn ${styles.addButton}`}
-                        onClick={editingCourse ? handleUpdateCourse : handleAddCourse}
+                    <Form.Item
+                        name='imageUrl'
+                        label='Image URL'
+                        rules={[{ required: true, message: 'Please provide an image URL!' }]}
                     >
-                        {editingCourse ? 'Update Course' : 'Add Course'}
-                    </button>
-                </div>
-            )}
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        name='sportId'
+                        label='Sport'
+                        rules={[{ required: true, message: 'Please select a sport!' }]}
+                    >
+                        <Select>
+                            {sports.map((sport) => (
+                                <Select.Option key={sport.id} value={sport.id}>
+                                    {sport.sportName}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
 
-            <div className={styles.pagination}>
-                <button disabled={currentPage === 0} onClick={() => setCurrentPage(currentPage - 1)}>
-                    Previous
-                </button>
-                <span>{`Page ${currentPage + 1} of ${totalPages}`}</span>
-                <button disabled={currentPage >= totalPages - 1} onClick={() => setCurrentPage(currentPage + 1)}>
-                    Next
-                </button>
-            </div>
+                    {/* Lesson */}
+                    <Form.List name='lessons'>
+                        {(fields, { add, remove }) => (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                {fields.map(({ key, name, ...restField }) => (
+                                    <div key={key} className={styles.lessonCard}>
+                                        <div className={styles.lessonHeader}>
+                                            <h3>Lesson {name + 1}</h3>
+                                            <Button
+                                                className={styles.removeButton}
+                                                type='danger'
+                                                onClick={() => {
+                                                    Modal.confirm({
+                                                        title: 'Are you sure you want to remove this lesson?',
+                                                        icon: <ExclamationCircleOutlined />,
+                                                        content: 'This action cannot be undone.',
+                                                        okText: 'Yes, Remove',
+                                                        cancelText: 'Cancel',
+                                                        onOk: () => remove(name),
+                                                    });
+                                                }}
+                                            >
+                                                Remove
+                                            </Button>
+                                        </div>
+                                        <div className={styles.lessonContent}>
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, 'lessonName']}
+                                                label='Lesson Name'
+                                                rules={[{ required: true, message: 'Please enter lesson name!' }]}
+                                            >
+                                                <Input placeholder='Enter lesson name' />
+                                            </Form.Item>
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, 'description']}
+                                                label='Lesson Description'
+                                                rules={[
+                                                    { required: true, message: 'Please enter lesson description!' },
+                                                ]}
+                                            >
+                                                <Input.TextArea placeholder='Enter lesson description' />
+                                            </Form.Item>
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, 'videoId']}
+                                                label='Video ID'
+                                                rules={[{ required: true, message: 'Please enter video ID!' }]}
+                                            >
+                                                <Input placeholder='Enter video ID' />
+                                            </Form.Item>
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, 'levelLesson']}
+                                                label='Lesson Level'
+                                                rules={[{ required: true, message: 'Please select a lesson level!' }]}
+                                            >
+                                                <Select placeholder='Select level'>
+                                                    {lessonLevels.map((level) => (
+                                                        <Select.Option key={level.value} value={level.value}>
+                                                            {level.label}
+                                                        </Select.Option>
+                                                    ))}
+                                                </Select>
+                                            </Form.Item>
+                                        </div>
+                                    </div>
+                                ))}
+                                <Button className={styles.addButton} type='dashed' onClick={() => add()}>
+                                    + Add Lesson
+                                </Button>
+                            </div>
+                        )}
+                    </Form.List>
+                </Form>
+            </Modal>
         </div>
     );
 }

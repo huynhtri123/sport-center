@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import { Pagination } from 'antd';
 import styles from '../../assets/css/Admin/manageSports.module.scss';
 import sportApi from '../../services/api/sportApi';
 import fileApi from '../../services/api/fileApi';
@@ -22,10 +23,43 @@ function ManageSports() {
     const [isEditing, setIsEditing] = useState(false);
     const [showInputForm, setShowInputForm] = useState(false);
 
+    const [sortOrder, setSortOrder] = useState('asc'); // Mặc định sắp xếp tăng dần
+
+    const handleSortByName = () => {
+        const sortedSports = [...filteredSports].sort((a, b) => {
+            return sortOrder === 'asc'
+                ? a.sportName.localeCompare(b.sportName)
+                : b.sportName.localeCompare(a.sportName);
+        });
+        setSports(sortedSports);
+        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc'); // Đảo ngược trạng thái sắp xếp
+    };
+
     // Pagination state
-    const [currentPage, setCurrentPage] = useState(0);
-    const [pageSize, setPageSize] = useState(5);
-    const [totalPages, setTotalPages] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 5;
+    const [totalItems, setTotalItems] = useState(0);
+
+    const fetchSports = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            const response = await sportApi.getAllActive(currentPage - 1, pageSize);
+            setSports(response.data.content);
+            setTotalItems(response.data.totalElements);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [currentPage]);
+
+    useEffect(() => {
+        fetchSports();
+    }, [fetchSports]);
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
 
     const toggleModalOpen = (sportId = null) => {
         setDeleteSportId(sportId);
@@ -120,23 +154,6 @@ function ManageSports() {
         }
     };
 
-    const fetchSports = useCallback(async () => {
-        try {
-            setIsLoading(true);
-            const response = await sportApi.getAllActive(currentPage, pageSize);
-            setSports(response.data.content);
-            setTotalPages(response.data.totalPages);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [currentPage, pageSize]);
-
-    useEffect(() => {
-        fetchSports();
-    }, [fetchSports]);
-
     const handleSoftDelete = async () => {
         if (!deleteSportId) return;
         try {
@@ -163,9 +180,6 @@ function ManageSports() {
     return (
         <div className={styles.manageSports}>
             {isLoading && <Loading />}
-            <button className={`btn ${styles.addButton}`} onClick={handleToggleShowAddSport}>
-                {isEditing ? 'Cancel Edit' : 'Create New Sport'}
-            </button>
 
             <div className={styles.searchContainer}>
                 <input
@@ -176,6 +190,10 @@ function ManageSports() {
                     className={styles.searchInput}
                 />
             </div>
+
+            <button className={`btn ${styles.addButton}`} onClick={handleToggleShowAddSport}>
+                {isEditing ? 'Cancel Edit' : 'Create New Sport'}
+            </button>
 
             {(showInputForm || isEditing) && (
                 <form onSubmit={isEditing ? handleEditSubmit : handleAddSubmit} className={styles.inputForm}>
@@ -201,14 +219,14 @@ function ManageSports() {
                             value={isEditing ? editingSport.imageUrl : formData.imageUrl}
                             onChange={handleChange}
                         />
-                        <div className="fileInputContainer">
-                            <label className="fileLabel">
+                        <div className='fileInputContainer'>
+                            <label className='fileLabel'>
                                 Choose File
-                                <input type="file" className="fileInput" onChange={handleChangeFile} />
+                                <input type='file' className='fileInput' onChange={handleChangeFile} />
                             </label>
-                            <span className="fileName">{formData.imageUrl ? 'File uploaded' : 'No file chosen'}</span>
+                            <span className='fileName'>{formData.imageUrl ? 'File uploaded' : 'No file chosen'}</span>
                         </div>
-                        <button type='submit' className={`btn ${styles.addButton}`}>
+                        <button type='submit' className={`btn ${styles.editButton}`}>
                             {isEditing ? 'Update' : 'Create'}
                         </button>
                     </div>
@@ -218,41 +236,71 @@ function ManageSports() {
             <table className={`mt-4 ${styles.sportsTable}`}>
                 <thead>
                     <tr>
-                        <th>#</th>
-                        <th>Sport Name</th>
+                        <th>Order</th>
+                        <th onClick={handleSortByName} style={{ cursor: 'pointer' }}>
+                            Name
+                            {sortOrder === 'asc' ? (
+                                <i className='fa-solid fa-arrow-up-short-wide ms-2'></i>
+                            ) : (
+                                <i className='fa-solid fa-arrow-down-short-wide ms-2'></i>
+                            )}
+                        </th>
                         <th>Description</th>
                         <th>Image</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
+
                 <tbody>
                     {filteredSports.length > 0 ? (
                         filteredSports.map((sport, index) => (
                             <tr key={sport.id}>
-                                <td>{index + 1 + currentPage * pageSize}</td>
+                                <td>{(currentPage - 1) * pageSize + index + 1}</td>
                                 <td>{sport.sportName}</td>
                                 <td>{sport.description}</td>
                                 <td>
                                     <img src={sport.imageUrl} alt={sport.sportName} className={styles.sportImage} />
                                 </td>
                                 <td>
-                                    <button className={`btn ${styles.editButton}`} onClick={() => handleEditClick(sport)}>
+                                    <button
+                                        className={`btn ${styles.editButton}`}
+                                        onClick={() => handleEditClick(sport)}
+                                    >
                                         Edit
                                     </button>
-                                    <button className={`btn ${styles.deleteButton}`} onClick={() => toggleModalOpen(sport.id)}>
+                                    <button
+                                        className={`btn ${styles.deleteButton}`}
+                                        onClick={() => toggleModalOpen(sport.id)}
+                                    >
                                         Delete
                                     </button>
                                     {isModalOpen && deleteSportId === sport.id && (
-                                        <ConfirmModal title='Are you sure?' isOpen={isModalOpen} onClose={() => toggleModalOpen(null)} onSubmit={handleSoftDelete} />
+                                        <ConfirmModal
+                                            title='Are you sure?'
+                                            isOpen={isModalOpen}
+                                            onClose={() => toggleModalOpen(null)}
+                                            onSubmit={handleSoftDelete}
+                                        />
                                     )}
                                 </td>
                             </tr>
                         ))
                     ) : (
-                        <tr><td colSpan="5">No sports available.</td></tr>
+                        <tr>
+                            <td colSpan='5'>No sports available.</td>
+                        </tr>
                     )}
                 </tbody>
             </table>
+
+            {/* Pagination */}
+            <Pagination
+                current={currentPage}
+                pageSize={pageSize}
+                total={totalItems}
+                onChange={handlePageChange}
+                className={styles.pagination}
+            />
         </div>
     );
 }

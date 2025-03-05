@@ -1,177 +1,215 @@
 @import '../variables';
 
-.manageCourses {
-    padding: 20px;
-    flex-grow: 1; // Ensure content occupies remaining space beside any sidebar
+:global(.ant-message) {
+    font-size: 18px !important;
+}
 
-    h2 {
-        margin-bottom: 20px;
-        color: $blue-prime; // Title color
+.container {
+    padding: 20px !important;
+    background: white !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+}
+
+.header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 16px !important;
+    flex-wrap: wrap;
+}
+
+.searchBar {
+    width: 100% !important;
+    border-radius: 8px !important;
+    font-size: 16px !important;
+    padding: 8px !important;
+    margin-bottom: 8px;
+    margin-right: 20px !important;
+}
+
+.addButton,
+.removeButton {
+    font-size: 16px !important;
+    font-weight: 700;
+    height: 42px !important;
+    padding: 0 10px !important;
+    border-radius: 6px !important;
+    transition: opacity 0.3s ease-in-out !important;
+
+    &:hover {
+        opacity: 0.8 !important;
     }
+}
 
-    .coursesTable {
-        width: 100%;
-        border-collapse: collapse; // Remove spacing between cells
-        background-color: #fff;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        text-align: left;
+.addButton {
+    background: $blue-gray !important;
+    color: white !important;
+}
 
-        th,
-        td {
-            text-align: center;
-            padding: 12px;
-            border: 1px solid #ddd;
-        }
+.removeButton {
+    background: $remove-color !important;
+    color: white !important;
+}
 
-        th {
-            background-color: $blue-prime; // Header background color
-            color: white; // Header text color
-        }
+.lessonCard {
+    background: $blue-sky-white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
 
-        td {
-            vertical-align: middle; // Center cell content vertically
-        }
+.lessonHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 8px;
+    font-size: 18px;
+    font-weight: bold;
+}
 
-        .courseImage {
-            width: 80px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 4px;
-            border: 2px solid $blue-prime; // Border around image
-        }
-    }
+.lessonContent {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Hiển thị 2 cột */
+    gap: 12px;
+}
 
-    .formContainer {
-        margin-top: 20px;
-        background-color: #f9f9f9;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.pagination {
+    margin-top: 20px !important;
+    text-align: right !important;
+    font-size: 18px !important;
+}
 
-        h3 {
-            margin-bottom: 15px;
-            color: $blue-prime;
-        }
+/* Table */
+.courseTable {
+    width: 100%;
+    overflow-x: auto; /* Bảng có thể cuộn ngang trên màn hình nhỏ */
 
-        input {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-
-            &:focus {
-                border-color: $blue-prime;
-                outline: none;
-            }
-        }
-
-        select {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-
-            &:focus {
-                border-color: $blue-prime;
-                outline: none;
-            }
-        }
-    }
-
-    .addButton {
-        display: block;
-        margin: 1rem 0;
-        padding: 0.5rem 1rem;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 16px;
-        font-family: 'Cera Round Pro Bold', Times, serif;
-
-        &:hover {
-            background-color: #0f6ed4;
-            color: white;
-        }
+    .rowTable {
+        font-size: 14px;
+        justify-content: center;
+        align-items: center;
     }
 
     .editButton,
     .deleteButton {
-        color: white;
-        padding: 6px 12px;
-        border: none;
-        border-radius: 4px;
-        width: 100px;
-        cursor: pointer;
-        font-size: 1rem;
-        transition: background-color 0.3s;
-        font-weight: 700;
-        margin: 8px;
+        font-size: 16px !important;
+        font-weight: bold !important;
+        padding: 8px 16px !important;
+        margin: 4px !important;
+        width: 110px;
+        border-radius: 6px !important;
+        transition: all 0.3s !important;
+    }
 
-        &.editButton {
-            background-color: $blue-prime;
+    .editButton {
+        background: $blue-prime-gray !important;
+        color: white !important;
 
-            &:hover {
-                background-color: darken($blue-prime, 10%);
-            }
+        &:hover {
+            background: $blue-prime-gray-hover !important;
         }
+    }
 
-        &.deleteButton {
-            background-color: #dc3545;
+    .deleteButton {
+        background: #848484 !important;
+        color: white !important;
 
-            &:hover {
-                background-color: darken(#dc3545, 10%);
-            }
+        &:hover {
+            background: #917b78 !important;
+        }
+    }
+
+    .ant-table-cell {
+        font-size: 20px !important;
+        padding: 14px !important;
+        word-break: break-word; /* Ngăn chữ bị tràn khỏi ô */
+    }
+}
+
+/* 🌟 Responsive Design */
+@media (max-width: 1024px) {
+    .container {
+        padding: 15px !important;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .searchBar {
+        max-width: 100% !important;
+        margin-right: 0 !important;
+    }
+
+    .lessonContent {
+        grid-template-columns: 1fr; /* Chuyển về 1 cột trên màn hình nhỏ */
+    }
+}
+
+@media (max-width: 768px) {
+    .searchBar {
+        margin-right: 0 !important;
+    }
+
+    .lessonHeader {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .pagination {
+        text-align: center !important;
+    }
+
+    .courseTable {
+        .editButton,
+        .deleteButton {
+            width: 100%;
         }
     }
 }
-.searchContainer {
-    margin-bottom: 20px;
-}
 
-.searchInput {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 100%;
-    max-width: 400px; // Optional: Limit width
-}
+@media (max-width: 480px) {
+    .container {
+        padding: 10px !important;
+    }
 
-.pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
-    gap: 10px; /* Space between buttons */
-}
+    .searchBar {
+        font-size: 14px !important;
+        padding: 6px !important;
+    }
 
-.pagination button {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    background-color: #007bff; /* Bootstrap primary color */
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
+    .addButton,
+    .removeButton {
+        width: 100% !important;
+        text-align: center;
+    }
 
-.pagination button:disabled {
-    background-color: #ccc; /* Disabled button color */
-    cursor: not-allowed;
-}
+    .lessonCard {
+        padding: 12px;
+    }
 
-.pagination button:hover:not(:disabled) {
-    background-color: #0056b3; /* Darker blue on hover */
-}
+    .lessonContent {
+        grid-template-columns: 1fr;
+    }
 
-.pagination span {
-    font-weight: bold;
-    color: #333; /* Color for the page number text */
+    .courseTable {
+        overflow-x: auto; /* Đảm bảo bảng có thể cuộn trên mobile */
+
+        .rowTable {
+            font-size: 12px;
+        }
+
+        .editButton,
+        .deleteButton {
+            font-size: 14px !important;
+            width: 100%;
+        }
+    }
 }

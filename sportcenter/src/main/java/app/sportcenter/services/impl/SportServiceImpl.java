@@ -76,7 +76,7 @@ public class SportServiceImpl implements SportService {
         sportRepository.save(sport);
         SportResponse responseSport = sportMapper.convertToDTO(sport);
         return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("Sport found for update.", HttpStatus.OK.value(),responseSport)
+                new BaseResponse("Update sport sucssfully!", HttpStatus.OK.value(),responseSport)
         );
 
     }

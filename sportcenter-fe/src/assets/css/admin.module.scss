@@ -132,3 +132,101 @@
 .link:hover {
     color: #ccc; /* Màu xanh đậm hơn khi hover */
 }
+
+/* 📌 Responsive cho màn hình nhỏ hơn 1024px */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 200px; /* Thu nhỏ sidebar */
+        padding: 15px;
+    }
+
+    .content {
+        margin-left: 200px; /* Điều chỉnh khoảng cách nội dung */
+        padding: 15px;
+    }
+
+    .chartContainer {
+        flex-direction: column; /* Chuyển biểu đồ thành hàng dọc */
+        align-items: center;
+    }
+
+    .chartWrapper {
+        max-width: 100%; /* Biểu đồ chiếm toàn bộ chiều rộng */
+        margin-bottom: 20px; /* Thêm khoảng cách giữa các biểu đồ */
+    }
+}
+
+/* 📌 Responsive cho màn hình nhỏ hơn 768px (Tablet) */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 60px; /* Thu nhỏ sidebar tối đa */
+        padding: 10px;
+        overflow: hidden; /* Ẩn nội dung khi thu nhỏ */
+    }
+
+    .sidebar:hover {
+        width: 200px; /* Khi hover, sidebar mở rộng */
+        overflow: visible;
+    }
+
+    .navItem span {
+        display: none; /* Ẩn chữ, chỉ hiển thị icon */
+    }
+
+    .sidebar:hover .navItem span {
+        display: inline; /* Hiện chữ khi hover */
+    }
+
+    .content {
+        margin-left: 60px; /* Đẩy nội dung sát vào */
+        padding: 10px;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .logoutButton {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+/* 📌 Responsive cho màn hình nhỏ hơn 480px (Mobile) */
+@media (max-width: 480px) {
+    .sidebar {
+        width: 100%; /* Sidebar sẽ trở thành menu trên đầu */
+        height: auto;
+        position: relative;
+        padding: 10px;
+    }
+
+    .navList {
+        display: flex;
+        justify-content: space-around;
+    }
+
+    .navItem {
+        padding: 8px;
+        margin: 0;
+    }
+
+    .content {
+        margin-left: 0; /* Không cần khoảng trống */
+        padding: 10px;
+    }
+
+    .mainContent {
+        padding: 10px;
+    }
+
+    .chartContainer {
+        flex-direction: column;
+    }
+
+    .chartWrapper {
+        width: 100%;
+    }
+}

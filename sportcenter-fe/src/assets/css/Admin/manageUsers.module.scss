@@ -9,49 +9,17 @@
         color: $blue-prime; // Title color
     }
 
-    .usersTable {
-        width: 100%;
-        border-collapse: collapse; // Remove spacing between cells
-        background-color: #fff;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        text-align: left;
-
-        th,
-        td {
-            padding: 12px;
-            border: 1px solid #ddd;
-        }
-
-        th {
-            background-color: $blue-prime; // Header background color
-            color: white; // Header text color
-        }
-
-        td {
-            vertical-align: middle; // Center cell content vertically
-        }
-    }
-
-    .formContainer {
-        margin-top: 20px;
-        background-color: #f9f9f9;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-        h3 {
-            margin-bottom: 15px;
-            color: $blue-prime;
-        }
+    .searchContainer {
+        margin-bottom: 16px;
+        font-size: 14px;
 
         input {
-            display: block;
             width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
+            max-width: 300px;
+            padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            box-sizing: border-box;
+            font-size: 1rem;
 
             &:focus {
                 border-color: $blue-prime;
@@ -60,77 +28,100 @@
         }
     }
 
-    .addButton {
-        margin-top: 10px;
-        background-color: $blue-prime;
+    .tableWrapper {
+        overflow-x: auto; // Cho phép cuộn ngang nếu cần
+    }
+
+    .deleteButton {
+        background-color: $ash-gray;
         color: white;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 1rem;
 
         &:hover {
-            background-color: darken($blue-prime, 10%);
+            background-color: $green-gray-hover;
         }
     }
 
-    .editButton,
-    .deleteButton {
-        color: white;
-        padding: 6px 12px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.875rem;
-        transition: background-color 0.3s;
+    .usersTable {
+        width: 100%;
+        min-width: 600px; // Đảm bảo bảng không bị bó hẹp quá mức
+        border-collapse: collapse;
+        background-color: #fff;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        text-align: left;
 
-        &.editButton {
+        th,
+        td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            white-space: nowrap; // Giữ nội dung không bị xuống dòng
+        }
+
+        th {
             background-color: $blue-prime;
-            margin-right: 10px;
+            color: white;
+        }
 
-            &:hover {
-                background-color: darken($blue-prime, 10%);
+        td {
+            vertical-align: middle;
+        }
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+        gap: 10px;
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+
+            &:disabled {
+                background-color: #ccc;
+                cursor: not-allowed;
+            }
+
+            &:hover:not(:disabled) {
+                background-color: #0056b3;
             }
         }
 
-        &.deleteButton {
-            background-color: #dc3545;
-
-            &:hover {
-                background-color: darken(#dc3545, 10%);
-            }
+        span {
+            font-weight: bold;
+            color: #333;
         }
     }
 }
-.pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
-    gap: 10px; /* Khoảng cách giữa các nút */
 
-    button {
-        padding: 10px 15px;
-        border: none;
-        border-radius: 5px;
-        background-color: #007bff; /* Màu chính */
-        color: white;
-        cursor: pointer;
-        transition: background-color 0.3s;
+// Responsive styles
+@media (max-width: 768px) {
+    .manageUsers {
+        padding: 10px;
 
-        &:disabled {
-            background-color: #ccc; /* Màu khi bị vô hiệu hóa */
-            cursor: not-allowed;
+        .searchContainer {
+            display: flex;
+            justify-content: center;
+            input {
+                width: 100%;
+                max-width: 250px;
+                padding: 6px;
+            }
         }
 
-        &:hover:not(:disabled) {
-            background-color: #0056b3; /* Màu đậm hơn khi hover */
-        }
-    }
+        .pagination {
+            flex-direction: column;
+            gap: 5px;
 
-    span {
-        font-weight: bold;
-        color: #333; /* Màu chữ của số trang */
+            button {
+                width: 100%;
+                max-width: 150px;
+            }
+        }
     }
 }
