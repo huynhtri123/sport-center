@@ -14,10 +14,10 @@ const levelIcons = {
 
 // Labels for lesson levels
 const levelLabels = {
-    BEGINNER: 'Người mới',
-    INTERMEDIATE: 'Trung cấp',
-    ADVANCED: 'Nâng cao',
-    EXPERT: 'Chuyên gia',
+    BEGINNER: 'Beginner',
+    INTERMEDIATE: 'Intermediate',
+    ADVANCED: 'Advanced',
+    EXPERT: 'Expert',
 };
 
 // Define the desired order for lesson levels
@@ -45,11 +45,11 @@ function CourseLesson() {
     }, [courseId]);
 
     if (loading) {
-        return <div className={styles.loading}>Đang tải...</div>;
+        return <div className={styles.loading}>Loading...</div>;
     }
 
     if (!course) {
-        return <div className={styles.error}>Không tìm thấy khóa học.</div>;
+        return <div className={styles.error}>Course not found.</div>;
     }
 
     // Group lessons by level
@@ -67,11 +67,11 @@ function CourseLesson() {
             <aside className={styles.sidebar}>
                 <div className={styles.courseHeader}>
                     <img src={course.imageUrl} alt={course.courseName} className={styles.courseImage} />
-                    <h2>{course.courseName}</h2>
+                    <h2 title={course.courseName}>{course.courseName}</h2>
                     <p>{course.description}</p>
                 </div>
 
-                <h2>Danh sách các chương</h2>
+                <h2>Lesson Sections</h2>
                 {levelOrder.map((level) => {
                     if (groupedLessons[level] && groupedLessons[level].length > 0) {
                         return (
@@ -85,7 +85,7 @@ function CourseLesson() {
                                         }));
                                     }}
                                 >
-                                    {levelIcons[level]}
+                                    <span style={{ width: '20px', textAlign: 'center' }}>{levelIcons[level]}</span>
                                     <span>{levelLabels[level]}</span>
                                 </div>
                             </div>
@@ -116,9 +116,7 @@ function CourseLesson() {
                                                         ></iframe>
                                                     )}
                                                     <h4>{lesson.lessonName}</h4>
-                                                    <p>Loại hình khóa học: {lesson.courseSportType}</p>
-                                                    <p>Mô tả: {lesson.description}</p>
-                                                    <p>Cấp độ kỹ năng: {levelLabels[lesson.levelLesson]}</p>
+                                                    <p>Description: {lesson.description}</p>
                                                 </div>
                                             ))}
                                         </div>
