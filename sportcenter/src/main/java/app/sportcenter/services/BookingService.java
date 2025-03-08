@@ -5,9 +5,11 @@ import app.sportcenter.models.dto.request.BookingRequest;
 import app.sportcenter.models.dto.request.RecurringBookingRequest;
 import app.sportcenter.models.dto.response.BookingResponse;
 import app.sportcenter.models.dto.response.RecurringBookingResponse;
+import app.sportcenter.models.entities.TimeSlot;
 import org.springframework.http.ResponseEntity;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Map;
 
 public interface BookingService {
@@ -53,6 +55,8 @@ public interface BookingService {
     public Double getBookingPrice(BookingRequest bookingRequest);
 
     public Double getRecurringBookingPrice(RecurringBookingRequest recurringBookingRequest);
+
+    public List<TimeSlot> getTimeSlotsForRecurring(RecurringBookingRequest recurringBookingRequest);
 
     // lấy giá tiền còn lại của recuring theo id của booking con
     // (vd: đặt cứng có 5 booking, mà đã có 1 booking trong quá khứ, thì hàm này trả về giá của tổng 4 cái còn lại)

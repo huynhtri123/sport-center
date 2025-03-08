@@ -2,6 +2,7 @@ package app.sportcenter.models.dto.response;
 
 import app.sportcenter.commons.RecurringIntervalType;
 import app.sportcenter.models.entities.Field;
+import app.sportcenter.models.entities.TimeSlot;
 import lombok.*;
 
 import java.time.ZonedDateTime;
@@ -25,7 +26,6 @@ public class RecurringBookingResponse extends BaseResponseDTO {
     private Integer numberOfHours;
     private Integer packageDurationMonths;
     private List<String> bookingIds = new ArrayList<>();
-    private Double price;
-//    private List<ZonedDateTime> recurringDates;
-//    private List<TimeSlot> recurringTimeSlots;
+    private Double totalPrice;
+    private List<TimeSlot> timeSlots;
 }

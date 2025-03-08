@@ -5,15 +5,10 @@ import app.sportcenter.models.dto.response.RecurringBookingResponse;
 import app.sportcenter.models.entities.Field;
 import app.sportcenter.models.entities.RecurringBooking;
 import app.sportcenter.models.entities.User;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class RecurringBookingMapper {
-
-    @Autowired
-    private ModelMapper modelMapper;
 
     public RecurringBooking convertToEntity(RecurringBookingRequest request, Field field, User user) {
         return RecurringBooking.builder()
@@ -25,13 +20,6 @@ public class RecurringBookingMapper {
                 .numberOfHours(request.getNumberOfHours())
                 .packageDurationMonths(request.getPackageDurationMonths())
                 .build();
-    }
-
-    public RecurringBooking updateFielAndUser(RecurringBooking recurringBooking, Field updatedField, User user) {
-        recurringBooking.setField(updatedField);
-        recurringBooking.setUser(user);
-
-        return recurringBooking;
     }
 
     public RecurringBookingResponse convertToDTO(RecurringBooking recurringBooking) {
@@ -52,12 +40,9 @@ public class RecurringBookingMapper {
         response.setUpdatedAt(recurringBooking.getUpdatedAt());
         response.setBookingIds(recurringBooking.getBookingIds());
 
-        // Thiết lập giá trị tính toán
-        response.setEndDate(recurringBooking.getEndDate());
         response.setEndTime(recurringBooking.getEndTime());
-        response.setPrice(recurringBooking.getPrice());
-//        response.setRecurringDates(recurringBooking.generateRecurringDates());
-//        response.setRecurringTimeSlots(recurringBooking.generateTimeSlots());
+        response.setTotalPrice(recurringBooking.getTotalPrice());
+        response.setTimeSlots(recurringBooking.getTimeSlots());
 
         return response;
     }

@@ -1,4 +1,5 @@
-Technologies: 
-- BE: Springboot
-- FE: React
-- Database: MongoDB
+Technologies:
+
+-   BE: Springboot
+-   FE: React
+-   Database: MongoDB

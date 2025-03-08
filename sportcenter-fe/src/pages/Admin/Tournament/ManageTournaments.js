@@ -334,9 +334,9 @@ function ManageTournaments() {
                             {/* Upload ảnh */}
                             <div className={styles.inputGroup}>
                                 <label>Tournament Avatar</label>
-                                <input type="file" accept="image/*" onChange={handleChangeFile} />
+                                <input type='file' accept='image/*' onChange={handleChangeFile} />
                                 {formData.thumUrl && (
-                                    <img src={formData.thumUrl} alt="Tournament" className={styles.imagePreview} />
+                                    <img src={formData.thumUrl} alt='Tournament' className={styles.imagePreview} />
                                 )}
                             </div>
 

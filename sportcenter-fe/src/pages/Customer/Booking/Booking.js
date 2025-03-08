@@ -14,6 +14,7 @@ import formatCurrency from '../../../utils/formatCurrency';
 import Video from '../../../components/Video/Video';
 import { connectWebSocket, disconnectWebSocket } from '../../../services/websocket/connect';
 import { useSelectDateForBooking, useLoading } from '../../../customs/hooks';
+import RecurringTimeSlotsModal from '../../../components/Modal/RecurringTimeSlotsModal';
 
 function Booking() {
     const [field, setField] = useGetField();
@@ -31,6 +32,8 @@ function Booking() {
     const [bookingPrice, setBookingPrice] = useState(0);
     const [recurringBookingPrice, setRecurringBookingPrice] = useState(0);
     const [isLoadingContext, setIsLoadingContext] = useLoading();
+    const [isShowTimeSlots, setIsShowTimeSlots] = useState(false);
+    const [recurringTimeSlots, setRecurringTimeSlots] = useState([]);
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -173,9 +176,32 @@ function Booking() {
         } catch (err) {
             console.error(err);
             //toast.error(err.message);
+            setIsLoadingContext(false);
             return null;
         } finally {
             isRecurring ? setIsRecurringBookingModalOpen(false) : setIsBookingModalOpen(false);
+        }
+    };
+
+    const getRecurringTimeSlots = async () => {
+        try {
+            setIsShowTimeSlots(true);
+            const startDateTimeString = `${selectedDate}T${startTime}:00+00:00`;
+            const startTimeUTC = new Date(startDateTimeString).toISOString();
+
+            const request = {
+                fieldId: field.id,
+                startTime: startTimeUTC,
+                numberOfHours: numberOfHours,
+                startDate: startTimeUTC,
+                interval: interval,
+                packageDurationMonths: duration,
+            };
+
+            const response = await bookingApi.getRecurringTimeSlots(request);
+            setRecurringTimeSlots(response.data);
+        } catch (err) {
+            console.error(err);
         }
     };
 
@@ -338,12 +364,27 @@ function Booking() {
                     <div className={styles.formGroup}>
                         <label htmlFor='duration'>Package duration:</label>
                         <select id='duration' value={duration} onChange={(e) => setDuration(e.target.value)}>
-                            <option value={1}>1 month</option>
-                            <option value={3}>3 months</option>
-                            <option value={6}>6 months</option>
+                            <option value={1}>1 month (-10%)</option>
+                            <option value={3}>3 months (-20%)</option>
+                            <option value={6}>6 months (-30%)</option>
                         </select>
                     </div>
-                    <p className={styles.price}>Price: {formatCurrency(recurringBookingPrice)}</p>
+
+                    {/* Modal hien thi danh sach recurring time slots  */}
+                    {isShowTimeSlots && (
+                        <RecurringTimeSlotsModal
+                            timeSlots={recurringTimeSlots}
+                            onClose={() => setIsShowTimeSlots(false)}
+                        />
+                    )}
+                    <p className={styles.price}>
+                        Price: {formatCurrency(recurringBookingPrice)}
+                        <i
+                            className='fa-regular fa-circle-question ms-2 text-dark'
+                            style={{ cursor: 'pointer' }}
+                            onClick={getRecurringTimeSlots}
+                        ></i>
+                    </p>
                     <Button type='submit' className={clsx('font-cera-round-pro-medium', styles.bookingButton)}>
                         Recurring Booking Now
                     </Button>

@@ -1,5 +1,6 @@
 package app.sportcenter.controllers;
 
+import app.sportcenter.models.entities.TimeSlot;
 import app.sportcenter.utils.kafkaUsage.MessageWrapper;
 import app.sportcenter.commons.SendMailType;
 import app.sportcenter.utils.kafkaUsage.TournamentTeamPayload;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -114,28 +116,35 @@ public class MailController {
     }
 
     public void sendMailRecurringBooking(String email, String fullName, RecurringBookingResponse recurringBookingResponse) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         try {
             String fieldName = recurringBookingResponse.getField().getFieldName();
 
             // chuyển sang múi giờ Việt Nam
             String startDate = recurringBookingResponse.getStartDate()
-                    .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
+                    .plusHours(7)
                     .format(formatter);
             String startTime = recurringBookingResponse.getStartTime()
-                    .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
+                    .plusHours(7)
                     .format(formatter);
-            String endDate = recurringBookingResponse.getEndDate()
-                    .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
+
+            List<TimeSlot> timeSlots = recurringBookingResponse.getTimeSlots();
+            TimeSlot lastTimeSlot = (timeSlots != null && !timeSlots.isEmpty())
+                    ? timeSlots.get(timeSlots.size() - 1)
+                    : null;
+
+            assert lastTimeSlot != null;
+            String endDate = lastTimeSlot.getStartTime()
+                    .plusHours(7)
                     .format(formatter);
-            String endTime = recurringBookingResponse.getEndTime()
-                    .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
+            String endTime = lastTimeSlot.getEndTime()
+                    .plusHours(7)
                     .format(formatter);
 
             String interval = recurringBookingResponse.getInterval().name(); // DAILY, WEEKLY, MONTHLY
             String numberOfHours = recurringBookingResponse.getNumberOfHours().toString();
             String packageDurationMonths = recurringBookingResponse.getPackageDurationMonths().toString();
-            String price = recurringBookingResponse.getPrice().toString();
+            String price = recurringBookingResponse.getTotalPrice().toString();
 
             mailService.sendMailRecurringBooking(email, fullName, fieldName, startDate, startTime,
                     endDate, endTime, interval, numberOfHours,
@@ -148,29 +157,36 @@ public class MailController {
     }
 
     public void sendMailRecurringBookingCancel(String email, String fullName, RecurringBookingResponse recurringBookingResponse) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         try {
             String fieldName = recurringBookingResponse.getField().getFieldName();
 
             // Chuyển thời gian sang múi giờ Việt Nam (GMT+7)
             String startDate = recurringBookingResponse.getStartDate()
-                    .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
+                    .plusHours(7)
                     .format(formatter);
             String startTime = recurringBookingResponse.getStartTime()
-                    .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
+                    .plusHours(7)
                     .format(formatter);
-            String endDate = recurringBookingResponse.getEndDate()
-                    .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
+            List<TimeSlot> timeSlots = recurringBookingResponse.getTimeSlots();
+            TimeSlot lastTimeSlot = (timeSlots != null && !timeSlots.isEmpty())
+                    ? timeSlots.get(timeSlots.size() - 1)
+                    : null;
+
+            assert lastTimeSlot != null;
+            String endDate = lastTimeSlot.getStartTime()
+                    .plusHours(7)
                     .format(formatter);
-            String endTime = recurringBookingResponse.getEndTime()
-                    .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
+            String endTime = lastTimeSlot.getEndTime()
+                    .plusHours(7)
                     .format(formatter);
 
             String interval = recurringBookingResponse.getInterval().name(); // DAILY, WEEKLY, MONTHLY
             String numberOfHours = recurringBookingResponse.getNumberOfHours().toString();
-            Double price = recurringBookingResponse.getPrice();
-            String duration = recurringBookingResponse.getPackageDurationMonths().toString();
-            Double refund = price / 2;
+            Double price = recurringBookingResponse.getTotalPrice();
+            Integer durationMonths = recurringBookingResponse.getPackageDurationMonths();
+            String duration = durationMonths.toString();
+            Double refund = (price * durationMonths * 0.5);
 
             // Gọi phương thức gửi mail với các thông tin đã được định dạng
             mailService.sendMailRecurringBookingCancel(email, fullName, fieldName, startDate,
