@@ -96,6 +96,7 @@ public class BookingServiceImpl implements BookingService {
             booking.setRecurring(false);        // single booking
             booking.setIsActive(true);
             booking.setProcessing(true);        // wait thanh toan
+            booking.setTotalPrice(getBookingPrice(bookingRequest));
             Booking savedBooking = bookingRepository.save(booking);
 
             BookingResponse response = bookingMapper.convertToResponse(savedBooking);
@@ -195,6 +196,7 @@ public class BookingServiceImpl implements BookingService {
                 if (slot.getStartTime().isBefore(endTime) &&
                         slot.getEndTime().isAfter(startTime)) {
                     slot.setStatus(FieldStatus.IN_USE);
+
                 }
             }
 
@@ -207,6 +209,8 @@ public class BookingServiceImpl implements BookingService {
         fieldRepository.save(field);
         bookingRepository.saveAll(bookingsToSave);
         recurringBooking.setBookingIds(bookingsToSave.stream().map(Booking::getId).collect(Collectors.toList()));
+        recurringBooking.setTotalPrice(getRecurringBookingPrice(recurringBookingRequest));
+        recurringBooking.setTimeSlots(recurringTimeSlots);
         recurringBooking.setIsActive(true);
         recurringBooking.setProcessing(true);   // wait thanh toan
 
@@ -217,6 +221,30 @@ public class BookingServiceImpl implements BookingService {
         return response;
 
     }
+
+    @Override
+    public List<TimeSlot> getTimeSlotsForRecurring(RecurringBookingRequest recurringBookingRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        Field field = fieldRepository.findById(recurringBookingRequest.getFieldId())
+                .orElseThrow(() -> new NotFoundException("Field with this ID not found."));
+
+        RecurringBooking recurringBooking = recurringBookingMapper.convertToEntity(recurringBookingRequest, field, currentUser);
+        List<TimeSlot> recurringTimeSlots = recurringBooking.generateTimeSlots();
+
+        // Chuyển múi giờ từ UTC sang GMT+7
+        ZoneId targetZone = ZoneId.of("Asia/Bangkok");
+        List<TimeSlot> convertedTimeSlots = recurringTimeSlots.stream().map(slot -> {
+            ZonedDateTime start = slot.getStartTime().withZoneSameInstant(targetZone);
+            ZonedDateTime end = slot.getEndTime().withZoneSameInstant(targetZone);
+            return new TimeSlot(start, end, FieldStatus.IN_USE);
+        }).collect(Collectors.toList());
+
+        log.info("Converted Time Slots: {}", convertedTimeSlots);
+        return convertedTimeSlots;
+    }
+
 
     private boolean checkAvailableRecurring(String fieldId, List<TimeSlot> recurringTimeSlots) {
         for (TimeSlot timeSlot : recurringTimeSlots) {
@@ -296,7 +324,11 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new NotFoundException("Field with this ID not found."));
         RecurringBooking recurringBooking = recurringBookingMapper.convertToEntity(recurringBookingRequest, field, currentUser);
 
-        return recurringBooking.getPrice();
+        getTimeSlotsForRecurring(recurringBookingRequest);
+
+        int packageDurationMonths = recurringBookingRequest.getPackageDurationMonths();
+        // giam gia cho recurring
+        return recurringBooking.getPrice() * discountRateByDurationMonths(packageDurationMonths);
     }
 
     @Override
@@ -630,21 +662,14 @@ public class BookingServiceImpl implements BookingService {
 
         // 3. hoàn tiền 50% của tổng số booking còn hiệu lực
         //log.error("check price: " + remainingAmount);
-        Double refund = remainingAmount / 2;
         String ownerId = recurrParent.getUser().getId();
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("Owner of this recurring booking not found."));
-        userService.refund(owner, refund);
-        // 4. tạo hoá đơn
-        InvoiceRequest invoiceRequest = new InvoiceRequest();
-        invoiceRequest.setUserId(owner.getId());
-        invoiceRequest.setAmount(refund);
-        invoiceRequest.setPaymentMethod(PaymentMethod.ACCOUNT_BALANCE);
-        invoiceRequest.setPaymentStatus(PaymentStatus.PAID);
-        invoiceRequest.setTransactionType(TransactionType.REFUND);
-        InvoiceResponse invoiceResponse = invoiceService.create(invoiceRequest);
 
-        // 5. gửi mail
+        // refund by policy
+        InvoiceResponse invoiceResponse = refund(remainingAmount, owner, response.getPackageDurationMonths());
+
+        // 4. gửi mail
         MessageWrapper messageWrapper = MessageWrapper.builder()
                 .type(SendMailType.CANCEL_RECURRING.name())
                 .payload(response)
@@ -655,6 +680,32 @@ public class BookingServiceImpl implements BookingService {
 
         return response;
     }
+
+    private double discountRateByDurationMonths(int packageDurationMonths) {
+        return switch (packageDurationMonths) {
+            case 1 -> 0.9;  // giam 10%
+            case 3 -> 0.8;  // giam 20%
+            case 6 -> 0.7;  // giam 30%
+            default -> 1;   // giam 0%
+        };
+    }
+
+    private InvoiceResponse refund(double remainingAmount, User user, int packageDurationMonths) {
+        double disountRate = discountRateByDurationMonths(packageDurationMonths);
+
+        Double refund = (remainingAmount * disountRate * 0.5);
+
+        userService.refund(user, refund);
+        // tạo hoá đơn
+        InvoiceRequest invoiceRequest = new InvoiceRequest();
+        invoiceRequest.setUserId(user.getId());
+        invoiceRequest.setAmount(refund);
+        invoiceRequest.setPaymentMethod(PaymentMethod.ACCOUNT_BALANCE);
+        invoiceRequest.setPaymentStatus(PaymentStatus.PAID);
+        invoiceRequest.setTransactionType(TransactionType.REFUND);
+        return invoiceService.create(invoiceRequest);
+    }
+
 
     @Transactional
     @Override

@@ -105,6 +105,16 @@ public class BookingController {
         return bookingService.getRecurringBookingByContainBookingId(bookingId);
     }
 
+    // lay danh sach time slots se chiem
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
+    @PostMapping("/recurring/timeSlots")
+    public ResponseEntity<BaseResponse> getTimeSlots(@Valid @RequestBody RecurringBookingRequest recurringBookingRequest) {
+        return ResponseEntity.ok(
+                new BaseResponse("Get recurring time slots successfully!", 200,
+                        bookingService.getTimeSlotsForRecurring(recurringBookingRequest))
+        );
+    }
+
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/booking/{bookingId}")
     public ResponseEntity<BaseResponse> getBookingById(@PathVariable String bookingId) {

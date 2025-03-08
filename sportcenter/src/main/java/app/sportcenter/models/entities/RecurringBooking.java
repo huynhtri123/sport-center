@@ -3,6 +3,7 @@ package app.sportcenter.models.entities;
 import app.sportcenter.commons.FieldStatus;
 import app.sportcenter.commons.PricedItem;
 import app.sportcenter.commons.RecurringIntervalType;
+import app.sportcenter.exceptions.CustomException;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -26,77 +27,41 @@ public class RecurringBooking extends BaseEntity implements PricedItem {
     private ZonedDateTime startTime;           // giờ bắt đầu trong mỗi ngày đặt
     private RecurringIntervalType interval;    // loại lặp lại (DAILY, WEEKLY, MONTHLY)
     private Integer numberOfHours;             // Số giờ đặt mỗi lần đặt (để tính endTime mỗi lần đặt)
-    private Integer packageDurationMonths;       // Số tháng của gói (1, 3, 6, ...)
+    private Integer packageDurationMonths;     // Số tháng của gói (1, 3, 6, ...)
     private List<String> bookingIds = new ArrayList<>();
     private boolean isProcessing;
+    private Double totalPrice = 0.0;
+    private List<TimeSlot> timeSlots;
 
     // tính giờ kết thúc của mỗi lần đặt
     public ZonedDateTime getEndTime() {
         return this.startTime.plusHours(numberOfHours);
     }
 
-    // tính ngày kết thúc của gói dựa trên packageDurationMonths
-    public ZonedDateTime getEndDate() {
-        if (packageDurationMonths != null && packageDurationMonths > 0) {
-            return startDate.plusMonths(packageDurationMonths);
-        }
-        throw new IllegalArgumentException("Package duration must be greater than 0");
-    }
-
-    // tính các ngày đặt trong chu kỳ
-//    public List<ZonedDateTime> generateRecurringDates() {
-//        List<ZonedDateTime> recurringDates = new ArrayList<>();
-//        ZonedDateTime currentDate = startDate;
-//        ZonedDateTime calculatedEndDate = getEndDate();
-//
-//        while (currentDate.isBefore(calculatedEndDate) || currentDate.isEqual(calculatedEndDate)) {
-//            recurringDates.add(currentDate);
-//
-//            // cập nhật ngày theo loại chu kỳ
-//            switch (interval) {
-//                case DAILY:
-//                    currentDate = currentDate.plusDays(1);
-//                    break;
-//                case WEEKLY:
-//                    currentDate = currentDate.plusWeeks(1);
-//                    break;
-//                case MONTHLY:
-//                    currentDate = currentDate.plusMonths(1);
-//                    break;
-//                default:
-//                    throw new IllegalArgumentException("Invalid interval type");
-//            }
-//        }
-//        return recurringDates;
-//    }
-
     // tìm tất cả timeSlot sẽ chiếm
     public List<TimeSlot> generateTimeSlots() {
         List<TimeSlot> timeSlots = new ArrayList<>();
         ZonedDateTime currentDate = startDate;
-        ZonedDateTime calculatedEndDate = getEndDate();
 
-        while (currentDate.isBefore(calculatedEndDate) || currentDate.isEqual(calculatedEndDate)) {
-            // Thiết lập startTime và endTime cho timeSlot hiện tại
+        // tổng số lần đặt
+        int occurrences = switch (interval) {
+            case DAILY -> packageDurationMonths * 30;  // 30 ngày/tháng
+            case WEEKLY -> packageDurationMonths * 4;  // 4 tuần/tháng
+            case MONTHLY -> packageDurationMonths;     // 1 lần/tháng
+            default -> throw new CustomException("Invalid interval type", 400);
+        };
+
+        for (int i = 0; i < occurrences; i++) {
             ZonedDateTime slotStartTime = currentDate.withHour(startTime.getHour()).withMinute(startTime.getMinute());
             ZonedDateTime slotEndTime = slotStartTime.plusHours(numberOfHours);
 
-            // Thêm timeSlot vào danh sách
             timeSlots.add(new TimeSlot(slotStartTime, slotEndTime, FieldStatus.IN_USE));
 
-            // Cập nhật currentDate theo loại chu kỳ
+            // cập nhật currentDate theo loại chu kỳ
             switch (interval) {
-                case DAILY:
-                    currentDate = currentDate.plusDays(1);
-                    break;
-                case WEEKLY:
-                    currentDate = currentDate.plusWeeks(1);
-                    break;
-                case MONTHLY:
-                    currentDate = currentDate.plusMonths(1);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Invalid interval type");
+                case DAILY -> currentDate = currentDate.plusDays(1);
+                case WEEKLY -> currentDate = currentDate.plusWeeks(1);
+                case MONTHLY -> currentDate = currentDate.plusMonths(1);
             }
         }
 
