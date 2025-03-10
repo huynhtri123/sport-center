@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { Table, Button, Badge, Modal } from 'antd';
+import { Table, Button, Badge, Modal, Select } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import bookingApi from '../../../services/api/booking/bookingApi';
 import formatCurrency from '../../../utils/formatCurrency';
@@ -8,9 +8,36 @@ import styles from '../../../assets/css/Profile/myBookings.module.scss';
 import { Loading } from '../../../components/Loading/Loading';
 
 const { confirm } = Modal;
+const { Option } = Select;
 
-function MyBookings({ bookings, setMyBookings, getMyProfile }) {
+function MyBookings({ bookings, setMyBookings, getMyProfile, userId }) {
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedType, setSelectedType] = useState("All");
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+    const [filteredBookings, setFilteredBookings] = useState(bookings);
+
+    useEffect(() => {
+        fetchBookings(selectedYear);
+    }, [selectedYear]);
+
+    const fetchBookings = async (year) => {
+        try {
+            setIsLoading(true);
+            const response = await bookingApi.myBookings(userId, year);
+            setFilteredBookings(response.data);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleYearChange = (year) => {
+        setSelectedYear(year);
+    };
+    const handleTypeChange = (value) => {
+        setSelectedType(value);
+    };
 
     const handleCancelBookingSubmit = async (bookingId) => {
         try {
@@ -140,14 +167,32 @@ function MyBookings({ bookings, setMyBookings, getMyProfile }) {
     return (
         <div className={styles.container}>
             {isLoading && <Loading />}
+
+            {/* Thêm Select Box chọn năm */}
+            <div className={styles.filter}>
+                <label style={{ marginRight: '10px', fontWeight: 'bold', color: 'black' }}>Select Year:</label>
+                <Select defaultValue={selectedYear} onChange={handleYearChange} style={{ width: 120 }}>
+                    {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+                        <Option key={year} value={year}>
+                            {year}
+                        </Option>
+                    ))}
+                </Select>
+                {/* Select Booking Type */}
+                <label style={{ marginRight: '10px', fontWeight: 'bold', color: 'black' }}>Select Type:</label>
+                <Select defaultValue="All" onChange={handleTypeChange} style={{ width: 140 }}>
+                    <Option value="All">All</Option>
+                    <Option value="Single">Single</Option>
+                    <Option value="Recurring">Recurring</Option>
+                </Select>
+            </div>
             <Table
                 columns={columns}
-                dataSource={bookings.map((b) => ({ ...b, key: b.id }))}
+                dataSource={bookings
+                    .filter((b) => selectedType === "All" || (selectedType === "Single" && !b.isRecurring) || (selectedType === "Recurring" && b.isRecurring))
+                    .map((b) => ({ ...b, key: b.id }))
+                }
                 pagination={{ pageSize: 5 }}
-                onChange={(pagination, filters, sorter) => {
-                    // Xử lý sort theo yêu cầu
-                    //console.log('Sorter:', sorter);
-                }}
             />
         </div>
     );
