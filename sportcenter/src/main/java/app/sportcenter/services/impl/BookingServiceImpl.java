@@ -368,8 +368,34 @@ public class BookingServiceImpl implements BookingService {
         );
     }
 
+//    @Override
+//    public ResponseEntity<BaseResponse> getCurrentBookingsOfCurrentUser(String userId) {
+//        // Lấy thông tin người dùng hiện tại từ SecurityContext
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        User currentUser = (User) authentication.getPrincipal();
+//        String currentUserId = currentUser.getId();
+//        log.info("Current user for get my bookings: " + currentUserId);
+//
+//        // Kiểm tra xem userId truyền vào có trùng với userId trong JWT hay không
+//        if (!currentUserId.equals(userId)) {
+//            throw new CustomException("You do not have permission to access other users' bookings.", HttpStatus.FORBIDDEN.value());
+//        }
+//
+//        ZonedDateTime now = ZonedDateTime.now();
+//        // lấy danh sách booking của user hiện tại, còn hiệu lực
+//        List<Booking> bookingList = bookingRepository.getCurrentBookingsOfCurrentUser(userId, now, FieldStatus.IN_USE.name());
+//        if (bookingList.isEmpty()) {
+//            throw new CustomException("You don't have any bookings yet!", HttpStatus.NOT_FOUND.value());
+//        }
+//
+//        List<BookingResponse> responseList = bookingList.stream().map(bookingMapper::convertToResponse).toList();
+//        return ResponseEntity.ok(
+//                new BaseResponse("Found the booking list.", HttpStatus.OK.value(), responseList)
+//        );
+//    }
+
     @Override
-    public ResponseEntity<BaseResponse> getCurrentBookingsOfCurrentUser(String userId) {
+    public ResponseEntity<BaseResponse> getCurrentBookingsOfCurrentUser(String userId, Integer year) {
         // Lấy thông tin người dùng hiện tại từ SecurityContext
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
@@ -382,15 +408,23 @@ public class BookingServiceImpl implements BookingService {
         }
 
         ZonedDateTime now = ZonedDateTime.now();
-        // lấy danh sách booking của user hiện tại, còn hiệu lực
-        List<Booking> bookingList = bookingRepository.getCurrentBookingsOfCurrentUser(userId, now, FieldStatus.IN_USE.name());
+
+        // Nếu người dùng không nhập năm, mặc định lấy năm hiện tại
+        int targetYear = (year == null) ? now.getYear() : year;
+
+        ZonedDateTime startOfYear = ZonedDateTime.of(targetYear, 1, 1, 0, 0, 0, 0, now.getZone());
+        ZonedDateTime endOfYear = ZonedDateTime.of(targetYear, 12, 31, 23, 59, 59, 999999999, now.getZone());
+
+        // Lấy danh sách booking của user trong năm đó
+        List<Booking> bookingList = bookingRepository.findBookingsByUserIdAndYear(userId, startOfYear, endOfYear);
+
         if (bookingList.isEmpty()) {
-            throw new CustomException("You don't have any bookings yet!", HttpStatus.NOT_FOUND.value());
+            throw new CustomException("You don't have any bookings for " + targetYear + "!", HttpStatus.NOT_FOUND.value());
         }
 
         List<BookingResponse> responseList = bookingList.stream().map(bookingMapper::convertToResponse).toList();
         return ResponseEntity.ok(
-                new BaseResponse("Found the booking list.", HttpStatus.OK.value(), responseList)
+                new BaseResponse("Found the booking list for year " + targetYear + ".", HttpStatus.OK.value(), responseList)
         );
     }
 

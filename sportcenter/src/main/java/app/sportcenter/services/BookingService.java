@@ -41,7 +41,7 @@ public interface BookingService {
 
     public ResponseEntity<BaseResponse> getBookingByUserId(String userId);
 
-    public ResponseEntity<BaseResponse> getCurrentBookingsOfCurrentUser(String userId);
+    public ResponseEntity<BaseResponse> getCurrentBookingsOfCurrentUser(String userId, Integer year);
 
     public ResponseEntity<BaseResponse> getBookingByFieldId(String fieldId);
 

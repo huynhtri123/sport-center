@@ -15,9 +15,11 @@ const userApi = {
     },
 
     // bookings
-    myBookings(userId) {
+    myBookings(userId, year = null) {
         const url = `/booking/my-bookings/${userId}`;
-        return axiosClient.get(url);
+        return axiosClient.get(url, {
+            params: year ? { year } : {},
+        });
     },
 
     allBookings(userId) {
