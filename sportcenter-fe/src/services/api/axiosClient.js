@@ -108,15 +108,15 @@ axiosClient.interceptors.response.use(
 
                 default: // các lỗi khác
                     console.log(data.message || 'An error occurred, please try again later.');
-                    toast.error(data.message || 'An error occurred, please try again later.');
+                //toast.error(data.message || 'An error occurred, please try again later.');
             }
         } else if (error.request) {
             // Xử lý lỗi mạng hoặc không phản hồi từ server
             console.error('No response received from server: ', error.request);
-            toast.error('Unable to connect to the server. Please check your network connection!');
+            //toast.error('Unable to connect to the server. Please check your network connection!');
         } else {
             console.error('Error setting up request: ', error.message);
-            toast.error('Error setting up request: ', error.message);
+            //toast.error('Error setting up request: ', error.message);
         }
 
         return Promise.reject(error);
