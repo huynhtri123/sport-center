@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 import { Table, Button, Badge, Modal, Select } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import bookingApi from '../../../services/api/booking/bookingApi';
+import userApi from '../../../services/api/userApi';
 import formatCurrency from '../../../utils/formatCurrency';
 import styles from '../../../assets/css/Profile/myBookings.module.scss';
 import { Loading } from '../../../components/Loading/Loading';
@@ -23,8 +24,9 @@ function MyBookings({ bookings, setMyBookings, getMyProfile, userId }) {
     const fetchBookings = async (year) => {
         try {
             setIsLoading(true);
-            const response = await bookingApi.myBookings(userId, year);
-            setFilteredBookings(response.data);
+            const response = await userApi.myBookings(year);
+            console.log("Fetched Bookings:", response.data); // Kiểm tra dữ liệu API
+            setMyBookings(response.data); // Cập nhật state chính xác
         } catch (error) {
             console.error(error);
         } finally {
