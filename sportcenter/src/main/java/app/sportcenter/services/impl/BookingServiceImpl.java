@@ -395,38 +395,42 @@ public class BookingServiceImpl implements BookingService {
 //    }
 
     @Override
-    public ResponseEntity<BaseResponse> getCurrentBookingsOfCurrentUser(String userId, Integer year) {
+    public ResponseEntity<BaseResponse> getCurrentBookingsOfCurrentUser(Integer year) {
         // Lấy thông tin người dùng hiện tại từ SecurityContext
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
+
+        if (currentUser == null) {
+            throw new NotFoundException("User currently logged in not found!");
+        }
+
         String currentUserId = currentUser.getId();
         log.info("Current user for get my bookings: " + currentUserId);
 
-        // Kiểm tra xem userId truyền vào có trùng với userId trong JWT hay không
-        if (!currentUserId.equals(userId)) {
-            throw new CustomException("You do not have permission to access other users' bookings.", HttpStatus.FORBIDDEN.value());
-        }
-
-        ZonedDateTime now = ZonedDateTime.now();
-
         // Nếu người dùng không nhập năm, mặc định lấy năm hiện tại
-        int targetYear = (year == null) ? now.getYear() : year;
+        int targetYear = (year == null) ? LocalDate.now().getYear() : year;
 
-        ZonedDateTime startOfYear = ZonedDateTime.of(targetYear, 1, 1, 0, 0, 0, 0, now.getZone());
-        ZonedDateTime endOfYear = ZonedDateTime.of(targetYear, 12, 31, 23, 59, 59, 999999999, now.getZone());
+        ZonedDateTime startOfYear = ZonedDateTime.of(targetYear, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault());
+        ZonedDateTime endOfYear = ZonedDateTime.of(targetYear, 12, 31, 23, 59, 59, 999999999, ZoneId.systemDefault());
 
         // Lấy danh sách booking của user trong năm đó
-        List<Booking> bookingList = bookingRepository.findBookingsByUserIdAndYear(userId, startOfYear, endOfYear);
+        List<Booking> bookingList = bookingRepository.findBookingsByUserIdAndYear(currentUserId, startOfYear, endOfYear);
 
         if (bookingList.isEmpty()) {
-            throw new CustomException("You don't have any bookings for " + targetYear + "!", HttpStatus.NOT_FOUND.value());
+            return ResponseEntity.ok(
+                    new BaseResponse("No bookings found for the current user in " + targetYear, HttpStatus.OK.value(), new ArrayList<>())
+            );
         }
 
-        List<BookingResponse> responseList = bookingList.stream().map(bookingMapper::convertToResponse).toList();
+        List<BookingResponse> responseList = bookingList.stream()
+                .map(bookingMapper::convertToResponse)
+                .collect(Collectors.toList());
+
         return ResponseEntity.ok(
-                new BaseResponse("Found the booking list for year " + targetYear + ".", HttpStatus.OK.value(), responseList)
+                new BaseResponse("Found bookings for the current user in " + targetYear, HttpStatus.OK.value(), responseList)
         );
     }
+
 
     @Override
     public ResponseEntity<BaseResponse> getBookingByFieldId(String fieldId) {

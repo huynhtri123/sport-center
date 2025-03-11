@@ -128,12 +128,11 @@ public class BookingController {
     }
 
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
-    @GetMapping("/booking/my-bookings/{userId}")
+    @GetMapping("/booking/my-bookings")
     public ResponseEntity<BaseResponse> getCurrentBookingsOfCurrentUser(
-            @PathVariable String userId,
             @RequestParam(value = "year", required = false) Integer year) {
 
-        return bookingService.getCurrentBookingsOfCurrentUser(userId, year);
+        return bookingService.getCurrentBookingsOfCurrentUser(year);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
