@@ -6,10 +6,7 @@ import app.sportcenter.exceptions.NotFoundException;
 import app.sportcenter.models.dto.request.BookingRequest;
 import app.sportcenter.models.dto.request.InvoiceRequest;
 import app.sportcenter.models.dto.request.RecurringBookingRequest;
-import app.sportcenter.models.dto.response.BookingResponse;
-import app.sportcenter.models.dto.response.FieldResponse;
-import app.sportcenter.models.dto.response.InvoiceResponse;
-import app.sportcenter.models.dto.response.RecurringBookingResponse;
+import app.sportcenter.models.dto.response.*;
 import app.sportcenter.models.entities.*;
 import app.sportcenter.repositories.*;
 import app.sportcenter.services.BookingService;
@@ -149,7 +146,7 @@ public class BookingServiceImpl implements BookingService {
                 .toEmail(currUser.getEmail())
                 .toFullName(currUser.getFullName())
                 .build();
-        kafkaTemplate.send("notification-delivery", messageWrapper);
+        kafkaTemplate.send("booking-notification-delivery", messageWrapper);
 
         return response;
     }
@@ -297,7 +294,7 @@ public class BookingServiceImpl implements BookingService {
                 .toEmail(currUser.getEmail())
                 .toFullName(currUser.getFullName())
                 .build();
-        kafkaTemplate.send("notification-delivery", messageWrapper);
+        kafkaTemplate.send("recurring-notification-delivery", messageWrapper);
 
         log.info("Đặt sân (recurring) bước 2 thành công,{}", recurringId);
         return response;
@@ -605,7 +602,7 @@ public class BookingServiceImpl implements BookingService {
                     .toEmail(owner.getEmail())
                     .toFullName(owner.getFullName())
                     .build();
-            kafkaTemplate.send("notification-delivery", messageWrapper);
+            kafkaTemplate.send("cancel-booking-notification-delivery", messageWrapper);
 
             return response;
 
@@ -707,14 +704,16 @@ public class BookingServiceImpl implements BookingService {
         // refund by policy
         InvoiceResponse invoiceResponse = refund(remainingAmount, owner, response.getPackageDurationMonths());
 
+        CancelRecurringInfo responseForSendingMail = new CancelRecurringInfo(response, invoiceResponse.getAmount());
+
         // 4. gửi mail
         MessageWrapper messageWrapper = MessageWrapper.builder()
                 .type(SendMailType.CANCEL_RECURRING.name())
-                .payload(response)
+                .payload(responseForSendingMail)
                 .toEmail(owner.getEmail())
                 .toFullName(owner.getFullName())
                 .build();
-        kafkaTemplate.send("notification-delivery", messageWrapper);
+        kafkaTemplate.send("cancel-recurring-notification-delivery", messageWrapper);
 
         return response;
     }

@@ -13,7 +13,7 @@ const { Option } = Select;
 
 function MyBookings({ bookings, setMyBookings, getMyProfile, userId }) {
     const [isLoading, setIsLoading] = useState(false);
-    const [selectedType, setSelectedType] = useState("All");
+    const [selectedType, setSelectedType] = useState('All');
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [filteredBookings, setFilteredBookings] = useState(bookings);
 
@@ -25,7 +25,7 @@ function MyBookings({ bookings, setMyBookings, getMyProfile, userId }) {
         try {
             setIsLoading(true);
             const response = await userApi.myBookings(year);
-            console.log("Fetched Bookings:", response.data); // Kiểm tra dữ liệu API
+            console.log('Fetched Bookings:', response.data); // Kiểm tra dữ liệu API
             setMyBookings(response.data); // Cập nhật state chính xác
         } catch (error) {
             console.error(error);
@@ -172,7 +172,9 @@ function MyBookings({ bookings, setMyBookings, getMyProfile, userId }) {
 
             {/* Thêm Select Box chọn năm */}
             <div className={styles.filter}>
-                <label style={{ marginRight: '10px', fontWeight: 'bold', color: 'black' }}>Select Year:</label>
+                <label style={{ marginRight: '10px', marginBottom: '16px', fontWeight: 'bold', color: 'black' }}>
+                    Select Year:
+                </label>
                 <Select defaultValue={selectedYear} onChange={handleYearChange} style={{ width: 120 }}>
                     {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((year) => (
                         <Option key={year} value={year}>
@@ -180,20 +182,17 @@ function MyBookings({ bookings, setMyBookings, getMyProfile, userId }) {
                         </Option>
                     ))}
                 </Select>
-                {/* Select Booking Type */}
-                <label style={{ marginRight: '10px', fontWeight: 'bold', color: 'black' }}>Select Type:</label>
-                <Select defaultValue="All" onChange={handleTypeChange} style={{ width: 140 }}>
-                    <Option value="All">All</Option>
-                    <Option value="Single">Single</Option>
-                    <Option value="Recurring">Recurring</Option>
-                </Select>
             </div>
             <Table
                 columns={columns}
                 dataSource={bookings
-                    .filter((b) => selectedType === "All" || (selectedType === "Single" && !b.isRecurring) || (selectedType === "Recurring" && b.isRecurring))
-                    .map((b) => ({ ...b, key: b.id }))
-                }
+                    .filter(
+                        (b) =>
+                            selectedType === 'All' ||
+                            (selectedType === 'Single' && !b.isRecurring) ||
+                            (selectedType === 'Recurring' && b.isRecurring)
+                    )
+                    .map((b) => ({ ...b, key: b.id }))}
                 pagination={{ pageSize: 5 }}
             />
         </div>

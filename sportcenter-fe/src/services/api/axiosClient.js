@@ -105,10 +105,13 @@ axiosClient.interceptors.response.use(
                 case 404:
                     console.log(data.message || 'An error occurred, please try again later.');
                     break;
+                case 500:
+                    console.log(data.message || 'An error occurred, please try again later.');
+                    break;
 
                 default: // các lỗi khác
                     console.log(data.message || 'An error occurred, please try again later.');
-                //toast.error(data.message || 'An error occurred, please try again later.');
+                    toast.error(data.message || 'An error occurred, please try again later.');
             }
         } else if (error.request) {
             // Xử lý lỗi mạng hoặc không phản hồi từ server

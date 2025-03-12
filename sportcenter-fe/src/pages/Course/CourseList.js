@@ -86,7 +86,10 @@ function CourseList() {
                         </motion.li>
                     ))
                 ) : (
-                    <p className={styles.noCourses}>No courses available for this sport.</p>
+                    <div>
+                        <p className={styles.noCourses}>No courses available.</p>
+                        <Link to={'/'}>Back to Home</Link>
+                    </div>
                 )}
             </motion.ul>
         </div>

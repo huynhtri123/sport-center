@@ -27,7 +27,6 @@ const userApi = {
         return axiosClient.get(url);
     },
 
-
     // registered tournaments
     myTournaments() {
         const url = '/tounament/my-tournaments';

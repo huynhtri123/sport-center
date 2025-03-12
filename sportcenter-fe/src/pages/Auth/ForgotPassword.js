@@ -71,7 +71,7 @@ function ForgotPassword() {
             <div className={clsx(styles.forgotPasswordBox, 'flex-column')}>
                 <div className='font-size-26px mb-3 d-flex flex-column'>
                     <span className='font-cera-round-pro-black font-size-24px mt-3'>
-                        <p>Forgot Your Password?</p>
+                        <h3>Forgot Your Password?</h3>
                     </span>
                 </div>
 
@@ -93,26 +93,26 @@ function ForgotPassword() {
                     </div>
                 </div>
 
-                <Button className='font-size-20px mt-3' type='submit' onClick={(e) => handleSubmit(e)}>
+                <Button className='font-size-20px mt-2' type='submit' onClick={(e) => handleSubmit(e)}>
                     Send verify code
                     <i className='fa-regular fa-paper-plane ms-2'></i>
                 </Button>
 
-                <div className='font-cera-round-pro-regular mt-2'>
+                <div className='font-size-14px font-cera-round-pro-regular mt-2'>
                     New here?
                     <Link to={'/sign-up'} className='text-underline ms-2'>
                         Create your account now
                     </Link>
                 </div>
 
-                {
+                {isModalOpen && (
                     <RenewPasswordModal
                         isModalOpen={isModalOpen}
                         onClose={toggleOpenModal}
                         email={email}
                         getVerifyResponse={getVerifyResponse}
                     ></RenewPasswordModal>
-                }
+                )}
             </div>
         </div>
     );

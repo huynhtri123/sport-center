@@ -422,7 +422,7 @@ public class TournamentServiceImpl implements TournamentService {
                     .toEmail(user.getEmail())
                     .toFullName(user.getFullName())
                     .build();
-            kafkaTemplate.send("notification-delivery", messageWrapper);
+            kafkaTemplate.send("unregister-tournament-notification-delivery", messageWrapper);
 
             return ResponseEntity.ok(new BaseResponse(
                     "Successfully canceled registration for the tournament.", HttpStatus.OK.value(), response)
@@ -516,7 +516,7 @@ public class TournamentServiceImpl implements TournamentService {
                 .toEmail(owner.getEmail())
                 .toFullName(owner.getFullName())
                 .build();
-        kafkaTemplate.send("notification-delivery", messageWrapper);
+        kafkaTemplate.send("register-tournament-notification-delivery", messageWrapper);
 
         return tournamentResponse;
     }

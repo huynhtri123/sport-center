@@ -121,7 +121,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     .toEmail((user.getEmail()))
                     .toFullName(user.getFullName())
                     .build();
-            kafkaTemplate.send("notification-delivery", messageWrapper);
+            kafkaTemplate.send("verify-otp-notification-delivery", messageWrapper);
 
         } catch (Exception e) {
             log.error("Lỗi khi gửi email xác thực cho người dùng: {}", user.getEmail(), e);
@@ -346,7 +346,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     .toEmail((user.getEmail()))
                     .toFullName(user.getFullName())
                     .build();
-            kafkaTemplate.send("notification-delivery", messageWrapper);
+            kafkaTemplate.send("verify-otp-notification-delivery", messageWrapper);
 
         } catch (Exception e) {
             log.error("Lỗi khi gửi email xác thực cho người dùng: {}" , user.getEmail(), e);

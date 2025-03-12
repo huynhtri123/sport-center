@@ -1,57 +1,85 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Booking Cancellation Notification</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            color: #333;
-            line-height: 1.6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            padding: 30px;
+            color: #343a40;
         }
         .container {
             max-width: 600px;
             margin: 0 auto;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #f9f9f9;
+            padding: 25px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid #dc3545;
         }
         h2 {
-            color: #dd0f00;
+            color: #dc3545;
+            text-align: center;
         }
         .details {
             margin-top: 20px;
+            line-height: 1.6;
         }
         .details p {
-            margin: 8px 0;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        .details strong {
+            display: inline-block;
+            min-width: 160px;
+            color: #495057;
+            font-weight: bold;
+        }
+        .details span {
+            color: #212529;
         }
         .footer {
             margin-top: 30px;
             font-size: 0.9em;
-            color: #666;
             text-align: center;
+            color: #6c757d;
+        }
+        .footer p {
+            margin: 5px 0;
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <h2>Đặt sân đã bị huỷ</h2>
-    <p>Xin chào, <strong th:text="${fullName}">Tên người dùng</strong>,</p>
-    <p>Chúng tôi xin thông báo rằng đặt sân của bạn vào ngày <strong th:text="${bookingDate}">ngày đặt sân</strong> đã bị huỷ.</p>
+    <h2>🚨 Booking Cancellation Notice</h2>
+    <p>Dear <strong th:text="${fullName}">[User Name]</strong>,</p>
+    <p>
+        We regret to inform you that your booking scheduled for
+        <strong th:text="${bookingDate}">[Booking Date]</strong> has been canceled.
+    </p>
 
     <div class="details">
-        <h3>Chi tiết đặt sân:</h3>
-        <p><strong>Ngày đặt sân:</strong> <span th:text="${bookingDate}">ngày đặt sân</span></p>
-        <p><strong>Giờ bắt đầu:</strong> <span th:text="${startTime}">giờ bắt đầu</span></p>
-        <p><strong>Giờ kết thúc:</strong> <span th:text="${endTime}">giờ kết thúc</span></p>
-        <p><strong>Số tiền hoàn lại vào số dư:</strong> <span th:text="${price}">số tiền</span> VND</p>
+        <h3>📌 Booking Details:</h3>
+        <p><strong>📅 Booking Date:</strong> <span th:text="${bookingDate}">[Booking Date]</span></p>
+        <p><strong>⏰ Start Time:</strong> <span th:text="${startTime}">[Start Time]</span></p>
+        <p><strong>⏳ End Time:</strong> <span th:text="${endTime}">[End Time]</span></p>
+        <p>
+            <strong>💰 Refunded to balance:</strong>
+            <span th:text="${price}">[Refund Amount]</span>
+        </p>
     </div>
 
     <div class="footer">
-        <p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi. Nếu có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
-        <p>Sport Center</p>
+        <p>
+            Thanks for use our services. If you have any questions or need further assistance, please feel free
+            to contact us.
+        </p>
+        <p><strong>Sport Center</strong></p>
+        <p>📍 123 Sport Avenue, City, Country</p>
+        <p>📞 Phone: +123 456 7890 | ✉️ Email: sportcenter209@gmail.com</p>
     </div>
 </div>
 </body>
