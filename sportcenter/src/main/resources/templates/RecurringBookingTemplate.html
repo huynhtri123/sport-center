@@ -1,25 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Recurring Booking Confirmation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            padding: 30px;
+            color: #343a40;
+        }
+        .container {
+            max-width: 650px;
+            background-color: #ffffff;
+            padding: 25px;
+            margin: 0 auto;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid #007bff;
+        }
+        h2 {
+            color: #003247;
+            font-size: 24px;
+            margin-top: 0;
+            text-align: center;
+        }
+        .details {
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+        .details p {
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        .details strong {
+            display: inline-block;
+            min-width: 170px;
+            color: #495057;
+            font-weight: bold;
+        }
+        .details span {
+            color: #212529;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 0.85em;
+            text-align: center;
+            color: #6c757d;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .thank-you {
+            text-align: center;
+            font-size: 18px;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #28a745;
+        }
+    </style>
 </head>
 <body>
-<h2>Chào, <span th:text="${fullName}">Tên người dùng</span>!</h2>
-<p>Bạn đã đặt sân <strong th:text="${fieldName}">Tên sân</strong> theo lịch định kỳ.</p>
+<div class="container">
+    <h2>📅 Recurring Booking Confirmation</h2>
+    <p>Hello, <strong class="highlight" th:text="${fullName}">[User's Name]</strong>!</p>
+    <p>You have successfully booked <strong class="highlight" th:text="${fieldName}">[Field Name]</strong> on a recurring schedule.</p>
 
-<p><strong>Chi tiết đặt sân:</strong></p>
-<ul>
-    <li>Ngày bắt đầu: <span th:text="${startDate}">Start Date</span></li>
-    <li>Thời gian bắt đầu: <span th:text="${startTime}">Start Time</span></li>
-    <li>Ngày kết thúc: <span th:text="${endDate}">End Date</span></li>
-    <li>Thời gian kết thúc: <span th:text="${endTime}">End Time</span></li>
-    <li>Định kỳ: <span th:text="${interval}">Interval</span></li>
-    <li>Số giờ mỗi lần đặt: <span th:text="${numberOfHours}">Number of Hours</span></li>
-    <li>Thời hạn gói (tháng): <span th:text="${packageDurationMonths}">Package Duration</span></li>
-    <li>Giá tổng cộng: <strong th:text="${price}">Total Price</strong> VND</li>
-</ul>
+    <div class="details">
+        <p><strong>📆 Start Date:</strong> <span th:text="${startDate}">[Start Date]</span></p>
+        <p><strong>⏰ Start Time:</strong> <span th:text="${startTime}">[Start Time]</span></p>
+        <p><strong>📅 End Date:</strong> <span th:text="${endDate}">[End Date]</span></p>
+        <p><strong>⏳ End Time:</strong> <span th:text="${endTime}">[End Time]</span></p>
+        <p><strong>🔄 Frequency:</strong> <span th:text="${interval}">[Interval]</span></p>
+        <p><strong>⏱️ Hours per Session:</strong> <span th:text="${numberOfHours}">[Number of Hours]</span></p>
+        <p>
+            <strong>📦 Package Duration (Months):</strong>
+            <span th:text="${packageDurationMonths}">[Package Duration]</span>
+        </p>
+        <p>
+            <strong>💰 Total Price:</strong>
+            <span class="highlight" th:text="${price}">[Total Price]</span>
+        </p>
+    </div>
 
-<p>Sport Center cảm ơn bạn đã tin tưởng và sử dụng dịch vụ của chúng tôi.</p>
+    <p class="thank-you">🎉 Thank you for choosing Sport Center! 🎉</p>
+
+    <div class="footer">
+        <p><strong>Sport Center</strong></p>
+        <p>📍 123 Sport Avenue, City, Country</p>
+        <p>📞 Phone: +123 456 7890 | ✉️ Email: sportcenter209@gmail.com</p>
+    </div>
+</div>
 </body>
 </html>

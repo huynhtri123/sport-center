@@ -1,60 +1,93 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng ký giải đấu thành công</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Successful Tournament Registration</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            background-color: #f9f9f9;
-            padding: 20px;
-            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            padding: 30px;
+            color: #343a40;
+        }
+        .container {
+            max-width: 650px;
+            background-color: #ffffff;
+            padding: 25px;
+            margin: 0 auto;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid #28a745;
         }
         h2 {
-            color: #4CAF50;
+            color: #28a745;
+            font-size: 24px;
+            margin-top: 0;
+            text-align: center;
         }
-        ul {
-            list-style-type: none;
-            padding: 0;
+        .details {
+            margin-top: 20px;
+            line-height: 1.6;
         }
-        li {
-            background: #fff;
+        .details p {
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        .details strong {
+            display: inline-block;
+            min-width: 170px;
+            color: #495057;
+            font-weight: bold;
+        }
+        .details span {
+            color: #212529;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 0.85em;
+            text-align: center;
+            color: #6c757d;
+        }
+        .footer p {
             margin: 5px 0;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-        strong {
-            color: #333;
         }
     </style>
 </head>
 <body>
-<h2>Xin chào <span th:text="${teamName}">Tên đội</span>!</h2>
+<div class="container">
+    <h2>✅ Tournament Registration Successful</h2>
+    <p>Dear <strong th:text="${teamName}">[Team Name]</strong>,</p>
+    <p>
+        We are delighted to inform you that your team has successfully registered for the
+        <strong th:text="${tournamentName}">[Tournament Name]</strong>.
+    </p>
 
-<p>Chúng tôi rất vui mừng thông báo rằng đội của bạn đã đăng ký thành công tham gia giải đấu <strong th:text="${tournamentName}">Tên giải đấu</strong>.</p>
+    <div class="details">
+        <p><strong>🏆 Tournament Name:</strong> <span th:text="${tournamentName}">[Tournament Name]</span></p>
+        <p><strong>📆 Start Date:</strong> <span th:text="${startDate}">[Start Date]</span></p>
+        <p><strong>📅 End Date:</strong> <span th:text="${endDate}">[End Date]</span></p>
+    </div>
 
-<h3>Thông tin giải đấu:</h3>
-<ul>
-    <li><strong>Tên giải đấu:</strong> <span th:text="${tournamentName}">Tên giải đấu</span></li>
-    <li><strong>Ngày bắt đầu:</strong> <span th:text="${startDate}">Ngày bắt đầu</span></li>
-    <li><strong>Ngày kết thúc:</strong> <span th:text="${endDate}">Ngày kết thúc</span></li>
-</ul>
+    <h3>👥 Team Members:</h3>
+    <ul>
+        <li th:each="player : ${players}">
+            <strong th:text="${player.name}">[Player Name]</strong> -
+            <span th:text="${player.number}">[Jersey Number]</span> -
+            <span th:text="${player.position}">[Position]</span>
+        </li>
+    </ul>
 
-<h3>Danh sách thành viên trong đội:</h3>
-<ul>
-    <li th:each="player : ${players}">
-        <strong th:text="${player.name}">Tên cầu thủ</strong> -
-        <span th:text="${player.number}">Số áo</span> -
-        <span th:text="${player.position}">Vị trí</span>
-    </li>
-</ul>
+    <p>
+        We wish your team great success in the tournament. If you have any questions, please feel free to
+        contact us.
+    </p>
 
-<p>Chúc đội của bạn thành công trong giải đấu này. Đừng ngần ngại liên hệ chúng tôi nếu bạn có bất kỳ thắc mắc nào.</p>
-
-<p>Trân trọng,<br>
-    Đội ngũ Sport Center</p>
+    <div class="footer">
+        <p><strong>Sport Center</strong></p>
+        <p>📍 123 Sport Avenue, City, Country</p>
+        <p>📞 Phone: +123 456 7890 | ✉️ Email: sportcenter209@gmail.com</p>
+    </div>
+</div>
 </body>
 </html>

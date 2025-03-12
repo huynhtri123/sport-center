@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Booking Confirmation</title>
     <style>
         body {
@@ -18,32 +18,33 @@
             margin: 0 auto;
             border-radius: 10px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            border: 1px solid #007bff;
+            border: 2px solid #007bff;
         }
         h2 {
-            color: #003247
-        ;
+            color: #003247;
             font-size: 24px;
             margin-top: 0;
+            text-align: center;
         }
         .details {
             margin-top: 20px;
             line-height: 1.6;
         }
         .details p {
-            font-size: 15px;
-            margin: 5px 0;
+            font-size: 16px;
+            margin: 10px 0;
         }
         .details strong {
             display: inline-block;
-            width: 160px;
+            min-width: 180px;
             color: #495057;
+            font-weight: bold;
         }
         .details span {
             color: #212529;
         }
         .footer {
-            margin-top: 40px;
+            margin-top: 30px;
             font-size: 0.85em;
             text-align: center;
             color: #6c757d;
@@ -51,28 +52,42 @@
         .footer p {
             margin: 5px 0;
         }
+        .highlight {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .thank-you {
+            text-align: center;
+            font-size: 18px;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #28a745;
+        }
     </style>
 </head>
 <body>
 <div class="container">
-    <h2>Sport Center - Booking Confirmation</h2>
-    <p>Dear <strong th:text="${fullName}">[User's Name]</strong>,</p>
+    <h2>📅 Sport Center - Booking Confirmation</h2>
+    <p>Dear <strong class="highlight" th:text="${fullName}">[User's Name]</strong>,</p>
     <p>Thank you for booking with Sport Center! Here are the details of your reservation:</p>
 
     <div class="details">
-        <p><strong>Email:</strong> <span th:text="${toEmail}">[User's Email]</span></p>
-        <p><strong>Booking Date:</strong> <span th:text="${bookingDate}">[Booking Date]</span></p>
-        <p><strong>Number of Hours:</strong> <span th:text="${numberOfHours}">[Number of Hours]</span></p>
-        <p><strong>Start Time:</strong> <span th:text="${startTime}">[Start Time]</span></p>
-        <p><strong>End Time:</strong> <span th:text="${endTime}">[End Time]</span></p>
-        <p><strong>Total Price:</strong> <span th:text="${totalPrice}">[Total Price]</span></p>
+        <p><strong>📆 Booking Date:</strong> <span th:text="${bookingDate}">[Booking Date]</span></p>
+        <p><strong>⏱️ Number of Hours:</strong> <span th:text="${numberOfHours}">[Number of Hours]</span></p>
+        <p><strong>⏰ Start Time:</strong> <span th:text="${startTime}">[Start Time]</span></p>
+        <p><strong>⌛ End Time:</strong> <span th:text="${endTime}">[End Time]</span></p>
+        <p>
+            <strong>💰 Total Price:</strong>
+            <span class="highlight" th:text="${totalPrice}">[Total Price]</span>
+        </p>
     </div>
 
-    <p>If you have any questions or need to make changes to your booking, please contact us.</p>
+    <p class="thank-you">🎉 We appreciate your trust in Sport Center! 🎉</p>
 
     <div class="footer">
-        <p>Sport Center<br>123 Sport Avenue, City, Country</p>
-        <p>Phone: +123 456 7890 | Email: support@sportcenter.com</p>
+        <p><strong>Sport Center</strong></p>
+        <p>📍 123 Sport Avenue, City, Country</p>
+        <p>📞 Phone: +123 456 7890 | ✉️ Email: sportcenter209@gmail.com</p>
     </div>
 </div>
 </body>

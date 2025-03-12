@@ -94,3 +94,44 @@
     font-size: 16px;
     color: $dark-min;
 }
+
+/* Responsive cho tablet (từ 768px trở xuống) */
+@media (max-width: 768px) {
+    .signupBox,
+    .signinBox,
+    .forgotPasswordBox {
+        width: 90%;
+        max-width: 400px;
+        height: auto;
+        padding: 20px;
+    }
+
+    .authContainer {
+        padding: 12px;
+    }
+
+    .logoutButton {
+        padding: 10px;
+        font-size: 14px;
+    }
+}
+
+/* Responsive cho điện thoại (từ 480px trở xuống) */
+@media (max-width: 480px) {
+    .signupBox,
+    .signinBox,
+    .forgotPasswordBox {
+        width: 95%;
+        max-width: 350px;
+        padding: 16px;
+    }
+
+    .authContainer {
+        padding: 8px;
+    }
+
+    .logoutButton {
+        padding: 8px;
+        font-size: 12px;
+    }
+}

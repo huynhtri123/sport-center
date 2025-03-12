@@ -41,7 +41,7 @@ const SportList = () => {
     if (!sports || sports.length === 0) {
         return (
             <div className={styles.container}>
-                <h2 className={styles.title}>Chưa có môn thể thao nào.</h2>
+                <h2 className={styles.title}>No sports available yet.</h2>
                 <Link to={'/'}>Back to Home</Link>
             </div>
         );

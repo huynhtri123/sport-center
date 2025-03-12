@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Unregistration from Tournament Successful</title>
+    <title>Recurring Booking Cancellation Confirmation</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -56,23 +56,28 @@
 </head>
 <body>
 <div class="container">
-    <h2>⚠️ Tournament Unregistration Successful</h2>
-    <p>Dear <strong th:text="${teamName}">[Team Name]</strong>,</p>
+    <h2>⚠️ Recurring Booking Cancellation Confirmation</h2>
+    <p>Dear <strong th:text="${fullName}">[User's Name]</strong>,</p>
     <p>
-        We regret to inform you that your team has successfully unregistered from the
-        <strong th:text="${tournamentName}">[Tournament Name]</strong>.
+        Your recurring booking for <strong th:text="${fieldName}">[Field Name]</strong> has been successfully
+        canceled.
     </p>
 
     <div class="details">
-        <p><strong>🏆 Tournament Name:</strong> <span th:text="${tournamentName}">[Tournament Name]</span></p>
         <p><strong>📆 Start Date:</strong> <span th:text="${startDate}">[Start Date]</span></p>
+        <p><strong>⏰ Start Time:</strong> <span th:text="${startTime}">[Start Time]</span></p>
         <p><strong>📅 End Date:</strong> <span th:text="${endDate}">[End Date]</span></p>
+        <p><strong>⏳ End Time:</strong> <span th:text="${endTime}">[End Time]</span></p>
+        <p><strong>🔄 Interval:</strong> <span th:text="${interval}">[Interval]</span></p>
+        <p>
+            <strong>📦 Package Duration (Months):</strong> <span th:text="${duration}">[Package Duration]</span>
+        </p>
+        <p><strong>⏱️ Number of Hours:</strong> <span th:text="${numberOfHours}">[Number of Hours]</span></p>
+        <p><strong>💰 Booking Price:</strong> <span th:text="${price}">[Total Price]</span></p>
+        <p><strong>💸 Refunded to balance:</strong> <span th:text="${refund}">[Refund Amount]</span></p>
     </div>
 
-    <p>
-        We are sorry that your team will not be participating. If you have any questions or need assistance,
-        feel free to contact us.
-    </p>
+    <p>If you have any questions or need further assistance, please contact us.</p>
 
     <div class="footer">
         <p><strong>Sport Center</strong></p>
