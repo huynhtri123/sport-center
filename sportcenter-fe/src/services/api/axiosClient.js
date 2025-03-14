@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-import authApi from './authApi';
+import authApi from './auth/authApi';
 import { handleLocalStorage } from '../../utils/handleLocalStorage';
 
 const axiosClient = axios.create({

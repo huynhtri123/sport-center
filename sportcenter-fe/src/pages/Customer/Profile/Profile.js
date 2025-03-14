@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 
 import Button from '../../../components/Button/Button';
 import styles from '../../../assets/css/Profile/profile.module.scss';
-import userApi from '../../../services/api/userApi';
+import userApi from '../../../services/api/user/userApi';
 import { formatDateToZoneDateTime } from '../../../utils/DateTimeConverter';
 import { Loading } from '../../../components/Loading/Loading';
 import Signout from '../../Auth/Signout';
@@ -344,7 +344,7 @@ function Profile() {
             )}
 
             {isAdmin && (
-                <Link className={styles.link} to={'/admin'}>
+                <Link className={styles.link} to={'/Admin'}>
                     <i className='fa-solid fa-arrow-right-long me-2'></i>
                     Go to Admin Dashboard
                 </Link>

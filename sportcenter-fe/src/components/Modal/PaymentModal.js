@@ -1,16 +1,16 @@
 /* eslint-disable no-unused-vars */
 import styles from './paymentModal.module.scss';
-import userApi from '../../services/api/userApi';
+import userApi from '../../services/api/user/userApi';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useUser } from '../../customs/hooks';
 import { PaymentStatus } from '../../utils/enums/PaymentStatus';
 import { TransactionType } from '../../utils/enums/TransactionType';
 import { useNavigate } from 'react-router-dom';
-import invoiceApi from '../../services/api/invoiceApi';
+import invoiceApi from '../../services/api/invoice/invoiceApi';
 import bookingApi from '../../services/api/booking/bookingApi';
 import { usePaymentData } from '../../customs/hooks';
-import tournamentApi from '../../services/api/tournamentApi';
+import tournamentApi from '../../services/api/tournament/tournamentApi';
 import { useLoading } from '../../customs/hooks';
 
 function PaymentModal({

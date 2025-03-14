@@ -2,12 +2,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import styles from '../../../assets/css/Admin/manageTournaments.module.scss';
-import tournamentApi from '../../../services/api/tournamentApi';
+import tournamentApi from '../../../services/api/tournament/tournamentApi';
 import { Loading } from '../../../components/Loading/Loading';
 import Button from '../../../components/Button/Button';
 import TournamentTable from './TournamentTable';
-import sportApi from '../../../services/api/sportApi';
-import fileApi from '../../../services/api/fileApi';
+import sportApi from '../../../services/api/sport/sportApi';
+import fileApi from '../../../services/api/file/fileApi';
 
 function ManageTournaments() {
     const [tournaments, setTournaments] = useState([]);

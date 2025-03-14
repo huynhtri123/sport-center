@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import styles from '../../../assets/css/Admin/Field/fieldTable.module.scss';
+import styles from '../../../assets/css/Admin/field/fieldTable.module.scss';
 import ConfirmModal from '../../../components/Modal/ConfirmModal';
 import formatCurrency from '../../../utils/formatCurrency';
-import sportApi from '../../../services/api/sportApi'; // Make sure to import your sport API service
+import sportApi from '../../../services/api/sport/sportApi';
 
 function FieldTable({
     fields,

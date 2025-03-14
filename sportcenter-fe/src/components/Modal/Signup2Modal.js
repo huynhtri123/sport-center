@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 
 import styles from './Modal.module.scss';
 import Input from '../Input/Input';
-import authApi from '../../services/api/authApi';
+import authApi from '../../services/api/auth/authApi';
 import { Loading } from '../Loading/Loading';
 
 function Signup2Modal({ isOpen, onClose, onSubmit, signupEmail, isError }) {

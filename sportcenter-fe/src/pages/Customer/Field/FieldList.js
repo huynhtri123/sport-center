@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import styles from '../../../assets/css/Field/field.module.scss';
 import { useGetFields, useGetField } from '../../../customs/hooks';
 import bookingApi from '../../../services/api/booking/bookingApi';
-import sportApi from '../../../services/api/sportApi';
+import sportApi from '../../../services/api/sport/sportApi';
 
 const FieldList = () => {
     const [fields, setFields] = useGetFields(); // danh sách field, lấy từ context (set ở trang SportHome)

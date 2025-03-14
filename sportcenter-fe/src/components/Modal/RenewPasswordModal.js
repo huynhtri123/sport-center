@@ -4,8 +4,8 @@ import { useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import Input from '../Input/Input';
-import { RenewPasswordSchema } from '../../utils/Rules/RenewPassWordSchema';
-import authApi from '../../services/api/authApi';
+import { RenewPasswordSchema } from '../../utils/rules/RenewPassWordSchema';
+import authApi from '../../services/api/auth/authApi';
 import { Loading } from '../Loading/Loading';
 import { useNavigate } from 'react-router-dom';
 import Button from '../Button/Button';

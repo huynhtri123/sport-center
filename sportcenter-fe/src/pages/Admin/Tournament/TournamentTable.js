@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import styles from '../../../assets/css/Admin/manageTournaments.module.scss';
 import ConfirmModal from '../../../components/Modal/ConfirmModal';
 import { formatDate } from '../../../utils/DateTimeConverter';
-import tournamentApi from '../../../services/api/tournamentApi';
+import tournamentApi from '../../../services/api/tournament/tournamentApi';
 import DetailModal from './DetailModal';
 
 function TournamentTable({

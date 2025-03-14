@@ -6,7 +6,7 @@ import { useCheckSignedIn } from '../../customs/hooks';
 import styles from '../../assets/css/Auth/auth.module.scss';
 import Button from '../../components/Button/Button';
 import ConfirmModal from '../../components/Modal/ConfirmModal';
-import authApi from '../../services/api/authApi';
+import authApi from '../../services/api/auth/authApi';
 
 function Signout() {
     // eslint-disable-next-line no-unused-vars
