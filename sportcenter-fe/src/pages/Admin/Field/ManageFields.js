@@ -1,11 +1,11 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-toastify';
-import styles from '../../../assets/css/Admin/manageFields.module.scss';
+import styles from '../../../assets/css/Admin/field/manageFields.module.scss';
 import { useGetFields } from '../../../customs/hooks';
-import fieldApi from '../../../services/api/fieldApi';
+import fieldApi from '../../../services/api/field/fieldApi';
 import { Loading } from '../../../components/Loading/Loading';
-import fileApi from '../../../services/api/fileApi';
+import fileApi from '../../../services/api/file/fileApi';
 import { defaultIcon } from '../../../utils/defaultIcon';
 import FieldTable from './FieldTable';
 import FieldInput from './FieldInput';

@@ -5,11 +5,11 @@ import { useState, useEffect } from 'react';
 import styles from '../assets/css/Layouts/navBar.module.scss';
 import { useCheckSignedIn } from '../customs/hooks';
 import { useGetSports } from '../customs/hooks';
-import sportApi from '../services/api/sportApi';
+import sportApi from '../services/api/sport/sportApi';
 import { connectWebSocket, disconnectWebSocket } from '../services/websocket/connect';
 import notificationApi from '../services/api/notification/notificationApi';
 import { useUser } from '../customs/hooks';
-import userApi from '../services/api/userApi';
+import userApi from '../services/api/user/userApi';
 
 function NavBar() {
     const [sports, setSports] = useGetSports();

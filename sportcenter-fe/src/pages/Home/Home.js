@@ -3,12 +3,12 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import styles from '../../assets/css/home.module.scss';
-import bannerApi from '../../services/api/bannerApi';
-import testimonialApi from '../../services/api/testimonialApi';
+import bannerApi from '../../services/api/banner/bannerApi';
+import testimonialApi from '../../services/api/testimonial/testimonialApi';
 import { useCheckSignedIn } from '../../customs/hooks';
-import userApi from '../../services/api/userApi';
-import fileApi from '../../services/api/fileApi';
-import galleryApi from '../../services/api/galleryApi';
+import userApi from '../../services/api/user/userApi';
+import fileApi from '../../services/api/file/fileApi';
+import galleryApi from '../../services/api/gallery/galleryApi';
 import { Loading } from '../../components/Loading/Loading';
 
 function Home() {

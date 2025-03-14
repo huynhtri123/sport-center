@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import Button from '../../components/Button/Button';
 import styles from '../../assets/css/Auth/auth.module.scss';
 import Input from '../../components/Input/Input';
-import authApi from '../../services/api/authApi';
+import authApi from '../../services/api/auth/authApi';
 import { handleLocalStorage } from '../../utils/handleLocalStorage';
 import { useCheckSignedIn } from '../../customs/hooks';
 import { Role } from '../../utils/enums/Role';
@@ -57,7 +57,7 @@ function Signin() {
             // chuyển hướng
             const currentRole = handleLocalStorage.getCurrentRole();
             if (currentRole === Role.ADMIN) {
-                navigate('/admin');
+                navigate('/Admin');
             } else {
                 navigate('/');
             }

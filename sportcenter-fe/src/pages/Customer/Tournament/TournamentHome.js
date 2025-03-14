@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import styles from '../../../assets/css/Tournament/tournament.module.scss';
-import tournamentApi from '../../../services/api/tournamentApi';
+import tournamentApi from '../../../services/api/tournament/tournamentApi';
 import { useGetSports } from '../../../customs/hooks';
 import { useTournament } from '../../../customs/hooks';
 import { useNavigate } from 'react-router-dom';

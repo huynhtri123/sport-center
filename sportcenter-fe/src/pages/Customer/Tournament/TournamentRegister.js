@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 
 import styles from '../../../assets/css/Tournament/tournamentRegister.module.scss';
 import Button from '../../../components/Button/Button';
-import tournamentApi from '../../../services/api/tournamentApi';
+import tournamentApi from '../../../services/api/tournament/tournamentApi';
 import { useTournament } from '../../../customs/hooks';
-import teamApi from '../../../services/api/teamApi';
+import teamApi from '../../../services/api/tournament/teamApi';
 import { Loading } from '../../../components/Loading/Loading';
 import PaymentModal from '../../../components/Modal/PaymentModal';
 import { defaultIcon } from '../../../utils/defaultIcon';

@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import styles from '../../assets/css/admin.module.scss';
+import styles from '../../assets/css/Admin/admin.module.scss';
 import { Pie, Bar } from 'react-chartjs-2';
-import ManageFields from './Field/ManageFields';
-import ManageTeams from './ManageTeams';
-import ManageInvoices from './ManageInvoice';
-import ManageSports from './ManageSports';
+import ManageFields from './field/ManageFields';
+import ManageTeams from './team/ManageTeams';
+import ManageInvoices from './invoice/ManageInvoice';
+import ManageSports from './sport/ManageSports';
 import Signout from '../Auth/Signout';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
-import ManageCourses from './ManageCourses';
-import ManageTournaments from './Tournament/ManageTournaments';
-import ManageBookings from './ManageBookings';
-import ManageUser from './ManageUser';
-import ManageNotifications from './Notification/ManageNotifications';
-import revenueApi from '../../services/api/revenueApi';
+import ManageCourses from './course/ManageCourses';
+import ManageTournaments from './tournament/ManageTournaments';
+import ManageBookings from './booking/ManageBookings';
+import ManageUser from './user/ManageUser';
+import ManageNotifications from './notification/ManageNotifications';
+import revenueApi from '../../services/api/revenue/revenueApi';
 import { RecurringIntervalType } from '../../utils/enums/RecurringIntervalType';
 import { Link } from 'react-router-dom';
 
@@ -87,7 +87,6 @@ function AdminDashboard() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-
                 // Fetch booking counts
                 const countSingleBooking = await revenueApi.countSingleBooking();
                 const dailyRecurringBooking = await revenueApi.countRecurringBookingByType(RecurringIntervalType.DAILY);
@@ -107,11 +106,11 @@ function AdminDashboard() {
                 const normalizedData =
                     totalBookings > 0
                         ? [
-                            (countSingleBooking.data / totalBookings) * 100,
-                            (dailyRecurringBooking.data / totalBookings) * 100,
-                            (weeklyRecurringBooking.data / totalBookings) * 100,
-                            (monthlyRecurringBooking.data / totalBookings) * 100,
-                        ]
+                              (countSingleBooking.data / totalBookings) * 100,
+                              (dailyRecurringBooking.data / totalBookings) * 100,
+                              (weeklyRecurringBooking.data / totalBookings) * 100,
+                              (monthlyRecurringBooking.data / totalBookings) * 100,
+                          ]
                         : [0, 0, 0, 0];
 
                 setPieChartData((prev) => ({
@@ -131,7 +130,7 @@ function AdminDashboard() {
                 // Chuyển đổi dữ liệu thành mảng cho biểu đồ
                 const months = Object.keys(revenueData);
                 // const amounts = Object.values(revenueData);
-                const revenues = months.map((month) => revenueData[month].revenue)
+                const revenues = months.map((month) => revenueData[month].revenue);
                 const refunds = months.map((month) => revenueData[month].refund_fee);
 
                 const shortMonths = months.map((month) => {
@@ -174,15 +173,15 @@ function AdminDashboard() {
                         <h2>Dashboard Overview</h2>
                         <p>Some detailed statistics and data can be shown here.</p>
                         {/* Dropdown chọn năm */}
-                        <div className="mb-4">
-                            <label className="text-lg font-semibold mr-2">Select Year:</label>
+                        <div className='mb-4'>
+                            <label className='text-lg font-semibold mr-2'>Select Year:</label>
                             <select
                                 value={selectedYear}
                                 onChange={(e) => {
                                     const newYear = Number(e.target.value);
                                     setSelectedYear(newYear);
                                 }}
-                                className="border p-2 rounded-md"
+                                className='border p-2 rounded-md'
                             >
                                 {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((year) => (
                                     <option key={year} value={year}>

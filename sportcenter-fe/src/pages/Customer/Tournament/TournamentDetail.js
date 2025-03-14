@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styles from '../../../assets/css/Tournament/tournamentDetail.module.scss';
 import { useTournament } from '../../../customs/hooks';
 import Button from '../../../components/Button/Button';
-import tournamentApi from '../../../services/api/tournamentApi';
+import tournamentApi from '../../../services/api/tournament/tournamentApi';
 import { useNavigate } from 'react-router-dom';
 import formatCurrency from '../../../utils/formatCurrency';
 import { formatDate } from '../../../utils/DateTimeConverter';

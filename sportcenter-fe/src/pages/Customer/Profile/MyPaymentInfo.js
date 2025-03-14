@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import styles from '../../../assets/css/Profile/myPayments.module.scss';
-import userApi from '../../../services/api/userApi';
+import userApi from '../../../services/api/user/userApi';
 import { Loading } from '../../../components/Loading/Loading';
 import PaymentModal from './PaymentModal';
 import ConfirmModal from '../../../components/Modal/ConfirmModal';

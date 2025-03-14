@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import styles from '../../../assets/css/Sport/sportList.module.scss';
 import { useGetSports } from '../../../customs/hooks';
 import { useGetFields } from '../../../customs/hooks';
-import fieldApi from '../../../services/api/fieldApi';
+import fieldApi from '../../../services/api/field/fieldApi';
 
 const SportList = () => {
     // eslint-disable-next-line no-unused-vars

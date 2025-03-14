@@ -12,8 +12,8 @@ import Footer from './layouts/Footer';
 import Home from './pages/Home/Home';
 import ForgotPassword from './pages/Auth/ForgotPassword';
 
-import CourseList from './pages/Course/CourseList';
-import CourseLesson from './pages/Course/CourseLesson';
+import CourseList from './pages/Customer/Course/CourseList';
+import CourseLesson from './pages/Customer/Course/CourseLesson';
 import Booking from './pages/Customer/Booking/Booking';
 import FieldList from './pages/Customer/Field/FieldList';
 import SportList from './pages/Customer/Sport/SportList';
@@ -27,7 +27,7 @@ import { useCleanupStorage } from './customs/hooks';
 import TournamentHome from './pages/Customer/Tournament/TournamentHome';
 import TournamentDetail from './pages/Customer/Tournament/TournamentDetail';
 import TournamentRegister from './pages/Customer/Tournament/TournamentRegister';
-import Notification from './pages/Notification/Notification';
+import Notification from './pages/Customer/Notification/Notification';
 
 import AllProviders from './contexts/AllProviders';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -41,12 +41,12 @@ function App() {
         <GlobalStyle>
             <AllProviders>
                 <div className={clsx(styles.app)}>
-                    {/* Chỉ hiển thị NavBar nếu đường dẫn không phải là /admin */}
-                    {location.pathname !== '/admin' && <NavBar />}
+                    {/* Chỉ hiển thị NavBar nếu đường dẫn không phải là /Admin */}
+                    {location.pathname !== '/Admin' && <NavBar />}
                     <div className={clsx(styles.appContent)}>
                         <Routes>
                             <Route
-                                path='/admin'
+                                path='/Admin'
                                 element={
                                     <ProtectedRoute requiredRole={Role.ADMIN}>
                                         <AdminDashBoard></AdminDashBoard>

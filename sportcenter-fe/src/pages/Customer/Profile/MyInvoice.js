@@ -4,7 +4,7 @@ import { Table, Button, Modal, Badge } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { Tooltip } from 'antd';
 import styles from '../../../assets/css/Profile/myInvoice.module.scss';
-import userApi from '../../../services/api/userApi';
+import userApi from '../../../services/api/user/userApi';
 import { Loading } from '../../../components/Loading/Loading';
 import formatCurrency from '../../../utils/formatCurrency';
 

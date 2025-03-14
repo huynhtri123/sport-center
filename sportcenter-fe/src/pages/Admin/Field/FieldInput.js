@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import styles from '../../../assets/css/Admin/manageFields.module.scss';
+import styles from '../../../assets/css/Admin/field/manageFields.module.scss';
 import Button from '../../../components/Button/Button';
-import sportApi from '../../../services/api/sportApi';
+import sportApi from '../../../services/api/sport/sportApi';
 import { toast } from 'react-toastify';
 
 function FieldInput({

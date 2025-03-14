@@ -8,8 +8,8 @@ import Button from '../../components/Button/Button';
 import styles from '../../assets/css/Auth/auth.module.scss';
 import Input from '../../components/Input/Input';
 import Signup2Modal from '../../components/Modal/Signup2Modal';
-import { SignupSchema } from '../../utils/Rules/SignupSchema';
-import authApi from '../../services/api/authApi';
+import { SignupSchema } from '../../utils/rules/SignupSchema';
+import authApi from '../../services/api/auth/authApi';
 import { Loading } from '../../components/Loading/Loading';
 
 function Signup() {

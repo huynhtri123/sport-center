@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import Input from '../../components/Input/Input';
 import Button from '../../components/Button/Button';
 import RenewPasswordModal from '../../components/Modal/RenewPasswordModal';
-import authApi from '../../services/api/authApi';
+import authApi from '../../services/api/auth/authApi';
 import { Loading } from '../../components/Loading/Loading';
 
 function ForgotPassword() {

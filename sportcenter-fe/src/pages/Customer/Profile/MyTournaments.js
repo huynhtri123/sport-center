@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Pagination, Modal } from 'antd';
 import { toast } from 'react-toastify';
 import styles from '../../../assets/css/Profile/myTournaments.module.scss';
-import userApi from '../../../services/api/userApi';
+import userApi from '../../../services/api/user/userApi';
 import { Loading } from '../../../components/Loading/Loading';
 import TeamEditModal from '../../../components/Modal/TeamEditModal';
-import tournamentApi from '../../../services/api/tournamentApi';
+import tournamentApi from '../../../services/api/tournament/tournamentApi';
 import formatCurrency from '../../../utils/formatCurrency';
 
 function MyTournaments({ tournaments }) {

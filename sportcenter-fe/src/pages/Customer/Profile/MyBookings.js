@@ -1,9 +1,11 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { Table, Button, Badge, Modal, Select } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import bookingApi from '../../../services/api/booking/bookingApi';
-import userApi from '../../../services/api/userApi';
+import userApi from '../../../services/api/user/userApi';
 import formatCurrency from '../../../utils/formatCurrency';
 import styles from '../../../assets/css/Profile/myBookings.module.scss';
 import { Loading } from '../../../components/Loading/Loading';
