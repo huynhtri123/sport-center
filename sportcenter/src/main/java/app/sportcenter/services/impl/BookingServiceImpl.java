@@ -615,7 +615,7 @@ public class BookingServiceImpl implements BookingService {
     private List<Booking> getRelevantActiveBookings(String bookingId) {
         RecurringBooking recurrParent = recurringBookingRepository.getByContainBookingId(bookingId);
         if (recurrParent == null) {
-            throw new NotFoundException("No recurring booking found with this bookingId!");
+            throw new CustomException("This booking has expired and cannot be canceled!", 400);
         }
         // xác thực
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -654,7 +654,7 @@ public class BookingServiceImpl implements BookingService {
     public RecurringBookingResponse cancelRecurringByBookingId(String bookingId) {
         RecurringBooking recurrParent = recurringBookingRepository.getByContainBookingId(bookingId);
         if (recurrParent == null) {
-            throw new NotFoundException("No recurring booking found with this bookingId!");
+            throw new CustomException("This booking has expired and cannot be canceled!", 400);
         }
 
         if (recurrParent.isProcessing()) {
