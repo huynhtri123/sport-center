@@ -5,21 +5,34 @@ import { toast } from 'react-toastify';
 import styles from '../../../assets/css/Admin/manageBookings.module.scss';
 import bookingApi from '../../../services/api/booking/bookingApi';
 import { Loading } from '../../../components/Loading/Loading';
-import ConfirmModal from '../../../components/Modal/ConfirmModal';
 import Button from '../../../components/Button/Button';
 import formatCurrency from '../../../utils/formatCurrency';
 import { connectWebSocket, disconnectWebSocket } from '../../../services/websocket/connect';
+import PDFModal from '../../../components/Modal/PDFModal';
 
 function ManageBookings() {
     const [bookings, setBookings] = useState([]);
     const [canceledBookingIds, setCanceledBookingIds] = useState([]);
     const [bookingToCancel, setBookingToCancel] = useState(null); // Store the booking to be canceled
-    const [recurringBooking, setRecurringBooking] = useState({});
-    const [remainingAmout, setRemainingAmount] = useState(0);
 
     const [isLoading, setIsLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isCancelRecurringModalOpen, setIsCancelRecurringModalOpen] = useState(false);
+
+    const [isPDFModalVisible, setIsPDFModalVisible] = useState(false);
+    const [isRecurringCancel, setIsRecurringCancel] = useState(false);
+
+    const showCancelConfirm = (booking) => {
+        setBookingToCancel(booking);
+        setIsRecurringCancel(false);
+        setIsPDFModalVisible(true);
+    };
+
+    const showCancelRecurringConfirm = (booking) => {
+        setBookingToCancel(booking);
+        setIsRecurringCancel(true);
+        setIsPDFModalVisible(true);
+    };
 
     // State for the search query
     const [searchQuery, setSearchQuery] = useState('');
@@ -59,29 +72,6 @@ function ManageBookings() {
         setBookings(sortedBookings);
     };
 
-    const toggleCancelRecurringModalOpen = async (bookingId) => {
-        if (!isCancelRecurringModalOpen) {
-            try {
-                setIsLoading(true);
-                const getRecurring = await bookingApi.getRecurringByBookingId(bookingId);
-                setRecurringBooking(getRecurring.data);
-                const remainingAmoutResponse = await bookingApi.getRemainingAmout(bookingId);
-                // console.log(remainingAmoutResponse);
-                setRemainingAmount(remainingAmoutResponse.data);
-                // console.log(getRecurring);
-            } catch (err) {
-                console.error(err);
-            } finally {
-                setIsLoading(false);
-            }
-        }
-        setIsCancelRecurringModalOpen(!isCancelRecurringModalOpen);
-    };
-
-    const toggleOpenModal = () => {
-        setIsModalOpen(!isModalOpen);
-    };
-
     useEffect(() => {
         // Khi component mount, kết nối WebSocket
         connectWebSocket(
@@ -105,7 +95,7 @@ function ManageBookings() {
     const fetchBookings = useCallback(async () => {
         try {
             setIsLoading(true);
-            const response = await bookingApi.searchByFieldName(searchQuery, currentPage, pageSize); // Sử dụng API tìm kiếm
+            const response = await bookingApi.searchByFieldName(searchQuery, currentPage, pageSize);
             setBookings(response.data.content);
             setTotalPages(response.data.totalPages);
             setTotalElements(response.data.totalElements);
@@ -129,11 +119,6 @@ function ManageBookings() {
         fetchBookings();
     }, [searchQuery, currentPage]);
 
-    const handleCancelBooking = (booking) => {
-        setBookingToCancel(booking);
-        toggleOpenModal();
-    };
-
     const handleCancelBookingSubmit = async () => {
         if (!bookingToCancel) return;
 
@@ -153,16 +138,16 @@ function ManageBookings() {
     };
 
     // huỷ cứng
-    const handleCancelRecurring = async (bookingId) => {
+    const handleCancelRecurring = async () => {
+        if (!bookingToCancel) return;
         try {
             setIsLoading(true);
 
-            const cancelRecurringResponse = await bookingApi.cancelRecurring(bookingId);
+            const cancelRecurringResponse = await bookingApi.cancelRecurring(bookingToCancel.id);
             console.log(cancelRecurringResponse);
 
             // Loại bỏ booking đã huỷ khỏi state `bookings`
-            const bookingIds = recurringBooking.bookingIds;
-            setBookings((prevBookings) => prevBookings.filter((booking) => !bookingIds.includes(booking.id)));
+            setBookings((prev) => prev.filter((b) => !cancelRecurringResponse.data.bookingIds.includes(b.id)));
 
             toast.success(cancelRecurringResponse.message);
         } catch (err) {
@@ -195,6 +180,16 @@ function ManageBookings() {
     return (
         <div className={styles.manageBookingsContainer}>
             {isLoading && <Loading />}
+
+            <PDFModal
+                visible={isPDFModalVisible}
+                onConfirm={() => {
+                    isRecurringCancel ? handleCancelRecurring() : handleCancelBookingSubmit();
+                    setIsPDFModalVisible(false);
+                }}
+                onCancel={() => setIsPDFModalVisible(false)}
+            />
+
             <div className={styles.searchContainer}>
                 <input
                     type='text'
@@ -218,7 +213,7 @@ function ManageBookings() {
                         <th>Order</th>
                         <th>Booking ID</th>
                         <th>Field Name</th>
-                        <th>Customer Info</th> {/* Gộp thành cột mới */}
+                        <th>Customer Info</th>
                         <th onClick={handleSortByDate} style={{ cursor: 'pointer' }}>
                             Booking Date{' '}
                             {sortOrder === 'asc' ? (
@@ -273,37 +268,18 @@ function ManageBookings() {
                                 <td>{booking.numberOfHours}</td>
                                 <td>{formatCurrency(booking.totalPrice)}</td>
                                 <td>
-                                    {booking.recurring ? (
-                                        <>
-                                            <Button
-                                                className={`btn ${styles.cancelButtonRecurring}`}
-                                                onClick={() => handleCancelBooking(booking)}
-                                            >
-                                                Single Cancel
-                                            </Button>
-                                            <Button
-                                                className={`btn ${styles.cancelButtonRecurring}`}
-                                                onClick={() => toggleCancelRecurringModalOpen(booking.id)}
-                                            >
-                                                Recurring Cancel
-                                            </Button>
-                                            {isCancelRecurringModalOpen && (
-                                                <ConfirmModal
-                                                    title={`The owner will be refunded ${formatCurrency(
-                                                        remainingAmout / 2
-                                                    )} (50% of the remaining booking amount)! Are you sure you want to cancel this fixed booking?`}
-                                                    isOpen={isCancelRecurringModalOpen}
-                                                    onClose={toggleCancelRecurringModalOpen}
-                                                    onSubmit={() => handleCancelRecurring(booking.id)}
-                                                ></ConfirmModal>
-                                            )}
-                                        </>
-                                    ) : (
+                                    <Button
+                                        className={`btn ${styles.cancelButton}`}
+                                        onClick={() => showCancelConfirm(booking)}
+                                    >
+                                        Cancel Booking
+                                    </Button>
+                                    {booking.recurring && (
                                         <Button
-                                            className={`btn ${styles.cancelButton}`}
-                                            onClick={() => handleCancelBooking(booking)}
+                                            className={`btn ${styles.cancelButtonRecurring}`}
+                                            onClick={() => showCancelRecurringConfirm(booking)}
                                         >
-                                            Cancel Booking
+                                            Cancel Recurring
                                         </Button>
                                     )}
                                 </td>
@@ -311,23 +287,11 @@ function ManageBookings() {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan='9'>No bookings available.</td> {/* Update colSpan to match new column count */}
+                            <td colSpan='9'>No bookings available.</td>
                         </tr>
                     )}
                 </tbody>
             </table>
-            {isModalOpen && (
-                <ConfirmModal
-                    title={
-                        bookingToCancel.recurring
-                            ? 'This is a fixed schedule! If you cancel this booking, the owner will not receive a refund! Are you sure you want to cancel?'
-                            : 'Are you sure you want to cancel the booking? The court booking fee will be refunded to the owner balance!'
-                    }
-                    isOpen={isModalOpen}
-                    onClose={toggleOpenModal}
-                    onSubmit={handleCancelBookingSubmit}
-                />
-            )}
 
             {/* Pagination controls */}
             <div className={styles.pagination}>

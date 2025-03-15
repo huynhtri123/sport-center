@@ -69,8 +69,7 @@ public class BookingController {
         RecurringBookingResponse response = bookingService.confirmRecurringBooking(recurringBookingId);
         messagingTemplate.convertAndSend("/topic/booking-updates", Map.of("message", "Update field status!"));
 
-        String message = "Confirm recurring booking according to the fixed schedule. (" + response.getInterval() + "/"
-                + response.getPackageDurationMonths() + " months) successfully!";
+        String message = "Confirm recurring booking successfully!";
         return ResponseEntity.ok(
                 new BaseResponse(message, 200, response)
         );
@@ -203,7 +202,7 @@ public class BookingController {
         messagingTemplate.convertAndSend("/topic/booking-updates", Map.of("message", "Update field status!"));
 
         return ResponseEntity.ok(
-                new BaseResponse("Recurring booking hard cancel successful, 50% of the amount has been refunded to your balance.",
+                new BaseResponse("Cancel recurring booking successful",
                         200, response)
         );
     }

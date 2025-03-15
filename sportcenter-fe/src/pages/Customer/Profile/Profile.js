@@ -46,7 +46,7 @@ function Profile() {
         setShowBookings(!showBookings);
         if (showBookings === false && profile?.id && myBooking.length === 0) {
             try {
-                const myBookingResponse = await userApi.myBookings(profile.id);
+                const myBookingResponse = await userApi.myBookings(new Date().getFullYear());
                 // console.log(myBookingResponse);
                 setMyBookings(myBookingResponse.data);
             } catch (err) {

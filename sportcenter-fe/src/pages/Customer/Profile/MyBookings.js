@@ -2,22 +2,57 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { Table, Button, Badge, Modal, Select } from 'antd';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { Table, Button, Badge, Select } from 'antd';
 import bookingApi from '../../../services/api/booking/bookingApi';
 import userApi from '../../../services/api/user/userApi';
 import formatCurrency from '../../../utils/formatCurrency';
 import styles from '../../../assets/css/Profile/myBookings.module.scss';
 import { Loading } from '../../../components/Loading/Loading';
+import PDFModal from '../../../components/Modal/PDFModal';
+import { connectWebSocket, disconnectWebSocket } from '../../../services/websocket/connect';
 
-const { confirm } = Modal;
 const { Option } = Select;
 
 function MyBookings({ bookings, setMyBookings, getMyProfile, userId }) {
     const [isLoading, setIsLoading] = useState(false);
     const [selectedType, setSelectedType] = useState('All');
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-    const [filteredBookings, setFilteredBookings] = useState(bookings);
+
+    const [isPDFModalVisible, setIsPDFModalVisible] = useState(false);
+    const [selectedBooking, setSelectedBooking] = useState(null);
+    const [isRecurringCancel, setIsRecurringCancel] = useState(false);
+
+    useEffect(() => {
+        // Khi component mount, kết nối WebSocket
+        connectWebSocket(
+            (updatedBooking) => {
+                // Xử lý cập nhật booking
+                fetchBookings(selectedYear);
+            },
+            (newNotification) => {
+                // Xử lý notification mới
+                console.log('🔔 Notification mới nhận:', newNotification);
+            }
+        );
+
+        // Cleanup khi component bị unmount (rời khỏi trang)
+        return () => {
+            console.log('🔌 Ngắt kết nối WebSocket');
+            disconnectWebSocket(); // Ngắt kết nối WebSocket khi component unmount
+        };
+    }, []);
+
+    const showCancelConfirm = (booking) => {
+        setSelectedBooking(booking);
+        setIsRecurringCancel(false);
+        setIsPDFModalVisible(true);
+    };
+
+    const showCancelRecurringConfirm = (booking) => {
+        setSelectedBooking(booking);
+        setIsRecurringCancel(true);
+        setIsPDFModalVisible(true);
+    };
 
     useEffect(() => {
         fetchBookings(selectedYear);
@@ -27,8 +62,7 @@ function MyBookings({ bookings, setMyBookings, getMyProfile, userId }) {
         try {
             setIsLoading(true);
             const response = await userApi.myBookings(year);
-            console.log('Fetched Bookings:', response.data); // Kiểm tra dữ liệu API
-            setMyBookings(response.data); // Cập nhật state chính xác
+            setMyBookings(response.data);
         } catch (error) {
             console.error(error);
         } finally {
@@ -38,9 +72,6 @@ function MyBookings({ bookings, setMyBookings, getMyProfile, userId }) {
 
     const handleYearChange = (year) => {
         setSelectedYear(year);
-    };
-    const handleTypeChange = (value) => {
-        setSelectedType(value);
     };
 
     const handleCancelBookingSubmit = async (bookingId) => {
@@ -69,30 +100,6 @@ function MyBookings({ bookings, setMyBookings, getMyProfile, userId }) {
         } finally {
             setIsLoading(false);
         }
-    };
-
-    const showCancelConfirm = (booking) => {
-        confirm({
-            title: `Are you sure you want to cancel this booking?`,
-            icon: <ExclamationCircleOutlined />,
-            content: booking.recurring
-                ? 'This is part of a recurring booking. Only this session will be canceled, and you will not receive a refund.'
-                : 'You will receive a full refund.',
-            onOk() {
-                handleCancelBookingSubmit(booking.id);
-            },
-        });
-    };
-
-    const showCancelRecurringConfirm = (booking) => {
-        confirm({
-            title: `Are you sure you want to cancel the entire recurring booking?`,
-            icon: <ExclamationCircleOutlined />,
-            content: 'You will receive a 50% refund of the total remaining bookings in the cycle.',
-            onOk() {
-                handleCancelRecurring(booking.id);
-            },
-        });
     };
 
     const columns = [
@@ -171,6 +178,17 @@ function MyBookings({ bookings, setMyBookings, getMyProfile, userId }) {
     return (
         <div className={styles.container}>
             {isLoading && <Loading />}
+
+            <PDFModal
+                visible={isPDFModalVisible}
+                onConfirm={() => {
+                    isRecurringCancel
+                        ? handleCancelRecurring(selectedBooking.id)
+                        : handleCancelBookingSubmit(selectedBooking.id);
+                    setIsPDFModalVisible(false);
+                }}
+                onCancel={() => setIsPDFModalVisible(false)}
+            />
 
             {/* Thêm Select Box chọn năm */}
             <div className={styles.filter}>
