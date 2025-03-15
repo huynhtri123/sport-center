@@ -356,17 +356,18 @@ function Booking() {
                     <div className={styles.formGroup}>
                         <label htmlFor='interval'>Select the cycle:</label>
                         <select id='interval' value={interval} onChange={(e) => setInterval(e.target.value)}>
-                            <option value={RecurringIntervalType.DAILY}>Daily</option>
                             <option value={RecurringIntervalType.WEEKLY}>Weekly</option>
-                            <option value={RecurringIntervalType.MONTHLY}>Monthly</option>
+                            <option value={RecurringIntervalType.DAILY}>Daily</option>
                         </select>
                     </div>
                     <div className={styles.formGroup}>
                         <label htmlFor='duration'>Package duration:</label>
                         <select id='duration' value={duration} onChange={(e) => setDuration(e.target.value)}>
-                            <option value={1}>1 month (-10%)</option>
-                            <option value={3}>3 months (-20%)</option>
-                            <option value={6}>6 months (-30%)</option>
+                            <option value={1}>1 month (-5%)</option>
+                            <option value={3}>3 months (-15%)</option>
+                            <option value={6}>6 months (-25%)</option>
+                            <option value={9}>9 months (-35%)</option>
+                            <option value={12}>12 months (-45%)</option>
                         </select>
                     </div>
 

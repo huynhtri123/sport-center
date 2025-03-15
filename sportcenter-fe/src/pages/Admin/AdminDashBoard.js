@@ -23,22 +23,12 @@ function AdminDashboard() {
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [selectedSection, setSelectedSection] = useState('Dashboard');
     const [pieChartData, setPieChartData] = useState({
-        labels: ['Single Bookings', 'Daily Recurring', 'Weekly Recurring', 'Monthly Recurring'],
+        labels: ['Single Bookings', 'Daily Recurring', 'Weekly Recurring'],
         datasets: [
             {
                 data: [0, 0, 0, 0],
-                backgroundColor: [
-                    'rgba(255, 206, 86, 0.6)',
-                    'rgba(75, 192, 192, 0.6)',
-                    'rgba(153, 102, 255, 0.6)',
-                    'rgba(255, 99, 132, 0.6)',
-                ],
-                borderColor: [
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 99, 132, 1)',
-                ],
+                backgroundColor: ['rgba(255, 206, 86, 0.6)', 'rgba(75, 192, 192, 0.6)', 'rgba(153, 102, 255, 0.6)'],
+                borderColor: ['rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'],
                 borderWidth: 1,
             },
         ],
@@ -93,15 +83,9 @@ function AdminDashboard() {
                 const weeklyRecurringBooking = await revenueApi.countRecurringBookingByType(
                     RecurringIntervalType.WEEKLY
                 );
-                const monthlyRecurringBooking = await revenueApi.countRecurringBookingByType(
-                    RecurringIntervalType.MONTHLY
-                );
 
                 const totalBookings =
-                    countSingleBooking.data +
-                    dailyRecurringBooking.data +
-                    weeklyRecurringBooking.data +
-                    monthlyRecurringBooking.data;
+                    countSingleBooking.data + dailyRecurringBooking.data + weeklyRecurringBooking.data;
 
                 const normalizedData =
                     totalBookings > 0
@@ -109,7 +93,6 @@ function AdminDashboard() {
                               (countSingleBooking.data / totalBookings) * 100,
                               (dailyRecurringBooking.data / totalBookings) * 100,
                               (weeklyRecurringBooking.data / totalBookings) * 100,
-                              (monthlyRecurringBooking.data / totalBookings) * 100,
                           ]
                         : [0, 0, 0, 0];
 

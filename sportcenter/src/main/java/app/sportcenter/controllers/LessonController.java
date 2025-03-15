@@ -1,7 +1,6 @@
 package app.sportcenter.controllers;
 
 import app.sportcenter.commons.BaseResponse;
-import app.sportcenter.commons.CourseSportType;
 import app.sportcenter.models.dto.request.LessonRequest;
 import app.sportcenter.services.LessonService;
 import jakarta.validation.Valid;
@@ -53,10 +52,4 @@ public class LessonController {
         return lessonService.searchByNameContainingIgnoreCase(lessonName);
     }
 
-
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @GetMapping("/find-by-type")
-    public ResponseEntity<BaseResponse> findByCourseSportType(@RequestParam("type") CourseSportType courseSportType) {
-        return lessonService.findByCourseSportType(courseSportType);
-    }
 }

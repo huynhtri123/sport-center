@@ -1,7 +1,6 @@
 package app.sportcenter.services;
 
 import app.sportcenter.commons.BaseResponse;
-import app.sportcenter.commons.CourseSportType;
 import app.sportcenter.models.dto.request.LessonRequest;
 import org.springframework.http.ResponseEntity;
 
@@ -20,7 +19,5 @@ LessonService {
     ResponseEntity<BaseResponse> restore(String lessonId);
 
     ResponseEntity<BaseResponse> searchByNameContainingIgnoreCase(String lessonName);
-
-    public ResponseEntity<BaseResponse> findByCourseSportType(CourseSportType courseSportType);
 
 }
