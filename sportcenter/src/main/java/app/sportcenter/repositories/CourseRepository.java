@@ -1,9 +1,6 @@
 package app.sportcenter.repositories;
 
-import app.sportcenter.commons.CourseSportType;
-import app.sportcenter.commons.FieldType;
 import app.sportcenter.models.entities.Course;
-import app.sportcenter.models.entities.Field;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -11,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
 @Repository
 public interface CourseRepository extends MongoRepository<Course, String> {
     // Lấy tất cả field đã bị xoá mềm

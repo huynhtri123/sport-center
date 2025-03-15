@@ -1,7 +1,5 @@
 package app.sportcenter.models.entities;
 
-
-import app.sportcenter.commons.CourseSportType;
 import app.sportcenter.commons.LevelLesson;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,7 +16,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Lesson extends BaseEntity{
     @Id
     private String id;
-//    private CourseSportType courseSportType;
     private String lessonName;
     private String description;
     private LevelLesson levelLesson;

@@ -1,7 +1,6 @@
 package app.sportcenter.services.impl;
 
 import app.sportcenter.commons.BaseResponse;
-import app.sportcenter.commons.CourseSportType;
 import app.sportcenter.exceptions.NotFoundException;
 import app.sportcenter.models.dto.request.LessonRequest;
 import app.sportcenter.models.dto.response.LessonResponse;
@@ -90,21 +89,5 @@ public class LessonServiceImpl implements LessonService {
         }
         List<LessonResponse> responseLessons = lessons.stream().map(lessonMapper::convertToDTO).toList();
         return ResponseEntity.ok(new BaseResponse("Lessons found.", HttpStatus.OK.value(), responseLessons));
-    }
-
-    @Override
-    public ResponseEntity<BaseResponse> findByCourseSportType(CourseSportType courseSportType) {
-        List<Lesson> lessonList = lessonRepository.findByCourseSportType(courseSportType);
-
-        if (lessonList.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("No lesson found of this type: " + courseSportType.name() + ".", HttpStatus.NOT_FOUND.value(), null)
-            );
-        }
-
-        List<LessonResponse> responseLessons = lessonList.stream().map(lessonMapper::convertToDTO).toList();
-        return ResponseEntity.ok(
-                new BaseResponse("Field list found for this type: " + courseSportType.name() + ".", HttpStatus.OK.value(), responseLessons)
-        );
     }
 }

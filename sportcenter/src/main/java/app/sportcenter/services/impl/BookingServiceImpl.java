@@ -720,10 +720,12 @@ public class BookingServiceImpl implements BookingService {
 
     private double discountRateByDurationMonths(int packageDurationMonths) {
         return switch (packageDurationMonths) {
-            case 1 -> 0.9;  // giam 10%
-            case 3 -> 0.8;  // giam 20%
-            case 6 -> 0.7;  // giam 30%
-            default -> 1;   // giam 0%
+            case 1 -> 0.95; //  5%
+            case 3 -> 0.85; //  15%
+            case 6 -> 0.75; //  25%
+            case 9 -> 0.65; //  35%
+            case 12 -> 0.55; // 45%
+            default -> 1;   //  0%
         };
     }
 

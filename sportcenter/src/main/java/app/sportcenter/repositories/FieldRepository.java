@@ -1,7 +1,6 @@
 package app.sportcenter.repositories;
 
 import app.sportcenter.commons.FieldStatus;
-import app.sportcenter.commons.FieldType;
 import app.sportcenter.models.entities.Field;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,10 +23,6 @@ public interface FieldRepository extends MongoRepository<Field, String> {
     @Query("{ 'fieldName': { $regex: ?0, $options: 'i' }, 'isDeleted': false, 'isActive': true }")
     public List<Field> searchByFieldNameContainingIgnoreCase(String fieldName);
 
-    // search by fieldType
-//    @Query("{ 'fieldType': ?0, 'isDeleted': false, 'isActive': true }")
-//    List<Field> findByFieldType(FieldType fieldType);
-
     @Query("{ 'sport.id': ?0, 'isDeleted': false, 'isActive': true }")
     List<Field> findBySportIdAndIsActiveTrueAndIsDeletedFalse(String sportId);
 
@@ -40,6 +35,5 @@ public interface FieldRepository extends MongoRepository<Field, String> {
 
     @Query("{ 'fieldName': { $regex: ?0, $options: 'i' }, 'isDeleted': false, 'isActive': true }")
     Page<Field> searchByFieldNameContainingIgnoreCase(String fieldName, Pageable pageable);
-
 
 }

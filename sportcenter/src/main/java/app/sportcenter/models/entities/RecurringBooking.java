@@ -25,7 +25,7 @@ public class RecurringBooking extends BaseEntity implements PricedItem {
     private User user;                         // người đặt sân
     private ZonedDateTime startDate;           // ngày bắt đầu lịch định kỳ
     private ZonedDateTime startTime;           // giờ bắt đầu trong mỗi ngày đặt
-    private RecurringIntervalType interval;    // loại lặp lại (DAILY, WEEKLY, MONTHLY)
+    private RecurringIntervalType interval;    // loại lặp lại (DAILY, WEEKLY)
     private Integer numberOfHours;             // Số giờ đặt mỗi lần đặt (để tính endTime mỗi lần đặt)
     private Integer packageDurationMonths;     // Số tháng của gói (1, 3, 6, ...)
     private List<String> bookingIds = new ArrayList<>();
@@ -47,7 +47,6 @@ public class RecurringBooking extends BaseEntity implements PricedItem {
         int occurrences = switch (interval) {
             case DAILY -> packageDurationMonths * 30;  // 30 ngày/tháng
             case WEEKLY -> packageDurationMonths * 4;  // 4 tuần/tháng
-            case MONTHLY -> packageDurationMonths;     // 1 lần/tháng
             default -> throw new CustomException("Invalid interval type", 400);
         };
 
@@ -61,7 +60,6 @@ public class RecurringBooking extends BaseEntity implements PricedItem {
             switch (interval) {
                 case DAILY -> currentDate = currentDate.plusDays(1);
                 case WEEKLY -> currentDate = currentDate.plusWeeks(1);
-                case MONTHLY -> currentDate = currentDate.plusMonths(1);
             }
         }
 
