@@ -14,6 +14,4 @@ public interface InvoiceRepository extends MongoRepository<Invoice, String> {
     @Query("{'user.id': ?0, 'isActive': true, 'isDeleted': false}")
     List<Invoice> findByUserIdAndIsActiveTrueAndIsDeletedFalse(String userId);
 
-
-
 }

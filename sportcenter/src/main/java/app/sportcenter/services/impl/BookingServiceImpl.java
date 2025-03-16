@@ -166,6 +166,7 @@ public class BookingServiceImpl implements BookingService {
         RecurringBooking recurringBooking = recurringBookingMapper.convertToEntity(recurringBookingRequest, field, currentUser);
         recurringBooking.setStartDate(recurringBooking.getStartDate().minusHours(7));
         recurringBooking.setStartTime(recurringBooking.getStartTime().minusHours(7));
+        recurringBooking.setEndTime(recurringBooking.getEndTime());
 
         List<TimeSlot> recurringTimeSlots = recurringBooking.generateTimeSlots();
         boolean isAvailableRecurring = checkAvailableRecurring(field.getId(), recurringTimeSlots);
@@ -402,7 +403,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         String currentUserId = currentUser.getId();
-        log.info("Current user for get my bookings: " + currentUserId);
+        //log.info("Current user for get my bookings: " + currentUserId);
 
         // Nếu người dùng không nhập năm, mặc định lấy năm hiện tại
         int targetYear = (year == null) ? LocalDate.now().getYear() : year;

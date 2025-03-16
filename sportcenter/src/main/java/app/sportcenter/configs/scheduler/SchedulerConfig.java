@@ -69,7 +69,11 @@ public class SchedulerConfig {
             fieldsToSave.add(field);
             booking.setIsActive(false);
             booking.setProcessing(false);
-            booking.setIsDeleted(true);
+
+            // Trường hợp 1: Booking hết hạn -> tat active thoi
+            // Trường hợp 2: Đang xử lý quá 5 phút -> xoa luon -> thong ke ko tinh
+            booking.setIsDeleted(!booking.getEndTime().isBefore(now));
+
             bookingsToSave.add(booking);
             log.info("Đặt sân hết hạn, vừa cập nhật về AVAILABLE (bookingId: {})", booking.getId());
         }
