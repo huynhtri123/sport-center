@@ -3,42 +3,13 @@
 .manageFields {
     padding: 20px;
     flex-grow: 1;
-
-    .pricePolicyContainer {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 5px 0;
-    }
-
-    .dayOfWeekContainer {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr); /* Chia thành 2 cột đều nhau */
-        gap: 10px; /* Khoảng cách giữa các ô */
-    }
-
-    .dayOfWeekLabel {
-        display: flex;
-        align-items: center;
-        gap: 8px; /* Khoảng cách giữa checkbox và text */
-        padding: 5px;
-        font-size: 1em;
-        font-weight: 500;
-        text-align: left;
-        width: 100%; /* Đảm bảo label chiếm đủ chiều ngang */
-        white-space: nowrap; /* Đảm bảo text không bị xuống dòng */
-    }
-
-    input[type='checkbox'] {
-        margin: 0;
-        flex-shrink: 0; /* Đảm bảo checkbox không co lại */
-    }
+    margin: 8px;
 
     .addButton {
         display: block;
         margin: 1rem 0;
         padding: 0.5rem 1rem;
-        background-color: #007bff;
+        background-color: $sky-blue;
         color: white;
         border: none;
         border-radius: 5px;
@@ -47,52 +18,8 @@
         font-family: 'Cera Round Pro Bold', Times, serif;
 
         &:hover {
-            background-color: #0f6ed4;
+            background-color: $sky-blue-hover;
             color: white;
-        }
-    }
-
-    .removePolicyButton {
-        background-color: #ccc;
-        width: fit-content;
-        margin: 24px;
-        color: white;
-
-        &:hover {
-            background-color: darken(darken(#ccc, 10%), 10%);
-        }
-    }
-    .addPolicyButton {
-        background-color: #ccc;
-        color: white;
-        &:hover {
-            background-color: darken(darken(#ccc, 10%), 10%);
-        }
-    }
-
-    .editButton {
-        background-color: darken($blue-prime, 10%);
-        color: white;
-        padding: 6px 12px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-
-        &:hover {
-            background-color: darken(darken($blue-prime, 10%), 10%);
-        }
-    }
-
-    .deleteButton {
-        background-color: #dc3545;
-        color: white;
-        padding: 6px 12px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-
-        &:hover {
-            background-color: darken(#dc3545, 10%);
         }
     }
 
@@ -165,17 +92,128 @@
         }
     }
 
+    .pricePoliciesSection {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #333;
+        padding: 10px 0;
+        margin: 20px 0;
+        border-top: 2px solid $yellow-prime; /* Đường gạch trên */
+        border-bottom: 2px solid $yellow-prime; /* Đường gạch dưới */
+        text-align: center;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+    }
+
+    .pricePolicyContainer {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 15px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background: #ffffff;
+        margin-bottom: 15px;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+
+        input[type='number'] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #aaa;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+    }
+
+    .dayOfWeekContainer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 5px;
+
+        .dayOfWeekLabel {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #f1f1f1;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+
+            &:hover {
+                background: #e2e2e2;
+            }
+
+            input[type='checkbox'] {
+                accent-color: #28a745; /* Màu xanh cho checkbox */
+            }
+        }
+    }
+
+    .removePolicyButton {
+        color: red;
+        cursor: pointer;
+        margin-left: 10px;
+        transition: color 0.2s;
+
+        &:hover {
+            color: darkred;
+        }
+    }
+
+    .addPolicyButton {
+        background-color: $sky-blue-dark;
+        color: white;
+        &:hover {
+            background-color: $sky-blue-dark-hover;
+        }
+    }
+
     .inputsContainer {
         flex: 1;
         display: flex;
         flex-direction: column;
+        width: 100%; /* Adjusted to fill available space */
 
-        input {
+        input,
+        select {
+            width: 100%; /* Make inputs and selects fill the width */
             padding: 10px;
             margin-bottom: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
+    }
+
+    .dayOfWeekContainer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px; /* Khoảng cách giữa các ô */
+        width: 100%;
+        margin-bottom: 24px;
+    }
+
+    /* Định dạng cho từng label */
+    .dayOfWeekLabel {
+        display: flex;
+        align-items: center;
+        gap: 6px; /* Khoảng cách giữa checkbox và text */
+        font-size: 1rem;
+        background: $blue-nhat-bg;
+        padding: 6px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        white-space: nowrap; /* Giữ chữ trên một dòng */
+    }
+
+    /* Định dạng checkbox */
+    input[type='checkbox'] {
+        width: 16px;
+        height: 16px;
+        margin: 0;
+        flex-shrink: 0; /* Đảm bảo không bị co lại */
     }
 
     select {
@@ -187,7 +225,7 @@
         display: block;
         margin: 1rem 0;
         padding: 0.5rem 1rem;
-        background-color: #007bff;
+        background-color: $sky-blue;
         color: white;
         border: none;
         border-radius: 5px;
@@ -196,7 +234,7 @@
         font-family: 'Cera Round Pro Bold', Times, serif;
 
         &:hover {
-            background-color: #0f6ed4;
+            background-color: $sky-blue-hover;
             color: white;
         }
     }
@@ -249,4 +287,69 @@
 .pagination span {
     font-weight: bold;
     color: #333; /* Color for the page number text */
+}
+
+/* 🌟 Responsive Design */
+@media screen and (max-width: 1024px) {
+    .manageFields {
+        padding: 15px;
+    }
+
+    .inputForm {
+        margin: 16px;
+    }
+
+    .mediaContainer {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .pricePolicyContainer {
+        padding: 10px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .dayOfWeekContainer {
+        flex-wrap: wrap;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .mediaContainer {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .avatarContainer,
+    .videoContainer {
+        width: 100%;
+        max-width: 200px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .manageFields {
+        padding: 10px;
+    }
+
+    .searchContainer {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .searchInput {
+        width: 100%;
+        max-width: unset;
+    }
+
+    .pricePoliciesSection {
+        font-size: 1rem;
+    }
+
+    .pagination {
+        flex-direction: column;
+        gap: 5px;
+    }
 }

@@ -3,6 +3,7 @@ import styles from '../../../assets/css/Admin/field/manageFields.module.scss';
 import Button from '../../../components/Button/Button';
 import sportApi from '../../../services/api/sport/sportApi';
 import { toast } from 'react-toastify';
+import clsx from 'clsx';
 
 function FieldInput({
     isEditing,
@@ -26,7 +27,7 @@ function FieldInput({
         const fetchSports = async () => {
             try {
                 const response = await sportApi.getAllActive(0, 100); // Gọi API lấy danh sách môn thể thao
-                console.log(response.data.content);
+                //console.log(response.data.content);
                 setSports(response.data.content); // Cập nhật state với danh sách môn thể thao
             } catch (error) {
                 console.error('Error fetching sports:', error); // Xử lý lỗi khi gọi API
@@ -143,6 +144,9 @@ function FieldInput({
                     />
 
                     {/* Các phần khác của form */}
+                    <p className={styles.pricePoliciesSection}>
+                        <i className='fa-solid fa-coins'></i> Price Polycies (VND)
+                    </p>
                     {(isEditing ? editFormData.pricePolicies : formData.pricePolicies).map((policy, index) => (
                         <div key={index} className={styles.pricePolicyContainer}>
                             <input
@@ -177,22 +181,21 @@ function FieldInput({
                                         }
                                     </label>
                                 ))}
+
+                                <i
+                                    className={clsx('fa-solid fa-trash', styles.removePolicyButton)}
+                                    onClick={() => handleRemovePricePolicy(index)}
+                                    title='Remove price the policy'
+                                ></i>
                             </div>
                             {/* Hiển thị lỗi nếu không có ngày nào được chọn */}
                             {errors[`policy-${index}`] && (
                                 <span className={styles.errorText}>{errors[`policy-${index}`]}</span>
                             )}
-                            <button
-                                type='button'
-                                className={`btn ${styles.removePolicyButton}`}
-                                onClick={() => handleRemovePricePolicy(index)}
-                            >
-                                Remove Policy
-                            </button>
                         </div>
                     ))}
                     <button type='button' className={`btn ${styles.addPolicyButton}`} onClick={handleAddPricePolicy}>
-                        More Price Policy
+                        + New Price Policy
                     </button>
                 </div>
             </div>
