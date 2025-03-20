@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import clsx from 'clsx';
 import styles from '../../../assets/css/Booking/Booking.module.scss';
 import bookingApi from '../../../services/api/booking/bookingApi';
-import { Loading } from '../../../components/Loading/Loading';
+import { Processing } from '../../../components/Loading/Processing';
 import Button from '../../../components/Button/Button';
 import { useGetField } from '../../../customs/hooks';
 import { RecurringIntervalType } from '../../../utils/enums/RecurringIntervalType';
@@ -243,7 +243,7 @@ function Booking() {
 
     return (
         <div className={styles.bookingContainer}>
-            {isLoadingContext && <Loading></Loading>}
+            {isLoadingContext && <Processing></Processing>}
             <section className={styles.fieldDetailSection}>
                 <div className={styles.fieldImage}>
                     <img src={field.imageUrl} alt={field.fieldName} />
@@ -356,8 +356,8 @@ function Booking() {
                     <div className={styles.formGroup}>
                         <label htmlFor='interval'>Select the cycle:</label>
                         <select id='interval' value={interval} onChange={(e) => setInterval(e.target.value)}>
-                            <option value={RecurringIntervalType.WEEKLY}>Weekly</option>
-                            <option value={RecurringIntervalType.DAILY}>Daily</option>
+                            <option value={RecurringIntervalType.WEEKLY}>Weekly (1 tuần 1 lần)</option>
+                            <option value={RecurringIntervalType.BIWEEKLY}>Bi-Weekly (2 tuần 1 lần)</option>
                         </select>
                     </div>
                     <div className={styles.formGroup}>

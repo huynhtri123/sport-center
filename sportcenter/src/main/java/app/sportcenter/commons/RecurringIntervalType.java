@@ -1,7 +1,6 @@
 package app.sportcenter.commons;
 
 public enum RecurringIntervalType {
-    DAILY,
-    WEEKLY,
-    //MONTHLY
+    WEEKLY,     // 1 tuần 1 lần
+    BIWEEKLY,   // 2 tuần 1 lần
 }

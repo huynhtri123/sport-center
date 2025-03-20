@@ -23,7 +23,7 @@ function AdminDashboard() {
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [selectedSection, setSelectedSection] = useState('Dashboard');
     const [pieChartData, setPieChartData] = useState({
-        labels: ['Single Bookings', 'Daily Recurring', 'Weekly Recurring'],
+        labels: ['Single Bookings', 'BiWeekly Recurring', 'Weekly Recurring'],
         datasets: [
             {
                 data: [0, 0, 0, 0],
@@ -79,29 +79,24 @@ function AdminDashboard() {
             try {
                 // Fetch booking counts
                 const countSingleBooking = await revenueApi.countSingleBooking();
-                const dailyRecurringBooking = await revenueApi.countRecurringBookingByType(RecurringIntervalType.DAILY);
                 const weeklyRecurringBooking = await revenueApi.countRecurringBookingByType(
                     RecurringIntervalType.WEEKLY
                 );
+                const biWeeklyRecurringBooking = await revenueApi.countRecurringBookingByType(
+                    RecurringIntervalType.BIWEEKLY
+                );
 
                 const totalBookings =
-                    countSingleBooking.data + dailyRecurringBooking.data + weeklyRecurringBooking.data;
+                    countSingleBooking.data + biWeeklyRecurringBooking.data + weeklyRecurringBooking.data;
 
-                const normalizedData =
-                    totalBookings > 0
-                        ? [
-                              (countSingleBooking.data / totalBookings) * 100,
-                              (dailyRecurringBooking.data / totalBookings) * 100,
-                              (weeklyRecurringBooking.data / totalBookings) * 100,
-                          ]
-                        : [0, 0, 0, 0];
+                const rawData = [countSingleBooking.data, biWeeklyRecurringBooking.data, weeklyRecurringBooking.data];
 
                 setPieChartData((prev) => ({
                     ...prev,
                     datasets: [
                         {
                             ...prev.datasets[0],
-                            data: normalizedData,
+                            data: rawData,
                         },
                     ],
                 }));
@@ -219,6 +214,16 @@ function AdminDashboard() {
                                             title: {
                                                 display: true,
                                                 text: 'Types of Bookings',
+                                            },
+                                            tooltip: {
+                                                callbacks: {
+                                                    label: function (tooltipItem) {
+                                                        const dataset = tooltipItem.dataset;
+                                                        const index = tooltipItem.dataIndex;
+                                                        const value = dataset.data[index];
+                                                        return `${tooltipItem.label}: ${value} bookings`;
+                                                    },
+                                                },
                                             },
                                         },
                                     }}

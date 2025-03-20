@@ -213,7 +213,7 @@ function MyBookings({ bookings, setMyBookings, getMyProfile, userId }) {
                             (selectedType === 'Recurring' && b.isRecurring)
                     )
                     .map((b) => ({ ...b, key: b.id }))}
-                pagination={{ pageSize: 5 }}
+                pagination={{ pageSize: 5, showSizeChanger: false }}
             />
         </div>
     );
