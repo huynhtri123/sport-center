@@ -27,12 +27,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SchedulerConfig {
     private final BookingRepository bookingRepository;
-    private final FieldRepository fieldRepository;
     private final RegisterOrderRepository registerOrderRepository;
     private final TournamentRepository tournamentRepository;
     private final TeamRepository teamRepository;
     private final RecurringBookingRepository recurringBookingRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final FieldStatusByDateRepository fieldStatusByDateRepository;
 
     @Bean
     public ScheduledExecutorService scheduledExecutorService() {
@@ -41,57 +41,73 @@ public class SchedulerConfig {
 
     // check BOOKING status -> reset field status
     @Transactional
-    @Scheduled(fixedRate = 60000) // chạy moi 1p
+    @Scheduled(fixedRate = 60000) // Chạy mỗi 1 phút
     public void checkFieldTimeSlotsStatus() {
         ZonedDateTime now = ZonedDateTime.now();
         log.info("Check booking expire. Thời gian hiện tại (+7): {}", now);
 
-        // get all expired bookings (endTime<now || isProcessing=true > 5p)
+        // Lấy danh sách các booking hết hạn (endTime < now) hoặc đang xử lý quá 5 phút
         ZonedDateTime minutesAgo = ZonedDateTime.now().minusMinutes(5);
         List<Booking> expiredBookings = bookingRepository.findExpiredOrStaleProcessingBookings(now, minutesAgo);
 
         if (expiredBookings.isEmpty()) {
-            return; // Không có thay đổi, thoát luôn
+            return;
         }
         log.info("Check expired bookings: {}", expiredBookings.size());
 
-        List<Field> fieldsToSave = new ArrayList<>();
+        List<FieldStatusByDate> fieldStatusToUpdate = new ArrayList<>();
         List<Booking> bookingsToSave = new ArrayList<>();
 
         for (Booking booking : expiredBookings) {
-            Field field = booking.getField();
-            // 2 cái sau đây là giờ +7, nên chuyển nó về +0 để tạo timeSlot:
-            ZonedDateTime bookingStartTime = booking.getStartTime().withZoneSameInstant(ZoneOffset.UTC);
-            ZonedDateTime bookingEndTime = booking.getEndTime().withZoneSameInstant(ZoneOffset.UTC);
+            ZonedDateTime startTime = booking.getStartTime().withZoneSameInstant(ZoneOffset.UTC);
+            ZonedDateTime endTime = booking.getEndTime().withZoneSameInstant(ZoneOffset.UTC);
+            ZonedDateTime startOfDayUTC = startTime.toLocalDate().atStartOfDay(ZoneOffset.UTC);
 
-            // tạo timeSlot mới <=> trả nó về AVAILABLE
-            field.createTimeSlots(bookingStartTime, bookingEndTime);
-            fieldsToSave.add(field);
+            // Lấy trạng thái sân theo ngày
+            FieldStatusByDate fieldStatusByDate = fieldStatusByDateRepository
+                    .findByFieldIdAndDate(booking.getField().getId(), startOfDayUTC)
+                    .orElse(null);
+
+            if (fieldStatusByDate != null) {
+                // Xóa TimeSlot của booking hết hạn khỏi danh sách
+                fieldStatusByDate.getTimeSlots().removeIf(ts ->
+                        (ts.getStartTime().isEqual(startTime) || ts.getStartTime().isAfter(startTime))
+                                && (ts.getEndTime().isEqual(endTime) || ts.getEndTime().isBefore(endTime))
+                );
+                fieldStatusToUpdate.add(fieldStatusByDate);
+            }
+
+            // Cập nhật trạng thái booking
             booking.setIsActive(false);
             booking.setProcessing(false);
 
-            // Trường hợp 1: Booking hết hạn -> tat active thoi
-            // Trường hợp 2: Đang xử lý quá 5 phút -> xoa luon -> thong ke ko tinh
+            // Nếu đang xử lý quá 5 phút -> xóa luôn (không tính vào thống kê)
             booking.setIsDeleted(!booking.getEndTime().isBefore(now));
-
             bookingsToSave.add(booking);
+
             log.info("Đặt sân hết hạn, vừa cập nhật về AVAILABLE (bookingId: {})", booking.getId());
         }
-        fieldRepository.saveAll(fieldsToSave);
+
+        fieldStatusByDateRepository.saveAll(fieldStatusToUpdate);
         bookingRepository.saveAll(bookingsToSave);
 
+        // ws
         messagingTemplate.convertAndSend("/topic/booking-updates", Map.of("message", "Update field status!"));
     }
 
     // check RECURRING status
     // isProcessing > 5p -> off
     @Transactional
-    @Scheduled(fixedRate = 60000) // chạy moi 1p
+    @Scheduled(fixedRate = 60000) // Chạy mỗi 1 phút
     public void checkExpiredRecurrings() {
-        // get all recurrings: isProcessing > 5p
         ZonedDateTime minutesAgo = ZonedDateTime.now().minusMinutes(5);
         List<RecurringBooking> expiredProcessings = recurringBookingRepository.findByIsProcessingTrueAndCreatedAtBefore(minutesAgo);
-        log.info("Check recurring: {}" , expiredProcessings.size());
+
+        if (expiredProcessings.isEmpty()) {
+            return;
+        }
+
+        log.info("Số recurring booking quá hạn xử lý: {}", expiredProcessings.size());
 
         List<RecurringBooking> savedList = new ArrayList<>();
         for (RecurringBooking recurringBooking : expiredProcessings) {
@@ -99,8 +115,10 @@ public class SchedulerConfig {
             recurringBooking.setIsActive(false);
             recurringBooking.setIsDeleted(true);
             savedList.add(recurringBooking);
-            log.warn("Recurring processing overtime -> off!");
+
+            log.warn("Recurring booking quá hạn xử lý -> Đã hủy! (recurringId: {})", recurringBooking.getId());
         }
+
         recurringBookingRepository.saveAll(savedList);
     }
 

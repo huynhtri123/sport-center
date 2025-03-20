@@ -19,24 +19,21 @@ public interface BookingService {
 
     public BookingResponse confirmBooking(String bookingId);
 
+    // huỷ lẻ
+    public BookingResponse cancelBooking(String bookingId);
+
     // ĐẶT CỨNG
     public RecurringBookingResponse createRecurringBooking(RecurringBookingRequest recurringBookingRequest);
 
     public RecurringBookingResponse confirmRecurringBooking(String recurringId);
 
-    // UPDATE
-    // soft delete & restore
-    public ResponseEntity<BaseResponse> changeIsDeleted(String bookingId, boolean flag);
-
-    public ResponseEntity<BaseResponse> forceDelete(String bookingId);
-
-    // huỷ lẻ
-    public BookingResponse cancelBooking(String bookingId);
-
     // huỷ cứng
     public RecurringBookingResponse cancelRecurringByBookingId(String bookingId);
 
     // GET
+    // lấy tất cả booking theo khoảng thời gian cụ thể. Ví dụ theo ngày (7:00 ngày 1/1/2024 - 22:00 ngày 1/1/2024)
+    public ResponseEntity<BaseResponse> getFieldSchedule(String fieldId, ZonedDateTime startOfDay, ZonedDateTime endOfDay);
+
     public ResponseEntity<BaseResponse> getBookingById(String id);
 
     public ResponseEntity<BaseResponse> getBookingByUserId(String userId);
@@ -48,9 +45,6 @@ public interface BookingService {
     public ResponseEntity<BaseResponse> getBookingsByStartTime(ZonedDateTime startTime);
 
     public ResponseEntity<BaseResponse> getAllBookings(int page, int size);
-
-    // lấy tất cả booking theo khoảng thời gian cụ thể. Ví dụ theo ngày (7:00 ngày 1/1/2024 - 22:00 ngày 1/1/2024)
-    public ResponseEntity<BaseResponse> getFieldSchedule(String fieldId, ZonedDateTime startOfDay, ZonedDateTime endOfDay);
 
     public Double getBookingPrice(BookingRequest bookingRequest);
 
@@ -69,5 +63,11 @@ public interface BookingService {
     public Map<String, Double> getRevenueLastSixMonths();
 
     public ResponseEntity<BaseResponse> allBookingUser(String userId);
+
+    // UPDATE
+    // soft delete & restore
+    public ResponseEntity<BaseResponse> changeIsDeleted(String bookingId, boolean flag);
+
+    public ResponseEntity<BaseResponse> forceDelete(String bookingId);
 
 }

@@ -15,6 +15,10 @@ public class TimeSlot {
     private ZonedDateTime startTime;    // Thời gian bắt đầu
     private ZonedDateTime endTime;      // Thời gian kết thúc
     private FieldStatus status;         // Trạng thái: AVAILABLE, IN_USE, ...
+
+    public boolean isInUse() {
+        return status.equals(FieldStatus.IN_USE);
+    }
 }
 
 // TimeSlot:

@@ -10,6 +10,7 @@ import app.sportcenter.models.dto.response.*;
 import app.sportcenter.models.entities.*;
 import app.sportcenter.repositories.*;
 import app.sportcenter.services.BookingService;
+import app.sportcenter.services.FieldStatusByDateService;
 import app.sportcenter.services.InvoiceService;
 import app.sportcenter.services.UserService;
 import app.sportcenter.utils.kafkaUsage.MessageWrapper;
@@ -25,16 +26,19 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,6 +55,8 @@ public class BookingServiceImpl implements BookingService {
     private final InvoiceService invoiceService;
     private final FieldMapper fieldMapper;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final FieldStatusByDateService fieldStatusByDateService;
+    private final FieldStatusByDateRepository fieldStatusByDateRepository;
 
     // đặt lẻ bước 1
     @Transactional
@@ -61,8 +67,6 @@ public class BookingServiceImpl implements BookingService {
 
         Field field = fieldRepository.findById(bookingRequest.getFieldId())
                 .orElseThrow(() -> new CustomException("Field with this ID not found.", HttpStatus.NOT_FOUND.value()));
-        log.info("Booking user: " + currentUser.getFullName());
-        log.info("Booking field: " + field.getFieldName());
 
         // tính toán thời gian kết thúc dựa trên số giờ đặt
         // vì theo quy ước converter đã cấu hình thì đầu vào mongo sẽ phải là +0,
@@ -71,23 +75,28 @@ public class BookingServiceImpl implements BookingService {
         ZonedDateTime startTime = bookingRequest.getStartTime().minusHours(7);
         ZonedDateTime endTime = startTime.plusHours(bookingRequest.getNumberOfHours());
 
-        boolean isAvailableField = checkAvailableField(field.getId(), startTime, endTime);
-        // nếu có nghĩa là kẹt lịch, out
-        if (isAvailableField) {
-            // tạo ra các timeSlot AVAILABLE cho khoảng tgian đặt (ví dụ 7-9h -> tạo 2 timeSlot AVAILABLE)
-            field.createTimeSlots(startTime, endTime);
+        boolean isAvailableField = fieldStatusByDateService.checkAvailable(
+                field.getId(), startTime.plusHours(7), endTime.plusHours(7)); // vi ham check nay tu -7 roi
 
-            // đổi trạng thái của các TimeSlot liên quan đến booking thành IN_USE
-            for (TimeSlot slot : field.getTimeSlots()) {
-                if (slot.getStartTime().isBefore(endTime) &&
-                        slot.getEndTime().isAfter(startTime)) {
-                    slot.setStatus(FieldStatus.IN_USE);
-                }
+        if (isAvailableField) {
+            // Xác định ngày của sân để cập nhật trạng thái
+            ZonedDateTime startOfDay = startTime.toLocalDate().atStartOfDay(startTime.getZone());
+            FieldStatusByDate fieldStatusByDate = fieldStatusByDateRepository
+                    .findByFieldIdAndDate(field.getId(), startOfDay)
+                    .orElse(new FieldStatusByDate(null, field.getId(), startOfDay, new ArrayList<>()));
+            // Tạo danh sách TimeSlots mới cho booking này
+            List<TimeSlot> timeSlots = new ArrayList<>();
+            ZonedDateTime currentTime = startTime;
+            while (currentTime.isBefore(endTime)) {
+                ZonedDateTime nextTime = currentTime.plusHours(1);
+                timeSlots.add(new TimeSlot(currentTime, nextTime, FieldStatus.IN_USE));
+                currentTime = nextTime;
             }
 
-            fieldRepository.save(field);
+            // Thêm vào danh sách TimeSlots của ngày đó
+            fieldStatusByDate.getTimeSlots().addAll(timeSlots);
+            fieldStatusByDateRepository.save(fieldStatusByDate);
 
-            // Tạo booking mới với trạng thái sân đã được cập nhật
             bookingRequest.setStartTime(startTime);
             Booking booking = bookingMapper.convertToEntity(bookingRequest, field, currentUser);
             booking.setRecurring(false);        // single booking
@@ -102,7 +111,7 @@ public class BookingServiceImpl implements BookingService {
             return response;
         }
 
-        throw new CustomException("Failed! The field is not available at this time!", HttpStatus.CONFLICT.value());
+        throw new CustomException("Booking failed: The field is unavailable at this time!", HttpStatus.CONFLICT.value());
     }
 
     // kiểm tra xem trong khoảng thời gian nhất định, sân đó có trống không
@@ -151,116 +160,207 @@ public class BookingServiceImpl implements BookingService {
         return response;
     }
 
+    // huy booking
+    @Override
+    @Transactional
+    public BookingResponse cancelBooking(String bookingId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new NotFoundException("This booking not found."));
+
+        // Kiểm tra nếu booking đang xử lý (chưa thanh toán xong) thì không cho hủy
+        if (booking.isProcessing()) {
+            throw new CustomException("This booking is processing (expired after 5p), you cannot cancel it!", 400);
+        }
+
+        // Chỉ chủ sở hữu hoặc admin mới có quyền hủy booking
+        if (!booking.getUser().getId().equals(currentUser.getId()) && !currentUser.getRole().equals(Role.ADMIN)) {
+            throw new CustomException("You do not have permission to cancel another user's court booking.", HttpStatus.FORBIDDEN.value());
+        }
+
+        ZonedDateTime bookingStartTime = booking.getStartTime();
+        ZonedDateTime bookingEndTime = booking.getEndTime();
+        ZonedDateTime now = ZonedDateTime.now();
+
+        // Kiểm tra nếu booking đã hết hạn thì không thể hủy
+        if (bookingEndTime.isBefore(now) || !booking.getIsActive() || booking.getIsDeleted()) {
+            throw new CustomException("This booking has expired and cannot be canceled!", HttpStatus.BAD_REQUEST.value());
+        }
+
+        // 1. Xóa TimeSlot khỏi FieldStatusByDate
+        ZonedDateTime startOfDay = bookingStartTime.toLocalDate().atStartOfDay(ZoneOffset.UTC);
+        FieldStatusByDate fieldStatusByDate = fieldStatusByDateRepository
+                .findByFieldIdAndDate(booking.getField().getId(), startOfDay)
+                .orElseThrow(() -> new NotFoundException("Field status data not found for this date."));
+
+        // Lọc ra các TimeSlot của booking này và xóa khỏi danh sách
+        fieldStatusByDate.getTimeSlots().removeIf(slot ->
+                (slot.getStartTime().isEqual(bookingStartTime) || slot.getStartTime().isAfter(bookingStartTime)) &&
+                        (slot.getEndTime().isEqual(bookingEndTime) || slot.getEndTime().isBefore(bookingEndTime)));
+
+        fieldStatusByDateRepository.save(fieldStatusByDate);
+
+        // 2. Hủy booking: cập nhật trạng thái
+        booking.setIsActive(false);
+        booking.setIsDeleted(true);
+        Booking canceledBooking = bookingRepository.save(booking);
+
+        BookingResponse response = bookingMapper.convertToResponse(canceledBooking);
+        log.info("Canceled booking {}", canceledBooking.getId());
+
+        // 3. Hoàn tiền nếu là booking lẻ
+        User owner = userRepository.findById(booking.getUser().getId())
+                .orElseThrow(() -> new NotFoundException("Owner of this booking not found."));
+        if (!booking.isRecurring()) {
+            Double refundAmount = booking.getPrice();
+            userService.refund(owner, refundAmount);
+
+            // Tạo hóa đơn hoàn tiền
+            InvoiceRequest invoiceRequest = new InvoiceRequest();
+            invoiceRequest.setUserId(owner.getId());
+            invoiceRequest.setAmount(refundAmount);
+            invoiceRequest.setPaymentMethod(PaymentMethod.ACCOUNT_BALANCE);
+            invoiceRequest.setPaymentStatus(PaymentStatus.PAID);
+            invoiceRequest.setTransactionType(TransactionType.REFUND);
+            invoiceService.create(invoiceRequest);
+        }
+
+        // 4. Gửi email thông báo hủy đặt sân
+        MessageWrapper messageWrapper = MessageWrapper.builder()
+                .type(SendMailType.CANCEL_BOOKING.name())
+                .payload(response)
+                .toEmail(owner.getEmail())
+                .toFullName(owner.getFullName())
+                .build();
+        kafkaTemplate.send("cancel-booking-notification-delivery", messageWrapper);
+
+        return response;
+    }
+
     // đặt cứng bước 1
     @Transactional
     @Override
-    public RecurringBookingResponse createRecurringBooking(RecurringBookingRequest recurringBookingRequest) {
+    public synchronized RecurringBookingResponse createRecurringBooking(RecurringBookingRequest recurringBookingRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
 
         Field field = fieldRepository.findById(recurringBookingRequest.getFieldId())
                 .orElseThrow(() -> new NotFoundException("Field with this ID not found."));
-        log.info("RecurringBooking user: {}", currentUser.getFullName());
-        log.info("RecurringBooking field: {}", field.getFieldName());
 
         RecurringBooking recurringBooking = recurringBookingMapper.convertToEntity(recurringBookingRequest, field, currentUser);
         recurringBooking.setStartDate(recurringBooking.getStartDate().minusHours(7));
         recurringBooking.setStartTime(recurringBooking.getStartTime().minusHours(7));
-        recurringBooking.setEndTime(recurringBooking.getEndTime());
+        recurringBooking.setEndTime(recurringBooking.getEndTime().minusHours(7));
 
         List<TimeSlot> recurringTimeSlots = recurringBooking.generateTimeSlots();
         boolean isAvailableRecurring = checkAvailableRecurring(field.getId(), recurringTimeSlots);
+
         if (!isAvailableRecurring) {
-            throw new CustomException("Failed! There is at least 1 timeslot that is not available during this time in the future.",
+            throw new CustomException("Booking failed: Some timeslots are unavailable.",
                     HttpStatus.CONFLICT.value());
         }
 
-        // thoát ra đây được nghĩa là toàn bộ timeSLot 'sẽ chiếm' đều trống trong tương lai
-        // => Tạo các bookings ứng với tất cả timeSLot đó
-        String fieldId = field.getId();
-        int numberOfHours = recurringBooking.getNumberOfHours();
-        List<Booking> bookingsToSave = new ArrayList<>();   // để chút lưu vào db 1 lượt cho đỡ tốn
-        for (TimeSlot timeSlot : recurringTimeSlots) {
-            // tạo:
-            BookingRequest bookingRequest = new BookingRequest(fieldId, timeSlot.getStartTime(), numberOfHours);
-            ZonedDateTime startTime = bookingRequest.getStartTime();
-            ZonedDateTime endTime = startTime.plusHours(bookingRequest.getNumberOfHours());
+        recurringBooking.setBookingIds(new ArrayList<>());
+        // Process time slots synchronously
+        processTimeSlots(recurringTimeSlots, field, currentUser, recurringBooking);
 
-            // tạo ra các timeSlot AVAILABLE cho khoảng tgian đặt (ví dụ 7-9h -> tạo 2 timeSlot AVAILABLE
-            field.createTimeSlots(startTime, endTime);
-
-            // Đổi trạng thái của các TimeSlot liên quan đến booking thành IN_USE
-            for (TimeSlot slot : field.getTimeSlots()) {
-                if (slot.getStartTime().isBefore(endTime) &&
-                        slot.getEndTime().isAfter(startTime)) {
-                    slot.setStatus(FieldStatus.IN_USE);
-
-                }
-            }
-
-            Booking booking = bookingMapper.convertToEntity(bookingRequest, field, currentUser);
-            booking.setRecurring(true);         // recurring booking
-            booking.setIsActive(true);
-            booking.setProcessing(true);        // wait thanh toan
-            bookingsToSave.add((booking));
-        }
-        fieldRepository.save(field);
-        bookingRepository.saveAll(bookingsToSave);
-        recurringBooking.setBookingIds(bookingsToSave.stream().map(Booking::getId).collect(Collectors.toList()));
         recurringBooking.setTotalPrice(getRecurringBookingPrice(recurringBookingRequest));
         recurringBooking.setTimeSlots(recurringTimeSlots);
         recurringBooking.setIsActive(true);
-        recurringBooking.setProcessing(true);   // wait thanh toan
+        recurringBooking.setProcessing(true);
 
         RecurringBooking savedRecurringBooking = recurringBookingRepository.save(recurringBooking);
         RecurringBookingResponse response = recurringBookingMapper.convertToDTO(savedRecurringBooking);
 
         log.info("Đặt sân (recurring) bước 1 thành công {}", response.getId());
         return response;
-
     }
-
-    @Override
-    public List<TimeSlot> getTimeSlotsForRecurring(RecurringBookingRequest recurringBookingRequest) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) authentication.getPrincipal();
-
-        Field field = fieldRepository.findById(recurringBookingRequest.getFieldId())
-                .orElseThrow(() -> new NotFoundException("Field with this ID not found."));
-
-        RecurringBooking recurringBooking = recurringBookingMapper.convertToEntity(recurringBookingRequest, field, currentUser);
-        List<TimeSlot> recurringTimeSlots = recurringBooking.generateTimeSlots();
-
-        // Chuyển múi giờ từ UTC sang GMT+7
-        ZoneId targetZone = ZoneId.of("Asia/Bangkok");
-        List<TimeSlot> convertedTimeSlots = recurringTimeSlots.stream().map(slot -> {
-            ZonedDateTime start = slot.getStartTime().withZoneSameInstant(targetZone);
-            ZonedDateTime end = slot.getEndTime().withZoneSameInstant(targetZone);
-            return new TimeSlot(start, end, FieldStatus.IN_USE);
-        }).collect(Collectors.toList());
-
-        log.info("Converted Time Slots: {}", convertedTimeSlots);
-        return convertedTimeSlots;
-    }
-
 
     private boolean checkAvailableRecurring(String fieldId, List<TimeSlot> recurringTimeSlots) {
         for (TimeSlot timeSlot : recurringTimeSlots) {
-            // tìm danh sách booking có timeSlots có trạng thái IN_USE trong khoảng thời gian này
-            // nếu sân trống thì list này = 0
-            List<Booking> inUseBookingList = bookingRepository.findInUseTimeSlotsByFieldAndTimeRange(fieldId,
-                    timeSlot.getStartTime(), timeSlot.getEndTime());
-            if (!inUseBookingList.isEmpty()) {
-                return false;
+            ZonedDateTime startTime = timeSlot.getStartTime().plusHours(7);
+            ZonedDateTime endTime = timeSlot.getEndTime().plusHours(7);
+
+            if (!fieldStatusByDateService.checkAvailable(fieldId, startTime, endTime)) {
+                return false;  // Chỉ cần một slot bị trùng là từ chối đặt sân
             }
         }
         return true;
     }
 
+    @Async
+    public synchronized void processTimeSlots(List<TimeSlot> timeSlots, Field field, User currentUser, RecurringBooking recurringBooking) {
+        // lấy danh sách ngày cần kiểm tra (chỉ lấy ngày, ko lấy giờ
+        Set<ZonedDateTime> dates = timeSlots.stream()
+                .map(timeSlot -> timeSlot.getStartTime().toLocalDate().atStartOfDay(timeSlot.getStartTime().getZone()))
+                .collect(Collectors.toSet());
+
+        // tìm tất cả FieldStatus trong khoảng ngày đó
+        List<FieldStatusByDate> fieldStatusByDates = fieldStatusByDateRepository.findByFieldIdAndDateIn(field.getId(), new ArrayList<>(dates));
+        // dùng map để xử lý nhanh hơn
+        Map<ZonedDateTime, FieldStatusByDate> fieldStatusByDateMap = fieldStatusByDates.stream()
+                .collect(Collectors.toMap(fs -> fs.getDate().withZoneSameInstant(ZoneOffset.UTC), fs -> fs));
+
+        boolean allAvailable = timeSlots.stream().allMatch(timeSlot -> {
+            ZonedDateTime startTime = timeSlot.getStartTime();
+            ZonedDateTime endTime = timeSlot.getEndTime();
+            ZonedDateTime startOfDay = startTime.toLocalDate().atStartOfDay(startTime.getZone());
+
+            FieldStatusByDate fieldStatusByDate = fieldStatusByDateMap.get(startOfDay);
+            if (fieldStatusByDate != null) {
+                return fieldStatusByDate.getTimeSlots().stream()
+                        .noneMatch(slot -> slot.getStatus() == FieldStatus.IN_USE &&
+                                ((slot.getStartTime().isBefore(endTime) && slot.getEndTime().isAfter(startTime)) ||
+                                        (slot.getStartTime().isEqual(startTime) && slot.getEndTime().isEqual(endTime))));
+            }
+            return true;
+        });
+
+        if (!allAvailable) {
+            throw new CustomException("Failed! One or more time slots are not available!", HttpStatus.CONFLICT.value());
+        }
+
+        // bọc list trong synchronizedList chỉ một luồng có thể truy cập vào một thời điểm
+        List<Booking> bookingsToSave = Collections.synchronizedList(new ArrayList<>());
+        List<FieldStatusByDate> fieldStatusByDatesToSave = Collections.synchronizedList(new ArrayList<>());
+
+        timeSlots.parallelStream().forEach(timeSlot -> {
+            ZonedDateTime startTime = timeSlot.getStartTime();
+            ZonedDateTime endTime = timeSlot.getEndTime();
+            ZonedDateTime startOfDay = startTime.toLocalDate().atStartOfDay(startTime.getZone());
+
+            FieldStatusByDate fieldStatusByDate = fieldStatusByDateMap.get(startOfDay);
+            if (fieldStatusByDate == null) {
+                fieldStatusByDate = new FieldStatusByDate(null, field.getId(), startOfDay, new ArrayList<>());
+                fieldStatusByDateMap.put(startOfDay, fieldStatusByDate);
+            }
+
+            synchronized (fieldStatusByDate) {
+                fieldStatusByDate.getTimeSlots().add(new TimeSlot(startTime, endTime, FieldStatus.IN_USE));
+            }
+            fieldStatusByDatesToSave.add(fieldStatusByDate);
+
+            BookingRequest bookingRequest = new BookingRequest(field.getId(), startTime, recurringBooking.getNumberOfHours());
+            Booking booking = bookingMapper.convertToEntity(bookingRequest, field, currentUser);
+            booking.setRecurring(true);
+            booking.setIsActive(true);
+            booking.setProcessing(true);
+            bookingsToSave.add(booking);
+        });
+
+        List<Booking> savedBookings = bookingRepository.saveAll(bookingsToSave);
+        List<String> bookingIds = savedBookings.stream().map(Booking::getId).collect(Collectors.toList());
+        recurringBooking.setBookingIds(bookingIds);
+
+        recurringBookingRepository.save(recurringBooking);
+        fieldStatusByDateRepository.saveAll(fieldStatusByDatesToSave);
+    }
+
     // đặt cứng bước 2: xác nhận
     @Override
     public RecurringBookingResponse confirmRecurringBooking(String recurringId) {
-        // lấy thông tin RecurringBooking
         RecurringBooking recurringBooking = recurringBookingRepository.findById(recurringId)
                 .orElseThrow(() -> new NotFoundException("RecurringBooking with this ID not found."));
         List<Booking> relatedBookings = bookingRepository.findAllById(recurringBooking.getBookingIds());
@@ -299,6 +399,190 @@ public class BookingServiceImpl implements BookingService {
 
         log.info("Đặt sân (recurring) bước 2 thành công,{}", recurringId);
         return response;
+    }
+
+    // cancel recurring
+    @Transactional
+    @Override
+    public RecurringBookingResponse cancelRecurringByBookingId(String bookingId) {
+        RecurringBooking recurrParent = recurringBookingRepository.getByContainBookingId(bookingId);
+        if (recurrParent == null) {
+            throw new CustomException("This booking has expired and cannot be canceled!", 400);
+        }
+
+        if (recurrParent.isProcessing()) {
+            throw new CustomException("This booking is processing (expired after 5p), you cannot cancel it!", 400);
+        }
+
+        processCancelRecurring(bookingId, recurrParent);
+
+        return recurringBookingMapper.convertToDTO(recurrParent);
+    }
+
+    @Async
+    public void processCancelRecurring(String bookingId, RecurringBooking recurrParent) {
+        AtomicReference<Double> remainingAmount = new AtomicReference<>(0.0);
+
+        // 1. Xử lý bookings liên quan
+        List<Booking> relevantBooking = getRelevantActiveBookings(bookingId);
+        List<FieldStatusByDate> fieldStatusToUpdate = Collections.synchronizedList(new ArrayList<>());
+        List<Booking> bookingsToSave = Collections.synchronizedList(new ArrayList<>());
+
+        relevantBooking.parallelStream().forEach(booking -> {
+            if (booking.getIsActive() && !booking.getIsDeleted()) {
+                remainingAmount.updateAndGet(v -> v + booking.getPrice());
+            }
+
+            ZonedDateTime startTime = booking.getStartTime();
+            ZonedDateTime endTime = booking.getEndTime();
+            ZonedDateTime startOfDayUTC = startTime.toLocalDate().atStartOfDay(ZoneOffset.UTC);
+
+            // Lấy trạng thái sân trong ngày đó
+            FieldStatusByDate fieldStatusByDate = fieldStatusByDateRepository
+                    .findByFieldIdAndDate(booking.getField().getId(), startOfDayUTC)
+                    .orElseThrow(() -> new NotFoundException("Field status for this date not found."));
+
+            // Loại bỏ các TimeSlot của booking khỏi trạng thái sân
+            synchronized (fieldStatusByDate) {
+                fieldStatusByDate.getTimeSlots().removeIf(ts ->
+                        (ts.getStartTime().isEqual(startTime) || ts.getStartTime().isAfter(startTime))
+                                && (ts.getEndTime().isEqual(endTime) || ts.getEndTime().isBefore(endTime))
+                );
+            }
+
+            fieldStatusToUpdate.add(fieldStatusByDate);
+
+            // Cập nhật trạng thái booking
+            booking.setIsActive(false);
+            booking.setIsDeleted(true);
+            bookingsToSave.add(booking);
+        });
+
+        fieldStatusByDateRepository.saveAll(fieldStatusToUpdate);
+        bookingRepository.saveAll(bookingsToSave);
+
+        // 2. Cập nhật RecurringBooking
+        recurrParent.setIsActive(false);
+        recurrParent.setIsDeleted(true);
+        RecurringBooking canceledRecurring = recurringBookingRepository.save(recurrParent);
+        RecurringBookingResponse response = recurringBookingMapper.convertToDTO(canceledRecurring);
+
+        // 3. Hoàn tiền 50% theo chính sách
+        String ownerId = recurrParent.getUser().getId();
+        User owner = userRepository.findById(ownerId)
+                .orElseThrow(() -> new NotFoundException("Owner of this recurring booking not found."));
+
+        InvoiceResponse invoiceResponse = refund(remainingAmount.get(), owner, response.getPackageDurationMonths());
+        CancelRecurringInfo responseForSendingMail = new CancelRecurringInfo(response, invoiceResponse.getAmount());
+
+        // 4. Gửi mail thông báo
+        MessageWrapper messageWrapper = MessageWrapper.builder()
+                .type(SendMailType.CANCEL_RECURRING.name())
+                .payload(responseForSendingMail)
+                .toEmail(owner.getEmail())
+                .toFullName(owner.getFullName())
+                .build();
+        kafkaTemplate.send("cancel-recurring-notification-delivery", messageWrapper);
+    }
+
+    // lay danh sach booking con trong recurring
+    private List<Booking> getRelevantActiveBookings(String bookingId) {
+        RecurringBooking recurrParent = recurringBookingRepository.getByContainBookingId(bookingId);
+        if (recurrParent == null) {
+            throw new CustomException("This booking has expired and cannot be canceled!", 400);
+        }
+        // xác thực
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User currUser = (User) auth.getPrincipal();
+        if (currUser.getRole() != Role.ADMIN && !currUser.getId().equals(recurrParent.getUser().getId())) {
+            throw new CustomException("You do not have permission to access another user's recurring bookings!", HttpStatus.FORBIDDEN.value());
+        }
+        return recurrParent.getBookingIds()
+                .stream()
+                .map(id -> bookingRepository.findById(id).orElse(null))
+                .filter(Objects::nonNull)
+                .filter(booking -> booking.getIsActive() && !booking.getIsDeleted())
+                .toList();
+    }
+
+    // lay % giam gia theo goi
+    private double discountRateByDurationMonths(int packageDurationMonths) {
+        return switch (packageDurationMonths) {
+            case 1 -> 0.95; //  5%
+            case 3 -> 0.85; //  15%
+            case 6 -> 0.75; //  25%
+            case 9 -> 0.65; //  35%
+            case 12 -> 0.55; // 45%
+            default -> 1;   //  0%
+        };
+    }
+
+    // hoan tien cho cancel recurring
+    private InvoiceResponse refund(double remainingAmount, User user, int packageDurationMonths) {
+        double disountRate = discountRateByDurationMonths(packageDurationMonths);
+
+        Double refund = (remainingAmount * disountRate * 0.5);
+
+        userService.refund(user, refund);
+        // tạo hoá đơn
+        InvoiceRequest invoiceRequest = new InvoiceRequest();
+        invoiceRequest.setUserId(user.getId());
+        invoiceRequest.setAmount(refund);
+        invoiceRequest.setPaymentMethod(PaymentMethod.ACCOUNT_BALANCE);
+        invoiceRequest.setPaymentStatus(PaymentStatus.PAID);
+        invoiceRequest.setTransactionType(TransactionType.REFUND);
+        return invoiceService.create(invoiceRequest);
+    }
+
+    @Override
+    public List<TimeSlot> getTimeSlotsForRecurring(RecurringBookingRequest recurringBookingRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        Field field = fieldRepository.findById(recurringBookingRequest.getFieldId())
+                .orElseThrow(() -> new NotFoundException("Field with this ID not found."));
+
+        RecurringBooking recurringBooking = recurringBookingMapper.convertToEntity(recurringBookingRequest, field, currentUser);
+        List<TimeSlot> recurringTimeSlots = recurringBooking.generateTimeSlots();
+
+        // Chuyển múi giờ từ UTC sang GMT+7
+        ZoneId targetZone = ZoneId.of("Asia/Ho_Chi_Minh");
+        List<TimeSlot> convertedTimeSlots = recurringTimeSlots.stream().map(slot -> {
+            ZonedDateTime start = slot.getStartTime().withZoneSameInstant(targetZone);
+            ZonedDateTime end = slot.getEndTime().withZoneSameInstant(targetZone);
+            return new TimeSlot(start, end, FieldStatus.IN_USE);
+        }).collect(Collectors.toList());
+
+        log.info("Converted Time Slots: {}", convertedTimeSlots);
+        return convertedTimeSlots;
+    }
+
+    // 1. tạo ra (18) timeSLot AVAILABLE trải dài nguyên ngày,
+    // 2. duyệt "bookings" của field đó trong ngày đo nếu có thì
+    // hàm update sẽ kiểm tra để đổi trạng thái những timeSLot đã bị đặt thành in use,
+    // nếu không thì 18 slot đó vẫn là AVAILABLE
+    @Transactional
+    @Override
+    public ResponseEntity<BaseResponse> getFieldSchedule(String fieldId, ZonedDateTime startOfDay, ZonedDateTime endOfDay) {
+        // 1. Lấy tất cả các booking của sân trong khoảng thời gian
+        List<Booking> bookings = bookingRepository.findBookingsByFieldAndTimeRange(fieldId, startOfDay, endOfDay);
+
+        // 2. Lấy thông tin của sân
+        Field field = fieldRepository.findById(fieldId)
+                .orElseThrow(() -> new CustomException("Field not found", HttpStatus.NOT_FOUND.value()));
+
+        // tạo list timeSlots trải dài suốt khoảng thời gian này
+        field.createTimeSlots(startOfDay, endOfDay);
+        // cập nhật trạng thái timeSlots của sân theo các booking đã lấy
+        field.updateTimeSlotsStatus(bookings);
+        Field updatedField = fieldRepository.save(field);
+
+        FieldResponse fieldResponse = fieldMapper.convertToDTO(updatedField);
+        // lấy từ DB (+0) ra thì +thêm 7 múi để thành giờ VN
+        fieldResponse.convertTimeSlotsToUTCPlus7();
+
+        return ResponseEntity.ok(
+                new BaseResponse("Successfully retrieved the court schedule.", HttpStatus.OK.value(), fieldResponse));
     }
 
     @Override
@@ -429,7 +713,6 @@ public class BookingServiceImpl implements BookingService {
         );
     }
 
-
     @Override
     public ResponseEntity<BaseResponse> getBookingByFieldId(String fieldId) {
         List<Booking> bookingList = bookingRepository.getBookingByFieldId(fieldId);
@@ -456,7 +739,6 @@ public class BookingServiceImpl implements BookingService {
         );
     }
 
-
     @Transactional
     @Override
     public ResponseEntity<BaseResponse> getAllBookings(int page, int size) {
@@ -481,35 +763,7 @@ public class BookingServiceImpl implements BookingService {
         );
     }
 
-    // 1. tạo ra (18) timeSLot AVAILABLE trải dài nguyên ngày,
-    // 2. duyệt "bookings" của field đó trong ngày đo nếu có thì
-    // hàm update sẽ kiểm tra để đổi trạng thái những timeSLot đã bị đặt thành in use,
-    // nếu không thì 18 slot đó vẫn là AVAILABLE
-    @Transactional
-    @Override
-    public ResponseEntity<BaseResponse> getFieldSchedule(String fieldId, ZonedDateTime startOfDay, ZonedDateTime endOfDay) {
-        // 1. Lấy tất cả các booking của sân trong khoảng thời gian
-        List<Booking> bookings = bookingRepository.findBookingsByFieldAndTimeRange(fieldId, startOfDay, endOfDay);
-
-        // 2. Lấy thông tin của sân
-        Field field = fieldRepository.findById(fieldId)
-                .orElseThrow(() -> new CustomException("Field not found", HttpStatus.NOT_FOUND.value()));
-
-        // tạo list timeSlots trải dài suốt khoảng thời gian này
-        field.createTimeSlots(startOfDay, endOfDay);
-        // cập nhật trạng thái timeSlots của sân theo các booking đã lấy
-        field.updateTimeSlotsStatus(bookings);
-        Field updatedField = fieldRepository.save(field);
-
-        FieldResponse fieldResponse = fieldMapper.convertToDTO(updatedField);
-        // lấy từ DB (+0) ra thì +thêm 7 múi để thành giờ VN
-        fieldResponse.convertTimeSlotsToUTCPlus7();
-
-        return ResponseEntity.ok(
-                new BaseResponse("Successfully retrieved the court schedule.", HttpStatus.OK.value(), fieldResponse));
-    }
-
-
+    // xoa mem - khoi phuc
     @Transactional
     @Override
     public ResponseEntity<BaseResponse> changeIsDeleted(String bookingId, boolean flag) {
@@ -525,6 +779,8 @@ public class BookingServiceImpl implements BookingService {
                 new BaseResponse(message, HttpStatus.OK.value(), response)
         );
     }
+
+    // xoa cung
     @Transactional
     @Override
     public ResponseEntity<BaseResponse> forceDelete(String bookingId) {
@@ -538,100 +794,7 @@ public class BookingServiceImpl implements BookingService {
         );
     }
 
-    @Override
-    public BookingResponse cancelBooking(String bookingId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) authentication.getPrincipal();
-
-        Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new NotFoundException("This booking not found."));
-
-        // check xem Booking co dang xu ly (chua thanh toan xong) khong
-        if (booking.isProcessing()) {
-            throw new CustomException("This booking is processing (expired after 5p), you cannot cancel it!", 400);
-        }
-
-        // chỉ chủ sỡ hữu hoặc admin mới có quyền huỷ booking
-        if (booking.getUser().getId().equals(currentUser.getId()) || currentUser.getRole().equals(Role.ADMIN)) {
-            Field field = booking.getField();
-            if (field == null) {
-                throw new NotFoundException("Field not found in this booking.");
-            }
-            ZonedDateTime bookingStartTime = booking.getStartTime();
-            ZonedDateTime bookingEndTime = booking.getEndTime();
-
-            ZonedDateTime now = ZonedDateTime.now();
-
-            // kiểm tra nếu booking đã hết hạn thì out
-            if (bookingEndTime.isBefore(now) || !booking.getIsActive() || booking.getIsDeleted()) {
-                throw new CustomException("This booking has expired and cannot be canceled!", HttpStatus.BAD_REQUEST.value());
-            }
-
-            // 1. tạo timeSlot AVAILABLE trong khoảng thời gian này
-            field.createTimeSlots(bookingStartTime, bookingEndTime);
-            fieldRepository.save(field);
-
-            // 2. huỷ -> tắt isActive. bật isDeleted
-            booking.setField(field);
-            booking.setIsActive(false);
-            booking.setIsDeleted(true);
-            Booking canceledBooking = bookingRepository.save(booking);
-
-            BookingResponse response = bookingMapper.convertToResponse(canceledBooking);
-            log.info("Canceled booking " + canceledBooking.getId());
-
-            // 3. hoàn tiền nếu là đặt lẻ
-            User owner = userRepository.findById(booking.getUser().getId())
-                    .orElseThrow(() -> new NotFoundException("Owner of this booking not found."));
-            if (!booking.isRecurring()) {
-                Double refundAmount = booking.getPrice();
-                userService.refund(owner, refundAmount);
-                // tạo hoá đơn
-                InvoiceRequest invoiceRequest = new InvoiceRequest();
-                invoiceRequest.setUserId(owner.getId());
-                invoiceRequest.setAmount(refundAmount);
-                invoiceRequest.setPaymentMethod(PaymentMethod.ACCOUNT_BALANCE);
-                invoiceRequest.setPaymentStatus(PaymentStatus.PAID);
-                invoiceRequest.setTransactionType(TransactionType.REFUND);
-                InvoiceResponse invoiceResponse = invoiceService.create(invoiceRequest);
-            }
-
-            // 4. send mail
-            MessageWrapper messageWrapper = MessageWrapper.builder()
-                    .type(SendMailType.CANCEL_BOOKING.name())
-                    .payload(response)
-                    .toEmail(owner.getEmail())
-                    .toFullName(owner.getFullName())
-                    .build();
-            kafkaTemplate.send("cancel-booking-notification-delivery", messageWrapper);
-
-            return response;
-
-        } else {
-            throw new CustomException("You do not have permission to cancel another user's court booking.", HttpStatus.FORBIDDEN.value());
-        }
-
-    }
-
-    private List<Booking> getRelevantActiveBookings(String bookingId) {
-        RecurringBooking recurrParent = recurringBookingRepository.getByContainBookingId(bookingId);
-        if (recurrParent == null) {
-            throw new CustomException("This booking has expired and cannot be canceled!", 400);
-        }
-        // xác thực
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User currUser = (User) auth.getPrincipal();
-        if (currUser.getRole() != Role.ADMIN && !currUser.getId().equals(recurrParent.getUser().getId())) {
-            throw new CustomException("You do not have permission to access another user's recurring bookings!", HttpStatus.FORBIDDEN.value());
-        }
-        return recurrParent.getBookingIds()
-                .stream()
-                .map(id -> bookingRepository.findById(id).orElse(null))
-                .filter(Objects::nonNull)
-                .filter(booking -> booking.getIsActive() && !booking.getIsDeleted())
-                .toList();
-    }
-
+    // lay so tien cua booking con lai trong recurring
     @Override
     public Double getRemainingAmountOfRecurringByBookingId(String bookingId) {
         Double remainingAmount = 0.0;
@@ -650,103 +813,7 @@ public class BookingServiceImpl implements BookingService {
         return remainingAmount;
     }
 
-    @Transactional
-    @Override
-    public RecurringBookingResponse cancelRecurringByBookingId(String bookingId) {
-        RecurringBooking recurrParent = recurringBookingRepository.getByContainBookingId(bookingId);
-        if (recurrParent == null) {
-            throw new CustomException("This booking has expired and cannot be canceled!", 400);
-        }
-
-        if (recurrParent.isProcessing()) {
-            throw new CustomException("This booking is processing (expired after 5p), you cannot cancel it!", 400);
-        }
-
-        Double remainingAmount = 0.0;
-
-        // cancel
-        // 1. xử lý bookings liên quan
-        List<Booking> relevantBooking = getRelevantActiveBookings(bookingId);
-        List<Field> fieldsToSave = new ArrayList<>();
-        List<Booking> bookingsToSave = new ArrayList<>();
-        if (!relevantBooking.isEmpty()) {
-            for (Booking booking : relevantBooking) {
-                // lấy tổng giá tiền của những booking còn hiệu lực
-                if (booking.getIsActive() && !booking.getIsDeleted()) {
-                    Double bookingPrice = booking.getPrice();
-                    //log.error("gia booking le trong cung: " + bookingPrice);
-                    remainingAmount += bookingPrice;
-                }
-                ZonedDateTime startTime = booking.getStartTime();
-                ZonedDateTime endTime = booking.getEndTime();
-                Field field = booking.getField();
-
-                field.createTimeSlots(startTime, endTime);  // reset fields status -> AVAILABLE
-                booking.setIsActive(false);                 // tắt hoạt động
-                booking.setIsDeleted(true);
-                fieldsToSave.add(field);
-                bookingsToSave.add(booking);
-            }
-            fieldRepository.saveAll(fieldsToSave);
-            bookingRepository.saveAll(bookingsToSave);
-        }
-        // 2. xử lý recurringBooking
-        recurrParent.setIsActive(false);
-        recurrParent.setIsDeleted(true);
-        RecurringBooking caneledRecurring = recurringBookingRepository.save(recurrParent);
-        RecurringBookingResponse response = recurringBookingMapper.convertToDTO(caneledRecurring);
-
-        // 3. hoàn tiền 50% của tổng số booking còn hiệu lực
-        //log.error("check price: " + remainingAmount);
-        String ownerId = recurrParent.getUser().getId();
-        User owner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new NotFoundException("Owner of this recurring booking not found."));
-
-        // refund by policy
-        InvoiceResponse invoiceResponse = refund(remainingAmount, owner, response.getPackageDurationMonths());
-
-        CancelRecurringInfo responseForSendingMail = new CancelRecurringInfo(response, invoiceResponse.getAmount());
-
-        // 4. gửi mail
-        MessageWrapper messageWrapper = MessageWrapper.builder()
-                .type(SendMailType.CANCEL_RECURRING.name())
-                .payload(responseForSendingMail)
-                .toEmail(owner.getEmail())
-                .toFullName(owner.getFullName())
-                .build();
-        kafkaTemplate.send("cancel-recurring-notification-delivery", messageWrapper);
-
-        return response;
-    }
-
-    private double discountRateByDurationMonths(int packageDurationMonths) {
-        return switch (packageDurationMonths) {
-            case 1 -> 0.95; //  5%
-            case 3 -> 0.85; //  15%
-            case 6 -> 0.75; //  25%
-            case 9 -> 0.65; //  35%
-            case 12 -> 0.55; // 45%
-            default -> 1;   //  0%
-        };
-    }
-
-    private InvoiceResponse refund(double remainingAmount, User user, int packageDurationMonths) {
-        double disountRate = discountRateByDurationMonths(packageDurationMonths);
-
-        Double refund = (remainingAmount * disountRate * 0.5);
-
-        userService.refund(user, refund);
-        // tạo hoá đơn
-        InvoiceRequest invoiceRequest = new InvoiceRequest();
-        invoiceRequest.setUserId(user.getId());
-        invoiceRequest.setAmount(refund);
-        invoiceRequest.setPaymentMethod(PaymentMethod.ACCOUNT_BALANCE);
-        invoiceRequest.setPaymentStatus(PaymentStatus.PAID);
-        invoiceRequest.setTransactionType(TransactionType.REFUND);
-        return invoiceService.create(invoiceRequest);
-    }
-
-
+    // tim kiem booking theo ten san
     @Transactional
     @Override
     public ResponseEntity<BaseResponse> searchByFieldNameAndPaginate(String fieldName, int page, int size) {

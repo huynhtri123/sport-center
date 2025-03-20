@@ -7,6 +7,7 @@ import app.sportcenter.models.dto.request.RecurringBookingRequest;
 import app.sportcenter.models.dto.response.BookingResponse;
 import app.sportcenter.models.dto.response.RecurringBookingResponse;
 import app.sportcenter.services.BookingService;
+import app.sportcenter.services.FieldStatusByDateService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,7 @@ import java.util.Map;
 public class BookingController {
     private final BookingService bookingService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final FieldStatusByDateService fieldStatusByDateService;
 
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
     @PostMapping("/booking/create")
@@ -73,6 +75,39 @@ public class BookingController {
         return ResponseEntity.ok(
                 new BaseResponse(message, 200, response)
         );
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
+    @PutMapping("/booking/cancel/{bookingId}")
+    public ResponseEntity<BaseResponse> cancelBooking(@PathVariable("bookingId") String bookingId) {
+        BookingResponse response = bookingService.cancelBooking(bookingId);
+        messagingTemplate.convertAndSend("/topic/booking-updates", Map.of("message", "Update field status!"));
+
+        return ResponseEntity.ok(
+                new BaseResponse("Court booking canceled successfully.", 200, response)
+        );
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
+    @PutMapping("/recurring/cancel/{bookingId}")
+    public ResponseEntity<BaseResponse> cancelRecurringByBookingId(@PathVariable("bookingId") String bookingId) {
+        RecurringBookingResponse response = bookingService.cancelRecurringByBookingId(bookingId);
+        messagingTemplate.convertAndSend("/topic/booking-updates", Map.of("message", "Update field status!"));
+
+        return ResponseEntity.ok(
+                new BaseResponse("Cancel recurring booking successful",
+                        200, response)
+        );
+    }
+
+    // lấy tất cả booking theo khoảng thời gian cụ thể. Ví dụ theo ngày (7:00 ngày 1/1/2024 - 22:00 ngày 1/1/2024)
+    // public
+    @PutMapping("/public/booking/update-and-get-schedule")
+    public ResponseEntity<BaseResponse> getFieldSchedule(@Valid @RequestBody OnDayScheduleRequest onDayScheduleRequest) {
+        String fieldId = onDayScheduleRequest.getFieldId();
+        ZonedDateTime startOfDay = onDayScheduleRequest.getStartOfDay();
+        ZonedDateTime endOfDay = onDayScheduleRequest.getEndOfDay();
+        return bookingService.getFieldSchedule(fieldId, startOfDay, endOfDay);
     }
 
     // lấy giá đặt sân lẻ
@@ -174,39 +209,6 @@ public class BookingController {
         return bookingService.forceDelete(bookingId);
     }
 
-    // lấy tất cả booking theo khoảng thời gian cụ thể. Ví dụ theo ngày (7:00 ngày 1/1/2024 - 22:00 ngày 1/1/2024)
-    // public
-    @PutMapping("/public/booking/update-and-get-schedule")
-    public ResponseEntity<BaseResponse> getFieldSchedule(@Valid @RequestBody OnDayScheduleRequest onDayScheduleRequest) {
-        String fieldId = onDayScheduleRequest.getFieldId();
-        ZonedDateTime startOfDay = onDayScheduleRequest.getStartOfDay();
-        ZonedDateTime endOfDay = onDayScheduleRequest.getEndOfDay();
-        return bookingService.getFieldSchedule(fieldId, startOfDay, endOfDay);
-    }
-
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @PutMapping("/booking/cancel/{bookingId}")
-    public ResponseEntity<BaseResponse> cancelBooking(@PathVariable("bookingId") String bookingId) {
-        BookingResponse response = bookingService.cancelBooking(bookingId);
-        messagingTemplate.convertAndSend("/topic/booking-updates", Map.of("message", "Update field status!"));
-
-        return ResponseEntity.ok(
-                new BaseResponse("Court booking canceled successfully.", 200, response)
-        );
-    }
-
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
-    @PutMapping("/recurring/cancel/{bookingId}")
-    public ResponseEntity<BaseResponse> cancelRecurringByBookingId(@PathVariable("bookingId") String bookingId) {
-        RecurringBookingResponse response = bookingService.cancelRecurringByBookingId(bookingId);
-        messagingTemplate.convertAndSend("/topic/booking-updates", Map.of("message", "Update field status!"));
-
-        return ResponseEntity.ok(
-                new BaseResponse("Cancel recurring booking successful",
-                        200, response)
-        );
-    }
-
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
     @GetMapping("/recurring/remaining-price/{bookingId}")
     public ResponseEntity<BaseResponse> getRemainingAmountOfRecurringByBookingId(@PathVariable("bookingId") String bookingId) {
@@ -237,4 +239,17 @@ public class BookingController {
         return bookingService.allBookingUser(userId);
     }
 
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
+    @PostMapping("/booking/check")
+    public ResponseEntity<BaseResponse> check(@Valid @RequestBody BookingRequest bookingRequest) {
+        String fieldId = bookingRequest.getFieldId();
+        ZonedDateTime startTime = bookingRequest.getStartTime();
+        ZonedDateTime endTime = startTime.plusHours(bookingRequest.getNumberOfHours());
+
+        return ResponseEntity.ok(
+                new BaseResponse("Check single booking ok", 200, fieldStatusByDateService.checkAvailable(
+                        fieldId, startTime, endTime
+                ))
+        );
+    }
 }

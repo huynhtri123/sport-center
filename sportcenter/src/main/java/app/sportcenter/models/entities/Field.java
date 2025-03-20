@@ -30,6 +30,7 @@ public class Field extends BaseEntity {
     private String videoUrl;
     private Double defaultPrice = 0.0;
     private List<PricePolicy> pricePolicies;
+    private List<TimeSlot> timeSlots; // danh sách trạng thái theo khung giờ
 
     /* demo pricePolicies:
     [
@@ -56,9 +57,6 @@ public class Field extends BaseEntity {
                 .orElse(defaultPrice);
     }
 
-    // danh sách trạng thái theo khung giờ
-    private List<TimeSlot> timeSlots;
-
     public void createTimeSlots(ZonedDateTime startOfDay, ZonedDateTime endOfDay) {
         this.timeSlots = new ArrayList<>();
 
@@ -81,7 +79,7 @@ public class Field extends BaseEntity {
         }
     }
 
-    // hàm cập nhật trạng thái cho timeSlots cho mảng bookings đầu vào
+    // cập nhật trạng thái của các timeSlot dựa vào danh sách booking
     public void updateTimeSlotsStatus(List<Booking> bookings) {
 
         // đầu tiên ktra xem cái nào hết hạn thì reset trạng thái

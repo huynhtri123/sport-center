@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
-@Document(collection = "Invoice")
+@Document(collection = "invoices")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -25,11 +25,57 @@ import java.util.Map;
 @Slf4j
 public class RestExceptionHandler {
 
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<BaseResponse> handleCustomException(CustomException e) {
+        log.warn("Custom Exception: {}", e.getMessage());
+        BaseResponse response = new BaseResponse();
+        response.setStatus(e.getStatusCode());
+        response.setMessage(e.getMessage());
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<BaseResponse>handleIllegalArgumentException(IllegalArgumentException exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 new BaseResponse(exception.getMessage(), HttpStatus.BAD_REQUEST.value(), null)
         );
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<BaseResponse> handleException(Exception e){
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).body(
+                new BaseResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value(), null)
+        );
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<BaseResponse> handleNotFoundException(NotFoundException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                new BaseResponse(exception.getMessage(), HttpStatus.NOT_FOUND.value(), null)
+        );
+    }
+
+    @ExceptionHandler({ AuthenticationException.class, JwtException.class })
+    public ResponseEntity<BaseResponse> handleAuthenticationException(AuthenticationException exception) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                new BaseResponse("Thông tin xác thực không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập và thử lại.",
+                        HttpStatus.UNAUTHORIZED.value(), ErrorCode.TOKEN_EXPIRED.name())
+        );
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<BaseResponse> handleBadCredentialsException(BadCredentialsException exception) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                new BaseResponse(exception.getMessage(),
+                        HttpStatus.UNAUTHORIZED.value(), ErrorCode.INVALID_CREDENTIALS.name())
+        );
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<BaseResponse> handleAccessDeniedException(AccessDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new BaseResponse(ex.getMessage(),
+                        HttpStatus.FORBIDDEN.value(), null));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -67,56 +113,10 @@ public class RestExceptionHandler {
         // Trường hợp còn lại, lỗi không phải Future
         BaseResponse response = new BaseResponse();
         response.setMessage("Invalid input");
-        response.setStatus(HttpStatus.BAD_REQUEST.value());
+        response.setStatus(HttpStatus.NOT_FOUND.value());
         response.setData(errors); // Gán lỗi vào data
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<BaseResponse> handleException(Exception e){
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).body(
-                new BaseResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value(), null)
-        );
-    }
-
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<BaseResponse> handleNotFoundException(NotFoundException exception) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                new BaseResponse(exception.getMessage(), HttpStatus.NOT_FOUND.value(), null)
-        );
-    }
-
-    @ExceptionHandler({ AuthenticationException.class, JwtException.class })
-    public ResponseEntity<BaseResponse> handleAuthenticationException(AuthenticationException exception) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                new BaseResponse("Thông tin xác thực không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập và thử lại.",
-                        HttpStatus.UNAUTHORIZED.value(), ErrorCode.TOKEN_EXPIRED.name())
-        );
-    }
-
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<BaseResponse> handleBadCredentialsException(BadCredentialsException exception) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                new BaseResponse(exception.getMessage(),
-                        HttpStatus.UNAUTHORIZED.value(), ErrorCode.INVALID_CREDENTIALS.name())
-        );
-    }
-
-    @ExceptionHandler(CustomException.class)
-    public ResponseEntity<BaseResponse> handleCustomException(CustomException e) {
-        log.warn("Custom Exception: {}", e.getMessage());
-        BaseResponse response = new BaseResponse();
-        response.setStatus(e.getStatusCode());
-        response.setMessage(e.getMessage());
-        return ResponseEntity.status(response.getStatus()).body(response);
-    }
-
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<BaseResponse> handleAccessDeniedException(AccessDeniedException ex) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(new BaseResponse(ex.getMessage(),
-                        HttpStatus.FORBIDDEN.value(), null));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
 }
