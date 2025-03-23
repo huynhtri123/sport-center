@@ -16,15 +16,26 @@ const TournamentHome = () => {
     const [selectedSport, setSelectedSport] = useState('');
     const [tournament, setTournament] = useTournament();
     const [isAscending, setIsAscending] = useState(true); // Trạng thái sắp xếp
+    const [isRegistrationDeadlineAscending, setIsRegistrationDeadlineAscending] = useState(true);
+    const [hottestTournament, setHottestTournament] = useState(null);
     const navigate = useNavigate();
 
     const getTournaments = async () => {
         try {
             const tournamentsResponse = await tournamentApi.getAllActive(0, 100);
-            setTournaments(tournamentsResponse.data.content);
+            const allTournaments = tournamentsResponse.data.content;
+
+            // Find the tournament with the most registered teams
+            const maxTeamsTournament = allTournaments.reduce(
+                (max, tournament) =>
+                    tournament.registeredTeamIds.length > (max?.registeredTeamIds.length || 0) ? tournament : max,
+                null
+            );
+
+            setTournaments(allTournaments);
+            setHottestTournament(maxTeamsTournament);
         } catch (err) {
             console.error(err);
-            // toast.error('Failed to load tournaments');
         }
     };
 
@@ -64,6 +75,17 @@ const TournamentHome = () => {
         setTournaments(sortedTournaments);
     };
 
+    const handleSortByRegistrationDeadline = () => {
+        setIsRegistrationDeadlineAscending(!isRegistrationDeadlineAscending);
+        const sortedTournaments = [...tournaments].sort(
+            (a, b) =>
+                isRegistrationDeadlineAscending
+                    ? new Date(a.registrationDeadline) - new Date(b.registrationDeadline) // Tăng dần
+                    : new Date(b.registrationDeadline) - new Date(a.registrationDeadline) // Giảm dần
+        );
+        setTournaments(sortedTournaments);
+    };
+
     const handleViewDetails = async (tournamentId) => {
         try {
             const tournamentResponse = await tournamentApi.getById(tournamentId);
@@ -92,7 +114,6 @@ const TournamentHome = () => {
                 </div>
             </div>
 
-            {/* Thêm nút sort */}
             <div className={styles.sortContainer}>
                 <div className={styles.sortOption} onClick={handleSortByStartDate}>
                     <i className={isStartDateAscending ? 'fas fa-sort-amount-up' : 'fas fa-sort-amount-down'} />
@@ -100,7 +121,15 @@ const TournamentHome = () => {
                 </div>
                 <div className={styles.sortOption} onClick={handleSortByEndDate}>
                     <i className={isEndDateAscending ? 'fas fa-sort-amount-up' : 'fas fa-sort-amount-down'} />
-                    <label>End Date </label>
+                    <label>End Date</label>
+                </div>
+                <div className={styles.sortOption} onClick={handleSortByRegistrationDeadline}>
+                    <i
+                        className={
+                            isRegistrationDeadlineAscending ? 'fas fa-sort-amount-up' : 'fas fa-sort-amount-down'
+                        }
+                    />
+                    <label>Registration Deadline</label>
                 </div>
             </div>
 
@@ -110,43 +139,72 @@ const TournamentHome = () => {
                     .map((tournament) => (
                         <div key={tournament.id} className={styles.tournamentCard}>
                             <div className={styles.header}>
-                                <span>{tournament.tournamentName}</span>
+                                <div className={styles.header}>
+                                    <div className={styles.nameContainer}>
+                                        <div className={styles.statusDot}></div>
+                                        <span className='me-2'>{tournament.tournamentName}</span>
+                                        {hottestTournament?.id === tournament.id && (
+                                            <div className={styles.hotBadge}>HOT</div>
+                                        )}
+                                    </div>
+                                </div>
+
                                 <span>{tournament.sport.sportName}</span>
                             </div>
                             <div className={styles.content}>
                                 <div className={styles.info}>
                                     <div className={styles.dateColumn}>
+                                        <div>
+                                            <p className={styles.date}>
+                                                <strong>Start Date:</strong> {formatDate(tournament.startDate)}
+                                            </p>
+                                            <p className={styles.time}>
+                                                {new Date(tournament.startDate).toLocaleTimeString()}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className={styles.date}>
+                                                <strong>End Date:</strong> {formatDate(tournament.endDate)}
+                                            </p>
+                                            <p className={styles.time}>
+                                                {new Date(tournament.endDate).toLocaleTimeString()}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className={styles.dateColumn}></div>
+                                    <div className={styles.dateColumn}>
                                         <p className={styles.date}>
-                                            <strong>Start Date:</strong> {formatDate(tournament.startDate)}
+                                            <strong>
+                                                <i className='fa-solid fa-clock me-2'></i>
+                                                Deadline
+                                            </strong>{' '}
+                                            {formatDate(tournament.registrationDeadline)}
                                         </p>
                                         <p className={styles.time}>
-                                            {new Date(tournament.startDate).toLocaleTimeString()}
+                                            {new Date(tournament.registrationDeadline).toLocaleTimeString()}
                                         </p>
                                     </div>
                                     <div className={styles.dateColumn}>
-                                        <p className={styles.date}>
-                                            <strong>End Date:</strong> {formatDate(tournament.endDate)}
-                                        </p>
-                                        <p className={styles.time}>
-                                            {new Date(tournament.endDate).toLocaleTimeString()}
-                                        </p>
-                                    </div>
-                                    <div className={styles.dateColumn}>
-                                        <strong>Prizes:</strong>
-                                        {tournament.prizes && tournament.prizes.length > 0 ? (
-                                            <ul>
-                                                {tournament.prizes.map((prize, index) => (
-                                                    <li key={index}>
-                                                        <span className='me-2'>
-                                                            Position {prize.position && prize.position}:
-                                                        </span>{' '}
-                                                        {formatCurrency(prize.reward && prize.reward)}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        ) : (
-                                            <p>No prizes available</p>
-                                        )}
+                                        <div className={styles.prizesContainer}>
+                                            <strong className={styles.prizesTitle}>🏆 Prizes:</strong>
+                                            {tournament.prizes && tournament.prizes.length > 0 ? (
+                                                <ul className={styles.prizesList}>
+                                                    {tournament.prizes.map((prize, index) => (
+                                                        <li key={index} className={styles.prizeItem}>
+                                                            <span className={styles.prizePosition}>
+                                                                <i className='fa-solid fa-award'></i> Position{' '}
+                                                                {prize.position}:{' '}
+                                                            </span>
+                                                            <span className={styles.prizeReward}>
+                                                                {formatCurrency(prize.reward)}
+                                                            </span>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            ) : (
+                                                <p className={styles.noPrizes}>No prizes available</p>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                                 <div className={styles.thumbnailContainer}>

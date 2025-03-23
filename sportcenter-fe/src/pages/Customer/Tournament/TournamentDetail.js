@@ -52,9 +52,9 @@ const TournamentDetail = () => {
                         <i className='fa-solid fa-trophy me-3'></i>
                         {tournament.tournamentName}
                     </h2>
-                    <div className='mt-4'>{tournament.sport?.sportName}</div>
+                    <div className={styles.sportName}>{tournament.sport?.sportName}</div>
                     <div className={styles.dateInfo}>
-                        <i className='fa-solid fa-calendar-days'></i>
+                        <i className='fa-regular fa-clock'></i>
                         <span>Start Date: </span>
                         <time>
                             {formatDate(tournament.startDate)}
@@ -63,7 +63,7 @@ const TournamentDetail = () => {
                         </time>
                     </div>
                     <div className={styles.dateInfo}>
-                        <i className='fa-solid fa-calendar-days'></i>
+                        <i className='fa-regular fa-clock'></i>
                         <span>End Date: </span>
                         <time>
                             {formatDate(tournament.endDate)}

@@ -90,14 +90,6 @@
                 color: #007bff; /* Màu nổi bật khi hover */
                 transform: scale(1.1); /* Phóng to nhẹ icon */
             }
-
-            &.fa-sort-amount-up {
-                color: #28a745; /* Màu xanh cho tăng dần */
-            }
-
-            &.fa-sort-amount-down {
-                color: #dc3545; /* Màu đỏ cho giảm dần */
-            }
         }
     }
 }
@@ -133,6 +125,58 @@
             color: $blue-prime;
             font-weight: bold;
             font-size: 1.2em;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .statusDot {
+            width: 10px;
+            height: 10px;
+            background-color: #28a745;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            box-shadow: 0px 0px 5px rgba(40, 167, 69, 0.8);
+        }
+
+        .nameContainer {
+            display: flex;
+            align-items: center;
+            gap: 8px; // Khoảng cách giữa HOT badge và tournamentName
+            flex: 1; // Chỉ chiếm phần nội dung, không bị kéo giãn
+            span {
+                font-size: 20px;
+            }
+        }
+
+        .hotBadge {
+            background-color: $remove-color;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 8px;
+            display: inline-block;
+            text-transform: uppercase;
+            margin-right: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            animation: pulse 1.5s infinite alternate;
+        }
+        .hotBadge::before {
+            content: '🔥';
+            font-size: 14px;
+        }
+
+        /* Hiệu ứng nhấp nháy */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
         }
 
         .content {
@@ -158,46 +202,80 @@
                     align-items: center;
                 }
 
-                .dateColumn {
+                .prizesContainer {
+                    margin-top: 16px;
+                    padding: 16px;
+                    background: #f8f9fa;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                    transition: all 0.3s ease-in-out;
+
+                    &:hover {
+                        background: #f1f3f5;
+                        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+                    }
+                }
+
+                .prizesTitle {
+                    font-size: 1.2em;
+                    font-weight: bold;
+                    color: #007bff;
                     display: flex;
-                    flex-direction: column;
-                    gap: 4px;
+                    align-items: center;
+                    gap: 8px;
+                    text-transform: uppercase;
+                    border-bottom: 2px solid #007bff;
+                    padding-bottom: 6px;
+                    margin-bottom: 10px;
+                }
 
-                    .dateTitle {
-                        font-weight: bold;
-                        font-size: 1em;
-                        color: #333;
+                .prizesList {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                }
+
+                .prizeItem {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 10px 14px;
+                    margin-bottom: 8px;
+                    border-radius: 8px;
+                    font-size: 1em;
+                    font-weight: bold;
+                    background: #fff;
+                    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                    transition: all 0.3s ease;
+
+                    &:hover {
+                        transform: scale(1.05);
+                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
                     }
+                }
 
-                    .date {
-                        color: #555;
-                    }
+                .prizePosition {
+                    font-size: 1em;
+                    color: $ash-gray;
+                    margin-right: 4px;
+                }
 
-                    .time {
-                        font-size: 0.9em;
-                        color: #888;
-                    }
+                .prizeReward {
+                    font-size: 1.1em;
+                    color: $blue-gray;
+                }
 
-                    ul {
-                        list-style-type: none;
-                        padding: 0;
-                        margin: 0;
+                /* Khi không có giải thưởng */
+                .noPrizes {
+                    text-align: center;
+                    font-size: 1em;
+                    color: #dc3545;
+                    font-weight: bold;
+                }
 
-                        li {
-                            display: flex;
-                            justify-content: space-between;
-                            align-items: center;
-                            padding: 8px 12px;
-                            margin-bottom: 8px;
-                            background-color: #f9f9f9;
-
-                            border-radius: 6px;
-
-                            span {
-                                font-weight: bold;
-                                color: #333;
-                            }
-                        }
+                .date {
+                    i {
+                        color: $ash-gray;
                     }
                 }
             }
@@ -212,8 +290,8 @@
 
                 .thumbnail {
                     img {
-                        width: 100px;
-                        height: 100px;
+                        width: 150px;
+                        height: 150px;
                         object-fit: cover;
                         border-radius: 8px;
                         box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
