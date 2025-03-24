@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react';
+import { Tooltip } from 'antd';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSortUp, faSortDown } from '@fortawesome/free-solid-svg-icons';
 import styles from '../../../assets/css/Admin/field/fieldTable.module.scss';
 import ConfirmModal from '../../../components/Modal/ConfirmModal';
 import formatCurrency from '../../../utils/formatCurrency';
@@ -14,50 +17,119 @@ function FieldTable({
     deleteFieldId,
     handleSoftDelete,
 }) {
-    const [sports, setSports] = useState([]); // State to hold sports data
+    const [sports, setSports] = useState([]);
+    const [sortConfig, setSortConfig] = useState({ key: 'fieldName', direction: 'ascending' });
 
-    // Fetch all sports data
     useEffect(() => {
         const fetchSports = async () => {
             try {
-                const response = await sportApi.getAllActive(0, 100); // Adjust the API call as per your service
-                setSports(response.data.content); // Set the sports data
+                const response = await sportApi.getAllActive(0, 100);
+                setSports(response.data.content);
             } catch (error) {
                 console.error('Error fetching sports:', error);
             }
         };
 
         fetchSports();
-    }, []); // Empty dependency array to run once on mount
+    }, []);
 
-    // Function to get sport name by sportId
     const getSportNameById = (sportId) => {
         const sport = sports.find((sport) => sport.id === sportId);
-        return sport ? sport.sportName : 'Unknown'; // Return 'Unknown' if not found
+        return sport ? sport.sportName : 'Unknown';
     };
+
+    const handleSort = (key) => {
+        let direction = 'descending';
+        if (sortConfig.key === key && sortConfig.direction === 'descending') {
+            direction = 'ascending';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const sortedFields = [...fields].sort((a, b) => {
+        let aValue, bValue;
+
+        if (sortConfig.key === 'fieldName') {
+            aValue = a.fieldName.toLowerCase();
+            bValue = b.fieldName.toLowerCase();
+        } else if (sortConfig.key === 'sportName') {
+            aValue = getSportNameById(a.sportId).toLowerCase();
+            bValue = getSportNameById(b.sportId).toLowerCase();
+        } else if (sortConfig.key === 'pricePolicies') {
+            aValue = a.pricePolicies.length;
+            bValue = b.pricePolicies.length;
+        } else {
+            return 0;
+        }
+
+        return sortConfig.direction === 'descending'
+            ? (aValue > bValue ? -1 : 1)
+            : (aValue < bValue ? -1 : 1);
+    });
 
     return (
         <table className={`mt-4 ${styles.fieldsTable}`}>
             <thead>
                 <tr>
                     <th>Order</th>
-                    <th>Field Name</th>
-                    <th>Sport Name</th> {/* Changed to Sport Name */}
+                    <th onClick={() => handleSort('fieldName')} style={{ cursor: 'pointer' }}>
+                        <Tooltip title="Sort by Field Name">
+                            Field Name
+                            <span style={{ marginLeft: '5px' }}>
+                                <FontAwesomeIcon
+                                    icon={faSortUp}
+                                    style={{ opacity: sortConfig.key === 'fieldName' && sortConfig.direction === 'ascending' ? 1 : 0.5 }}
+                                />
+                                <FontAwesomeIcon
+                                    icon={faSortDown}
+                                    style={{ opacity: sortConfig.key === 'fieldName' && sortConfig.direction === 'descending' ? 1 : 0.5 }}
+                                />
+                            </span>
+                        </Tooltip>
+                    </th>
+                    <th onClick={() => handleSort('sportName')} style={{ cursor: 'pointer' }}>
+                        <Tooltip title="Sort by Sport Name">
+                            Sport Name
+                            <span style={{ marginLeft: '5px' }}>
+                                <FontAwesomeIcon
+                                    icon={faSortUp}
+                                    style={{ opacity: sortConfig.key === 'sportName' && sortConfig.direction === 'ascending' ? 1 : 0.5 }}
+                                />
+                                <FontAwesomeIcon
+                                    icon={faSortDown}
+                                    style={{ opacity: sortConfig.key === 'sportName' && sortConfig.direction === 'descending' ? 1 : 0.5 }}
+                                />
+                            </span>
+                        </Tooltip>
+                    </th>
                     <th>Description</th>
-                    <th>Price Policies</th>
+                    <th onClick={() => handleSort('pricePolicies')} style={{ cursor: 'pointer' }}>
+                        <Tooltip title="Sort by Price Policies">
+                            Price Policies
+                            <span style={{ marginLeft: '5px' }}>
+                                <FontAwesomeIcon
+                                    icon={faSortUp}
+                                    style={{ opacity: sortConfig.key === 'pricePolicies' && sortConfig.direction === 'ascending' ? 1 : 0.5 }}
+                                />
+                                <FontAwesomeIcon
+                                    icon={faSortDown}
+                                    style={{ opacity: sortConfig.key === 'pricePolicies' && sortConfig.direction === 'descending' ? 1 : 0.5 }}
+                                />
+                            </span>
+                        </Tooltip>
+                    </th>
                     <th>Image</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                {fields.length > 0 ? (
-                    fields.map((field, index) => (
+                {sortedFields.length > 0 ? (
+                    sortedFields.map((field, index) => (
                         <tr key={field.id}>
                             <td>{index + 1 + currentPage * pageSize}</td>
                             <td>{field.fieldName}</td>
-                            <td>{getSportNameById(field.sportId)}</td> {/* Displaying sportName */}
+                            <td>{getSportNameById(field.sportId)}</td>
                             <td title={field.description}>{field.description}</td>
-                            {/* Cột Price Policies */}
                             <td>
                                 {field.pricePolicies.map((policy, policyIndex) => {
                                     const daysOfWeek = policy.daysOfWeek
@@ -103,7 +175,7 @@ function FieldTable({
                     ))
                 ) : (
                     <tr>
-                        <td colSpan='7'>No fields available.</td> {/* Adjusted colSpan to match table columns */}
+                        <td colSpan='7'>No fields available.</td>
                     </tr>
                 )}
             </tbody>
