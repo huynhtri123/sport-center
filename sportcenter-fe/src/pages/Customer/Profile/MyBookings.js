@@ -10,35 +10,80 @@ import styles from '../../../assets/css/Profile/myBookings.module.scss';
 import { Loading } from '../../../components/Loading/Loading';
 import PDFModal from '../../../components/Modal/PDFModal';
 import { connectWebSocket, disconnectWebSocket } from '../../../services/websocket/connect';
+import { Line } from 'react-chartjs-2';
+import {
+    Chart as ChartJS,
+    LineElement,
+    PointElement,
+    LinearScale,
+    CategoryScale,
+    Title,
+    Tooltip,
+    Legend,
+} from 'chart.js';
+
+// Đăng ký các thành phần cần thiết của Chart.js
+ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
 
 const { Option } = Select;
+
+const RevenueChart = ({ bookings }) => {
+    const monthlyRevenue = Array(12).fill(0);
+
+    bookings.forEach(booking => {
+        const month = new Date(booking.startTime).getMonth();
+        monthlyRevenue[month] += booking.totalPrice;
+    });
+
+    const months = [
+        'January', 'February', 'March', 'April',
+        'May', 'June', 'July', 'August',
+        'September', 'October', 'November', 'December'
+    ];
+
+    const data = {
+        labels: months,
+        datasets: [
+            {
+                label: 'Booking Cost',
+                data: monthlyRevenue,
+                fill: false,
+                backgroundColor: 'rgba(75,192,192,0.4)',
+                borderColor: 'rgba(75,192,192,1)',
+                tension: 0.1,
+            },
+        ],
+    };
+
+    return (
+        <div>
+            <h2 style={{ textAlign: 'center' }}>Booking Statistics Chart</h2>
+            <Line data={data} />
+        </div>
+    );
+};
 
 function MyBookings({ bookings, setMyBookings, getMyProfile, userId }) {
     const [isLoading, setIsLoading] = useState(false);
     const [selectedType, setSelectedType] = useState('All');
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-
     const [isPDFModalVisible, setIsPDFModalVisible] = useState(false);
     const [selectedBooking, setSelectedBooking] = useState(null);
     const [isRecurringCancel, setIsRecurringCancel] = useState(false);
 
     useEffect(() => {
-        // Khi component mount, kết nối WebSocket
         connectWebSocket(
             (updatedBooking) => {
-                // Xử lý cập nhật booking
                 fetchBookings(selectedYear);
             },
             (newNotification) => {
-                // Xử lý notification mới
                 console.log('🔔 Notification mới nhận:', newNotification);
             }
         );
 
-        // Cleanup khi component bị unmount (rời khỏi trang)
         return () => {
             console.log('🔌 Ngắt kết nối WebSocket');
-            disconnectWebSocket(); // Ngắt kết nối WebSocket khi component unmount
+            disconnectWebSocket();
         };
     }, []);
 
@@ -203,6 +248,9 @@ function MyBookings({ bookings, setMyBookings, getMyProfile, userId }) {
                     ))}
                 </Select>
             </div>
+
+            <RevenueChart bookings={bookings} />
+
             <Table
                 columns={columns}
                 dataSource={bookings
