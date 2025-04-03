@@ -230,7 +230,7 @@ function Home() {
                     {isAdmin && isEditMode && (
                         <div className={styles.uploadBannerSection}>
                             <label className={styles.uploadLabel}>
-                                <span>Upload Banner Source </span>
+                                <span className={styles.uploadSpan}>Upload Banner Source </span>
                                 <input
                                     type='file'
                                     ref={bannerFileRef}

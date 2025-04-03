@@ -17,11 +17,11 @@ function ManageFields() {
     const [deleteFieldId, setDeleteFieldId] = useState(null);
     const [formData, setFormData] = useState({
         fieldName: '',
-        sportId: '', // Changed from fieldType
+        sportId: '',
         description: '',
         imageUrl: defaultIcon,
         videoUrl: defaultIcon,
-        pricePolicies: [{ price: 0, daysOfWeek: [] }], // Default days
+        pricePolicies: [{ price: 0, daysOfWeek: [] }],
     });
     const [editFieldId, setEditFieldId] = useState(null);
     const [editFormData, setEditFormData] = useState(formData);
@@ -30,7 +30,7 @@ function ManageFields() {
 
     // Search state
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedSportId, setSelectedSportId] = useState(''); // Changed from selectedFieldType
+    const [selectedSportId, setSelectedSportId] = useState('');
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(0);
@@ -246,25 +246,29 @@ function ManageFields() {
     // Filter fields based on search query and selected sportId
     const filteredFields = fields.filter((field) => {
         const matchesName = field.fieldName.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesName;
+        const matchesSport = selectedSportId ? field.sportId === selectedSportId : true;
+        return matchesName && matchesSport;
     });
 
     return (
         <div className={styles.manageFields}>
             {isLoading && <Loading />}
+
+            <button className={`btn ${styles.addButton}`} onClick={handleToggleShowAddField}>
+                {isEditing ? 'Cancel Edit' : 'Add New Field'}
+            </button>
+
             <div className={styles.searchContainer}>
                 <input
                     type='text'
                     name='searchQuery'
-                    placeholder='Search by name...'
+                    placeholder='Search field name...'
                     value={searchQuery}
                     onChange={handleChange}
                     className={styles.searchInput}
                 />
             </div>
-            <button className={`btn ${styles.addButton}`} onClick={handleToggleShowAddField}>
-                {isEditing ? 'Cancel Edit' : 'Add New Field'}
-            </button>
+
             {(showInputForm || isEditing) && (
                 <FieldInput
                     isEditing={isEditing}
@@ -283,7 +287,8 @@ function ManageFields() {
             )}
 
             <FieldTable
-                fields={fields}
+                fields={filteredFields}
+                setFields={setFields}
                 currentPage={currentPage}
                 pageSize={pageSize}
                 handleEditClick={handleEditClick}
@@ -291,6 +296,7 @@ function ManageFields() {
                 isModalOpen={isModalOpen}
                 deleteFieldId={deleteFieldId}
                 handleSoftDelete={handleSoftDelete}
+                setTotalPages={setTotalPages}
             />
 
             <div className={styles.pagination}>

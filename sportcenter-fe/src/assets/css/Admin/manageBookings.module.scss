@@ -1,11 +1,15 @@
 @import '../variables';
 
+.manageBookingsContainer {
+    padding: 20px;
+}
+
 .bookingsTable {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    overflow-x: auto;
     table-layout: fixed;
+    overflow-x: auto;
 
     th,
     td {
@@ -20,70 +24,30 @@
         width: 75px;
     }
 
+    th:nth-child(5),
+    td:nth-child(5) {
+        cursor: pointer;
+    }
+
     th:last-child,
     td:last-child {
-        width: 140px;
-    }
-
-    th:nth-child(4),
-    td:nth-child(4) {
-        width: 250px;
-    }
-
-    th:nth-child(6),
-    td:nth-child(6) {
         width: 160px;
-    }
-
-    th:nth-child(7),
-    td:nth-child(7) {
-        width: 100px;
-    }
-
-    th:nth-child(8),
-    td:nth-child(8) {
-        width: 110px;
     }
 
     .customerInfo {
         font-size: 14px;
-        line-height: 1.4;
         color: #555;
 
         strong {
             font-weight: bold;
             color: #333;
         }
-
-        div {
-            margin-bottom: 5px;
-        }
     }
 
     .timeRange {
         display: flex;
         flex-direction: column;
-        gap: 5px;
-        word-wrap: break-word;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .startTime,
-    .endTime {
-        font-weight: bold;
-        color: #2c3e50;
-        background-color: #f5f5f5;
-        padding: 5px 10px;
-        border-radius: 4px;
-        font-size: 14px;
-        text-align: center;
-    }
-
-    .timeSeparator {
-        font-size: 14px;
-        color: #555;
-        text-align: center;
+        align-items: center;
     }
 
     .recurring {
@@ -93,49 +57,13 @@
     .single {
         background-color: #fff7f7;
     }
-
-    .recurring td {
-        border-left: 2px solid #f0f4f8;
-    }
 }
 
-// Responsive cho bảng
-@media (max-width: 1024px) {
-    .bookingsTable {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
-    }
-}
-
-@media (max-width: 768px) {
-    .bookingsTable {
-        display: block;
-        overflow-x: auto;
-        font-size: 14px;
-    }
-
-    th,
-    td {
-        padding: 6px 10px;
-    }
-
-    .customerInfo div {
-        font-size: 12px;
-        line-height: 1.2;
-    }
-
-    .timeRange {
-        flex-direction: column;
-        text-align: center;
-    }
-}
-
-// Form tìm kiếm
 .searchContainer {
-    margin-bottom: 20px;
     display: flex;
+    gap: 10px;
     justify-content: center;
+    margin-bottom: 20px;
 }
 
 .searchInput {
@@ -143,22 +71,19 @@
     border: 1px solid #ccc;
     border-radius: 4px;
     width: 100%;
-    max-width: 400px;
-    margin: 0 auto;
-    display: block;
+    max-width: 300px;
 }
 
-// Phân trang
 .pagination {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 20px;
     gap: 10px;
+    margin-top: 20px;
 }
 
 .pagination button {
-    padding: 10px 15px;
+    padding: 8px 12px;
     border: none;
     border-radius: 5px;
     background-color: #007bff;
@@ -172,64 +97,17 @@
     cursor: not-allowed;
 }
 
-.pagination button:hover:not(:disabled) {
-    background-color: #0056b3;
-}
+@media (max-width: 768px) {
+    .bookingsTable {
+        font-size: 14px;
+    }
 
-.pagination span {
-    font-weight: bold;
-    color: #333;
-}
+    .searchContainer {
+        flex-direction: column;
+        align-items: center;
+    }
 
-// Chọn & tải ảnh
-.uploadContainer {
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.fileInput {
-    display: none;
-}
-
-.fileInput + label {
-    display: inline-block;
-    padding: 10px 15px;
-    background-color: $blue-prime;
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    text-align: center;
-    transition: background-color 0.3s;
-}
-
-.fileInput + label:hover {
-    background-color: darken($blue-prime, 10%);
-}
-
-.previewImage {
-    margin-top: 10px;
-    width: 120px;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 2px solid $blue-prime;
-    display: block;
-}
-
-@media (max-width: 480px) {
     .searchInput {
         width: 90%;
-    }
-
-    .pagination {
-        flex-direction: column;
-    }
-
-    .pagination button {
-        width: 100%;
-        text-align: center;
     }
 }

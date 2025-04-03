@@ -19,7 +19,10 @@ public interface FieldService {
     public ResponseEntity<BaseResponse> forceDelete(String fieldId);
 
     public ResponseEntity<BaseResponse> searchByNameContainingIgnoreCase(String fieldName);
-//    public ResponseEntity<BaseResponse> findByFieldType(FieldType fieldType);
+
     public ResponseEntity<BaseResponse> findBySportId(String sportId);
+
     ResponseEntity<BaseResponse> searchByNameAndPaginate(String fieldName, int page, int size);
+
+    ResponseEntity<BaseResponse> filterBySportIdAndPaginate(String sportId, int page, int size);
 }

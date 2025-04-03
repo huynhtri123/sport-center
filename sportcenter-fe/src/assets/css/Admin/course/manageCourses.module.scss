@@ -24,26 +24,26 @@
     border-radius: 8px !important;
     font-size: 16px !important;
     padding: 8px !important;
-    margin-bottom: 8px;
+    margin-top: 8px;
     margin-right: 20px !important;
 }
 
 .addButton,
 .removeButton {
     font-size: 16px !important;
-    font-weight: 700;
+    font-weight: 500;
     height: 42px !important;
     padding: 0 10px !important;
     border-radius: 6px !important;
     transition: opacity 0.3s ease-in-out !important;
 
     &:hover {
-        opacity: 0.8 !important;
+        background-color: $sky-blue-hover !important;
     }
 }
 
 .addButton {
-    background: $blue-gray !important;
+    background: $sky-blue !important;
     color: white !important;
 }
 

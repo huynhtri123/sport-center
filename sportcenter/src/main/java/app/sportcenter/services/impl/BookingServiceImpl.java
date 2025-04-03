@@ -380,6 +380,7 @@ public class BookingServiceImpl implements BookingService {
         // ok -> có thể xác nhận recurring
         for (Booking booking : relatedBookings) {
             booking.setProcessing(false);       // danh dau la hoan tat
+            booking.setRecurringId(recurringBooking.getId());   // luu id recurring cha
         }
         recurringBooking.setIsActive(true);     // danh dau la hoan tat
         recurringBooking.setProcessing(false);  // danh dau la hoan tat

@@ -84,13 +84,20 @@ public class FieldController {
         return fieldService.findBySportId(sportId);
     }
 
-
     @GetMapping("/public/field/search-by-name-paginate")
     public ResponseEntity<BaseResponse> searchByNameAndPaginate(
             @RequestParam("fieldName") String fieldName,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size) {
         return fieldService.searchByNameAndPaginate(fieldName, page, size);
+    }
+
+    @GetMapping("/public/field/filter-by-sport/{sportId}")
+    public ResponseEntity<BaseResponse> filterBySportIdPaginate(
+            @PathVariable("sportId") String sportId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        return fieldService.filterBySportIdAndPaginate(sportId, page, size);
     }
 
 }

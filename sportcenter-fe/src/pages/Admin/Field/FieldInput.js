@@ -145,7 +145,7 @@ function FieldInput({
 
                     {/* Các phần khác của form */}
                     <p className={styles.pricePoliciesSection}>
-                        <i className='fa-solid fa-coins'></i> Price Polycies (VND)
+                        <i className='fa-solid fa-coins'></i> Price Policies (VND/hour)
                     </p>
                     {(isEditing ? editFormData.pricePolicies : formData.pricePolicies).map((policy, index) => (
                         <div key={index} className={styles.pricePolicyContainer}>

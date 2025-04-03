@@ -24,4 +24,5 @@ public class BookingResponse extends BaseResponseDTO {
     private ZonedDateTime endTime;              // Thời gian kết thúc
     private Double totalPrice;                  // Giá tiền tổng cộng (số giờ * giá sân)
     private boolean isRecurring;
+    private String recurringId;
 }

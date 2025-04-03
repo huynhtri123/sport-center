@@ -67,6 +67,7 @@ function Booking() {
             if (!field || !field.id) {
                 const savedField = localStorage.getItem('selectedField');
                 if (savedField) setField(JSON.parse(savedField));
+                console.log('lay tu contẽt');
                 return;
             }
 

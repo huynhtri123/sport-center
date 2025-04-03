@@ -66,6 +66,11 @@ const fieldApi = {
         return axiosClient.get(url);
     },
 
+    filterBySportId(sportId, page, size) {
+        const url = `/public/field/filter-by-sport/${sportId}?page=${page}&size=${size}`;
+        return axiosClient.get(url);
+    },
+
     findBySportId(sportId) {
         const url = `/public/field/sport/${sportId}`;
         return axiosClient.get(url);

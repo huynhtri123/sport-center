@@ -291,12 +291,6 @@ public class FieldServiceImpl implements FieldService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Field> fieldPage = fieldRepository.searchByFieldNameContainingIgnoreCase(fieldName, pageable);
 
-//        if (fieldPage.isEmpty()) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-//                    new BaseResponse("Không tìm thấy Field có tên này.", HttpStatus.NOT_FOUND.value(), null)
-//            );
-//        }
-
         List<FieldResponse> responseFields = fieldPage.getContent()
                 .stream()
                 .map(fieldMapper::convertToDTO)
@@ -310,6 +304,27 @@ public class FieldServiceImpl implements FieldService {
 
         return ResponseEntity.ok(
                 new BaseResponse("Field list found.", HttpStatus.OK.value(), paginatedResponse)
+        );
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse> filterBySportIdAndPaginate(String sportId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Field> fieldPage = fieldRepository.filterBySportId(sportId, pageable);
+
+        List<FieldResponse> responseFields = fieldPage.getContent()
+                .stream()
+                .map(fieldMapper::convertToDTO)
+                .collect(Collectors.toList());
+
+        PaginatedResponse<FieldResponse> paginatedResponse = new PaginatedResponse<>(
+                responseFields,
+                fieldPage.getTotalPages(),
+                fieldPage.getTotalElements()
+        );
+
+        return ResponseEntity.ok(
+                new BaseResponse("Field list found by sportId.", HttpStatus.OK.value(), paginatedResponse)
         );
     }
 
