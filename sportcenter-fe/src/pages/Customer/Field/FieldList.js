@@ -1,4 +1,6 @@
-import { React, useEffect, useState } from 'react';
+/* eslint-disable no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -9,12 +11,16 @@ import bookingApi from '../../../services/api/booking/bookingApi';
 import sportApi from '../../../services/api/sport/sportApi';
 
 const FieldList = () => {
-    const [fields, setFields] = useGetFields(); // danh sách field, lấy từ context (set ở trang SportHome)
-    // eslint-disable-next-line no-unused-vars
+    const [fields, setFields] = useGetFields();
     const [field, setField] = useGetField();
-    const [sportName, setSportName] = useState(''); // Trạng thái để lưu sportName
+    const [sportName, setSportName] = useState('');
 
-    // Lấy danh sách `fields` từ `localStorage` nếu `fields` bị null hoặc rỗng
+    // reset để tránh lấy lộn lịch timeslots
+    useEffect(() => {
+        localStorage.removeItem('selectedField');
+        setField({});
+    }, []);
+
     useEffect(() => {
         if (!fields || fields.length === 0) {
             const storedFields = localStorage.getItem('selectedFields');
@@ -24,7 +30,6 @@ const FieldList = () => {
         }
     }, [fields, setFields]);
 
-    // Lấy thông tin môn thể thao từ API khi `sportId` có giá trị
     const sportId = fields[0]?.sportId;
     useEffect(() => {
         const fetchSportName = async () => {
@@ -38,11 +43,9 @@ const FieldList = () => {
                 setSportName('Sport');
             }
         };
-
         fetchSportName();
     }, [sportId]);
 
-    // Lấy chi tiết sân (thật ra là lấy lịch từ bookingController)
     const handleGetField = async (fieldId) => {
         try {
             const date = new Date();
@@ -52,9 +55,10 @@ const FieldList = () => {
 
             const onDaySchedule = {
                 fieldId: fieldId,
-                startOfDay: `${year}-${month}-${day}T00:00:00Z`, // Bắt đầu từ 00:00
-                endOfDay: `${year}-${month}-${day}T23:59:00Z`, // Kết thúc vào 23:59
+                startOfDay: `${year}-${month}-${day}T00:00:00Z`,
+                endOfDay: `${year}-${month}-${day}T23:59:00Z`,
             };
+
             const fieldResponse = await bookingApi.updateAndGetSchedule(onDaySchedule);
             if (fieldResponse.data) {
                 setField(fieldResponse.data);

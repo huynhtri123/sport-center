@@ -324,11 +324,10 @@
         border-radius: 8px;
         cursor: pointer;
         transition: background 0.3s ease;
-
-        span {
-            font-weight: bold;
-            color: $blue-prime;
-        }
+    }
+    .uploadSpan {
+        font-weight: bold;
+        color: white;
     }
 
     .uploadButton {

@@ -189,15 +189,16 @@ function ManageCourses() {
     return (
         <div className={styles.container}>
             {/* Search & Add New Course */}
+            <Button className={styles.addButton} type='primary' onClick={showAddModal}>
+                Add New Course
+            </Button>
+
             <Input
                 className={styles.searchBar}
                 placeholder='Search courses...'
                 value={searchQuery}
                 onChange={handleSearch}
             />
-            <Button className={styles.addButton} type='primary' onClick={showAddModal}>
-                Add New Course
-            </Button>
 
             {/* Table */}
             <Table

@@ -7,61 +7,11 @@ import bookingApi from '../../../services/api/booking/bookingApi';
 import userApi from '../../../services/api/user/userApi';
 import formatCurrency from '../../../utils/formatCurrency';
 import styles from '../../../assets/css/Profile/myBookings.module.scss';
-import { Loading } from '../../../components/Loading/Loading';
 import PDFModal from '../../../components/Modal/PDFModal';
 import { connectWebSocket, disconnectWebSocket } from '../../../services/websocket/connect';
-import { Line } from 'react-chartjs-2';
-import {
-    Chart as ChartJS,
-    LineElement,
-    PointElement,
-    LinearScale,
-    CategoryScale,
-    Title,
-    Tooltip,
-    Legend,
-} from 'chart.js';
-
-// Đăng ký các thành phần cần thiết của Chart.js
-ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
+import { Processing } from '../../../components/Loading/Processing';
 
 const { Option } = Select;
-
-const RevenueChart = ({ bookings }) => {
-    const monthlyRevenue = Array(12).fill(0);
-
-    bookings.forEach(booking => {
-        const month = new Date(booking.startTime).getMonth();
-        monthlyRevenue[month] += booking.totalPrice;
-    });
-
-    const months = [
-        'January', 'February', 'March', 'April',
-        'May', 'June', 'July', 'August',
-        'September', 'October', 'November', 'December'
-    ];
-
-    const data = {
-        labels: months,
-        datasets: [
-            {
-                label: 'Booking Cost',
-                data: monthlyRevenue,
-                fill: false,
-                backgroundColor: 'rgba(75,192,192,0.4)',
-                borderColor: 'rgba(75,192,192,1)',
-                tension: 0.1,
-            },
-        ],
-    };
-
-    return (
-        <div>
-            <h2 style={{ textAlign: 'center' }}>Booking Statistics Chart</h2>
-            <Line data={data} />
-        </div>
-    );
-};
 
 function MyBookings({ bookings, setMyBookings, getMyProfile, userId }) {
     const [isLoading, setIsLoading] = useState(false);
@@ -98,10 +48,6 @@ function MyBookings({ bookings, setMyBookings, getMyProfile, userId }) {
         setIsRecurringCancel(true);
         setIsPDFModalVisible(true);
     };
-
-    useEffect(() => {
-        fetchBookings(selectedYear);
-    }, [selectedYear]);
 
     const fetchBookings = async (year) => {
         try {
@@ -222,7 +168,7 @@ function MyBookings({ bookings, setMyBookings, getMyProfile, userId }) {
 
     return (
         <div className={styles.container}>
-            {isLoading && <Loading />}
+            {isLoading && <Processing />}
 
             <PDFModal
                 visible={isPDFModalVisible}
@@ -234,22 +180,6 @@ function MyBookings({ bookings, setMyBookings, getMyProfile, userId }) {
                 }}
                 onCancel={() => setIsPDFModalVisible(false)}
             />
-
-            {/* Thêm Select Box chọn năm */}
-            <div className={styles.filter}>
-                <label style={{ marginRight: '10px', marginBottom: '16px', fontWeight: 'bold', color: 'black' }}>
-                    Select Year:
-                </label>
-                <Select defaultValue={selectedYear} onChange={handleYearChange} style={{ width: 120 }}>
-                    {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((year) => (
-                        <Option key={year} value={year}>
-                            {year}
-                        </Option>
-                    ))}
-                </Select>
-            </div>
-
-            <RevenueChart bookings={bookings} />
 
             <Table
                 columns={columns}

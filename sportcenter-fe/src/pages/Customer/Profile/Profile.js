@@ -13,6 +13,7 @@ import MyInvoice from './MyInvoice';
 import MyTournaments from './MyTournaments';
 import formatCurrency from '../../../utils/formatCurrency';
 import { Link } from 'react-router-dom';
+import RevenueChart from './RevenueChart';
 
 function Profile() {
     const [profile, setProfile] = useState({}); // để chứa data lấy từ api
@@ -28,6 +29,7 @@ function Profile() {
     const [showBookings, setShowBookings] = useState(false);
     const [showTournaments, setShowTournaments] = useState(false);
     const [showTeams, setShowTeams] = useState(false);
+    const [showChart, setShowChart] = useState(false);
     // data states
     const [myBooking, setMyBookings] = useState([]);
     const [tournaments, setTournaments] = useState([]);
@@ -35,6 +37,7 @@ function Profile() {
     const [accountBalance, setAccountBalance] = useState(0);
     // handles
     const handleToggleCart = () => setShowCart(!showCart);
+    const handleToggleChart = () => setShowChart(!showChart);
     const handleTogglePaymentInfo = () => setShowPaymentInfo(!showPaymentInfo);
     const handleToggleInvoiceInfo = () => {
         setShowInvoiceInfo(!showInvoiceInfo);
@@ -42,8 +45,23 @@ function Profile() {
 
     const isAdmin = profile.role === 'ADMIN';
 
+    const fetchBookings = async () => {
+        try {
+            const myBookingResponse = await userApi.myBookings(new Date().getFullYear());
+            // console.log(myBookingResponse);
+            setMyBookings(myBookingResponse.data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    useEffect(() => {
+        fetchBookings();
+    }, []);
+
     const handleToggleBookings = async () => {
         setShowBookings(!showBookings);
+        // neu chua co moi fetch, co roi thi thoi
         if (showBookings === false && profile?.id && myBooking.length === 0) {
             try {
                 const myBookingResponse = await userApi.myBookings(new Date().getFullYear());
@@ -54,6 +72,7 @@ function Profile() {
             }
         }
     };
+
     const handleToggleTournaments = async () => {
         setShowTournaments(!showTournaments);
 
@@ -297,6 +316,15 @@ function Profile() {
                         </>
                     )}
                 </div>
+            </div>
+
+            <div className={styles.section}>
+                <h3 onClick={handleToggleChart}>
+                    <i className='fa-solid fa-chart-simple'></i>
+                    <span className='ms-3'>Statistic</span>
+                </h3>
+                <p></p>
+                {showChart && <RevenueChart bookings={myBooking} />}
             </div>
 
             {/* <div className={styles.section}>
