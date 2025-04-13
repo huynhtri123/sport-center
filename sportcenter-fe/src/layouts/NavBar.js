@@ -111,7 +111,7 @@ function NavBar() {
                     <Link className={`navbar-brand ${styles.appNameBox} font-cera-round-pro-medium`} to='/'>
                         <img
                             className='logo-icon'
-                            src='https://res.cloudinary.com/dftznqjsj/image/upload/v1732351740/logo_d8m7pt.png'
+                            src='https://cdn-icons-png.flaticon.com/128/11908/11908387.png'
                             alt='logo'
                         />
                         <span className={styles.appName}>Sport Center</span>

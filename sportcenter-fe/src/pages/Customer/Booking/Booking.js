@@ -15,6 +15,7 @@ import Video from '../../../components/Video/Video';
 import { connectWebSocket, disconnectWebSocket } from '../../../services/websocket/connect';
 import { useSelectDateForBooking, useLoading } from '../../../customs/hooks';
 import RecurringTimeSlotsModal from '../../../components/Modal/RecurringTimeSlotsModal';
+import aiApi from '../../../services/api/ai/aiApi';
 
 function Booking() {
     const [field, setField] = useGetField();
@@ -34,6 +35,7 @@ function Booking() {
     const [isLoadingContext, setIsLoadingContext] = useLoading();
     const [isShowTimeSlots, setIsShowTimeSlots] = useState(false);
     const [recurringTimeSlots, setRecurringTimeSlots] = useState([]);
+    const [bookingProbabilities, setBookingProbabilities] = useState([]);
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -67,7 +69,6 @@ function Booking() {
             if (!field || !field.id) {
                 const savedField = localStorage.getItem('selectedField');
                 if (savedField) setField(JSON.parse(savedField));
-                console.log('lay tu contẽt');
                 return;
             }
 
@@ -81,12 +82,41 @@ function Booking() {
                 const response = await bookingApi.updateAndGetSchedule(onDaySchedule);
                 //console.log(response.data);
                 setTimeSlots(response.data.timeSlots);
+
+                // Gọi AI dự đoán tỉ lệ sau khi có timeslot
+                predict(date);
             } catch (error) {
                 console.error('Error fetching time slots:', error);
             }
         },
         [field, setField]
     );
+
+    const predict = async (date) => {
+        const dayForPredict = new Date(date);
+        let dayOfWeek = dayForPredict.getDay();
+        // 1 = Thứ Hai, ..., 6 = Thứ Bảy, 0 = Chủ Nhật
+        dayOfWeek = dayOfWeek === 0 ? 7 : dayOfWeek; // chuyển Chủ Nhật từ 0 thành 7
+        const month = dayForPredict.getMonth() + 1; // cộng 1 vì getMonth() trả về 0-11
+        const price = getPriceForDate(field, dayOfWeek);
+        const request = {
+            field_id: field.id,
+            sport_id: field.sportId,
+            day_of_week: dayOfWeek,
+            month: month,
+            price: price,
+        };
+        const prediction = await aiApi.bookingPredicttion(request);
+        if (prediction) {
+            setBookingProbabilities(prediction.probabilities); // mảng 24 phần tử
+        }
+    };
+
+    const getPriceForDate = (field, dayOfWeek) => {
+        if (!field.pricePolicies || !selectedDate) return null;
+        const matchingPolicy = field.pricePolicies.find((policy) => policy.daysOfWeek.includes(dayOfWeek));
+        return matchingPolicy ? matchingPolicy.price : null;
+    };
 
     const handleDateChange = (e) => {
         const date = e.target.value;
@@ -294,6 +324,10 @@ function Booking() {
                             const currentTimeVN = new Date(new Date().getTime() + 7 * 60 * 60 * 1000);
                             const isPastSlot = slotStartTime < currentTimeVN;
                             const isAvailable = slot.status === 'AVAILABLE';
+                            const hour = parseInt(slot.startTime.substring(11, 13)); // Lấy giờ
+
+                            const probability = bookingProbabilities[hour];
+
                             return (
                                 <div
                                     key={index}
@@ -301,15 +335,23 @@ function Booking() {
                                         styles.timeSlot,
                                         isAvailable && !isPastSlot ? styles.available : styles.inUse
                                     )}
-                                    onClick={() => {
-                                        if (!isPastSlot && isAvailable) {
-                                            setStartTime(slot.startTime.substring(11, 16));
-                                        }
-                                    }}
+                                    onClick={
+                                        isAvailable && !isPastSlot
+                                            ? () => setStartTime(slot.startTime.substring(11, 16))
+                                            : undefined
+                                    }
                                 >
+                                    {probability !== undefined && probability >= 0.7 && (
+                                        <div className={styles.hotCorner}>Hot 🔥</div>
+                                    )}
                                     <span>
                                         {slot.startTime.substring(11, 16)} - {slot.endTime.substring(11, 16)}
                                     </span>
+                                    {probability !== undefined && (
+                                        <div className={styles.probabilityLabel}>
+                                            {(probability * 100).toFixed(0)}% likely booked
+                                        </div>
+                                    )}
                                 </div>
                             );
                         })

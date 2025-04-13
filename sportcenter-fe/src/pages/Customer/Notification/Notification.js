@@ -8,6 +8,7 @@ import { connectWebSocket, disconnectWebSocket } from '../../../services/websock
 function Notification() {
     const [notifications, setNotifications] = useState([]);
     const [user] = useUser();
+    const [searchTerm, setSearchTerm] = useState('');
 
     // ws
     useEffect(() => {
@@ -50,12 +51,23 @@ function Notification() {
                 'createdAt',
                 'desc'
             );
-            setNotifications(response.data.content);
+
+            const filtered = response.data.content.filter((notification) =>
+                notification.title.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+
+            setNotifications(filtered);
             setTotalPages(response.data.totalPages);
         } catch (error) {
             console.error('Error fetching notifications:', error);
         }
     };
+
+    useEffect(() => {
+        if (user.id) {
+            fetchNotifications(currentPage);
+        }
+    }, [searchTerm]);
 
     const handlePageChange = (newPage) => {
         if (newPage >= 0 && newPage < totalPages) {
@@ -65,12 +77,21 @@ function Notification() {
 
     return (
         <div className={styles.notificationContainer}>
-            <h2 className={styles.title}>
-                Notifications{' '}
-                <span className='ms-2'>
-                    <i className='fa fa-volume-up'></i>
-                </span>
-            </h2>
+            <div className={styles.headerRow}>
+                <h2 className={styles.title}>
+                    Notifications{' '}
+                    <span className='ms-2'>
+                        <i className='fa fa-volume-up'></i>
+                    </span>
+                </h2>
+                <input
+                    type='text'
+                    placeholder='Search by title...'
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className={styles.searchInput}
+                />
+            </div>
 
             <ul className={styles.notificationList}>
                 {notifications.length === 0 ? (
