@@ -133,6 +133,7 @@
     }
 
     .timeSlot {
+        position: relative; // để định vị badge bên trong
         padding: 12px;
         text-align: center;
         border-radius: 8px;
@@ -156,6 +157,27 @@
         background-color: #c62828;
         border: 1px solid #b8001f;
         cursor: not-allowed;
+    }
+
+    .hotCorner {
+        position: absolute;
+        top: 6px;
+        right: 8px;
+        background-color: #ffecec;
+        color: #c62828;
+        font-size: 0.55rem;
+        font-weight: 600;
+        padding: 1px 4px;
+        border-radius: 6px;
+        border: 1px solid #f8bbd0;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .probabilityLabel {
+        font-size: 0.7rem;
+        color: $ash-gray;
+        margin-top: 4px;
     }
 
     .bookingForm {
