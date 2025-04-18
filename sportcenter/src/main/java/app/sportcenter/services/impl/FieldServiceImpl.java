@@ -279,6 +279,7 @@ public class FieldServiceImpl implements FieldService {
                     new BaseResponse("No fields found for the specified sportId. " + sportId + ".", HttpStatus.NOT_FOUND.value(), null)
             );
         }
+        fieldList.sort(Comparator.comparing(Field::getCreatedAt).reversed());
         List<FieldResponse> responseFields = fieldList.stream().map(fieldMapper::convertToDTO).toList();
         return ResponseEntity.ok(
                 new BaseResponse("Field list found for the specified sportId. " + sportId + ".", HttpStatus.OK.value(), responseFields)

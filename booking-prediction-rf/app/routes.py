@@ -1,11 +1,13 @@
 import pandas as pd
 from flask import Blueprint, request, jsonify
-from app.model_utils import BookingPredictor, preprocess_input, create_features_for_day
+from model.model import BookingPredictor, preprocess_input
+from app.utils import create_features_for_day
+from testcase.test_case import test_midnight_case, test_full_day_schedule
 
 bp = Blueprint('api', __name__)
 
-# Load model và sport types
-predictor = BookingPredictor.load_model("app/booking_model.pkl")
+# Load model
+predictor = BookingPredictor.load_model("model/booking_model.pkl")
 
 # dự đoán cả ngày (24 timeslot: 0-23 <=> 0: 0-1, 23: 23-0)
 @bp.route('/predict', methods=['POST'])
@@ -35,6 +37,7 @@ def predict():
             "message": str(e)
         }), 400
 
+
 # dự đoán 1 timeslot cụ thể, ví dụ timeslot 1: 0h-1h -> hour=0
 @bp.route('/predict-hour', methods=['POST'])
 def predict_single_hour():
@@ -63,3 +66,15 @@ def predict_single_hour():
             "status": "error",
             "message": str(e)
         }), 400
+
+
+# test trên console
+@bp.route('/test', methods=['GET'])
+def test():
+    # Test case
+    test_midnight_case(predictor)
+    test_full_day_schedule(predictor)
+    return jsonify({
+            "status": "success, result in console"
+        })
+        

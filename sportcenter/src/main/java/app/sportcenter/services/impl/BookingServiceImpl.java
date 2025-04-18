@@ -33,6 +33,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -793,6 +795,55 @@ public class BookingServiceImpl implements BookingService {
         return ResponseEntity.ok(
                 new BaseResponse("Force delete booking successful.", HttpStatus.OK.value(), response)
         );
+    }
+
+    @Override
+    public List<BookingData> exportData() {
+        List<Booking> bookings = bookingRepository.findAll();
+        List<BookingData> bookingDataList = new ArrayList<>();
+        for (Booking booking : bookings) {
+            BookingData bookingData = new BookingData();
+            Field field = booking.getField();
+
+            bookingData.setField_id(field.getId());
+            bookingData.setSport_id(field.getSport().getId());
+
+            int dayOfWeek = booking.getStartTime().getDayOfWeek().getValue();
+            int hour = booking.getStartTime().getHour();
+            int month = booking.getStartTime().getMonthValue();
+            double price = field.getPriceForDay(dayOfWeek);
+
+            bookingData.setDay_of_week(dayOfWeek);
+            bookingData.setHour(hour);
+            bookingData.setMonth(month);
+            bookingData.setPrice(price);
+
+            bookingDataList.add(bookingData);
+        }
+        // xuat ra file csv
+        exportToCsv(bookingDataList, "bookings_data.csv");
+        return bookingDataList;
+    }
+
+    public void exportToCsv(List<BookingData> data, String filePath) {
+        try (FileWriter writer = new FileWriter(filePath)) {
+            // header
+            writer.append("field_id,sport_id,day_of_week,hour,month,price\n");
+
+            for (BookingData bd : data) {
+                writer.append(bd.getField_id()).append(",");
+                writer.append(bd.getSport_id()).append(",");
+                writer.append(String.valueOf(bd.getDay_of_week())).append(",");
+                writer.append(String.valueOf(bd.getHour())).append(",");
+                writer.append(String.valueOf(bd.getMonth())).append(",");
+                writer.append(String.valueOf(bd.getPrice())).append("\n");
+            }
+
+            writer.flush();
+            System.out.println("Xuất file CSV thành công: " + filePath);
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
     }
 
     // lay so tien cua booking con lai trong recurring
