@@ -107,7 +107,12 @@ const TournamentDetail = () => {
             {/* Section 2: Giải thưởng */}
             <section className={styles.prizes}>
                 <h2>
-                    <i className='fa-solid fa-award me-3'></i>
+                    <img
+                        src='https://cdn-icons-png.flaticon.com/128/1910/1910662.png'
+                        alt='Group Icon'
+                        className='me-3'
+                        style={{ width: '40px', height: '40px' }}
+                    />
                     Prizes
                 </h2>
                 {prizes.length > 0 ? (
@@ -126,7 +131,12 @@ const TournamentDetail = () => {
 
             <div className={styles.rulesSection}>
                 <h2>
-                    <i className='fa-solid fa-book me-3'></i>
+                    <img
+                        src='https://cdn-icons-png.flaticon.com/128/14400/14400940.png'
+                        alt='Group Icon'
+                        className='me-3'
+                        style={{ width: '40px', height: '40px' }}
+                    />
                     Rules
                 </h2>
                 <ul className={styles.rulesList}>

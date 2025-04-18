@@ -3,8 +3,10 @@ package app.sportcenter.services;
 import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.models.dto.request.BookingRequest;
 import app.sportcenter.models.dto.request.RecurringBookingRequest;
+import app.sportcenter.models.dto.response.BookingData;
 import app.sportcenter.models.dto.response.BookingResponse;
 import app.sportcenter.models.dto.response.RecurringBookingResponse;
+import app.sportcenter.models.entities.Booking;
 import app.sportcenter.models.entities.TimeSlot;
 import org.springframework.http.ResponseEntity;
 
@@ -70,4 +72,5 @@ public interface BookingService {
 
     public ResponseEntity<BaseResponse> forceDelete(String bookingId);
 
+    public List<BookingData> exportData();
 }

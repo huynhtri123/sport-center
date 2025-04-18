@@ -252,4 +252,13 @@ public class BookingController {
                 ))
         );
     }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @GetMapping("/booking/export-data")
+    public ResponseEntity<BaseResponse> exportData() {
+        return ResponseEntity.ok(
+                new BaseResponse("Get all bookings for AI successfully", 200,
+                        bookingService.exportData().size())
+        );
+    }
 }
