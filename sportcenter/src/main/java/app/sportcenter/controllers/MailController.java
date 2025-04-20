@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 @RequiredArgsConstructor
+// off, dùng async để khỏi phải deloy server kafka
 public class MailController {
 
     private final MailService mailService;

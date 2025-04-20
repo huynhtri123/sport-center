@@ -14,6 +14,7 @@ import app.sportcenter.models.entities.RegisterOrder;
 import app.sportcenter.models.entities.Team;
 import app.sportcenter.models.entities.Tournament;
 import app.sportcenter.repositories.*;
+import app.sportcenter.services.MailService;
 import app.sportcenter.services.TeamService;
 import app.sportcenter.utils.kafkaUsage.MessageWrapper;
 import app.sportcenter.utils.kafkaUsage.TournamentTeamPayload;
@@ -59,6 +60,7 @@ public class TournamentServiceImpl implements TournamentService {
     private final TeamService teamService;
     private final RegisterOrderRepository registerOrderRepository;
     private final RegisterOrderMapper registerOrderMapper;
+    private final MailService mailService;
 
     private void checkFutureDate(ZonedDateTime startDate, ZonedDateTime endDate, ZonedDateTime deadlineDate) {
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
@@ -422,7 +424,8 @@ public class TournamentServiceImpl implements TournamentService {
                     .toEmail(user.getEmail())
                     .toFullName(user.getFullName())
                     .build();
-            kafkaTemplate.send("unregister-tournament-notification-delivery", messageWrapper);
+            //kafkaTemplate.send("unregister-tournament-notification-delivery", messageWrapper);
+            mailService.sendMailUnregisterTournament(user.getEmail(), response, teamResponse);
 
             return ResponseEntity.ok(new BaseResponse(
                     "Successfully canceled registration for the tournament.", HttpStatus.OK.value(), response)
@@ -516,7 +519,8 @@ public class TournamentServiceImpl implements TournamentService {
                 .toEmail(owner.getEmail())
                 .toFullName(owner.getFullName())
                 .build();
-        kafkaTemplate.send("register-tournament-notification-delivery", messageWrapper);
+        //kafkaTemplate.send("register-tournament-notification-delivery", messageWrapper);
+        mailService.sendMailRegisterTournament(messageWrapper.getToEmail(), tournamentResponse, teamResponse);
 
         return tournamentResponse;
     }

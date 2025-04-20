@@ -9,14 +9,12 @@ import app.sportcenter.models.dto.request.RecurringBookingRequest;
 import app.sportcenter.models.dto.response.*;
 import app.sportcenter.models.entities.*;
 import app.sportcenter.repositories.*;
-import app.sportcenter.services.BookingService;
-import app.sportcenter.services.FieldStatusByDateService;
-import app.sportcenter.services.InvoiceService;
-import app.sportcenter.services.UserService;
+import app.sportcenter.services.*;
 import app.sportcenter.utils.kafkaUsage.MessageWrapper;
 import app.sportcenter.utils.mappers.BookingMapper;
 import app.sportcenter.utils.mappers.FieldMapper;
 import app.sportcenter.utils.mappers.RecurringBookingMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -59,6 +57,7 @@ public class BookingServiceImpl implements BookingService {
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final FieldStatusByDateService fieldStatusByDateService;
     private final FieldStatusByDateRepository fieldStatusByDateRepository;
+    private final MailService mailService;
 
     // đặt lẻ bước 1
     @Transactional
@@ -157,7 +156,8 @@ public class BookingServiceImpl implements BookingService {
                 .toEmail(currUser.getEmail())
                 .toFullName(currUser.getFullName())
                 .build();
-        kafkaTemplate.send("booking-notification-delivery", messageWrapper);
+        //kafkaTemplate.send("booking-notification-delivery", messageWrapper);
+        mailService.sendMailBooking(currUser.getEmail(), currUser.getFullName(), response);
 
         return response;
     }
@@ -236,7 +236,8 @@ public class BookingServiceImpl implements BookingService {
                 .toEmail(owner.getEmail())
                 .toFullName(owner.getFullName())
                 .build();
-        kafkaTemplate.send("cancel-booking-notification-delivery", messageWrapper);
+        //kafkaTemplate.send("cancel-booking-notification-delivery", messageWrapper);
+        mailService.sendMailCancelBooking(owner.getEmail(), owner.getFullName(), response);
 
         return response;
     }
@@ -398,7 +399,8 @@ public class BookingServiceImpl implements BookingService {
                 .toEmail(currUser.getEmail())
                 .toFullName(currUser.getFullName())
                 .build();
-        kafkaTemplate.send("recurring-notification-delivery", messageWrapper);
+        //kafkaTemplate.send("recurring-notification-delivery", messageWrapper);
+        mailService.sendMailRecurringBooking(currUser.getEmail(), currUser.getFullName(), response);
 
         log.info("Đặt sân (recurring) bước 2 thành công,{}", recurringId);
         return response;
@@ -485,7 +487,8 @@ public class BookingServiceImpl implements BookingService {
                 .toEmail(owner.getEmail())
                 .toFullName(owner.getFullName())
                 .build();
-        kafkaTemplate.send("cancel-recurring-notification-delivery", messageWrapper);
+        //kafkaTemplate.send("cancel-recurring-notification-delivery", messageWrapper);
+        mailService.sendMailRecurringBookingCancel(owner.getEmail(), owner.getFullName(), responseForSendingMail);
     }
 
     // lay danh sach booking con trong recurring

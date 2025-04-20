@@ -5,6 +5,7 @@ import app.sportcenter.models.dto.request.*;
 import app.sportcenter.models.dto.response.JWTAuthResponse;
 import app.sportcenter.models.dto.response.UserResponse;
 import app.sportcenter.models.dto.response.VerifyResponse;
+import app.sportcenter.services.MailService;
 import app.sportcenter.utils.kafkaUsage.MessageWrapper;
 import app.sportcenter.commons.Role;
 import app.sportcenter.commons.SendMailType;
@@ -53,6 +54,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserService userService;
     private final BackListTokenRepository backListTokenRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final MailService mailService;
 
     @Override
     public void autoCreateAdminAccount() {
@@ -118,10 +120,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             MessageWrapper messageWrapper = MessageWrapper.builder()
                     .type(SendMailType.OTP_VERIFY.name())
                     .payload(verifyCode)
-                    .toEmail((user.getEmail()))
+                    .toEmail(user.getEmail())
                     .toFullName(user.getFullName())
                     .build();
-            kafkaTemplate.send("verify-otp-notification-delivery", messageWrapper);
+            //kafkaTemplate.send("verify-otp-notification-delivery", messageWrapper);
+            mailService.sendMailVerify(user.getEmail(), user.getFullName(), verifyCode);
 
         } catch (Exception e) {
             log.error("Lỗi khi gửi email xác thực cho người dùng: {}", user.getEmail(), e);
@@ -343,10 +346,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             MessageWrapper messageWrapper = MessageWrapper.builder()
                     .type(SendMailType.OTP_VERIFY.name())
                     .payload(verifyCode)
-                    .toEmail((user.getEmail()))
+                    .toEmail(user.getEmail())
                     .toFullName(user.getFullName())
                     .build();
-            kafkaTemplate.send("verify-otp-notification-delivery", messageWrapper);
+            //kafkaTemplate.send("verify-otp-notification-delivery", messageWrapper);
+            mailService.sendMailVerify(user.getEmail(), user.getFullName(), verifyCode);
 
         } catch (Exception e) {
             log.error("Lỗi khi gửi email xác thực cho người dùng: {}" , user.getEmail(), e);
