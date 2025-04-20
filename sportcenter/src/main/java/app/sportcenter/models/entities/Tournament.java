@@ -11,7 +11,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Document(collection = "Tounament")
+@Document(collection = "tournaments")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

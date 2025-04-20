@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.ZonedDateTime;
 
-@Document(collection = "PaymentInfo")
+@Document(collection = "payment_info")
 @Data
 @Builder
 @NoArgsConstructor

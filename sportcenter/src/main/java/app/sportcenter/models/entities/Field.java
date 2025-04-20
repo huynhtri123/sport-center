@@ -13,7 +13,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Document(collection = "Field")
+@Document(collection = "fields")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

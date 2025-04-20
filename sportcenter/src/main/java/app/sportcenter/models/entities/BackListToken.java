@@ -7,7 +7,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 
-@Document(collection = "BackListToken")
+@Document(collection = "back_list_tokens")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

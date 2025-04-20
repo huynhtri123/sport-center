@@ -16,7 +16,7 @@ import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.List;
 
-@Document(collection = "User")
+@Document(collection = "users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
