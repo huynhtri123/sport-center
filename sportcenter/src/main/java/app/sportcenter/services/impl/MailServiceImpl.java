@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -52,6 +53,7 @@ public class MailServiceImpl implements MailService {
                 new Locale("vi", "VN")).format(input);
     }
 
+    @Async
     @Override
     public void sendMailVerify(String toEmail, String userName, String verifyCode) {
         try {
@@ -66,6 +68,7 @@ public class MailServiceImpl implements MailService {
         }
     }
 
+    @Async
     @Override
     public void sendMailBooking(String email, String fullName, BookingResponse bookingResponse) {
         try {
@@ -90,6 +93,7 @@ public class MailServiceImpl implements MailService {
         }
     }
 
+    @Async
     @Override
     public void sendMailRecurringBooking(String email, String fullName, RecurringBookingResponse recurringBookingResponse) {
         try {
@@ -133,6 +137,7 @@ public class MailServiceImpl implements MailService {
         }
     }
 
+    @Async
     @Override
     public void sendMailRecurringBookingCancel(String email, String fullName, CancelRecurringInfo cancelRecurringInfo) {
         try {
@@ -176,6 +181,7 @@ public class MailServiceImpl implements MailService {
         }
     }
 
+    @Async
     @Override
     public void sendMailCancelBooking(String email, String fullName, BookingResponse canceledBooking) {
         try {
@@ -199,6 +205,7 @@ public class MailServiceImpl implements MailService {
         }
     }
 
+    @Async
     @Override
     public void sendMailRegisterTournament(String toEmail, TournamentResponse tournament, TeamResponse team) {
         try {
@@ -221,6 +228,7 @@ public class MailServiceImpl implements MailService {
         }
     }
 
+    @Async
     @Override
     public void sendMailUnregisterTournament(String toEmail, TournamentResponse tournament, TeamResponse team) {
         try {
