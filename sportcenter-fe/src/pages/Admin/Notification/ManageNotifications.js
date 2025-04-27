@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import notificationApi from '../../../services/api/notification/notificationApi';
-import styles from '../../../assets/css/Admin/manageNotifications.module.scss';
+import styles from '../../../assets/css/Admin/manage/manageNotifications.module.scss';
 import { Loading } from '../../../components/Loading/Loading';
 import { toast } from 'react-toastify';
 import NotificationList from './NotificationList';

@@ -33,7 +33,7 @@ public class TournamentMapper {
         response.setSport(sport);
         response.setTournamentName(tournament.getTournamentName());
         response.setStartDate(tournament.getStartDate());
-        response.setEndDate(tournament.getEndDate());
+        //response.setEndDate(tournament.getEndDate());
         response.setMaxTeams(tournament.getMaxTeams());
         response.setRegisteredTeamIds(tournament.getRegisteredTeamIds());
         response.setRegistrationDeadline(tournament.getRegistrationDeadline());
@@ -41,6 +41,10 @@ public class TournamentMapper {
         response.setThumUrl(tournament.getThumUrl());
         response.setRegistrationFee(tournament.getRegistrationFee());
         response.setRules(tournament.getRules());
+        response.setStandings(tournament.getStandings());
+        response.setAdvancingTeams(tournament.getAdvancingTeams());
+        response.setDone(tournament.isDone());
+        response.setWinnerTeamId(tournament.getWinnerTeamId());
 
         response.setCreatedAt(tournament.getCreatedAt());
         response.setUpdatedAt(tournament.getUpdatedAt());

@@ -1,4 +1,4 @@
-@import '../variables';
+@import '../../variables';
 
 .manageTeams {
     padding: 20px;
@@ -219,7 +219,6 @@
 /* 📌 Small Mobile: Căn chỉnh lại khoảng cách */
 @media (max-width: 480px) {
     .manageTeams {
-
         .teamsTable th,
         .teamsTable td {
             padding: 8px;

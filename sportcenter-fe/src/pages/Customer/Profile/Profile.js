@@ -372,7 +372,7 @@ function Profile() {
             )}
 
             {isAdmin && (
-                <Link className={styles.link} to={'/Admin'}>
+                <Link className={styles.link} to={'/admin'}>
                     <i className='fa-solid fa-arrow-right-long me-2'></i>
                     Go to Admin Dashboard
                 </Link>

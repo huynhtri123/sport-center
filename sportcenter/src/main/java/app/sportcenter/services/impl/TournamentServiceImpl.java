@@ -10,15 +10,12 @@ import app.sportcenter.models.dto.request.UnregisterTournamentRequest;
 import app.sportcenter.models.dto.response.RegisterOrderResponse;
 import app.sportcenter.models.dto.response.TeamResponse;
 import app.sportcenter.models.dto.response.TournamentResponse;
-import app.sportcenter.models.entities.RegisterOrder;
-import app.sportcenter.models.entities.Team;
-import app.sportcenter.models.entities.Tournament;
+import app.sportcenter.models.entities.*;
 import app.sportcenter.repositories.*;
 import app.sportcenter.services.MailService;
 import app.sportcenter.services.TeamService;
 import app.sportcenter.utils.kafkaUsage.MessageWrapper;
 import app.sportcenter.utils.kafkaUsage.TournamentTeamPayload;
-import app.sportcenter.models.entities.User;
 import app.sportcenter.services.TournamentService;
 import app.sportcenter.utils.mappers.RegisterOrderMapper;
 import app.sportcenter.utils.mappers.TeamMapper;
@@ -62,22 +59,22 @@ public class TournamentServiceImpl implements TournamentService {
     private final RegisterOrderMapper registerOrderMapper;
     private final MailService mailService;
 
-    private void checkFutureDate(ZonedDateTime startDate, ZonedDateTime endDate, ZonedDateTime deadlineDate) {
+    private void checkFutureDate(ZonedDateTime startDate, ZonedDateTime deadlineDate) {
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
         // 1. các ngày trong input phải là trong tương lai
         if (startDate.isBefore(now) || startDate.isEqual(now)) {
             throw new CustomException("The start date must be a future date", HttpStatus.BAD_REQUEST.value());
         }
-        if (endDate.isBefore(now) || endDate.isEqual(now)) {
-            throw new CustomException("The end date must be a future date", HttpStatus.BAD_REQUEST.value());
-        }
+//        if (endDate.isBefore(now) || endDate.isEqual(now)) {
+//            throw new CustomException("The end date must be a future date", HttpStatus.BAD_REQUEST.value());
+//        }
         if (deadlineDate.isBefore(now) || deadlineDate.isEqual(now)) {
             throw new CustomException("The registration deadline must be a future date", HttpStatus.BAD_REQUEST.value());
         }
-        // 2. ngày kết thúc phải sau ngày bắt đầu
-        if (endDate.isBefore(startDate) || endDate.isEqual(startDate)) {
-            throw new CustomException("The end date must be after the start date", HttpStatus.BAD_REQUEST.value());
-        }
+//        // 2. ngày kết thúc phải sau ngày bắt đầu
+//        if (endDate.isBefore(startDate) || endDate.isEqual(startDate)) {
+//            throw new CustomException("The end date must be after the start date", HttpStatus.BAD_REQUEST.value());
+//        }
 
         // 3. ngày deadline phải trước ngày bắt đầu
         if (deadlineDate.isAfter(startDate) || deadlineDate.isEqual(startDate)) {
@@ -89,7 +86,7 @@ public class TournamentServiceImpl implements TournamentService {
     @Override
     public ResponseEntity<BaseResponse> create(TournamentRequest tournamentRequest) {
         // check date input
-        checkFutureDate(tournamentRequest.getStartDate(), tournamentRequest.getEndDate(), tournamentRequest.getRegistrationDeadline());
+        checkFutureDate(tournamentRequest.getStartDate(), tournamentRequest.getRegistrationDeadline());
 
         if (tournamentRequest.getThumUrl() == null || tournamentRequest.getThumUrl().isEmpty()) {
             tournamentRequest.setThumUrl(appConfig.getDefaultIcon());
@@ -148,13 +145,10 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
-    public ResponseEntity<BaseResponse> getById(String id) {
+    public TournamentResponse getById(String id) {
         Tournament tournament = tournamentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Tournament with this ID not found."));
-        TournamentResponse response = tournamentMapper.convertToDTO(tournament);
-        return ResponseEntity.ok(
-                new BaseResponse("Tournament found.", HttpStatus.OK.value(), response)
-        );
+        return tournamentMapper.convertToDTO(tournament);
     }
 
     public ResponseEntity<BaseResponse> getBySportId(String sportId) {
@@ -264,7 +258,7 @@ public class TournamentServiceImpl implements TournamentService {
         existingTournament.setSportId(tournamentRequest.getSportId());
         existingTournament.setTournamentName(tournamentRequest.getTournamentName());
         existingTournament.setStartDate(tournamentRequest.getStartDate());
-        existingTournament.setEndDate(tournamentRequest.getEndDate());
+        //existingTournament.setEndDate(tournamentRequest.getEndDate());
         existingTournament.setMaxTeams(tournamentRequest.getMaxTeams());
         //existingTournament.setRegisteredTeamIds(tournamentRequest.getRegisteredTeamIds());
         existingTournament.setRegistrationDeadline(tournamentRequest.getRegistrationDeadline());
@@ -524,4 +518,40 @@ public class TournamentServiceImpl implements TournamentService {
 
         return tournamentResponse;
     }
+
+    @Override
+    public StandingsEntry findOrCreateStanding(Tournament tournament, String teamId) {
+        for (StandingsEntry entry : tournament.getStandings()) {
+            if (entry.getTeamId().equals(teamId)) {
+                return entry;
+            }
+        }
+
+        // Nếu không tìm thấy thì tạo mới rồi add vào tournament
+        StandingsEntry newEntry = StandingsEntry.builder()
+                .teamId(teamId)
+                .build();
+
+        tournament.getStandings().add(newEntry);
+        return newEntry;
+    }
+
+    @Override
+    public List<StandingsEntry> getStandingsEntry(String tournamentId) {
+        Tournament tournament = tournamentRepository.findById(tournamentId)
+                .orElseThrow(() -> new NotFoundException("Tournament not found!"));
+        return tournament.getStandings();
+    }
+
+    @Override
+    public List<TeamResponse> getAdvancingsTeams(String tournamentId) {
+        Tournament tournament = tournamentRepository.findById(tournamentId)
+                .orElseThrow(() -> new NotFoundException("Tournament not found!"));
+        if (tournament.getAdvancingTeams() == null) {
+            tournament.setAdvancingTeams(new ArrayList<>());
+        }
+        List<String> advancingTeamIds = tournament.getAdvancingTeams();
+        return advancingTeamIds.stream().map(teamService::getById).toList();
+    }
+
 }

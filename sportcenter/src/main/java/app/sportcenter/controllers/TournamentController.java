@@ -46,7 +46,10 @@ public class TournamentController {
     // public
     @GetMapping("/public/tounament/{tournamentId}")
     public ResponseEntity<BaseResponse> getById(@PathVariable("tournamentId") String tournamentId) {
-        return tournamentService.getById(tournamentId);
+        return ResponseEntity.ok(
+                new BaseResponse("Get tournament by id successfully", 200,
+                        tournamentService.getById(tournamentId))
+        );
     }
 
     // public
@@ -185,5 +188,24 @@ public class TournamentController {
         return tournamentService.searchByNameAndPaginate(tournamentName, page, size);
     }
 
+    // lấy danh sách bảng xếp hạng
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
+    @GetMapping("/tounament/standings/{tournamentId}")
+    public ResponseEntity<BaseResponse> getStandings(@PathVariable("tournamentId") String tournamentId) {
+        return ResponseEntity.ok(
+                new BaseResponse("Get standings entry successfully!", 200,
+                        tournamentService.getStandingsEntry(tournamentId))
+        );
+    }
+
+    // lấy danh sách đội được vào vòng trong
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
+    @GetMapping("/tounament/{tournamentId}/advancing-teams")
+    public ResponseEntity<BaseResponse> getAdvancingTeams(@PathVariable("tournamentId") String tournamentId) {
+        return ResponseEntity.ok(
+                new BaseResponse("Get advancing teams successfully!", 200,
+                        tournamentService.getAdvancingsTeams(tournamentId))
+        );
+    }
 
 }

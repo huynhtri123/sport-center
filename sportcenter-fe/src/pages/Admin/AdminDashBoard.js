@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import styles from '../../assets/css/Admin/admin.module.scss';
+import styles from '../../assets/css/Admin/manage/admin.module.scss';
 import { Pie, Bar } from 'react-chartjs-2';
 import ManageFields from './field/ManageFields';
 import ManageTeams from './team/ManageTeams';
@@ -86,6 +86,7 @@ function AdminDashboard() {
                     RecurringIntervalType.BIWEEKLY
                 );
 
+                // eslint-disable-next-line no-unused-vars
                 const totalBookings =
                     countSingleBooking.data + biWeeklyRecurringBooking.data + weeklyRecurringBooking.data;
 

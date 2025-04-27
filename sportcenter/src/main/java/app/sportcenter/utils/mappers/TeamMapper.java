@@ -34,13 +34,13 @@ public class TeamMapper {
 
         // Kiểm tra trường hợp getEnrolledTournamentIds là null
         List<Tournament> tournaments = new ArrayList<>();
-        if (team.getEnrolledTournamentIds() != null) {
-            tournaments = team.getEnrolledTournamentIds().stream()
+        if (team.getWonTournamentIds() != null) {
+            tournaments = team.getWonTournamentIds().stream()
                     .map(this::fetchTournamentById)
                     .collect(Collectors.toList());
         }
 
-        teamResponse.setEnrolledTournaments(tournaments);
+        teamResponse.setWonTournamentIds(tournaments);
 
         return teamResponse;
     }

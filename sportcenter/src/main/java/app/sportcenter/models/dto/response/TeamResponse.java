@@ -17,6 +17,6 @@ public class TeamResponse extends BaseResponseDTO {
     private String teamName;
     private List<Player> players;
     private String teamLogoUrl;
-    private List<Tournament> enrolledTournaments;
+    private List<Tournament> wonTournamentIds;
     private List<Prize> wonPrizes;
 }

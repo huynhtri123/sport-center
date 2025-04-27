@@ -7,6 +7,7 @@ import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
 import app.sportcenter.models.dto.request.TeamRequest;
 import app.sportcenter.models.dto.response.TeamResponse;
+import app.sportcenter.models.entities.Prize;
 import app.sportcenter.models.entities.Team;
 import app.sportcenter.models.entities.Tournament;
 import app.sportcenter.models.entities.User;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -91,17 +93,12 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public ResponseEntity<BaseResponse> getById(String id) {
+    public TeamResponse getById(String id) {
         Team team = teamRepository.getTeamById(id);
         if (team == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new BaseResponse("Team not found", HttpStatus.NOT_FOUND.value(), null)
-            );
+            throw new NotFoundException("Team not found");
         }
-        TeamResponse responseTeam = teamMapper.convertToDTO(team);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("Team found.", HttpStatus.OK.value(), responseTeam)
-        );
+        return teamMapper.convertToDTO(team);
     }
 
     @Override
@@ -189,9 +186,8 @@ public class TeamServiceImpl implements TeamService {
                 boolean hasActiveTournament = tournamentsWithTeam.stream()
                         .anyMatch((tournament ->
                                 tournament.getIsActive() &&
-                                        !tournament.getIsDeleted() &&
-                                        tournament.getEndDate().isAfter(now)
-                                ));
+                                        !tournament.getIsDeleted()
+                        ));
                 if (hasActiveTournament) {
                     throw new CustomException("This team is participating in a tournament, you cannot delete it!", HttpStatus.BAD_REQUEST.value());
                 }
@@ -268,9 +264,7 @@ public class TeamServiceImpl implements TeamService {
                 boolean hasActiveTournament = tournamentsWithTeam.stream()
                         .anyMatch((tournament ->
                                 tournament.getIsActive() &&
-                                        !tournament.getIsDeleted() &&
-                                        tournament.getEndDate().isAfter(now)
-                        ));
+                                        !tournament.getIsDeleted()));
                 if (hasActiveTournament) {
                     throw new CustomException("This team is participating in a tournament, you cannot delete it!", HttpStatus.BAD_REQUEST.value());
                 }
@@ -300,5 +294,21 @@ public class TeamServiceImpl implements TeamService {
     public boolean checkExistedTeam(String teamName) {
         List<Team> sameNameTeams = teamRepository.getTeamByTeamName(teamName.trim());
         return !sameNameTeams.isEmpty();    // đã tồn tại -> return true
+    }
+
+    @Override
+    public TeamResponse award(String teamId, String tournamentId, Prize prize) {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new NotFoundException("Team cannot found!"));
+        Tournament tournament = tournamentRepository.findById(tournamentId)
+                .orElseThrow(() -> new NotFoundException("Tournament cannot found!"));
+        if (team.getWonTournamentIds().contains(tournamentId)) {
+            throw new CustomException("This team has been won this tournament!", 400);
+        }
+
+        // ok
+        team.getWonTournamentIds().add(tournamentId);
+        team.getWonPrizes().add(prize);
+        return teamMapper.convertToDTO(teamRepository.save(team));
     }
 }

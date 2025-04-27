@@ -57,7 +57,7 @@ function Signin() {
             // chuyển hướng
             const currentRole = handleLocalStorage.getCurrentRole();
             if (currentRole === Role.ADMIN) {
-                navigate('/Admin');
+                navigate('/admin');
             } else {
                 navigate('/');
             }

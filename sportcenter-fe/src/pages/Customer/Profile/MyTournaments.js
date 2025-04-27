@@ -119,7 +119,7 @@ function TournamentCard({ tournament, setLocalTournaments }) {
                 <h4>{tournament.tournamentName}</h4>
                 <p style={{ color: '#7393B3' }}>Sport: {tournament.sport?.sportName}</p>
                 <p>Start Date: {new Date(tournament.startDate).toLocaleDateString()}</p>
-                <p>End Date: {new Date(tournament.endDate).toLocaleDateString()}</p>
+                {/* <p>End Date: {new Date(tournament.endDate).toLocaleDateString()}</p> */}
                 <p>Registration fee: {formatCurrency(tournament.registrationFee)}</p>
                 <p>
                     Registered Teams: {tournament.registeredTeamIds.length} / {tournament.maxTeams}

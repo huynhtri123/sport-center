@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import { Modal } from 'antd';
 import { Loading } from '../../../components/Loading/Loading';
 import userApi from '../../../services/api/user/userApi';
-import styles from '../../../assets/css/Admin/manageUsers.module.scss';
+import styles from '../../../assets/css/Admin/manage/manageUsers.module.scss';
 
 function ManageUsers() {
     const [users, setUsers] = useState([]);

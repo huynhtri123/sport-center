@@ -7,15 +7,19 @@ import app.sportcenter.models.dto.request.UnregisterTournamentRequest;
 import app.sportcenter.models.dto.response.RegisterOrderResponse;
 import app.sportcenter.models.dto.response.TeamResponse;
 import app.sportcenter.models.dto.response.TournamentResponse;
+import app.sportcenter.models.entities.StandingsEntry;
+import app.sportcenter.models.entities.Tournament;
 import app.sportcenter.models.entities.User;
 import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 
 public interface TournamentService {
     public ResponseEntity<BaseResponse> create(TournamentRequest tournamentRequest);
 
     public ResponseEntity<BaseResponse> getAllActive(int page, int size);
 
-    public ResponseEntity<BaseResponse> getById(String id);
+    public TournamentResponse getById(String id);
 
     public ResponseEntity<BaseResponse> getBySportId(String sportId);
 
@@ -42,4 +46,10 @@ public interface TournamentService {
     public ResponseEntity<BaseResponse> searchByNameAndPaginate(String tournamentName, int page, int size);
 
     public TournamentResponse confirmRegister(String registerOrderId);
+
+    public StandingsEntry findOrCreateStanding(Tournament tournament, String teamId);
+
+    public List<StandingsEntry> getStandingsEntry(String tournamentId);
+
+    public List<TeamResponse> getAdvancingsTeams(String tournamentId);
 }

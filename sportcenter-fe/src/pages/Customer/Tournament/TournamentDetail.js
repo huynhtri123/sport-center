@@ -22,7 +22,6 @@ const TournamentDetail = () => {
     const getRegisteredTeams = async (tournamentId) => {
         try {
             const teamResponse = await tournamentApi.getRegistedTeams(tournamentId);
-            // console.log(teamResponse);
             setRegisteredTeams(teamResponse.data);
         } catch (err) {
             console.error(err);
@@ -34,6 +33,7 @@ const TournamentDetail = () => {
             getRegisteredTeams(tournament.id);
         }
     }, [tournament]);
+
     const numberOfParticipants = tournament.registeredTeamIds ? tournament.registeredTeamIds.length : 0;
 
     const prizes = tournament.prizes || [];
@@ -42,6 +42,13 @@ const TournamentDetail = () => {
         navigate('/tournament/register');
         console.log('Registering for tournament...');
     };
+
+    // Compare the current date with the registration deadline
+    const currentDate = new Date();
+    const registrationDeadline = new Date(tournament.registrationDeadline);
+
+    // If the current date is later than the registration deadline, the button should not be visible
+    const isRegistrationOpen = currentDate <= registrationDeadline;
 
     return (
         <div className={styles.tournamentDetailContainer}>
@@ -60,15 +67,6 @@ const TournamentDetail = () => {
                             {formatDate(tournament.startDate)}
                             {', '}
                             {new Date(tournament.startDate).toLocaleTimeString()}
-                        </time>
-                    </div>
-                    <div className={styles.dateInfo}>
-                        <i className='fa-regular fa-clock'></i>
-                        <span>End Date: </span>
-                        <time>
-                            {formatDate(tournament.endDate)}
-                            {', '}
-                            {new Date(tournament.endDate).toLocaleTimeString()}
                         </time>
                     </div>
                     <div className={styles.dateInfo}>
@@ -91,8 +89,22 @@ const TournamentDetail = () => {
                         </span>
                     </div>
 
-                    <Button className={styles.registerButton} onClick={handleRegister}>
-                        Register for Tournament
+                    {/* Conditionally render the Register button */}
+                    {isRegistrationOpen ? (
+                        <Button className={styles.registerButton} onClick={handleRegister}>
+                            Register for Tournament
+                        </Button>
+                    ) : (
+                        <Button className={styles.registerButton} disabled>
+                            Registration Closed
+                        </Button>
+                    )}
+
+                    <Button
+                        className={styles.registerButton}
+                        onClick={() => navigate(`/tournament-details/${tournament.id}`)}
+                    >
+                        View Progress
                     </Button>
                 </div>
                 <div className={styles.thumbnailContainer}>
