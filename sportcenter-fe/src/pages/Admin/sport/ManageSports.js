@@ -2,7 +2,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Pagination } from 'antd';
-import styles from '../../../assets/css/Admin/manageSports.module.scss';
+import styles from '../../../assets/css/Admin/manage/manageSports.module.scss';
 import sportApi from '../../../services/api/sport/sportApi';
 import fileApi from '../../../services/api/file/fileApi';
 import { Loading } from '../../../components/Loading/Loading';

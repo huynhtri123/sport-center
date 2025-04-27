@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import invoiceApi from '../../../services/api/invoice/invoiceApi';
-import styles from '../../../assets/css/Admin/manageInvoices.module.scss';
+import styles from '../../../assets/css/Admin/manage/manageInvoices.module.scss';
 import ConfirmModal from '../../../components/Modal/ConfirmModal';
 import { PaymentMethod } from '../../../utils/enums/PaymentMethod';
 import { TransactionType } from '../../../utils/enums/TransactionType';

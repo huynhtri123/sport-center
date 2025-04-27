@@ -25,9 +25,9 @@ public class TournamentRequest extends BaseRequestDTO {
 //    @Future(message = "Ngày bắt đầu phải là ngày trong tương lai")
     private ZonedDateTime startDate;
 
-    @NotNull(message = "Bạn chưa nhập ngày kết thúc giải đấu")
-//    @Future(message = "Ngày kết thúc phải là ngày trong tương lai")
-    private ZonedDateTime endDate;
+//    @NotNull(message = "Bạn chưa nhập ngày kết thúc giải đấu")
+////    @Future(message = "Ngày kết thúc phải là ngày trong tương lai")
+//    private ZonedDateTime endDate;
 
     @NotNull(message = "Bạn chưa nhập số lượng đội tham gia tối đa")
     private Integer maxTeams;

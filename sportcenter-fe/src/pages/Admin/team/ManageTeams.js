@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import teamApi from '../../../services/api/tournament/teamApi';
-import styles from '../../../assets/css/Admin/manageTeams.module.scss'; // Đảm bảo đúng đường dẫn
+import styles from '../../../assets/css/Admin/manage/manageTeams.module.scss'; // Đảm bảo đúng đường dẫn
 import userApi from '../../../services/api/user/userApi';
 import ConfirmModal from '../../../components/Modal/ConfirmModal'; // Đảm bảo đúng đường dẫn
 import { Loading } from '../../../components/Loading/Loading';

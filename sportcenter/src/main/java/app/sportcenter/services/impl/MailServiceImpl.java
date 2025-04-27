@@ -210,13 +210,13 @@ public class MailServiceImpl implements MailService {
     public void sendMailRegisterTournament(String toEmail, TournamentResponse tournament, TeamResponse team) {
         try {
             String startDate = convertToVietnamTime(tournament.getStartDate());
-            String endDate = convertToVietnamTime(tournament.getEndDate());
+            //String endDate = convertToVietnamTime(tournament.getEndDate());
 
             Context context = new Context();
             context.setVariable("teamName", team.getTeamName());
             context.setVariable("tournamentName", tournament.getTournamentName());
             context.setVariable("startDate", startDate);
-            context.setVariable("endDate", endDate);
+            //context.setVariable("endDate", endDate);
             context.setVariable("players", team.getPlayers());
             sendEmail(toEmail,
                     "Sport Center - Successfully registered for the tournament.",
@@ -233,13 +233,13 @@ public class MailServiceImpl implements MailService {
     public void sendMailUnregisterTournament(String toEmail, TournamentResponse tournament, TeamResponse team) {
         try {
             String startDate = convertToVietnamTime(tournament.getStartDate());
-            String endDate = convertToVietnamTime(tournament.getEndDate());
+            //String endDate = convertToVietnamTime(tournament.getEndDate());
 
             Context context = new Context();
             context.setVariable("teamName", team.getTeamName());
             context.setVariable("tournamentName", tournament.getTournamentName());
             context.setVariable("startDate", startDate);
-            context.setVariable("endDate", endDate);
+            //context.setVariable("endDate", endDate);
             sendEmail(toEmail, "Sport Center - Successfully unregistered from the tournament.",
                     "UnregisterTournamentTemplate", context);
         } catch (Exception e) {

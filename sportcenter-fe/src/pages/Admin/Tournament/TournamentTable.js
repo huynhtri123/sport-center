@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import styles from '../../../assets/css/Admin/manageTournaments.module.scss';
+import { useNavigate } from 'react-router-dom';
+import styles from '../../../assets/css/Admin/manage/manageTournaments.module.scss';
 import ConfirmModal from '../../../components/Modal/ConfirmModal';
 import { formatDate } from '../../../utils/DateTimeConverter';
 import tournamentApi from '../../../services/api/tournament/tournamentApi';
@@ -23,6 +24,8 @@ function TournamentTable({
     const [sortOrderTimePeriod, setSortOrderTimePeriod] = useState('asc');
     const [sortOrderDeadline, setSortOrderDeadline] = useState('asc');
     const [sortedTournaments, setSortedTournaments] = useState(filteredTournaments);
+
+    const navigate = useNavigate();
 
     const toggleViewDetail = () => {
         setIsViewDetailModalOpen(!isViewDetailModalOpen);
@@ -74,8 +77,9 @@ function TournamentTable({
                     <tr>
                         <th>Order</th>
                         <th>Tournament Name</th>
+                        <th>Status</th>
                         <th onClick={handleSortByTimePeriod} style={{ cursor: 'pointer' }}>
-                            Time Period{' '}
+                            Start date{' '}
                             {sortOrderTimePeriod === 'asc' ? (
                                 <i className='fa-solid fa-arrow-up ms-2'></i>
                             ) : (
@@ -102,12 +106,10 @@ function TournamentTable({
                             <tr key={tournament.id}>
                                 <td>{index + 1 + currentPage * pageSize}</td>
                                 <td>{tournament.tournamentName}</td>
+                                <td>{tournament.done ? 'Done' : '-'}</td>
                                 <td>
                                     {formatDate(tournament.startDate)} <br />
                                     {new Date(tournament.startDate).toLocaleTimeString()} <br />
-                                    {' - '} <br />
-                                    {formatDate(tournament.endDate)} <br />
-                                    {new Date(tournament.endDate).toLocaleTimeString()}
                                 </td>
                                 <td>
                                     {tournament.registeredTeamIds ? tournament.registeredTeamIds.length : 0}{' '}
@@ -135,6 +137,13 @@ function TournamentTable({
                                 </td>
                                 <td>
                                     <div className={styles.actionButtons}>
+                                        <button
+                                            className={`btn ${styles.manageBtn}`}
+                                            onClick={() => navigate(`/tournament-details/${tournament.id}`)}
+                                        >
+                                            Manage
+                                        </button>
+
                                         <button
                                             className={`btn ${styles.editButton}`}
                                             onClick={() => handleEditClick(tournament)}

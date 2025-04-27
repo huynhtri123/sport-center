@@ -22,9 +22,9 @@ function TeamEditModal({ isOpen, team, onClose, onSave }) {
     }, [isOpen, team, form]);
 
     const handleImageChange = (info) => {
-        if (info.file.status === 'done') {
-            const file = info.file.originFileObj;
-            const imageUrl = URL.createObjectURL(file);
+        if (info.file) {
+            const file = info.file; // Sử dụng trực tiếp file
+            const imageUrl = URL.createObjectURL(file); // Tạo URL tạm thời cho preview
             setPreviewImage(imageUrl);
             setTeamData((prevData) => ({ ...prevData, teamLogoFile: file }));
         }

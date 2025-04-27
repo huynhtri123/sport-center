@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
-import styles from '../../../assets/css/Admin/manageBookings.module.scss';
+import styles from '../../../assets/css/Admin/manage/manageBookings.module.scss';
 import bookingApi from '../../../services/api/booking/bookingApi';
 import { Loading } from '../../../components/Loading/Loading';
 import Button from '../../../components/Button/Button';

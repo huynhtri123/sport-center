@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
-
+import { Select } from 'antd';
 import styles from '../../../assets/css/Tournament/tournament.module.scss';
 import tournamentApi from '../../../services/api/tournament/tournamentApi';
 import { useGetSports } from '../../../customs/hooks';
@@ -18,7 +17,9 @@ const TournamentHome = () => {
     const [isAscending, setIsAscending] = useState(true); // Trạng thái sắp xếp
     const [isRegistrationDeadlineAscending, setIsRegistrationDeadlineAscending] = useState(true);
     const [hottestTournament, setHottestTournament] = useState(null);
+    const [showCompleted, setShowCompleted] = useState(false);
     const navigate = useNavigate();
+    const { Option } = Select;
 
     const getTournaments = async () => {
         try {
@@ -114,15 +115,27 @@ const TournamentHome = () => {
                 </div>
             </div>
 
+            <div className={styles.filterContainer}>
+                <label htmlFor='tournament-status'>Filter by status:</label>
+                <Select
+                    defaultValue='ongoing'
+                    style={{ width: 200, marginLeft: '10px' }}
+                    onChange={(value) => setShowCompleted(value === 'completed')}
+                >
+                    <Option value='ongoing'>Ongoing Tournaments</Option>
+                    <Option value='completed'>Completed Tournaments</Option>
+                </Select>
+            </div>
+
             <div className={styles.sortContainer}>
                 <div className={styles.sortOption} onClick={handleSortByStartDate}>
                     <i className={isStartDateAscending ? 'fas fa-sort-amount-up' : 'fas fa-sort-amount-down'} />
                     <label>Start Date</label>
                 </div>
-                <div className={styles.sortOption} onClick={handleSortByEndDate}>
+                {/* <div className={styles.sortOption} onClick={handleSortByEndDate}>
                     <i className={isEndDateAscending ? 'fas fa-sort-amount-up' : 'fas fa-sort-amount-down'} />
                     <label>End Date</label>
-                </div>
+                </div> */}
                 <div className={styles.sortOption} onClick={handleSortByRegistrationDeadline}>
                     <i
                         className={
@@ -135,15 +148,23 @@ const TournamentHome = () => {
 
             <div className={styles.timeline}>
                 {tournaments
-                    .filter((tournament) => !selectedSport || tournament.sport.sportName === selectedSport)
+                    .filter(
+                        (tournament) =>
+                            (!selectedSport || tournament.sport.sportName === selectedSport) &&
+                            tournament.done === showCompleted
+                    )
                     .map((tournament) => (
                         <div key={tournament.id} className={styles.tournamentCard}>
                             <div className={styles.header}>
                                 <div className={styles.header}>
                                     <div className={styles.nameContainer}>
-                                        <div className={styles.statusDot}></div>
+                                        <div
+                                            className={`${styles.statusDot} ${
+                                                !tournament.done ? styles['statusDot--green'] : styles['statusDot--red']
+                                            }`}
+                                        />
                                         <span className='me-2'>{tournament.tournamentName}</span>
-                                        {hottestTournament?.id === tournament.id && (
+                                        {hottestTournament?.id === tournament.id && !tournament.done && (
                                             <div className={styles.hotBadge}>HOT</div>
                                         )}
                                     </div>
@@ -162,14 +183,14 @@ const TournamentHome = () => {
                                                 {new Date(tournament.startDate).toLocaleTimeString()}
                                             </p>
                                         </div>
-                                        <div>
+                                        {/* <div>
                                             <p className={styles.date}>
                                                 <strong>End Date:</strong> {formatDate(tournament.endDate)}
                                             </p>
                                             <p className={styles.time}>
                                                 {new Date(tournament.endDate).toLocaleTimeString()}
                                             </p>
-                                        </div>
+                                        </div> */}
                                     </div>
                                     <div className={styles.dateColumn}></div>
                                     <div className={styles.dateColumn}>

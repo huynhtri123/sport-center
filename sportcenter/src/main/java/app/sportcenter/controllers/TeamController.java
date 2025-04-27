@@ -34,7 +34,10 @@ public class TeamController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
     @GetMapping("/{teamId}")
     public ResponseEntity<BaseResponse> getById(@PathVariable String teamId) {
-        return teamService.getById(teamId);
+        return ResponseEntity.ok(
+                new BaseResponse("Get team by id successfully", 200,
+                        teamService.getById(teamId))
+        );
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")

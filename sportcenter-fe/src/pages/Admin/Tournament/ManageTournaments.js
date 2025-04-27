@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import styles from '../../../assets/css/Admin/manageTournaments.module.scss';
+import styles from '../../../assets/css/Admin/manage/manageTournaments.module.scss';
 import tournamentApi from '../../../services/api/tournament/tournamentApi';
 import { Loading } from '../../../components/Loading/Loading';
 import Button from '../../../components/Button/Button';
@@ -20,7 +20,6 @@ function ManageTournaments() {
         tournamentName: '',
         sportId: '',
         startDate: '',
-        endDate: '',
         maxTeams: '',
         registrationDeadline: '',
         prizes: [],
@@ -181,7 +180,6 @@ function ManageTournaments() {
             tournamentName: '',
             sportId: '',
             startDate: '',
-            endDate: '',
             maxTeams: '',
             registrationDeadline: '',
             prizes: [],
@@ -335,8 +333,12 @@ function ManageTournaments() {
                             <div className={styles.inputGroup}>
                                 <label>Tournament Avatar</label>
                                 <input type='file' accept='image/*' onChange={handleChangeFile} />
-                                {formData.thumUrl && (
-                                    <img src={formData.thumUrl} alt='Tournament' className={styles.imagePreview} />
+                                {(isEditing ? editFormData.thumUrl : formData.thumUrl) && (
+                                    <img
+                                        src={isEditing ? editFormData.thumUrl : formData.thumUrl}
+                                        alt='Tournament'
+                                        className={styles.imagePreview}
+                                    />
                                 )}
                             </div>
 
@@ -378,24 +380,6 @@ function ManageTournaments() {
                                         ? convertToLocal(editFormData.startDate) // Hiển thị thời gian theo +7
                                         : convertToLocal(formData.startDate) // Hiển thị thời gian theo +7
                                 }
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
-
-                        <div className={styles.inputGroup}>
-                            <label htmlFor='endDate' className='me-3'>
-                                End Date
-                            </label>
-                            <input
-                                id='endDate'
-                                type='datetime-local'
-                                name='endDate'
-                                value={
-                                    isEditing
-                                        ? convertToLocal(editFormData.endDate) // Hiển thị thời gian theo +7
-                                        : convertToLocal(formData.endDate) // Hiển thị thời gian theo +7
-                                } // Chuyển đổi ngày thành định dạng datetime-local
                                 onChange={handleChange}
                                 required
                             />

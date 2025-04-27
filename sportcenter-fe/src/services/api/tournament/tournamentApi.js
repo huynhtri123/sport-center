@@ -57,6 +57,14 @@ const tournamentApi = {
             },
         });
     },
+    getStandings(tournamentId) {
+        const url = `/tounament/standings/${tournamentId}`;
+        return axiosClient.get(url);
+    },
+    getAdvancingTeams(tournamentId) {
+        const url = `/tounament/${tournamentId}/advancing-teams`;
+        return axiosClient.get(url);
+    },
 };
 
 export default tournamentApi;

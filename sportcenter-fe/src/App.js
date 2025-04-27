@@ -28,6 +28,7 @@ import TournamentHome from './pages/Customer/Tournament/TournamentHome';
 import TournamentDetail from './pages/Customer/Tournament/TournamentDetail';
 import TournamentRegister from './pages/Customer/Tournament/TournamentRegister';
 import Notification from './pages/Customer/Notification/Notification';
+import TournamentDetailManage from './pages/Admin/tournament/TournamentDetailManage';
 
 import AllProviders from './contexts/AllProviders';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -41,18 +42,19 @@ function App() {
         <GlobalStyle>
             <AllProviders>
                 <div className={clsx(styles.app)}>
-                    {/* Chỉ hiển thị NavBar nếu đường dẫn không phải là /Admin */}
-                    {location.pathname !== '/Admin' && <NavBar />}
+                    {/* Chỉ hiển thị NavBar nếu đường dẫn không phải là /admin */}
+                    {!location.pathname.startsWith('/admin') && <NavBar />}
                     <div className={clsx(styles.appContent)}>
                         <Routes>
                             <Route
-                                path='/Admin'
+                                path='/admin'
                                 element={
                                     <ProtectedRoute requiredRole={Role.ADMIN}>
                                         <AdminDashBoard></AdminDashBoard>
                                     </ProtectedRoute>
                                 }
                             />
+                            <Route path='/tournament-details/:id' element={<TournamentDetailManage />} />
                             <Route path='/' element={<Home />} />
                             <Route path='/profile' element={<Profile />} />
                             <Route path='/sign-up' element={<Signup />} />

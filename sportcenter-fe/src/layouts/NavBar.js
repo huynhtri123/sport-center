@@ -119,14 +119,6 @@ function NavBar() {
                     <div className={`d-flex align-items-center ${styles.leftBox}`}>
                         <Link
                             className={`${styles.leftItemsBox} font-cera-round-pro-regular ${
-                                location.pathname === '/courses' ? styles.active : ''
-                            }`}
-                            to='/courses'
-                        >
-                            <span className={styles.leftNavBarItems}>Courses</span>
-                        </Link>
-                        <Link
-                            className={`${styles.leftItemsBox} font-cera-round-pro-regular ${
                                 location.pathname === '/bookings' ? styles.active : ''
                             }`}
                             to='/bookings'
@@ -140,6 +132,14 @@ function NavBar() {
                             to='/tournaments'
                         >
                             <span className={styles.leftNavBarItems}>Tournaments</span>
+                        </Link>
+                        <Link
+                            className={`${styles.leftItemsBox} font-cera-round-pro-regular ${
+                                location.pathname === '/courses' ? styles.active : ''
+                            }`}
+                            to='/courses'
+                        >
+                            <span className={styles.leftNavBarItems}>Courses</span>
                         </Link>
                     </div>
                 </div>

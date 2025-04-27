@@ -1,0 +1,320 @@
+@import '../../variables';
+$primary-color: #4a90e2;
+$secondary-color: #f5f5f5;
+$text-color: #333;
+$border-radius: 8px;
+$box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+.container {
+    display: flex;
+    flex-direction: column;
+    max-width: 1400px;
+    margin: 24px auto;
+    padding: 20px;
+    background-color: $secondary-color;
+    border-radius: $border-radius;
+    box-shadow: $box-shadow;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+
+    .backButton {
+        background-color: $primary-color;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: $border-radius;
+        cursor: pointer;
+        box-shadow: $box-shadow;
+
+        &:hover {
+            background-color: darken($primary-color, 10%);
+        }
+    }
+
+    .title {
+        font-size: 2rem;
+        color: $green-gray-hover;
+    }
+}
+
+.mainGrid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 20px;
+
+    .matchesSection.fullWidth {
+        grid-column: span 2; // Làm cho matchesSection chiếm 2 cột
+    }
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr; /* Chuyển sang một cột trên thiết bị nhỏ */
+        gap: 10px;
+    }
+}
+
+.tournamentInfo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #fff;
+    border-radius: $border-radius;
+    box-shadow: $box-shadow;
+    padding: 20px;
+
+    .thumbnail {
+        img {
+            max-width: 100%;
+            border-radius: $border-radius;
+            box-shadow: $box-shadow;
+        }
+    }
+}
+
+.rulesPrizes {
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    border-radius: $border-radius;
+    box-shadow: $box-shadow;
+    padding: 20px;
+}
+
+.teams {
+    margin-top: 20px;
+    padding: 0 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.standingsMatches {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.matchesSection {
+    padding: 24px;
+    background-color: #fff;
+
+    .matchSectionTitle {
+        margin-bottom: 16px;
+        text-align: center;
+        color: #4a90e2;
+    }
+
+    .matches {
+        .roundGroup {
+            margin-bottom: 32px;
+
+            .roundTitle {
+                font-size: 1.25rem;
+                color: $text-color;
+                margin-bottom: 12px;
+            }
+        }
+    }
+
+    .advancingTeamsSection {
+        background-color: #fff;
+        padding: 24px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        margin-top: 24px;
+
+        .sectionTitle {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #333;
+            border-left: 4px solid #4a90e2;
+            padding-left: 12px;
+        }
+
+        .advancingTeamList {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .team {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            border: 1px solid $sky-blue-dark-hover;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+            transition: box-shadow 0.2s ease;
+
+            &:hover {
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            }
+
+            .teamLogo {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 2px solid #ccc;
+                flex-shrink: 0;
+            }
+
+            .teamName {
+                font-size: 1rem;
+                font-weight: 500;
+                color: #333;
+                white-space: nowrap;
+            }
+        }
+    }
+
+    .tournamentActions {
+        margin-top: 24px;
+        text-align: center;
+
+        button {
+            background-color: $blue-prime;
+            color: #fff;
+            padding: 20px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            border: 2px solid $primary-color;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            font-weight: 600;
+
+            &:hover:not(:disabled) {
+                background-color: $blue-prime;
+                color: $yellow-prime;
+            }
+
+            &:disabled {
+                background-color: #ccc;
+                cursor: not-allowed;
+            }
+        }
+    }
+
+    .winnerIcon {
+        width: 30px;
+        height: 30px;
+        margin: 4px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .header {
+        flex-direction: column;
+        gap: 12px;
+
+        .title {
+            font-size: 1.6rem;
+        }
+
+        .backButton {
+            padding: 8px 16px;
+            font-size: 0.95rem;
+        }
+    }
+
+    .mainGrid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .tournamentInfo,
+    .rulesPrizes,
+    .standingsMatches,
+    .matchesSection {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .header {
+        .title {
+            font-size: 1.4rem;
+            text-align: center;
+        }
+    }
+
+    .container {
+        margin: 12px;
+        padding: 16px;
+    }
+
+    .tournamentActions {
+        button {
+            width: 100%;
+            padding: 14px;
+            font-size: 1rem;
+        }
+    }
+
+    .advancingTeamsSection {
+        .advancingTeamList {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .team {
+            flex-direction: row;
+            justify-content: space-between;
+
+            .teamName {
+                font-size: 0.95rem;
+            }
+        }
+    }
+
+    .matchesSection {
+        padding: 16px;
+
+        .matchSectionTitle {
+            font-size: 1.2rem;
+        }
+
+        .roundGroup .roundTitle {
+            font-size: 1.1rem;
+        }
+    }
+
+    .teams {
+        padding: 12px;
+    }
+
+    .standingsMatches {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header {
+        .title {
+            font-size: 1.2rem;
+        }
+
+        .backButton {
+            padding: 6px 12px;
+            font-size: 0.9rem;
+        }
+    }
+
+    .advancingTeamsSection .team {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+
+        .teamName {
+            font-size: 0.9rem;
+        }
+    }
+}

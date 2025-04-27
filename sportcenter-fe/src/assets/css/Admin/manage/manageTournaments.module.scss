@@ -1,4 +1,4 @@
-@import '../variables';
+@import '../../variables';
 
 .manageTournaments {
     padding: 1rem;
@@ -61,6 +61,13 @@
 
     &.registrationFee {
         flex: 1 1 30%; // Chiều rộng hẹp hơn
+    }
+
+    .imagePreview {
+        width: 100px;
+        height: 100px;
+        border-radius: 5px;
+        margin: 4px;
     }
 }
 
@@ -191,7 +198,7 @@
         border: 1px solid #ddd;
         text-align: center;
         word-wrap: break-word;
-        max-width: 200px;
+        max-width: 400px;
 
         @media (max-width: 768px) {
             font-size: 0.85rem;
@@ -216,6 +223,19 @@
         gap: 0.5rem;
         justify-content: center;
 
+        .manageBtn {
+            padding: 0.4rem 0.8rem;
+            background-color: $sky-blue;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+
+            &:hover {
+                background-color: $sky-blue-hover;
+            }
+        }
+
         .editButton {
             padding: 0.4rem 0.8rem;
             background-color: #ffc107;
@@ -223,7 +243,6 @@
             border-radius: 5px;
             color: white;
             cursor: pointer;
-            font-weight: 700;
 
             &:hover {
                 background-color: #e0a800;
@@ -237,7 +256,6 @@
             border-radius: 5px;
             color: white;
             cursor: pointer;
-            font-weight: 700;
 
             &:hover {
                 background-color: #c82333;
