@@ -10,6 +10,7 @@ import { Loading } from '../../../components/Loading/Loading';
 import Signout from '../../Auth/Signout';
 import MyBookings from './MyBookings';
 import MyInvoice from './MyInvoice';
+import MyAchievements from './MyAchievements';
 import MyTournaments from './MyTournaments';
 import formatCurrency from '../../../utils/formatCurrency';
 import { Link } from 'react-router-dom';
@@ -327,15 +328,6 @@ function Profile() {
                 {showChart && <RevenueChart bookings={myBooking} />}
             </div>
 
-            {/* <div className={styles.section}>
-                <h3 onClick={handleToggleCart}>
-                    <i className='fa-solid fa-bag-shopping'></i>
-                    <span className='ms-3'>Cart</span>
-                </h3>
-                <p>View your cart items and proceed to checkout.</p>
-                {showCart && <MyCart></MyCart>}
-            </div> */}
-
             <div className={styles.section}>
                 <h3 onClick={handleToggleBookings}>
                     <i className='fa-regular fa-calendar-days'></i>
@@ -368,6 +360,17 @@ function Profile() {
                     </h3>
                     <p>Check your registered tournaments and sports events.</p>
                     {showTournaments && <MyTournaments tournaments={tournaments}></MyTournaments>}
+                </div>
+            )}
+
+            {!isAdmin && (
+                <div className={styles.section}>
+                    <h3 onClick={handleToggleTeams}>
+                        <i className='fa-solid fa-trophy'></i>
+                        <span className='ms-3'>Achievements</span>
+                    </h3>
+                    <p>View your achievements and prizes.</p>
+                    {showTeams && <MyAchievements teams={teams} />}
                 </div>
             )}
 
