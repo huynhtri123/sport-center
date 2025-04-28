@@ -3,6 +3,7 @@ package app.sportcenter.models.dto.response;
 import app.sportcenter.models.entities.Prize;
 import app.sportcenter.models.entities.Sport;
 import app.sportcenter.models.entities.StandingsEntry;
+import app.sportcenter.models.entities.WinnerEntry;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,5 +35,5 @@ public class TournamentResponse extends BaseResponseDTO {
     private List<String> advancingTeams;    // danh sách đội đi tiếp
 
     private boolean isDone;
-    private String winnerTeamId;
+    private List<WinnerEntry> winners;
 }

@@ -32,5 +32,5 @@ public class Tournament extends BaseEntity {
     private List<String> advancingTeams;                            // danh sách đội đi tiếp
 
     private boolean isDone = false;                                 // tran dau da ket thuc chua
-    private String winnerTeamId;                                    // id Team chien thang giai dau
+    private List<WinnerEntry> winners = new ArrayList<>();          // danh sach doi thang va vi tri thang
 }

@@ -9,11 +9,9 @@ import app.sportcenter.models.dto.request.MatchesRequest;
 import app.sportcenter.models.dto.response.MatchResponse;
 import app.sportcenter.models.dto.response.TeamResponse;
 import app.sportcenter.models.dto.response.TournamentResponse;
-import app.sportcenter.models.entities.Match;
-import app.sportcenter.models.entities.StandingsEntry;
-import app.sportcenter.models.entities.Team;
-import app.sportcenter.models.entities.Tournament;
+import app.sportcenter.models.entities.*;
 import app.sportcenter.repositories.MatchRepository;
+import app.sportcenter.repositories.TeamRepository;
 import app.sportcenter.repositories.TournamentRepository;
 import app.sportcenter.services.MatchService;
 import app.sportcenter.services.TeamService;
@@ -27,7 +25,9 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -39,6 +39,7 @@ public class MatchServiceImpl implements MatchService {
     private final TournamentService tournamentService;
     private final TeamService teamService;
     private final TournamentRepository tournamentRepository;
+    private final TeamRepository teamRepository;
 
     @Override
     public MatchResponse createMatch(MatchRequest matchRequest) {
@@ -244,13 +245,9 @@ public class MatchServiceImpl implements MatchService {
                 .toList();
     }
 
-    // hien tai chi co 1 doi giai nhat nhan giai -> trao giai theo bxh + prizes
-    // nhận giải như nào? ngoài tiền còn có huy chương...
-    // gửi mail đội bạn đã thắng giải, đến trung tâm nhận giải?
     @Override
-    public TeamResponse award(String tournamentId) {
-        // nếu advancings còn 1 và không có trận đấu nào chưa hoàn thành
-        // trao giải xong thì set isDone
+    public List<TeamResponse> award(String tournamentId) {
+        // điểu kiện: nếu advancings còn 1 và không có trận đấu nào chưa hoàn thành
         Tournament tournament = tournamentRepository.findById(tournamentId)
                 .orElseThrow(() -> new NotFoundException("Tournament cannot found!"));
 
@@ -267,26 +264,42 @@ public class MatchServiceImpl implements MatchService {
 
         // check xem con tran dau nao chua hoan thanh khong
         List<Match> matches = matchRepository.findByTournamentId(tournamentId);
-        boolean isNotCompleted = false;
-        for (Match m : matches) {
-            if (!m.getStatus().equals(MatchStatus.COMPLETED)) {
-                isNotCompleted = true;
-                break;
-            }
-        }
+        boolean isNotCompleted = matches.stream().anyMatch(m -> !m.getStatus().equals(MatchStatus.COMPLETED));
         if (isNotCompleted) {
-            throw new CustomException("There is at least 1 match is not completed!", 400);
+            throw new CustomException("There is at least 1 match that is not completed!", 400);
         }
 
         // ok, du dieu kien
-        String winnerId = advancings.get(0);
-        tournament.setWinnerTeamId(winnerId);
-        tournament.setDone(true);
-        // trao giai nhat thoi
-        TeamResponse teamResponse = teamService.award(winnerId, tournamentId, tournament.getPrizes().get(0));
+        // sắp xếp StandingsEntry dựa trên tiêu chí: points -> won -> hiệu số bàn thắng
+        List<StandingsEntry> sortedStandings = tournament.getStandings().stream()
+                .sorted(Comparator.comparingInt(StandingsEntry::getPoints)
+                        .thenComparingInt(StandingsEntry::getWon)
+                        .thenComparingInt(entry -> entry.getGoalsFor() - entry.getGoalsAgainst())
+                        .reversed())  // sắp xếp theo thứ tự giảm dần
+                .toList();
+        // lấy số lượng giải thưởng (n giải)
+        int numPrizes = tournament.getPrizes().size();
+        // lấy số đội cần trao giải, nếu số đội ít hơn số giải thì chỉ lấy đủ số đội
+        int teamsToAward = Math.min(sortedStandings.size(), numPrizes);
+
+        List<WinnerEntry> winners = new ArrayList<>();
+        List<TeamResponse> teamResponses = new ArrayList<>();
+        for (int i = 0; i < teamsToAward; i++) {
+            StandingsEntry entry = sortedStandings.get(i);
+            Prize prize = tournament.getPrizes().get(i); // giải thưởng tương ứng với vị trí
+
+            // trao giai
+            TeamResponse teamResponse = teamService.award(entry.getTeamId(), tournamentId, prize);
+            teamResponses.add(teamResponse);
+
+            winners.add(new WinnerEntry(entry.getTeamId(), prize.getPosition()));
+        }
+
+        tournament.setWinners(winners);
+        tournament.setDone(true);   // trao giải xong thì set isDone để trang home bỏ nó ra
         tournamentRepository.save(tournament);
 
-        return teamResponse;
+        return teamResponses;
     }
 
 }

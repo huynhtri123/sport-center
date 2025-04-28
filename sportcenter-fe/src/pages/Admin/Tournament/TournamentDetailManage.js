@@ -237,33 +237,56 @@ export default function TournamentDetailManage() {
                         })}
                     </div>
 
-                    <div className={styles.advancingTeamsSection}>
-                        {tournament?.done && tournament?.winnerTeamId ? (
-                            <h4>
-                                <img
-                                    src='https://cdn-icons-png.flaticon.com/128/610/610333.png'
-                                    alt='winner icon'
-                                    className={styles.winnerIcon}
-                                />
-                                The winner
-                            </h4>
-                        ) : (
+                    {/* Danh sách đội được đi tiếp (khi giải đấu chưa kết thúc) */}
+                    {!tournament?.done && !tournament?.winners?.length > 0 && (
+                        <div className={styles.advancingTeamsSection}>
                             <h4 className={styles.sectionTitle}>Teams Advancing to the Next Round</h4>
-                        )}
 
-                        <div className={styles.advancingTeamList}>
-                            {(advancingTeams.length > 0 ? advancingTeams : registedTeams).map((teamId, index) => {
-                                const team = getTeamNameById(teamId);
-                                if (!team) return null;
+                            <div className={styles.advancingTeamList}>
+                                {(advancingTeams.length > 0 ? advancingTeams : registedTeams).map((teamId, index) => {
+                                    const team = getTeamNameById(teamId);
+                                    if (!team) return null;
+                                    return (
+                                        <div key={index} className={styles.team}>
+                                            <img
+                                                src={team.teamLogoUrl}
+                                                alt={team.teamName}
+                                                className={styles.teamLogo}
+                                            />
+                                            <span className={styles.teamName}>{team.teamName}</span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Hiển thị danh sách đội thắng */}
+                    {tournament?.done && tournament?.winners?.length > 0 && (
+                        <div className={styles.winnerList}>
+                            <h4 className={styles.winnerTitle}>
+                                <img
+                                    src='https://cdn-icons-png.flaticon.com/128/1599/1599828.png'
+                                    alt='winners ic'
+                                    className={styles.winnersIc}
+                                />
+                                Winners
+                            </h4>
+                            {tournament.winners.map((winner, index) => {
+                                // Lấy thông tin đội từ registedTeams thông qua teamId
+                                const team = registedTeams.find((team) => team.id === winner.teamId);
+                                if (!team) return null; // Nếu không tìm thấy đội, không hiển thị
                                 return (
                                     <div key={index} className={styles.team}>
                                         <img src={team.teamLogoUrl} alt={team.teamName} className={styles.teamLogo} />
-                                        <span className={styles.teamName}>{team.teamName}</span>
+                                        <span className={styles.teamName}>
+                                            {team.teamName} - {winner.position} place
+                                        </span>
                                     </div>
                                 );
                             })}
                         </div>
-                    </div>
+                    )}
 
                     {role === 'ADMIN' && !tournament?.done && (
                         <div className={styles.tournamentActions}>

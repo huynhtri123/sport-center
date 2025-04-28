@@ -203,10 +203,38 @@ $box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
     }
 
-    .winnerIcon {
-        width: 30px;
-        height: 30px;
-        margin: 4px;
+    /* SCSS cho danh sách đội thắng */
+    .winnerList {
+        display: flex;
+        flex-direction: column;
+        gap: 16px; /* Khoảng cách giữa các đội */
+        margin-top: 20px;
+
+        .winnerTitle {
+            color: $sky-blue-dark-hover;
+        }
+        .winnersIc {
+            width: 40px;
+            height: 40px;
+            margin: 8px;
+        }
+
+        .team {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            border: 2px solid $sky-blue-dark-hover;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+        .teamLogo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
     }
 }
 

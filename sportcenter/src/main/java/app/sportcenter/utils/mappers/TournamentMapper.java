@@ -44,7 +44,7 @@ public class TournamentMapper {
         response.setStandings(tournament.getStandings());
         response.setAdvancingTeams(tournament.getAdvancingTeams());
         response.setDone(tournament.isDone());
-        response.setWinnerTeamId(tournament.getWinnerTeamId());
+        response.setWinners(tournament.getWinners());
 
         response.setCreatedAt(tournament.getCreatedAt());
         response.setUpdatedAt(tournament.getUpdatedAt());

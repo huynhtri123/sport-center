@@ -23,5 +23,5 @@ public interface MatchService {
     public MatchResponse getById(String matchId);
     public List<MatchResponse> getByTournament(String tournamentId);
 
-    public TeamResponse award(String tournamentId);
+    public List<TeamResponse> award(String tournamentId);
 }
