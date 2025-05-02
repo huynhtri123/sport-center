@@ -24,6 +24,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -58,6 +59,7 @@ public class BookingServiceImpl implements BookingService {
     private final FieldStatusByDateService fieldStatusByDateService;
     private final FieldStatusByDateRepository fieldStatusByDateRepository;
     private final MailService mailService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     // đặt lẻ bước 1
     @Transactional
@@ -107,6 +109,9 @@ public class BookingServiceImpl implements BookingService {
             Booking savedBooking = bookingRepository.save(booking);
 
             BookingResponse response = bookingMapper.convertToResponse(savedBooking);
+
+            // websocket: send notification
+            messagingTemplate.convertAndSend("/topic/booking-updates", Map.of("message", "Update field status!"));
 
             log.info("Đặt sân bước 1 thành công {}", response.getId());
             return response;
