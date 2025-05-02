@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Modal, Form, Input, Button, InputNumber } from 'antd';
+import { Modal, Form } from 'antd';
 import { toast } from 'react-toastify';
 import styles from '../../../assets/css/Admin/tournament/tournamentDetailManage.module.scss';
 import tournamentApi from '../../../services/api/tournament/tournamentApi';
@@ -10,6 +10,7 @@ import RulePrizeSection from './RulePrizeSection';
 import RegistedTeams from './RegistedTeams';
 import Standings from './Standings';
 import MatchList from './MatchList';
+import CreateMatches from './CreateMatches';
 
 export default function TournamentDetailManage() {
     const { id } = useParams();
@@ -19,13 +20,13 @@ export default function TournamentDetailManage() {
     const [advancingTeams, setAdvancingTeams] = useState([]);
     const [standings, setStandings] = useState([]);
     const [matches, setMatches] = useState([]);
+    // eslint-disable-next-line no-unused-vars
     const [loading, setLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [selectedMatch, setSelectedMatch] = useState(null);
     const [role, setRole] = useState('ADMIN');
     const [updateForm] = Form.useForm();
-    const [form] = Form.useForm();
 
     useEffect(() => {
         fetchTournament();
@@ -129,29 +130,6 @@ export default function TournamentDetailManage() {
             toast.success(response.message);
         } catch (error) {
             console.error('Update failed:', error);
-        }
-    };
-
-    const createNextRound = async (values) => {
-        setLoading(true);
-        try {
-            const request = {
-                tournamentId: tournament.id,
-                firstStartTime: new Date(values.firstStartTime).toISOString(),
-                firstEndTime: new Date(values.firstEndTime).toISOString(),
-                gapBetweenMatches: parseInt(values.gapBetweenMatches, 10),
-            };
-            const response = await matchApi.createMatches(request);
-            getMatches(tournament.id);
-            getAdvancingTeams(tournament.id);
-            getStandings(tournament.id);
-            toast.success(response.message);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-            setIsModalOpen(false);
-            form.resetFields();
         }
     };
 
@@ -290,61 +268,26 @@ export default function TournamentDetailManage() {
 
                     {role === 'ADMIN' && !tournament?.done && (
                         <div className={styles.tournamentActions}>
-                            <Button type='primary' onClick={() => setIsModalOpen(true)} disabled={loading}>
+                            <button onClick={() => setIsModalOpen(true)} disabled={loading}>
                                 {loading ? 'Creating...' : isFirstRound ? 'Start Tournament' : 'Create Next Round'}
-                            </Button>
-                            <Button className='ms-2' type='primary' onClick={handleConfirmAward} disabled={loading}>
+                            </button>
+                            <button className='ms-2' onClick={handleConfirmAward} disabled={loading}>
                                 Award Prizes
-                            </Button>
+                            </button>
                         </div>
                     )}
                 </section>
             </main>
 
-            <Modal title='Create Next Round' open={isModalOpen} onCancel={() => setIsModalOpen(false)} footer={null}>
-                <Form form={form} onFinish={createNextRound} layout='vertical'>
-                    <Form.Item
-                        name='firstStartTime'
-                        label='First Start Time'
-                        rules={[{ required: true, message: 'Please enter first start time!' }]}
-                    >
-                        <Input
-                            type='datetime-local'
-                            min={new Date().toISOString().slice(0, 16)} // Khóa không cho chọn trước thời gian hiện tại
-                            placeholder='Enter start time'
-                        />
-                    </Form.Item>
-
-                    <Form.Item
-                        name='firstEndTime'
-                        label='First End Time'
-                        rules={[{ required: true, message: 'Please enter first end time!' }]}
-                    >
-                        <Input
-                            type='datetime-local'
-                            min={new Date().toISOString().slice(0, 16)} // Khóa không cho chọn trước thời gian hiện tại
-                            placeholder='Enter end time'
-                        />
-                    </Form.Item>
-
-                    <Form.Item
-                        name='gapBetweenMatches'
-                        label='Gap Between Matches'
-                        rules={[
-                            { required: true, message: 'Please enter gap between matches!' },
-                            { type: 'number', min: 1, message: 'Gap must be at least 1 minute!' },
-                        ]}
-                    >
-                        <InputNumber placeholder='Enter gap time (e.g., 15 minutes)' style={{ width: '100%' }} />
-                    </Form.Item>
-
-                    <Form.Item>
-                        <Button type='primary' htmlType='submit' loading={loading}>
-                            Submit
-                        </Button>
-                    </Form.Item>
-                </Form>
-            </Modal>
+            {isModalOpen && (
+                <CreateMatches
+                    onCancel={() => setIsModalOpen(false)}
+                    tournament={tournament}
+                    getMatches={getMatches}
+                    getAdvancingTeams={getAdvancingTeams}
+                    getStandings={getStandings}
+                ></CreateMatches>
+            )}
         </div>
     );
 }

@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import styles from './DetailTournament.module.scss';
+import styles from './detailTournament.module.scss';
 
 function DetailModal({ isOpen, onClose, title, registeredTeams }) {
     // Nếu modal không mở, trả về null

@@ -14,17 +14,19 @@ import java.time.ZonedDateTime;
 @AllArgsConstructor
 public class MatchesRequest {
 
-    @NotNull(message = "Tournament ID cannot be null")
+    @NotNull(message = "Tournament id cannot be null")
     private String tournamentId;
+
+    @NotNull(message = "Field cannot be null")
+    private String fieldId;
 
     @NotNull(message = "First start time cannot be null")
     @Future(message = "First start time must be in the future")
-    private ZonedDateTime firstStartTime;
+    private ZonedDateTime startTime;
 
-    @NotNull(message = "First end time cannot be null")
-    @Future(message = "First end time must be in the future")
-    private ZonedDateTime firstEndTime;
+    @Min(value = 1, message = "Number of hour for a match must be at least 1 minute")
+    private int numberOfHours;
 
-    @Min(value = 1, message = "Gap between matches must be at least 1 minute")
+    @Min(value = 0, message = "Gap between matches must be at least 0 hour")
     private int gapBetweenMatches;
 }

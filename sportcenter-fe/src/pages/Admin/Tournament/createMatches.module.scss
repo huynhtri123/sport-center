@@ -1,0 +1,75 @@
+.container {
+    padding: 20px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    max-width: 100%; // Đảm bảo container chiếm toàn bộ chiều ngang
+    width: 100%;
+    margin: 0 10px; // Giảm khoảng cách hai bên, có thể điều chỉnh giá trị này
+    box-sizing: border-box; // Đảm bảo padding không ảnh hưởng đến tổng chiều rộng
+
+    // Đảm bảo rằng các phần tử bên trong container cũng chiếm hết chiều ngang
+    .btn,
+    select,
+    input[type='date'],
+    input[type='number'] {
+        width: 100%;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-top: 1rem;
+
+        &:hover {
+            background-color: #0056b3;
+        }
+    }
+
+    label {
+        font-weight: bold;
+        margin-top: 4px;
+    }
+
+    select,
+    input[type='date'],
+    input[type='number'] {
+        padding: 8px;
+        margin-top: 4px;
+        margin-bottom: 8px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+
+        &:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+    }
+
+    select {
+        cursor: pointer;
+    }
+
+    input[type='date'] {
+        cursor: pointer;
+    }
+
+    input[type='number'] {
+        &::-webkit-outer-spin-button,
+        &::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    }
+
+    p {
+        margin-top: 1rem;
+    }
+}

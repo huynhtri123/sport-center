@@ -182,7 +182,8 @@ $box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         button {
             background-color: $blue-prime;
             color: #fff;
-            padding: 20px 20px;
+            padding: 8px 20px;
+            margin-bottom: 4px;
             font-size: 1rem;
             border: none;
             border-radius: 8px;
@@ -277,14 +278,6 @@ $box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     .container {
         margin: 12px;
         padding: 16px;
-    }
-
-    .tournamentActions {
-        button {
-            width: 100%;
-            padding: 14px;
-            font-size: 1rem;
-        }
     }
 
     .advancingTeamsSection {

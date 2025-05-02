@@ -3,9 +3,8 @@ package app.sportcenter.services.impl;
 import app.sportcenter.commons.MatchStatus;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
-import app.sportcenter.models.dto.request.MatchRequest;
-import app.sportcenter.models.dto.request.MatchResultRequest;
-import app.sportcenter.models.dto.request.MatchesRequest;
+import app.sportcenter.models.dto.request.*;
+import app.sportcenter.models.dto.response.BookingResponse;
 import app.sportcenter.models.dto.response.MatchResponse;
 import app.sportcenter.models.dto.response.TeamResponse;
 import app.sportcenter.models.dto.response.TournamentResponse;
@@ -13,16 +12,16 @@ import app.sportcenter.models.entities.*;
 import app.sportcenter.repositories.MatchRepository;
 import app.sportcenter.repositories.TeamRepository;
 import app.sportcenter.repositories.TournamentRepository;
-import app.sportcenter.services.MatchService;
-import app.sportcenter.services.TeamService;
-import app.sportcenter.services.TournamentService;
+import app.sportcenter.services.*;
 import app.sportcenter.utils.mappers.MatchMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -39,7 +38,8 @@ public class MatchServiceImpl implements MatchService {
     private final TournamentService tournamentService;
     private final TeamService teamService;
     private final TournamentRepository tournamentRepository;
-    private final TeamRepository teamRepository;
+    private final BookingService bookingService;
+    private final FieldStatusByDateService fieldStatusByDateService;
 
     @Override
     public MatchResponse createMatch(MatchRequest matchRequest) {
@@ -64,24 +64,16 @@ public class MatchServiceImpl implements MatchService {
                 () -> new CustomException("Tournament cannot found!", 400)
         );
 
-        log.info(matchesRequest.getFirstStartTime().toString());
-        log.info(matchesRequest.getFirstEndTime().toString());
+        ZonedDateTime fStartTime = matchesRequest.getStartTime().minusHours(7);
+        ZonedDateTime fEndTime = fStartTime.plusHours(matchesRequest.getNumberOfHours());
+        String fieldId = matchesRequest.getFieldId();
 
-        // check input
-        if (!matchesRequest.getFirstEndTime().isAfter(matchesRequest.getFirstStartTime())) {
-            throw new CustomException("End time must be after start time", 400);
-        }
-        if (matchesRequest.getGapBetweenMatches() < 1) {
-            throw new CustomException("Gap between matches must be greater than 1!", 400);
-        }
-
-        // check và lấy danh sách đội
+        // check số lượng dội
         List<String> registeredTeams = tournament.getRegisteredTeamIds();
         if (registeredTeams == null || registeredTeams.size() < 2) {
             throw new CustomException("There aren't enough teams to create matchups.", 400);
         }
         List<String> teamIds = tournament.getAdvancingTeams();
-        // lấy danh sách đội đi tiếp, nếu ko có thì đây là vòng 1 -> lấy tất cả đội tham gia
         if (teamIds == null || teamIds.isEmpty()) {
             teamIds = new ArrayList<>(registeredTeams);
         }
@@ -89,73 +81,96 @@ public class MatchServiceImpl implements MatchService {
             throw new CustomException("There aren't enough teams to create matchups.", 400);
         }
 
+        // check thời gian
         ZonedDateTime now = ZonedDateTime.now();
-        // check thời gian bắt đầu giải đấu
         if (now.isBefore(tournament.getStartDate())) {
             throw new CustomException("The tournament start time hasn't arrived yet.", 400);
         }
-
-        // check hạn đăng ký hết chưa
         if (now.isBefore(tournament.getRegistrationDeadline())) {
             throw new CustomException("Registration is still open.", 400);
         }
 
-        // trộn ngẫu nhiên
+        // trộn lên để tạo cặp đấu ngẫu nhiên
         Collections.shuffle(teamIds);
 
-        ZonedDateTime currentStart = matchesRequest.getFirstStartTime();
-        ZonedDateTime currentEnd = matchesRequest.getFirstEndTime();
-        Duration matchDuration = Duration.between(matchesRequest.getFirstStartTime(), matchesRequest.getFirstEndTime());
-        long minutes = matchDuration.toMinutes();
-
-        // xác định vòng đấu hiện tại
+        // coi đang ở vòng đấu thứ mấy
         Match lastMatch = matchRepository.findFirstByTournamentIdOrderByRoundDesc(matchesRequest.getTournamentId());
         int nextRound = lastMatch != null ? lastMatch.getRound() + 1 : 1;
 
-        // check các vòng trước đã đấu xong hết chưa
+        // check coi có trận nào chưa hoàn thành không
         boolean hasPendingMatches = matchRepository.existsByTournamentIdAndRoundAndStatus(
-                matchesRequest.getTournamentId(), nextRound - 1, MatchStatus.ONGOING);
+                matchesRequest.getTournamentId(), nextRound - 1, MatchStatus.ONGOING
+        );
         if (hasPendingMatches) {
             throw new CustomException("The previous round hasn't finished yet.!", 400);
         }
 
-        // tạo cặp đấu (trận đấu) ngẫu nhiên
+        List<MatchSlot> matchSlots = new ArrayList<>();
+        List<BookingRequest> bookingRequests = new ArrayList<>();
+        List<MatchRequest> matchRequests = new ArrayList<>();
+
+        ZonedDateTime currentStart = fStartTime;
+        ZonedDateTime currentEnd = fEndTime;
+
+        // check toàn bộ booking coi trống ko
         for (int i = 0; i < teamIds.size() - 1; i += 2) {
-            String teamAId = teamIds.get(i);
-            String teamBId = teamIds.get(i + 1);
+            ZonedDateTime realStart = currentStart.plusHours(7);
+            ZonedDateTime realEnd = currentEnd.plusHours(7);
+            boolean isAvailable = fieldStatusByDateService.checkAvailable(fieldId, realStart, realEnd);
+            if (!isAvailable) {
+                throw new CustomException(
+                        "Field is unavailable for match starting at: " +
+                                currentStart.withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
+                                        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                        409
+                );
+            }
+
+            matchSlots.add(new MatchSlot(currentStart, currentEnd, teamIds.get(i), teamIds.get(i + 1)));
+            bookingRequests.add(new BookingRequest(fieldId, realStart, matchesRequest.getNumberOfHours()));
 
             MatchRequest matchRequest = new MatchRequest();
             matchRequest.setRound(nextRound);
             matchRequest.setTournamentId(matchesRequest.getTournamentId());
-            matchRequest.setTeamAId(teamAId);
-            matchRequest.setTeamBId(teamBId);
+            matchRequest.setTeamAId(teamIds.get(i));
+            matchRequest.setTeamBId(teamIds.get(i + 1));
             matchRequest.setStartTime(currentStart);
             matchRequest.setEndTime(currentEnd);
             matchRequest.setStatus(MatchStatus.ONGOING);
+            matchRequests.add(matchRequest);
 
-            createMatch(matchRequest);
-
-            // them bang xep hang cho team vào tournament
-            StandingsEntry srA = tournamentService.findOrCreateStanding(tournament, teamAId);
-            StandingsEntry srB = tournamentService.findOrCreateStanding(tournament, teamBId);
-
-            currentStart = currentEnd.plusMinutes(matchesRequest.getGapBetweenMatches()); // gap giữa các trận
-            currentEnd = currentStart.plusMinutes(minutes);
+            currentStart = currentEnd.plusHours(matchesRequest.getGapBetweenMatches());
+            currentEnd = currentStart.plusHours(matchesRequest.getNumberOfHours());
         }
 
-        // nếu lẻ 1 đội thì cho vào thẳng vòng sau
+        // xuống được đây nghĩa là tất cả booking hợp lệ, có thể book
+        List<BookingResponse> bookingResponses = new ArrayList<>();
+        for (int i = 0; i < matchSlots.size(); i++) {
+            BookingResponse bookingResponse = bookingService.createBooking(bookingRequests.get(i));
+            bookingResponses.add(bookingResponse);
+            createMatch(matchRequests.get(i));
+
+            MatchSlot slot = matchSlots.get(i);
+            tournamentService.findOrCreateStanding(tournament, slot.teamA);
+            tournamentService.findOrCreateStanding(tournament, slot.teamB);
+        }
+        for (BookingResponse bookingResponse : bookingResponses) {
+            bookingService.confirmBooking(bookingResponse.getId());
+        }
+
+        // nếu số đội lẻ thì dư ra 1 đội, cho vào vòng trong luôn
         if (teamIds.size() % 2 != 0) {
             String byeTeamId = teamIds.get(teamIds.size() - 1);
-            System.out.println("Đội được thẳng vào vòng sau: " + byeTeamId);
             if (tournament.getAdvancingTeams() == null) {
                 tournament.setAdvancingTeams(new ArrayList<>());
             }
-            // tao bxh
-            StandingsEntry srC = tournamentService.findOrCreateStanding(tournament, byeTeamId);
-            srC.setWon(srC.getWon()+1);
-            srC.setPoints(srC.getPoints()+3);
+
+            StandingsEntry sr = tournamentService.findOrCreateStanding(tournament, byeTeamId);
+            sr.setWon(sr.getWon() + 1);
+            sr.setPoints(sr.getPoints() + 3);
             tournament.getAdvancingTeams().add(byeTeamId);
         }
+
         tournamentRepository.save(tournament);
     }
 
@@ -165,6 +180,7 @@ public class MatchServiceImpl implements MatchService {
                 .orElseThrow(() -> new NotFoundException("Match cannot found!"));
         Tournament tournament = tournamentRepository.findById(match.getTournamentId())
                 .orElseThrow(() -> new NotFoundException("Tournament cannot found!"));
+
         if (matchResultRequest.getScoreA() == matchResultRequest.getScoreB())
             throw new CustomException("Scores cannot be equal together!", 400);
         if (match.getStatus() == MatchStatus.COMPLETED) {

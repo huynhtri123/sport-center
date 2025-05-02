@@ -33,7 +33,7 @@ public class BookingController {
     public ResponseEntity<BaseResponse> createBooking(@Valid @RequestBody BookingRequest bookingRequest) {
         BookingResponse bookingResponse = bookingService.createBooking(bookingRequest);
         // websocket: send notification
-        messagingTemplate.convertAndSend("/topic/booking-updates", Map.of("message", "Update field status!"));
+        //messagingTemplate.convertAndSend("/topic/booking-updates", Map.of("message", "Update field status!"));
 
         return ResponseEntity.ok(
                 new BaseResponse("Success, please make the payment to confirm your booking!", 200,
