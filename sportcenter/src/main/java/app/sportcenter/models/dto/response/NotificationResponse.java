@@ -13,4 +13,5 @@ import lombok.NoArgsConstructor;
 public class NotificationResponse extends BaseResponseDTO {
     private String title;
     private String content;
+    private String imageUrl;
 }

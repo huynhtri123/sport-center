@@ -17,4 +17,5 @@ public class Notification extends BaseEntity {
     private String id;
     private String title;       // tiêu đề thông báo
     private String content;     // nội dung thông báo
+    private String imageUrl;    // đường dẫn hình ảnh thông báo
 }

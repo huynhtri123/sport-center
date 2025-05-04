@@ -20,4 +20,6 @@ public class NotificationRequest extends BaseRequestDTO {
     @NotBlank(message = "You have not entered content for the notification!")
     @Size(min = 0, max = 255, message = "Content must between 0 and 255 characters!")
     private String content;
+
+    private String imageUrl;
 }
