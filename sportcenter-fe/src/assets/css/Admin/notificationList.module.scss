@@ -169,6 +169,14 @@ textarea {
     }
 }
 
+.imagePreview {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
 // Pagination
 .pagination {
     display: flex;
@@ -199,6 +207,7 @@ textarea {
 }
 
 @media (max-width: 768px) {
+
     .headerRow,
     .itemRow {
         grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));

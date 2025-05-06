@@ -1,5 +1,3 @@
-@import '../variables';
-
 .notificationContainer {
     max-width: 900px;
     margin: 20px auto;
@@ -14,20 +12,9 @@
     font-size: 26px;
     font-weight: bold;
     margin-bottom: 16px;
-    color: $blue-prime;
+    color: #007bff;
 }
 
-.notificationList {
-    list-style: none;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); // Grid layout giúp tận dụng chiều rộng tối đa
-    gap: 15px;
-
-    p {
-        margin-top: 4px;
-    }
-}
 .headerRow {
     display: flex;
     justify-content: space-between;
@@ -44,14 +31,21 @@
     min-width: 250px;
 }
 
-.notificationItem {
-    background: #f9f9f9;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+.notificationList {
+    list-style: none;
+    padding: 0;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    gap: 15px;
+}
+
+.notificationItem {
+    display: flex;
+    align-items: flex-start;
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease-in-out;
 
     &:hover {
@@ -59,11 +53,26 @@
     }
 }
 
+.imageWrapper {
+    flex-shrink: 0;
+    margin-right: 15px;
+}
+
+.notificationImage {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%; // Biến hình vuông thành hình tròn
+    object-fit: cover;
+}
+
+
 .notificationContent {
     flex: 1;
+    display: flex;
+    flex-direction: column;
 
     h3 {
-        font-size: 18px;
+        font-size: 16px;
         margin: 0;
         color: #007bff;
     }
@@ -71,17 +80,16 @@
     p {
         font-size: 14px;
         color: #555;
+        margin: 5px 0;
+    }
+
+    .date {
+        font-size: 13px;
+        color: gray;
+        margin-top: 8px;
     }
 }
 
-.date {
-    font-size: 13px;
-    color: gray;
-    margin-top: 10px;
-    align-self: flex-end;
-}
-
-/* Phân trang */
 .pagination {
     display: flex;
     justify-content: center;
@@ -111,7 +119,7 @@
     }
 }
 
-/* 🌍 Responsive Styles */
+/* Responsive Design */
 @media (max-width: 768px) {
     .notificationContainer {
         max-width: 95%;
@@ -122,12 +130,9 @@
         font-size: 22px;
     }
 
-    .notificationList {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); // Điều chỉnh số cột cho tablet
-    }
-
-    .notificationItem {
-        padding: 15px;
+    .notificationImage {
+        width: 50px;
+        height: 50px;
     }
 
     .pagination button {
@@ -137,21 +142,15 @@
 }
 
 @media (max-width: 480px) {
-    .notificationContainer {
-        max-width: 100%;
-        padding: 10px;
-    }
-
-    .title {
-        font-size: 20px;
-    }
-
-    .notificationList {
-        grid-template-columns: 1fr; // Chuyển về 1 cột cho điện thoại
-    }
-
     .notificationItem {
-        padding: 12px;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .imageWrapper {
+        margin-right: 0;
+        margin-bottom: 10px;
     }
 
     .pagination {
@@ -161,6 +160,5 @@
 
     .pagination button {
         width: 100%;
-        font-size: 14px;
     }
 }

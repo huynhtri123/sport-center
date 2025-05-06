@@ -66,12 +66,12 @@ export default function NotificationList({ refresh }) {
 
     const handleSortCreatedAt = () => {
         setSortCreatedAt((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-        setSortUpdatedAt(null); // Không ảnh hưởng đến updatedAt
+        setSortUpdatedAt(null);
     };
 
     const handleSortUpdatedAt = () => {
         setSortUpdatedAt((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-        setSortCreatedAt(null); // Không ảnh hưởng đến createdAt
+        setSortCreatedAt(null);
     };
 
     const sortedNotifications = [...notifications].sort((a, b) => {
@@ -102,6 +102,7 @@ export default function NotificationList({ refresh }) {
                     <div className={styles.headerRow}>
                         <span>Title</span>
                         <span>Content</span>
+                        <span>Image</span>
                         <span onClick={handleSortCreatedAt} className={styles.sortable}>
                             Created At{' '}
                             {sortCreatedAt === 'asc' ? (
@@ -140,7 +141,7 @@ export default function NotificationList({ refresh }) {
                                                 className={styles.textarea}
                                                 placeholder='Content...'
                                             />
-
+                                            <span></span>
                                             <button className={styles.saveButton} onClick={handleUpdate}>
                                                 Save
                                             </button>
@@ -152,6 +153,17 @@ export default function NotificationList({ refresh }) {
                                         <>
                                             <span className={styles.dataTitle}>{noti.title}</span>
                                             <span className={styles.dataContent}>{noti.content}</span>
+                                            <span>
+                                                {noti.imageUrl ? (
+                                                    <img
+                                                        src={noti.imageUrl}
+                                                        alt="Notification"
+                                                        className={styles.imagePreview}
+                                                    />
+                                                ) : (
+                                                    <span className={styles.emptyImage}></span>
+                                                )}
+                                            </span>
                                             <span className={styles.dataDate}>
                                                 {new Date(noti.createdAt).toLocaleString('vi-VN', { hour12: false })}
                                             </span>
