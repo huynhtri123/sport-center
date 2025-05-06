@@ -190,6 +190,18 @@
         }
     }
 
+    .previewImageWrapper {
+        margin-top: 10px;
+    }
+
+    .previewImage {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+    }
+
     /* Responsive cho màn hình nhỏ */
     @media (max-width: 768px) {
         .sportsTable {

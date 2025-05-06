@@ -17,13 +17,15 @@ function ManageSports() {
     const [formData, setFormData] = useState({
         sportName: '',
         description: '',
-        imageUrl: '',
     });
     const [editingSport, setEditingSport] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [showInputForm, setShowInputForm] = useState(false);
 
     const [sortOrder, setSortOrder] = useState('asc'); // Mặc định sắp xếp tăng dần
+
+    const [selectedFile, setSelectedFile] = useState(null); // State lưu file đã chọn
+    const [previewUrl, setPreviewUrl] = useState(null)
 
     const handleSortByName = () => {
         const sortedSports = [...filteredSports].sort((a, b) => {
@@ -78,38 +80,39 @@ function ManageSports() {
     const handleChangeFile = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            try {
-                setIsLoading(true);
-                const response = await fileApi.uploadImage(file);
-                if (isEditing) {
-                    setEditingSport((prevData) => ({ ...prevData, imageUrl: response.data.url }));
-                } else {
-                    setFormData((prevData) => ({ ...prevData, imageUrl: response.data.url }));
-                }
-                toast.success('Image uploaded successfully!');
-            } catch (error) {
-                console.error('Upload failed:', error);
-                toast.error('Failed to upload image');
-            } finally {
-                setIsLoading(false);
-            }
+            setSelectedFile(file); // Lưu file đã chọn vào state
+            setPreviewUrl(URL.createObjectURL(file));
         }
     };
 
     const handleAddSubmit = async (e) => {
         e.preventDefault();
-        if (!formData.sportName || !formData.description || !formData.imageUrl) {
+        if (!formData.sportName || !formData.description) {
             toast.warn('Please fill in all fields.');
             return;
         }
+
         try {
             setIsLoading(true);
-            const createResponse = await sportApi.create(formData);
+            let imageUrl = '';
+
+            // Nếu có file được chọn -> upload
+            if (selectedFile) {
+                const response = await fileApi.uploadImage(selectedFile);
+                imageUrl = response.data.url;
+            }
+
+            const createResponse = await sportApi.create({
+                ...formData,
+                imageUrl, // Thêm URL ảnh sau khi upload
+            });
+
             toast.success(createResponse.message);
             fetchSports();
             resetFormData();
         } catch (err) {
             console.error(err);
+            toast.error('Failed to create sport');
         } finally {
             setIsLoading(false);
         }
@@ -117,13 +120,26 @@ function ManageSports() {
 
     const handleEditSubmit = async (e) => {
         e.preventDefault();
-        if (!editingSport.sportName || !editingSport.description || !editingSport.imageUrl) {
+        if (!editingSport.sportName || !editingSport.description) {
             toast.warn('Please fill in all fields.');
             return;
         }
+
         try {
             setIsLoading(true);
-            const editResponse = await sportApi.update(editingSport.id, editingSport);
+            let imageUrl = editingSport.imageUrl;
+
+            // Nếu có file được chọn -> upload
+            if (selectedFile) {
+                const response = await fileApi.uploadImage(selectedFile);
+                imageUrl = response.data.url;
+            }
+
+            const editResponse = await sportApi.update(editingSport.id, {
+                ...editingSport,
+                imageUrl, // Thêm URL ảnh sau khi upload
+            });
+
             toast.success(editResponse.message);
             fetchSports();
             setIsEditing(false);
@@ -131,6 +147,7 @@ function ManageSports() {
             resetFormData();
         } catch (err) {
             console.error(err);
+            toast.error('Failed to update sport');
         } finally {
             setIsLoading(false);
         }
@@ -140,8 +157,9 @@ function ManageSports() {
         setFormData({
             sportName: '',
             description: '',
-            imageUrl: '',
         });
+        setSelectedFile(null); // Reset file đã chọn
+        setPreviewUrl(null); // Reset ảnh xem trước
         setShowInputForm(false);
     };
 
@@ -175,7 +193,9 @@ function ManageSports() {
         setShowInputForm(true);
     };
 
-    const filteredSports = sports.filter((sport) => sport.sportName.toLowerCase().includes(searchQuery.toLowerCase()));
+    const filteredSports = sports.filter((sport) =>
+        sport.sportName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     return (
         <div className={styles.manageSports}>
@@ -212,19 +232,19 @@ function ManageSports() {
                             value={isEditing ? editingSport.description : formData.description}
                             onChange={handleChange}
                         />
-                        <input
-                            type='text'
-                            name='imageUrl'
-                            placeholder='Image URL'
-                            value={isEditing ? editingSport.imageUrl : formData.imageUrl}
-                            onChange={handleChange}
-                        />
                         <div className='fileInputContainer'>
                             <label className='fileLabel'>
                                 Choose File
                                 <input type='file' className='fileInput' onChange={handleChangeFile} />
                             </label>
-                            <span className='fileName'>{formData.imageUrl ? 'File uploaded' : 'No file chosen'}</span>
+                            <span className='fileName'>
+                                {selectedFile ? selectedFile.name : 'No file chosen'}
+                                {previewUrl && (
+                                    <div className={styles.previewImageWrapper}>
+                                        <img src={previewUrl} alt="Preview" className={styles.previewImage} />
+                                    </div>
+                                )}
+                            </span>
                         </div>
                         <button type='submit' className={`btn ${styles.editButton}`}>
                             {isEditing ? 'Update' : 'Create'}

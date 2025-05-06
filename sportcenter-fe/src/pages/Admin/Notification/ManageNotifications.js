@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 import notificationApi from '../../../services/api/notification/notificationApi';
+import fileApi from '../../../services/api/file/fileApi';
 import styles from '../../../assets/css/Admin/manage/manageNotifications.module.scss';
 import { Loading } from '../../../components/Loading/Loading';
 import { toast } from 'react-toastify';
 import NotificationList from './NotificationList';
+import { defaultIcon } from '../../../utils/defaultIcon';
 
 export default function ManageNotifications() {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
+    const [imageFile, setImageFile] = useState(null); // ảnh chưa upload
+    const [previewUrl, setPreviewUrl] = useState(defaultIcon); // hiển thị tạm
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [refresh, setRefresh] = useState(false);
@@ -21,12 +25,21 @@ export default function ManageNotifications() {
         setLoading(true);
         setMessage('');
 
+        let imageUrl = '';
+
         try {
-            const request = { title, content };
+            if (imageFile) {
+                const response = await fileApi.uploadImage(imageFile);
+                imageUrl = response.data.url;
+            }
+
+            const request = { title, content, imageUrl };
             const response = await notificationApi.create(request);
             toast.success(response.message);
             setTitle('');
             setContent('');
+            setImageFile(null);
+            setPreviewUrl(defaultIcon);
             setRefresh((prev) => !prev);
         } catch (error) {
             setMessage('❌ Failed to send notification. Please try again!');
@@ -34,6 +47,14 @@ export default function ManageNotifications() {
         }
 
         setLoading(false);
+    };
+
+    const handleChangeImageFile = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImageFile(file);
+            setPreviewUrl(URL.createObjectURL(file)); // chỉ hiển thị, chưa upload
+        }
     };
 
     return (
@@ -62,6 +83,21 @@ export default function ManageNotifications() {
                         onChange={(e) => setContent(e.target.value)}
                         placeholder='Enter notification content...'
                     />
+                </div>
+
+                <div className={styles.formGroup}>
+                    <label htmlFor='image'>Image:</label>
+                    <input
+                        type='file'
+                        id='image'
+                        accept='image/*'
+                        onChange={handleChangeImageFile}
+                    />
+                    {previewUrl && previewUrl !== defaultIcon && (
+                        <div className={styles.preview}>
+                            <img src={previewUrl} alt='Preview' height={120} />
+                        </div>
+                    )}
                 </div>
 
                 <button onClick={handleAddNotification} disabled={loading} className={styles.submitButton}>
