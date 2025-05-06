@@ -1,164 +1,213 @@
-.notificationContainer {
-    max-width: 900px;
-    margin: 20px auto;
-    padding: 20px;
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
+@import '../variables';
 
-.title {
-    text-align: center;
-    font-size: 26px;
-    font-weight: bold;
-    margin-bottom: 16px;
-    color: #007bff;
+.notificationContainer {
+    padding: 16px;
+    margin: 0 auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    @media (max-width: 768px) {
+        padding: 8px;
+    }
 }
 
 .headerRow {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
+    margin-bottom: 4px;
+
+    .title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: $blue-gray;
+
+        .iconLoa {
+            width: 40px;
+            height: 40px;
+        }
+
+        @media (max-width: 768px) {
+            font-size: 1.2rem;
+        }
+    }
+
+    .searchInput {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 300px;
+
+        @media (max-width: 768px) {
+            width: 100%;
+            font-size: 0.9rem;
+        }
+    }
 }
 
-.searchInput {
-    padding: 8px 12px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    min-width: 250px;
+.gridContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    width: 100%;
+    margin-bottom: 16px;
+
+    @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+    }
 }
 
-.notificationList {
-    list-style: none;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.notificationItem {
-    display: flex;
-    align-items: flex-start;
+.notificationCard {
     background: #f9f9f9;
-    padding: 15px;
+    border: 1px solid #ddd;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease-in-out;
-
-    &:hover {
-        transform: translateY(-3px);
-    }
-}
-
-.imageWrapper {
-    flex-shrink: 0;
-    margin-right: 15px;
-}
-
-.notificationImage {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%; // Biến hình vuông thành hình tròn
-    object-fit: cover;
-}
-
-
-.notificationContent {
-    flex: 1;
+    padding: 16px;
     display: flex;
     flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
-    h3 {
-        font-size: 16px;
-        margin: 0;
-        color: #007bff;
+    .notificationImage {
+        max-height: 150px;
+        object-fit: cover;
+        border-radius: 4px;
+        width: 100%;
+
+        @media (max-width: 480px) {
+            max-height: 100px;
+        }
     }
 
-    p {
-        font-size: 14px;
-        color: #555;
-        margin: 5px 0;
-    }
+    .notificationContent {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
 
-    .date {
-        font-size: 13px;
-        color: gray;
-        margin-top: 8px;
+        h3 {
+            font-size: 1.2rem;
+            margin: 0;
+
+            @media (max-width: 768px) {
+                font-size: 1rem;
+            }
+        }
+
+        p {
+            margin: 0;
+            color: #555;
+
+            @media (max-width: 480px) {
+                font-size: 0.9rem;
+            }
+        }
+
+        .date {
+            font-size: 0.9rem;
+            color: #888;
+            align-self: flex-end;
+
+            @media (max-width: 480px) {
+                font-size: 0.8rem;
+            }
+        }
+    }
+}
+
+.noNotification {
+    text-align: center;
+    font-size: 1rem;
+    color: #999;
+
+    @media (max-width: 480px) {
+        font-size: 0.9rem;
     }
 }
 
 .pagination {
     display: flex;
     justify-content: center;
-    align-items: center;
-    margin-top: 20px;
+    gap: 16px;
 
     button {
-        padding: 10px 15px;
-        margin: 0 8px;
+        padding: 8px 16px;
         border: none;
-        background: #007bff;
+        border-radius: 4px;
+        background-color: #007bff;
         color: white;
-        font-size: 14px;
-        font-weight: bold;
-        border-radius: 6px;
         cursor: pointer;
-        transition: background 0.3s;
-
-        &:hover {
-            background: #0056b3;
-        }
 
         &:disabled {
-            background: #ccc;
+            background-color: #ccc;
             cursor: not-allowed;
+        }
+
+        @media (max-width: 480px) {
+            padding: 6px 12px;
+            font-size: 0.9rem;
+        }
+    }
+
+    span {
+        align-self: center;
+        font-size: 1rem;
+
+        @media (max-width: 480px) {
+            font-size: 0.9rem;
         }
     }
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .notificationContainer {
-        max-width: 95%;
-        padding: 15px;
-    }
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
 
-    .title {
-        font-size: 22px;
-    }
-
-    .notificationImage {
-        width: 50px;
-        height: 50px;
-    }
-
-    .pagination button {
-        padding: 8px 12px;
-        font-size: 13px;
-    }
-}
-
-@media (max-width: 480px) {
-    .notificationItem {
+    .modalContent {
+        position: relative;
+        background: #fff;
+        padding: 16px;
+        border-radius: 8px;
+        display: flex;
         flex-direction: column;
         align-items: center;
-        text-align: center;
-    }
 
-    .imageWrapper {
-        margin-right: 0;
-        margin-bottom: 10px;
-    }
+        .enlargedImage {
+            max-width: 90vw;
+            max-height: 80vh;
+            border-radius: 8px;
 
-    .pagination {
-        flex-direction: column;
-        gap: 10px;
-    }
+            @media (max-width: 480px) {
+                max-width: 100%;
+                max-height: 70vh;
+            }
+        }
 
-    .pagination button {
-        width: 100%;
+        .closeButton {
+            margin-top: 16px;
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+
+            &:hover {
+                background-color: #0056b3;
+            }
+
+            @media (max-width: 480px) {
+                padding: 6px 12px;
+                font-size: 0.9rem;
+            }
+        }
     }
 }

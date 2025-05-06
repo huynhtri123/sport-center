@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from 'react';
 import notificationApi from '../../../services/api/notification/notificationApi';
 import styles from '../../../assets/css/Notification/Notification.module.scss';
@@ -11,7 +12,9 @@ function Notification() {
 
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
-    const pageSize = 3;
+    const pageSize = 4;
+
+    const [selectedImage, setSelectedImage] = useState(null);
 
     useEffect(() => {
         connectWebSocket(
@@ -69,14 +72,22 @@ function Notification() {
         }
     };
 
+    const filteredNotifications = notifications.filter((notification) =>
+        notification.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const closeModal = () => setSelectedImage(null);
+
     return (
         <div className={styles.notificationContainer}>
             <div className={styles.headerRow}>
                 <h2 className={styles.title}>
                     Notifications{' '}
-                    <span className='ms-2'>
-                        <i className='fa fa-volume-up'></i>
-                    </span>
+                    <img
+                        src='https://cdn-icons-png.flaticon.com/128/4205/4205999.png'
+                        alt='ic loa'
+                        className={styles.iconLoa}
+                    />
                 </h2>
                 <input
                     type='text'
@@ -87,20 +98,19 @@ function Notification() {
                 />
             </div>
 
-            <ul className={styles.notificationList}>
-                {notifications.length === 0 ? (
-                    <p className={styles.noNotification}>No notifications available.</p>
-                ) : (
-                    notifications.map((notification) => (
-                        <li key={notification.id} className={styles.notificationItem}>
+            {filteredNotifications.length === 0 ? (
+                <p className={styles.noNotification}>No notifications available.</p>
+            ) : (
+                <div className={styles.gridContainer}>
+                    {filteredNotifications.map((notification) => (
+                        <div key={notification.id} className={styles.notificationCard}>
                             {notification.imageUrl && (
-                                <div className={styles.imageWrapper}>
-                                    <img
-                                        src={notification.imageUrl}
-                                        alt={notification.title}
-                                        className={styles.notificationImage}
-                                    />
-                                </div>
+                                <img
+                                    src={notification.imageUrl}
+                                    alt={notification.title}
+                                    className={styles.notificationImage}
+                                    onClick={() => setSelectedImage(notification.imageUrl)}
+                                />
                             )}
                             <div className={styles.notificationContent}>
                                 <h3>{notification.title}</h3>
@@ -109,10 +119,10 @@ function Notification() {
                                     {new Date(notification.createdAt).toLocaleString('vi-VN', { hour12: false })}
                                 </span>
                             </div>
-                        </li>
-                    ))
-                )}
-            </ul>
+                        </div>
+                    ))}
+                </div>
+            )}
 
             <div className={styles.pagination}>
                 <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 0}>
@@ -125,6 +135,17 @@ function Notification() {
                     Next ▶
                 </button>
             </div>
+
+            {selectedImage && (
+                <div className={styles.modal} onClick={closeModal}>
+                    <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+                        <img src={selectedImage} alt='Enlarged' className={styles.enlargedImage} />
+                        <button className={styles.closeButton} onClick={closeModal}>
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

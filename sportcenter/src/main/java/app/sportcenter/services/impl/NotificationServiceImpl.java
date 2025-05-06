@@ -136,6 +136,7 @@ public class NotificationServiceImpl implements NotificationService {
         // cập nhật các trường của thông báo
         notification.setTitle(notificationRequest.getTitle());
         notification.setContent(notificationRequest.getContent());
+        notification.setImageUrl(notificationRequest.getImageUrl());
 
         Notification updatedNotification = notificationRepo.save(notification);
         NotificationResponse response = mapper.convertToDTO(updatedNotification);

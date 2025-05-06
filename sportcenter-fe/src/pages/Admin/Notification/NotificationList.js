@@ -2,18 +2,25 @@ import React, { useEffect, useState } from 'react';
 import { Modal } from 'antd';
 import notificationApi from '../../../services/api/notification/notificationApi';
 import styles from '../../../assets/css/Admin/notificationList.module.scss';
+import fileApi from '../../../services/api/file/fileApi';
+import { Loading } from '../../../components/Loading/Loading';
+import { defaultIcon } from '../../../utils/defaultIcon';
 
 export default function NotificationList({ refresh }) {
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [page, setPage] = useState(0);
     const [size] = useState(5);
     const [totalPages, setTotalPages] = useState(1);
     const [editMode, setEditMode] = useState(null);
     const [editData, setEditData] = useState({ title: '', content: '' });
 
-    const [sortCreatedAt, setSortCreatedAt] = useState('asc');
-    const [sortUpdatedAt, setSortUpdatedAt] = useState('asc');
+    const [sortCreatedAt, setSortCreatedAt] = useState('desc');
+    const [sortUpdatedAt, setSortUpdatedAt] = useState('desc');
+
+    const [imageFile, setImageFile] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState('');
 
     useEffect(() => {
         fetchNotifications();
@@ -51,16 +58,37 @@ export default function NotificationList({ refresh }) {
 
     const handleEdit = (noti) => {
         setEditMode(noti.id);
-        setEditData({ title: noti.title, content: noti.content });
+        setEditData({ title: noti.title, content: noti.content, imageUrl: noti.imageUrl });
+        setImageFile(null);
+        setPreviewUrl(noti.imageUrl || defaultIcon);
+    };
+
+    const handleChangeImageFile = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImageFile(file);
+            setPreviewUrl(URL.createObjectURL(file)); // chỉ hiển thị trước
+        }
     };
 
     const handleUpdate = async () => {
         try {
-            await notificationApi.update(editMode, editData);
+            setIsLoading(true);
+            let updatedData = { ...editData };
+
+            if (imageFile) {
+                const response = await fileApi.uploadImage(imageFile);
+                console.log(response);
+                updatedData.imageUrl = response.data.url;
+            }
+
+            await notificationApi.update(editMode, updatedData);
             setEditMode(null);
             fetchNotifications();
         } catch (error) {
             console.error('Update failed:', error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -93,6 +121,7 @@ export default function NotificationList({ refresh }) {
 
     return (
         <div className={styles.container}>
+            {isLoading && <Loading></Loading>}
             <h2 className={styles.title}>All Notifications</h2>
 
             {loading ? (
@@ -141,6 +170,23 @@ export default function NotificationList({ refresh }) {
                                                 className={styles.textarea}
                                                 placeholder='Content...'
                                             />
+                                            <span>
+                                                <input
+                                                    type='file'
+                                                    accept='image/*'
+                                                    onChange={handleChangeImageFile}
+                                                    className={styles.imageInput}
+                                                />
+                                                {previewUrl && (
+                                                    <div className={styles.preview}>
+                                                        <img
+                                                            src={previewUrl}
+                                                            alt='Preview'
+                                                            className={styles.imagePreview}
+                                                        />
+                                                    </div>
+                                                )}
+                                            </span>
                                             <span></span>
                                             <button className={styles.saveButton} onClick={handleUpdate}>
                                                 Save
@@ -157,7 +203,7 @@ export default function NotificationList({ refresh }) {
                                                 {noti.imageUrl ? (
                                                     <img
                                                         src={noti.imageUrl}
-                                                        alt="Notification"
+                                                        alt='Notification'
                                                         className={styles.imagePreview}
                                                     />
                                                 ) : (

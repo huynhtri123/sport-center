@@ -116,6 +116,10 @@ textarea {
     color: $dark-blue;
 }
 
+.imageInput {
+    margin-bottom: 8px;
+}
+
 // Buttons
 .button {
     padding: 6px 12px;
@@ -207,7 +211,6 @@ textarea {
 }
 
 @media (max-width: 768px) {
-
     .headerRow,
     .itemRow {
         grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
