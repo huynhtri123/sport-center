@@ -207,6 +207,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Page<User> searchUsersByName(String name, Pageable pageable) {
+        // Tạo pattern cho regex search (tương đương like %name%)
+        String regex = ".*" + name + ".*";
+
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+                Sort.by(Sort.Order.desc("createdAt")));
+
+        return userRepository.findByFullNameRegexIgnoreCaseAndIsActiveTrueAndIsDeletedFalse(regex, sortedPageable);
+    }
+
+    @Override
     public ResponseEntity<BaseResponse> getAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<User> userPage = userRepository.findByIsDeletedFalseAndIsActiveTrue(pageable);

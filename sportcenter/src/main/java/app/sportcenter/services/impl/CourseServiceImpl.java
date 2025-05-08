@@ -12,6 +12,7 @@ import app.sportcenter.repositories.CourseRepository;
 import app.sportcenter.services.CourseService;
 import app.sportcenter.utils.mappers.CourseMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CourseServiceImpl implements CourseService {
@@ -183,14 +185,9 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public ResponseEntity<BaseResponse> searchByNameAndPaginate(String courseName, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Course> coursePage = courseRepository.searchByNameContainingIgnoreCase(courseName, pageable);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createdAt")));
 
-//        if (coursePage.isEmpty()) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-//                    new BaseResponse("Không tìm thấy khóa học nào với tên này.", HttpStatus.NOT_FOUND.value(), null)
-//            );
-//        }
+        Page<Course> coursePage = courseRepository.searchByNameContainingIgnoreCase(courseName, pageable);
 
         List<CourseResponse> responseCourses = coursePage.getContent()
                 .stream()
@@ -207,8 +204,5 @@ public class CourseServiceImpl implements CourseService {
                 new BaseResponse("Course list found.", HttpStatus.OK.value(), paginatedResponse)
         );
     }
-
-
-
 
 }

@@ -92,6 +92,10 @@ const userApi = {
         const url = `/user/my-invoices/${invoiceId}`; // The URL for deleting an invoice
         return axiosClient.delete(url); // Use DELETE method to remove the invoice
     },
+    getUsersByName(name, page, size) {
+        const url = `/user/search-by-name?name=${name}&page=${page}&size=${size}`;
+        return axiosClient.get(url);
+    },
 };
 
 export default userApi;

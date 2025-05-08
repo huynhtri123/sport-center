@@ -95,16 +95,24 @@ function ManageBookings() {
     const fetchBookings = useCallback(async () => {
         try {
             setIsLoading(true);
-            const response = await bookingApi.searchByFieldName(searchQuery, currentPage, pageSize);
+            let response;
+
+            if (searchQueryUserFullName.trim() !== '') {
+                response = await bookingApi.searchByUserName(searchQueryUserFullName, currentPage, pageSize);
+            } else {
+                response = await bookingApi.searchByFieldName(searchQuery, currentPage, pageSize);
+            }
+
             setBookings(response.data.content);
             setTotalPages(response.data.totalPages);
             setTotalElements(response.data.totalElements);
         } catch (err) {
             console.error(err);
+            toast.error('Failed to fetch bookings.');
         } finally {
             setIsLoading(false);
         }
-    }, [currentPage, pageSize, searchQuery]);
+    }, [currentPage, pageSize, searchQuery, searchQueryUserFullName]);
 
     useEffect(() => {
         fetchBookings();
@@ -159,6 +167,11 @@ function ManageBookings() {
         }
     };
 
+    const handleSearchNameChange = (e) => {
+        setSearchQueryUserFullName(e.target.value);
+        setCurrentPage(0); // reset page về đầu
+    };
+
     // Filter bookings based on canceledBookingIds and searchQuery
     const filteredBookings = bookings.filter((booking) => {
         const matchesCancellation = !canceledBookingIds.includes(booking.id);
@@ -202,7 +215,7 @@ function ManageBookings() {
                     type='text'
                     placeholder='Search by customer name...'
                     value={searchQueryUserFullName}
-                    onChange={(e) => setSearchQueryUserFullName(e.target.value)}
+                    onChange={handleSearchNameChange}
                     className={styles.searchInput}
                 />
             </div>

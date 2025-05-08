@@ -2,9 +2,13 @@ package app.sportcenter.services.impl;
 
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.models.dto.response.*;
+import app.sportcenter.models.entities.Prize;
+import app.sportcenter.models.entities.Team;
 import app.sportcenter.models.entities.TimeSlot;
+import app.sportcenter.models.entities.Tournament;
 import app.sportcenter.services.MailService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -21,6 +25,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MailServiceImpl implements MailService {
@@ -247,5 +252,29 @@ public class MailServiceImpl implements MailService {
                     HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
+
+    @Async
+    @Override
+    public void sendMailWonTournament(String toEmail, Team team, Tournament tournament, Prize prize) {
+        try {
+            String startDate = convertToVietnamTime(tournament.getStartDate());
+
+            Context context = new Context();
+            context.setVariable("teamName", team.getTeamName());
+            context.setVariable("players", team.getPlayers());
+            context.setVariable("teamLogo", team.getTeamLogoUrl());
+            context.setVariable("tournamentName", tournament.getTournamentName());
+            context.setVariable("startDate", startDate);
+            context.setVariable("prize", prize);
+            context.setVariable("prizeList", tournament.getPrizes());
+
+            sendEmail(toEmail, "Sport Center - Congratulations on your victory in " + team.getTeamName() + "!",
+                    "WonTournament", context);
+        } catch (Exception e) {
+            throw new CustomException("Error sending won tournament email: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+    }
+
 }
 

@@ -13,7 +13,9 @@ import app.sportcenter.models.entities.Tournament;
 import app.sportcenter.models.entities.User;
 import app.sportcenter.repositories.TeamRepository;
 import app.sportcenter.repositories.TournamentRepository;
+import app.sportcenter.repositories.UserRepository;
 import app.sportcenter.services.CloudinaryService;
+import app.sportcenter.services.MailService;
 import app.sportcenter.services.TeamService;
 import app.sportcenter.utils.mappers.TeamMapper;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +42,8 @@ public class TeamServiceImpl implements TeamService {
     private final CloudinaryService cloudinaryService;
     private final AppConfig appConfig;
     private final TeamMapper teamMapper;
+    private final MailService mailService;
+    private final UserRepository userRepository;
 
     @Transactional
     @Override
@@ -309,6 +313,12 @@ public class TeamServiceImpl implements TeamService {
         // ok
         team.getWonTournamentIds().add(tournamentId);
         team.getWonPrizes().add(prize);
+
+        // gui mail
+        User onwer = userRepository.findById(team.getUserId())
+                .orElseThrow(() -> new NotFoundException("Owner cannot found!"));
+        mailService.sendMailWonTournament(onwer.getEmail(), team, tournament, prize);
+
         return teamMapper.convertToDTO(teamRepository.save(team));
     }
 }

@@ -14,11 +14,15 @@ function ManageUsers() {
     const [loading, setLoading] = useState(false);
     const [deleteUserId, setDeleteUserId] = useState(null); // Lưu ID user cần xóa
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const pageSize = 10;
+    const pageSize = 5;
 
     useEffect(() => {
-        fetchUsers(currentPage);
-    }, [currentPage]);
+        if (searchTerm === '') {
+            fetchUsers(currentPage);
+        } else {
+            searchUsersByName(searchTerm, currentPage);
+        }
+    }, [currentPage, searchTerm]);
 
     async function fetchUsers(page) {
         setLoading(true);
@@ -36,10 +40,29 @@ function ManageUsers() {
         }
     }
 
+    async function searchUsersByName(name, page) {
+        setLoading(true);
+        try {
+            const response = await userApi.getUsersByName(name, page - 1, pageSize);
+            if (response.data) {
+                setUsers(response.data.content || []);
+                setFilteredUsers(response.data.content || []);
+                setTotalPages(response.data.totalPages);
+            }
+        } catch (error) {
+            toast.error('Failed to search users. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    }
+
     const handleSearch = (event) => {
-        const value = event.target.value.toLowerCase();
+        const value = event.target.value;
         setSearchTerm(value);
-        const filtered = users.filter((user) => user.fullName.toLowerCase().includes(value));
+
+        const filtered = users.filter(
+            (user) => user.fullName.toLowerCase().includes(value.toLowerCase()) // Chuyển fullName thành chữ thường để so sánh
+        );
         setFilteredUsers(filtered);
     };
 

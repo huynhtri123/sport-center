@@ -62,6 +62,8 @@ public interface BookingService {
 
     public ResponseEntity<BaseResponse> searchByFieldNameAndPaginate(String fieldName, int page, int size);
 
+    public ResponseEntity<BaseResponse> searchByUserName(String userName, int page, int size);
+
     public Map<String, Double> getRevenueLastSixMonths();
 
     public ResponseEntity<BaseResponse> allBookingUser(String userId);

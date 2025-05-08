@@ -25,7 +25,7 @@ function ManageSports() {
     const [sortOrder, setSortOrder] = useState('asc'); // Mặc định sắp xếp tăng dần
 
     const [selectedFile, setSelectedFile] = useState(null); // State lưu file đã chọn
-    const [previewUrl, setPreviewUrl] = useState(null)
+    const [previewUrl, setPreviewUrl] = useState(null);
 
     const handleSortByName = () => {
         const sortedSports = [...filteredSports].sort((a, b) => {
@@ -193,9 +193,7 @@ function ManageSports() {
         setShowInputForm(true);
     };
 
-    const filteredSports = sports.filter((sport) =>
-        sport.sportName.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredSports = sports.filter((sport) => sport.sportName.toLowerCase().includes(searchQuery.toLowerCase()));
 
     return (
         <div className={styles.manageSports}>
@@ -241,7 +239,7 @@ function ManageSports() {
                                 {selectedFile ? selectedFile.name : 'No file chosen'}
                                 {previewUrl && (
                                     <div className={styles.previewImageWrapper}>
-                                        <img src={previewUrl} alt="Preview" className={styles.previewImage} />
+                                        <img src={previewUrl} alt='Preview' className={styles.previewImage} />
                                     </div>
                                 )}
                             </span>

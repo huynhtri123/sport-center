@@ -46,7 +46,6 @@ public class CourseController {
         return courseService.restore(courseId);
     }
 
-
     @GetMapping("/public/course/search-by-name")
     public ResponseEntity<BaseResponse> searchByNameContainingIgnoreCase(
             @RequestParam("courseName") String courseName) {

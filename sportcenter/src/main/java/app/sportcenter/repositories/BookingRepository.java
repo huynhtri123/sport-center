@@ -63,6 +63,9 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
     @Query("{ 'field.fieldName': { $regex: ?0, $options: 'i' }, 'isDeleted': false, 'isActive': true }")
     Page<Booking> searchByFieldName(String fieldName, Pageable pageable);
 
+    @Query("{ 'user.fullName': { $regex: ?0, $options: 'i' }, 'isDeleted': false, 'isActive': true }")
+    Page<Booking> searchByUserFullName(String userFullName, Pageable pageable);
+
     @Query("{ 'bookingDate': { $gte: ?0 } }")
     List<Booking> findBookingsLastSixMonths(@Param("startDate") ZonedDateTime startDate);
 

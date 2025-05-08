@@ -63,6 +63,10 @@ const bookingApi = {
         const url = `/booking/search-by-field-name?fieldName=${fieldName}&page=${page}&size=${size}`;
         return axiosClient.get(url);
     },
+    searchByUserName(userName, page = 0, size = 5) {
+        const url = `/booking/search-by-user-name?userName=${userName}&page=${page}&size=${size}`;
+        return axiosClient.get(url);
+    },
 };
 
 export default bookingApi;

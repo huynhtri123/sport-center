@@ -226,6 +226,18 @@ public class BookingController {
             @RequestParam(defaultValue = "5") int size) {
         return bookingService.searchByFieldNameAndPaginate(fieldName, page, size);
     }
+
+    @GetMapping("/booking/search-by-user-name")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    public ResponseEntity<BaseResponse> searchBookings(
+            @RequestParam(required = false) String userName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) {
+        return bookingService.searchByUserName(userName, page, size);
+    }
+
+
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/booking/revenue/last-six-months")
     public ResponseEntity<BaseResponse> getRevenueLastSixMonths() {

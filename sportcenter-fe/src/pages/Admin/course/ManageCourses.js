@@ -17,7 +17,7 @@ function ManageCourses() {
     const [editingCourse, setEditingCourse] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize, setPageSize] = useState(5);
+    const [pageSize, setPageSize] = useState(4);
     const [totalElements, setTotalElements] = useState(0);
 
     const lessonLevels = [
@@ -35,19 +35,15 @@ function ManageCourses() {
     const fetchCourses = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await courseApi.getAllActive(currentPage - 1, pageSize);
-            let filteredCourses = response.data.content;
-
-            if (searchQuery) {
-                filteredCourses = filteredCourses.filter((course) =>
-                    course.courseName.toLowerCase().includes(searchQuery.toLowerCase())
-                );
-            }
-
-            setCourses(filteredCourses);
+            // Sử dụng searchByNameAndPaginate API
+            const response = await courseApi.searchByNameAndPaginate(searchQuery, currentPage - 1, pageSize);
+            setCourses(response.data.content);
             setTotalElements(response.data.totalElements);
         } catch (error) {
             console.error('Failed to fetch courses:', error);
+            // Hiển thị message lỗi từ API (nếu có)
+            const errorMessage = error.response?.data?.message || 'Failed to fetch courses. Please try again.';
+            message.error(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -59,7 +55,9 @@ function ManageCourses() {
             setSports(response.data.content);
         } catch (error) {
             console.error('Failed to fetch sports:', error);
-            message.error('Failed to fetch sports. Please try again.');
+            // Hiển thị message lỗi từ API (nếu có)
+            const errorMessage = error.response?.data?.message || 'Failed to fetch sports. Please try again.';
+            message.error(errorMessage);
         }
     };
 
@@ -101,11 +99,22 @@ function ManageCourses() {
     const handleSubmit = async () => {
         try {
             const values = await form.validateFields();
-            const updatedLessons = values.lessons.map((lesson, index) => ({
-                ...lesson,
-                id: lesson.id || `temp-${index}`, // Nếu là bài học mới, gán ID tạm thời
-                level: lesson.level || 'BEGINNER', // Đảm bảo level luôn có giá trị
-            }));
+
+            // Kiểm tra nếu `lessons` có giá trị, nếu không thì gán mảng rỗng
+            const updatedLessons = (values.lessons || [])
+                .map((lesson, index) => {
+                    // Nếu lesson là null hoặc undefined thì bỏ qua nó
+                    if (!lesson) {
+                        return null;
+                    }
+
+                    return {
+                        ...lesson,
+                        id: lesson.id || `temp-${index}`, // Nếu là bài học mới, gán ID tạm thời
+                        level: lesson.level || 'BEGINNER', // Đảm bảo level luôn có giá trị
+                    };
+                })
+                .filter((lesson) => lesson !== null); // Loại bỏ các phần tử null nếu có
 
             const courseData = {
                 ...values,
@@ -123,7 +132,8 @@ function ManageCourses() {
             fetchCourses();
         } catch (error) {
             console.error('Failed to save course:', error);
-            message.error('Failed to save course. Please try again.');
+            const errorMessage = error.response?.data?.message || 'Failed to save course. Please try again.';
+            message.error(errorMessage);
         }
     };
 
@@ -216,8 +226,8 @@ function ManageCourses() {
                 pageSize={pageSize}
                 showSizeChanger={false}
                 onChange={(page, size) => {
-                    setCurrentPage(page);
-                    setPageSize(size);
+                    setCurrentPage(page); // Cập nhật trang hiện tại
+                    setPageSize(size); // Cập nhật số lượng phần tử trên mỗi trang
                 }}
             />
 
@@ -248,7 +258,9 @@ function ManageCourses() {
                     <Form.Item
                         name='tuition'
                         label='Tuition'
+                        style={{ display: 'none' }} // Ẩn trường này khỏi giao diện
                         rules={[{ required: true, message: 'Please enter a valid tuition fee!' }]}
+                        initialValue={0}
                     >
                         <Input type='number' min={0} step={1000} />
                     </Form.Item>

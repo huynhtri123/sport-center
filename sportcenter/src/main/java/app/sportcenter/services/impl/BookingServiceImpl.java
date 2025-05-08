@@ -897,6 +897,24 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    public ResponseEntity<BaseResponse> searchByUserName(String userName, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Booking> bookingPage = bookingRepository.searchByUserFullName(userName, pageable);
+
+        List<BookingResponse> responseList = bookingPage.getContent().stream()
+                .map(bookingMapper::convertToResponse)
+                .toList();
+
+        PaginatedResponse<BookingResponse> paginatedResponse = new PaginatedResponse<>(
+                responseList,
+                bookingPage.getTotalPages(),
+                bookingPage.getTotalElements()
+        );
+
+        return ResponseEntity.ok(new BaseResponse("Search successful", HttpStatus.OK.value(), paginatedResponse));
+    }
+
+    @Override
     public Map<String, Double> getRevenueLastSixMonths() {
         Map<String, Double> revenueData = new HashMap<>();
         LocalDate now = LocalDate.now();

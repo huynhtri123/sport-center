@@ -7,6 +7,8 @@ import app.sportcenter.models.dto.request.UserRequest;
 import app.sportcenter.models.dto.response.UserResponse;
 import app.sportcenter.models.entities.User;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -48,5 +50,7 @@ public interface UserService {
     public ResponseEntity<BaseResponse> deleteInvoice(String invoiceId);
 
     public List<UserResponse> getAllActive();
+
+    public Page<User> searchUsersByName(String name, Pageable pageable);
 
 }

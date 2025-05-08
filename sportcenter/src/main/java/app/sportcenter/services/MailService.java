@@ -1,6 +1,9 @@
 package app.sportcenter.services;
 
 import app.sportcenter.models.dto.response.*;
+import app.sportcenter.models.entities.Prize;
+import app.sportcenter.models.entities.Team;
+import app.sportcenter.models.entities.Tournament;
 
 public interface MailService {
 
@@ -17,6 +20,8 @@ public interface MailService {
     public void sendMailRegisterTournament(String toEmail, TournamentResponse tournament, TeamResponse team);
 
     public void sendMailUnregisterTournament(String toEmail, TournamentResponse tournament, TeamResponse team);
+
+    public void sendMailWonTournament(String toEmail, Team team, Tournament tournament, Prize prize);
 
 }
 

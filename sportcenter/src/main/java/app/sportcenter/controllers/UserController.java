@@ -4,12 +4,15 @@ import app.sportcenter.commons.BaseResponse;
 import app.sportcenter.models.dto.response.CloudinaryResponse;
 import app.sportcenter.models.dto.request.PaymentRequest;
 import app.sportcenter.models.dto.request.UserRequest;
+import app.sportcenter.models.entities.User;
 import app.sportcenter.services.CloudinaryService;
 import app.sportcenter.services.UserService;
 import app.sportcenter.utils.file.FileUploadUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -129,6 +132,19 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new BaseResponse("Failed to delete invoice", HttpStatus.INTERNAL_SERVER_ERROR.value(), null));
         }
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @GetMapping("/user/search-by-name")
+    public ResponseEntity<BaseResponse> searchUsersByName(
+            @RequestParam String name,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) {
+        Page<User> pageResponse = userService.searchUsersByName(name, PageRequest.of(page, size));
+        return ResponseEntity.ok(
+                new BaseResponse("Find users by userName successfully!", 200, pageResponse)
+        );
     }
 
 }
