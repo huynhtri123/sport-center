@@ -15,36 +15,35 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TournamentRequest extends BaseRequestDTO {
-    @NotBlank(message = "Bạn chưa chọn môn thể thao")
+    @NotBlank(message = "Sport is required.")
     private String sportId;
 
-    @NotBlank(message = "Bạn chưa nhập tên giải đấu")
+    @NotBlank(message = "Tournament name is required.")
     private String tournamentName;
 
-    @NotNull(message = "Bạn chưa nhập ngày bắt đầu giải đấu")
-//    @Future(message = "Ngày bắt đầu phải là ngày trong tương lai")
+    @NotNull(message = "Tournament start date is required.")
+//    @Future(message = "Start date must be in the future")
     private ZonedDateTime startDate;
 
-//    @NotNull(message = "Bạn chưa nhập ngày kết thúc giải đấu")
-////    @Future(message = "Ngày kết thúc phải là ngày trong tương lai")
+//    @NotNull(message = "Tournament end date is required.")
+////    @Future(message = "End date must be in the future")
 //    private ZonedDateTime endDate;
 
-    @NotNull(message = "Bạn chưa nhập số lượng đội tham gia tối đa")
+    @NotNull(message = "Maximum number of teams is required.")
     private Integer maxTeams;
 
 //    private List<String> registeredTeamIds;
 
-    @NotNull(message = "Bạn chưa nhập ngày hạn chót đăng ký tham gia giải đấu")
-//    @Future(message = "Ngày hạn chót phải là ngày trong tương lai")
+    @NotNull(message = "Registration deadline is required.")
+//    @Future(message = "Registration deadline must be in the future")
     private ZonedDateTime registrationDeadline;
 
     private List<Prize> prizes;
 
     private String thumUrl;
 
-    @NotNull(message = "Bạn chưa nhập phí tham gia giải đấu!")
-    private Double registrationFee;                                 // phí tham gia giải đấu
+    @NotNull(message = "Registration fee is required.")
+    private Double registrationFee;                                 // Tournament registration fee
 
-    private List<String> rules;                                     // danh sách quy định giải đấu
+    private List<String> rules;                                     // Tournament rules list
 }
-

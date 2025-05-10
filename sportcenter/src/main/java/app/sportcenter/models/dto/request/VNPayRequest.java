@@ -14,22 +14,21 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class VNPayRequest extends BaseRequestDTO {
-    @NotBlank(message = "Bạn chưa nhập userId cho yêu cầu thanh toán")
+    @NotBlank(message = "User ID for the payment request is required.")
     private String userId;
 
-    @NotNull(message = "Bạn chưa nhập số tiền thanh toán")
-    @Min(value = 0, message = "Số tiền thanh toán phải là số không âm")
+    @NotNull(message = "Payment amount is required.")
+    @Min(value = 0, message = "Payment amount must be a non-negative number.")
     private Double amount;
 
-    // nếu thanh toán lộn xộn
-    @Min(value = 0, message = "Số tiền thanh toán bằng số dư phải là số không âm")
+    // In case of payment by balance
+    @Min(value = 0, message = "Payment amount by balance must be a non-negative number.")
     private Double amountByBalance = 0.0;
 
-    @NotNull(message = "Bạn chưa nhập loại giao dịch")
+    @NotNull(message = "Transaction type is required.")
     private TransactionType transactionType;
 
     private String bookingId;
 
     private String registerOrderId;
-
 }

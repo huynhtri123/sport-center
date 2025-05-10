@@ -13,21 +13,22 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SignupRequest {
 
-    @NotBlank(message = "Vui lòng nhập họ tên")
-    @Size(max = 50, message = "Họ tên không được vượt quá 50 ký tự")
+    @NotBlank(message = "Please enter your full name.")
+    @Size(max = 50, message = "Full name must not exceed 50 characters.")
     private String fullName;
 
-    @NotBlank(message = "Vui lòng nhập email")
-    @Email(message = "Vui lòng nhập đúng định dạng email")
+    @NotBlank(message = "Please enter your email.")
+    @Email(message = "Please enter a valid email address.")
     private String email;
 
-    @NotBlank(message = "Vui lòng nhập mật khẩu")
+    @NotBlank(message = "Please enter your password.")
     @Pattern(
             regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()\\-+]).{8,20}$",
-            message = "Mật khẩu phải chứa ít nhất 1 chữ số, 1 chữ thường," +
-                    " 1 chữ hoa, 1 ký tự đặc biệt và có độ dài từ 8-20 ký tự")
+            message = "Password must contain at least 1 digit, 1 lowercase letter, " +
+                    "1 uppercase letter, 1 special character, and be 8-20 characters long.")
     private String password;
 
-    @NotBlank(message = "Vui lòng nhập lại mật khẩu")
+    @NotBlank(message = "Please confirm your password.")
     private String passwordConfirm;
 }
+

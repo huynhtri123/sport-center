@@ -139,6 +139,13 @@ function ManageCourses() {
 
     const columns = [
         {
+            title: 'Order',
+            key: 'order',
+            render: (_, __, index) => (currentPage - 1) * pageSize + index + 1,
+            className: styles.rowTable,
+        },
+
+        {
             title: 'Image',
             dataIndex: 'imageUrl',
             key: 'imageUrl',

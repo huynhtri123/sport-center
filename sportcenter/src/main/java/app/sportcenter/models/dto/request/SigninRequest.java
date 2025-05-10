@@ -10,10 +10,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SigninRequest {
-    @NotBlank(message = "Vui lòng nhập email")
-    @Email(message = "Vui lòng nhập đúng định dạng email")
+    @NotBlank(message = "Please enter your email.")
+    @Email(message = "Please enter a valid email address.")
     private String email;
 
-    @NotBlank(message = "Vui lòng nhập mật khẩu")
+    @NotBlank(message = "Please enter your password.")
     private String password;
 }
+

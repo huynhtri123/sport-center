@@ -15,21 +15,21 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class CourseRequest extends BaseRequestDTO {
 
-    @NotBlank(message = "Bạn chưa nhập id môn thể thao cho khoá học!")
+    @NotBlank(message = "Sport ID for the course is required!")
     private String sportId;
 
-    @NotNull(message = "Bạn chưa nhập tên khóa học!")
+    @NotNull(message = "Course name is required!")
     private String courseName;
 
-    @NotNull(message = "Bạn chưa nhập hoc phí!")
+    @NotNull(message = "Tuition fee is required!")
     private Double tuition;
 
-    @NotNull(message = "Bạn chưa nhập mô tả lớp học!")
+    @NotNull(message = "Course description is required!")
     private String description;
 
-    @NotNull(message = "Bạn chưa nhập link video lớp học!")
+    @NotNull(message = "Course video link is required!")
     private String imageUrl;
-
 
     private List<LessonRequest> lessons;
 }
+

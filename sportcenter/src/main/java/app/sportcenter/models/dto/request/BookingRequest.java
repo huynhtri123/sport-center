@@ -16,13 +16,14 @@ import java.time.ZonedDateTime;
 @EqualsAndHashCode(callSuper = false)
 public class BookingRequest extends BaseRequestDTO {
 
-    @NotBlank(message = "Bạn chưa nhập id sân!")
+    @NotBlank(message = "Field ID is required!")
     private String fieldId;
 
-    @NotNull(message = "Bạn chưa chọn thời gian bắt đầu tính giờ!")
+    @NotNull(message = "Start time is required!")
     private ZonedDateTime startTime;
 
-    @NotNull(message = "Bạn chưa nhập số giờ đặt sân!")
-    @Positive(message = "Số giờ đặt sân phải là số dương!")
+    @NotNull(message = "Number of booking hours is required!")
+    @Positive(message = "Number of booking hours must be a positive number!")
     private Integer numberOfHours;
 }
+

@@ -6,7 +6,8 @@ import lombok.Data;
 
 @Data
 public class VerifyRequest {
-    @NotBlank(message = "Vui lòng nhập mã xác minh")
-    @Pattern(regexp = "^[0-9]{6}$", message = "Mã xác minh phải có đúng 6 chữ số")
+    @NotBlank(message = "Please enter the verification code.")
+    @Pattern(regexp = "^[0-9]{6}$", message = "Verification code must be exactly 6 digits.")
     private String code;
 }
+

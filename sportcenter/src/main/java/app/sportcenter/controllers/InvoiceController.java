@@ -25,7 +25,7 @@ public class InvoiceController {
     public ResponseEntity<BaseResponse> create(@Valid @RequestBody InvoiceRequest invoiceRequest) {
         InvoiceResponse response = invoiceService.create(invoiceRequest);
         return ResponseEntity.ok(new BaseResponse(
-                "Tạo mới invoice thành công", HttpStatus.OK.value(), response
+                "Create new invoice successfully!", HttpStatus.OK.value(), response
         ));
     }
 
@@ -33,7 +33,7 @@ public class InvoiceController {
     @GetMapping("/all-active")
     public ResponseEntity<BaseResponse> getAllActive() {
         return ResponseEntity.ok(
-                new BaseResponse("Lấy danh sách hoá đơn đang hoạt động thành công",
+                new BaseResponse("Get invoices successfully!",
                         HttpStatus.OK.value(),
                         invoiceService.getAllActive())
         );
@@ -43,7 +43,7 @@ public class InvoiceController {
     @GetMapping("/my-invoices")
     public ResponseEntity<BaseResponse> myInvoices() {
         return ResponseEntity.ok(
-                new BaseResponse("Lấy danh sách invoice của người dùng hiện tại thành công",
+                new BaseResponse("Get current user's invoices successfully!",
                         HttpStatus.OK.value(), invoiceService.myInvoices())
         );
     }
@@ -54,7 +54,7 @@ public class InvoiceController {
         boolean newIsDeleted = true;
         InvoiceResponse response = invoiceService.toggleDelete(invoiceId, newIsDeleted);
         return ResponseEntity.ok(
-                new BaseResponse("Xoá mềm invoice thành công!", HttpStatus.OK.value(), response)
+                new BaseResponse("Soft deleted invoice successfully!!", HttpStatus.OK.value(), response)
         );
     }
 
@@ -64,7 +64,7 @@ public class InvoiceController {
         boolean newIsDeleted = false;
         InvoiceResponse response = invoiceService.toggleDelete(invoiceId, newIsDeleted);
         return ResponseEntity.ok(
-                new BaseResponse("Khôi phục invoice thành công!", HttpStatus.OK.value(), response)
+                new BaseResponse("Restore invoice successfully!", HttpStatus.OK.value(), response)
         );
     }
 
@@ -73,7 +73,7 @@ public class InvoiceController {
     public ResponseEntity<BaseResponse> forceDelete(@PathVariable("invoiceId") String invoiceId) {
         InvoiceResponse response = invoiceService.forceDelete(invoiceId);
         return ResponseEntity.ok(
-                new BaseResponse("Xoá cứng invoice thành công!", HttpStatus.OK.value(), response)
+                new BaseResponse("Force deleted invoice successfully!", HttpStatus.OK.value(), response)
         );
     }
 
@@ -89,10 +89,8 @@ public class InvoiceController {
 
         Map<String, Map<String, Double>> revenueData = invoiceService.getRevenueForYear(year);
         return ResponseEntity.ok(
-                new BaseResponse("Doanh thu trong năm " + year, HttpStatus.OK.value(), revenueData)
+                new BaseResponse("Revenue in year " + year, HttpStatus.OK.value(), revenueData)
         );
     }
-
-
 
 }

@@ -13,11 +13,11 @@ import java.util.List;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class PricePolicyRequest extends BaseRequestDTO {
-    private String id; // dùng cho cập nhật
+    private String id; // used for update
 
-    @NotNull(message = "Bạn chưa nhập giá cho chính sách giá!")
+    @NotNull(message = "Price for the pricing policy is required.")
     private Double price;
 
-    @NotNull(message = "Bạn chưa nhập danh sách ngày áp dụng!")
+    @NotNull(message = "List of applicable days is required.")
     private List<Integer> daysOfWeek;
 }

@@ -6,16 +6,18 @@ import lombok.Data;
 
 @Data
 public class RenewPasswordRequest {
-    @NotBlank(message = "Vui lòng nhập mật khẩu")
+
+    @NotBlank(message = "Please enter the password.")
     @Pattern(
             regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()\\-+]).{8,20}$",
-            message = "Mật khẩu phải chứa ít nhất 1 chữ số, 1 chữ thường," +
-                    " 1 chữ hoa, 1 ký tự đặc biệt và có độ dài từ 8-20 ký tự")
+            message = "Password must contain at least 1 digit, 1 lowercase letter, " +
+                    "1 uppercase letter, 1 special character, and be 8-20 characters long.")
     private String password;
 
-    @NotBlank(message = "Vui lòng nhập lại mật khẩu")
+    @NotBlank(message = "Please confirm the password.")
     private String comfirmPassword;
 
-    @NotBlank(message = "Vui lòng nhập mã xác thực khôi phục mật khẩu")
+    @NotBlank(message = "Please enter the password reset verification code.")
     private String resetPasswordCode;
 }
+

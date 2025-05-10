@@ -12,10 +12,15 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OnDayScheduleRequest {
-    @NotBlank(message = "Bạn chưa nhập id sân")
+
+    @NotBlank(message = "Field ID is required.")
     private String fieldId;
-    @NotNull(message = "Bạn chưa nhập giờ bắt đầu (ZoneDateTime)")
+
+    @NotNull(message = "Start time (ZonedDateTime) is required.")
     private ZonedDateTime startOfDay;
-    @NotNull(message = "Bạn chưa nhập giờ kết thúc (ZoneDateTime)")
+
+    @NotNull(message = "End time (ZonedDateTime) is required.")
     private ZonedDateTime endOfDay;
+
 }
+

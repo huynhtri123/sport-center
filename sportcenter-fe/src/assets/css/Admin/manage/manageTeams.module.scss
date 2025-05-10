@@ -145,6 +145,8 @@
         cursor: pointer;
         font-size: 0.875rem;
         transition: background-color 0.3s;
+        font-weight: 600;
+        font-size: 16px;
 
         &.editButton {
             background-color: $blue-prime;

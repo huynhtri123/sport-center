@@ -13,21 +13,21 @@ import lombok.*;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class InvoiceRequest extends BaseRequestDTO {
-    @NotBlank(message = "Bạn chưa nhập userId cho hoá đơn")
+
+    @NotBlank(message = "User ID for the invoice is required.")
     private String userId;
 
-    @NotNull(message = "Bạn chưa nhập giá tiền của hoá đơn")
-    @Min(value = 0, message = "Giá tiền của hoá đơn phải là số không âm")
+    @NotNull(message = "Invoice amount is required.")
+    @Min(value = 0, message = "Invoice amount must be a non-negative number.")
     private Double amount;
 
-    @NotNull(message = "Bạn chưa nhập trạng thái thanh toán")
+    @NotNull(message = "Payment status is required.")
     private PaymentStatus paymentStatus;
 
-    @NotNull(message = "Bạn chưa nhập phương thức thanh toán")
+    @NotNull(message = "Payment method is required.")
     private PaymentMethod paymentMethod;
 
-    @NotNull(message = "Bạn chưa nhập loại giao dịch")
+    @NotNull(message = "Transaction type is required.")
     private TransactionType transactionType;
-
-//    private List<Object> items;
 }
+

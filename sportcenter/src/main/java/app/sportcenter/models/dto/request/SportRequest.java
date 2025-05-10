@@ -11,10 +11,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SportRequest extends BaseRequestDTO {
-    @NotBlank(message = "Bạn chưa nhập tên cho môn thể thao!")
+    @NotBlank(message = "Sport name is required.")
     private String sportName;
-    @NotBlank(message = "Bạn chưa nhập mô tả cho môn thể thao!")
+
+    @NotBlank(message = "Sport description is required.")
     private String description;
-    @NotBlank(message = "Bạn chưa nhập link ảnh cho môn thể thao!")
+
+    @NotBlank(message = "Image URL for the sport is required.")
     private String imageUrl;
 }
+

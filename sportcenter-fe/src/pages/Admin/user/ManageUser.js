@@ -129,7 +129,7 @@ function ManageUsers() {
                                             className={`btn ${styles.deleteButton}`}
                                             onClick={() => showDeleteConfirm(user.id)}
                                         >
-                                            Delete
+                                            Remove
                                         </button>
                                     </td>
                                 </tr>
