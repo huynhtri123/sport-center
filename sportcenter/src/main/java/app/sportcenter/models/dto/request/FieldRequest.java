@@ -16,24 +16,22 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class FieldRequest extends BaseRequestDTO {
 
-    // client: tạo combobox chứa các giá trị có sẵn (giá trị khác có sẵn là lỗi)
-//    @NotNull(message = "Bạn chưa nhập loại sân!")
-//    private FieldType fieldType;
-    @NotBlank(message = "Bạn chưa nhập id môn thể thao cho sân!")
+    @NotBlank(message = "Sport ID for the field is required!")
     private String sportId;
 
-    @NotBlank(message = "Bạn chưa nhập tên cho sân!")
+    @NotBlank(message = "Field name is required!")
     private String fieldName;
 
-    @NotBlank(message = "Bạn chưa nhập mô tả cho sân!")
+    @NotBlank(message = "Field description is required!")
     private String description;
 
-    @NotBlank(message = "Bạn chưa nhập đường dẫn ảnh cho sân!")
+    @NotBlank(message = "Image URL for the field is required!")
     private String imageUrl;
 
     private String videoUrl;
 
     @Valid
-    @NotNull(message = "Bạn chưa nhập danh sách chính sách giá!")
+    @NotNull(message = "Price policy list is required!")
     private List<PricePolicyRequest> pricePolicies;
 }
+

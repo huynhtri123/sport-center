@@ -29,7 +29,7 @@ public class FileController {
         final CloudinaryResponse response = cloudinaryService.uploadFile(file, fileName);
 
         return ResponseEntity.ok(
-                new BaseResponse("Tải ảnh lên Coudinary thành công.", HttpStatus.OK.value(), response)
+                new BaseResponse("Upload image to Cloudinary successfully!", HttpStatus.OK.value(), response)
         );
     }
 
@@ -38,7 +38,7 @@ public class FileController {
     public ResponseEntity<BaseResponse> deleteImage(@RequestParam("url") String url) throws IOException {
         try {
             cloudinaryService.deleteByUrl(url);
-            return ResponseEntity.ok(new BaseResponse("Xóa ảnh thành công.", HttpStatus.OK.value(), null));
+            return ResponseEntity.ok(new BaseResponse("Remove image successfully!", HttpStatus.OK.value(), null));
         } catch (CustomException e) {
             return ResponseEntity.status(e.getStatusCode()).body(new BaseResponse(e.getMessage(), e.getStatusCode(), null));
         } catch (IOException e) {
@@ -56,7 +56,7 @@ public class FileController {
         final CloudinaryResponse response = cloudinaryService.uploadVideo(file, fileName);
 
         return ResponseEntity.ok(
-                new BaseResponse("Tải video lên Coudinary thành công.", HttpStatus.OK.value(), response)
+                new BaseResponse("Upload video to Cloudinary successfully!", HttpStatus.OK.value(), response)
         );
     }
 

@@ -13,16 +13,16 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = false)
 public class LessonRequest extends BaseRequestDTO {
 
-    @NotNull(message = "Bạn chưa nhập tên lớp học!")
+    @NotNull(message = "Lesson name is required!")
     private String lessonName;
 
-    @NotNull(message = "Bạn chưa nhập mô tả lớp học!")
+    @NotNull(message = "Lesson description is required!")
     private String description;
 
-    @NotNull(message = "Bạn chưa nhập mô tả lớp học!")
+    @NotNull(message = "Lesson level is required!")
     private LevelLesson levelLesson;
 
-
-    @NotNull(message = "Bạn chưa nhập link video lớp học!")
+    @NotNull(message = "Lesson video link is required!")
     private String videoId;
 }
+

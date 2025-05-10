@@ -14,23 +14,23 @@ import java.time.ZonedDateTime;
 @EqualsAndHashCode(callSuper = false)
 public class RecurringBookingRequest extends BaseRequestDTO {
 
-    @NotNull(message = "Bạn chưa chọn sân!")
+    @NotNull(message = "Field is required.")
     private String fieldId;
 
-    @NotNull(message = "Bạn chưa chọn ngày bắt đầu chu kỳ!")
+    @NotNull(message = "Start date of the recurring cycle is required.")
     private ZonedDateTime startDate;           // Ngày bắt đầu lịch định kỳ
 
-    @NotNull(message = "Bạn chưa chọn thời gian bắt đầu trong mỗi ngày đặt!")
+    @NotNull(message = "Start time for each booking day is required.")
     private ZonedDateTime startTime;           // Giờ bắt đầu mỗi lần đặt
 
-    @NotNull(message = "Bạn chưa chọn loại lặp lại (ngày/tuần/tháng)!")
+    @NotNull(message = "Recurring interval type (daily/weekly/monthly) is required.")
     private RecurringIntervalType interval;    // Loại lặp lại (DAILY, WEEKLY, MONTHLY)
 
-    @NotNull(message = "Số giờ đặt mỗi lần không thể bỏ trống!")
-    @Positive(message = "Số giờ đặt phải là số dương!")
+    @NotNull(message = "Booking duration per session is required.")
+    @Positive(message = "Booking duration must be a positive number.")
     private Integer numberOfHours;             // Số giờ đặt mỗi lần
 
-    @NotNull(message = "Bạn chưa chọn thời lượng gói!")
-    @Positive(message = "Thời lượng gói phải là số dương!")
+    @NotNull(message = "Package duration is required.")
+    @Positive(message = "Package duration must be a positive number.")
     private Integer packageDurationMonths;     // Số tháng của gói (1, 3, 6, ...)
 }

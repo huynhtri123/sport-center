@@ -2,7 +2,7 @@ package app.sportcenter.configs.cloudinary;
 
 import app.sportcenter.configs.AppConfig;
 import com.cloudinary.Cloudinary;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -10,9 +10,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
+@RequiredArgsConstructor
 public class CloudinaryConfig {
-    @Autowired
-    private AppConfig appConfig;
+
+    private final AppConfig appConfig;
+
     @Bean
     public Cloudinary cloudinary(){
         final Map<String, String> config = new HashMap<>();

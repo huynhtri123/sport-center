@@ -58,7 +58,7 @@ public class RestExceptionHandler {
     @ExceptionHandler({ AuthenticationException.class, JwtException.class })
     public ResponseEntity<BaseResponse> handleAuthenticationException(AuthenticationException exception) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                new BaseResponse("Thông tin xác thực không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập và thử lại.",
+                new BaseResponse("Invalid or expired credentials. Please log in and try again!",
                         HttpStatus.UNAUTHORIZED.value(), ErrorCode.TOKEN_EXPIRED.name())
         );
     }

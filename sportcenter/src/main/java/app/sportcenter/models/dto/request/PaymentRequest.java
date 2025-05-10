@@ -13,18 +13,19 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PaymentRequest {
-    @NotBlank(message = "Bạn chưa nhập tên ngân hàng!")
+
+    @NotBlank(message = "Bank name is required.")
     private String bankName;
 
-    @NotBlank(message = "Bạn chưa nhập số thẻ thanh toán!")
+    @NotBlank(message = "Card number is required.")
     private String cardNumber;
 
-    @NotBlank(message = "Bạn chưa nhập tên chủ thẻ!")
+    @NotBlank(message = "Cardholder name is required.")
     private String cardHolderName;
 
     private ZonedDateTime issueDate;
 
-    @NotBlank(message = "Bạn chưa id chủ thẻ!")
+    @NotBlank(message = "User ID is required.")
     private String userId;
-
 }
+

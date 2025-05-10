@@ -48,6 +48,28 @@
     color: $dark-blue;
 }
 
+.searchRow {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.searchInput {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.searchButton {
+    padding: 8px 16px;
+    background-color: #1890ff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
 .headerRow,
 .itemRow {
     display: grid;
@@ -135,11 +157,11 @@ textarea {
 
 .editButton {
     @extend .button;
-    background-color: #ffc107;
+    background-color: $yellow-button;
     color: #333;
 
     &:hover {
-        background-color: #e0a800;
+        background-color: $yellow-button-hover;
     }
 }
 

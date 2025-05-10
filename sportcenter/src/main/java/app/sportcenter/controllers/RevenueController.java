@@ -23,7 +23,7 @@ public class RevenueController {
     public ResponseEntity<BaseResponse> countSingleBooking() {
         int result = revenueService.countBookingByType(false);
         return ResponseEntity.ok(
-                new BaseResponse("Đếm số lượng booking lẻ thành công", HttpStatus.OK.value(), result)
+                new BaseResponse("Count the number of successful individual bookings!", HttpStatus.OK.value(), result)
         );
     }
 
@@ -32,7 +32,7 @@ public class RevenueController {
     public ResponseEntity<BaseResponse> countRecurringBooking() {
         int result = revenueService.countRecurringBooking();
         return ResponseEntity.ok(
-                new BaseResponse("Đếm số lượng recurring booking thành công", HttpStatus.OK.value(), result)
+                new BaseResponse("Count the number of successful recurring bookings!", HttpStatus.OK.value(), result)
         );
     }
 
@@ -42,7 +42,7 @@ public class RevenueController {
     public ResponseEntity<BaseResponse> countRecurringBookingByType(@RequestParam("type") RecurringIntervalType type) {
         int result = revenueService.countRecurringByType(type);
         return ResponseEntity.ok(
-                new BaseResponse("Đếm số lượng recurring booking theo loại chu kì thành công", HttpStatus.OK.value(), result)
+                new BaseResponse("Count the number of successful recurring bookings by recurrence type!", HttpStatus.OK.value(), result)
         );
     }
 

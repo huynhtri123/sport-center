@@ -90,37 +90,41 @@
     overflow-x: auto; /* Bảng có thể cuộn ngang trên màn hình nhỏ */
 
     .rowTable {
-        font-size: 14px;
+        font-size: 16px;
         justify-content: center;
         align-items: center;
     }
 
-    .editButton,
-    .deleteButton {
-        font-size: 16px !important;
-        font-weight: bold !important;
-        padding: 8px 16px !important;
-        margin: 4px !important;
-        width: 110px;
-        border-radius: 6px !important;
-        transition: all 0.3s !important;
-    }
-
     .editButton {
-        background: $blue-prime-gray !important;
-        color: white !important;
+        background-color: $blue-prime;
+        color: white;
+        padding: 8px 14px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 16px;
 
         &:hover {
-            background: $blue-prime-gray-hover !important;
+            background-color: darken(darken($blue-prime, 3%), 3%) !important;
+            color: white !important;
         }
     }
 
     .deleteButton {
-        background: #848484 !important;
-        color: white !important;
+        background-color: #dc3545;
+        color: white;
+        padding: 8px 14px;
+        margin: 8px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 16px;
 
         &:hover {
-            background: #917b78 !important;
+            background-color: darken(#dc3545, 10%) !important;
+            color: white !important;
         }
     }
 
