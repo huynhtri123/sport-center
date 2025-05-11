@@ -8,6 +8,7 @@ import app.sportcenter.models.entities.Booking;
 import app.sportcenter.models.entities.Field;
 import app.sportcenter.models.entities.User;
 import app.sportcenter.repositories.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -15,11 +16,11 @@ import org.springframework.stereotype.Component;
 import java.time.ZonedDateTime;
 
 @Component
+@RequiredArgsConstructor
 public class BookingMapper {
-    @Autowired
-    private FieldMapper fieldMapper;
-    @Autowired
-    private UserRepository userRepository;
+
+    private final FieldMapper fieldMapper;
+    private final UserRepository userRepository;
 
     public Booking convertToEntity(BookingRequest bookingRequest, Field updatedField, User user) {
 
@@ -30,6 +31,9 @@ public class BookingMapper {
                 .numberOfHours(bookingRequest.getNumberOfHours())
                 .startTime(bookingRequest.getStartTime())
                 .build();
+        double bookingPrice = bookingRequest.getPrice();
+        if (bookingPrice != 0.0)
+            booking.setTotalPrice(bookingPrice);
 
         // Tính thời gian kết thúc dựa trên số giờ đặt
         booking.calculateEndTime();
@@ -56,7 +60,7 @@ public class BookingMapper {
         bookingResponse.setNumberOfHours(booking.getNumberOfHours());   // Số giờ đặt sân
         bookingResponse.setStartTime(booking.getStartTime());           // Thời gian bắt đầu tính giờ
         bookingResponse.setEndTime(booking.getEndTime());               // Thời gian kết thúc
-        bookingResponse.setTotalPrice(booking.getPrice());
+        bookingResponse.setTotalPrice(booking.getTotalPrice());
         bookingResponse.setRecurring(booking.isRecurring());
         if (booking.getRecurringId() != null) {
             bookingResponse.setRecurringId(booking.getRecurringId());

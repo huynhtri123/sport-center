@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class RecurringBookingMapper {
 
     public RecurringBooking convertToEntity(RecurringBookingRequest request, Field field, User user) {
-        return RecurringBooking.builder()
+        RecurringBooking recurringBooking = RecurringBooking.builder()
                 .field(field)
                 .user(user)
                 .startDate(request.getStartDate())
@@ -20,6 +20,9 @@ public class RecurringBookingMapper {
                 .numberOfHours(request.getNumberOfHours())
                 .packageDurationMonths(request.getPackageDurationMonths())
                 .build();
+        if (request.getPrice() != 0.0)
+            recurringBooking.setTotalPrice(request.getPrice());
+        return recurringBooking;
     }
 
     public RecurringBookingResponse convertToDTO(RecurringBooking recurringBooking) {

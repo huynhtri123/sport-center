@@ -127,7 +127,8 @@ public class MatchServiceImpl implements MatchService {
             }
 
             matchSlots.add(new MatchSlot(currentStart, currentEnd, teamIds.get(i), teamIds.get(i + 1)));
-            bookingRequests.add(new BookingRequest(fieldId, realStart, matchesRequest.getNumberOfHours()));
+            // admin book -> price = 0.0
+            bookingRequests.add(new BookingRequest(fieldId, realStart, matchesRequest.getNumberOfHours(), 0.0));
 
             MatchRequest matchRequest = new MatchRequest();
             matchRequest.setRound(nextRound);

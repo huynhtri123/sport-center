@@ -25,5 +25,7 @@ public class BookingRequest extends BaseRequestDTO {
     @NotNull(message = "Number of booking hours is required!")
     @Positive(message = "Number of booking hours must be a positive number!")
     private Integer numberOfHours;
+
+    private Double price = 0.0;
 }
 

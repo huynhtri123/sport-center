@@ -32,6 +32,8 @@ export default function TimeSlotGrid({ timeSlots, setStartTime, bookingProbabili
                             {probability !== undefined && probability >= 0.7 && (
                                 <div className={styles.hotCorner}>Hot 🔥</div>
                             )}
+                            {slot.isLowDemand && <div className={styles.lowDemandBadge}>-50%</div>}
+
                             <span>
                                 {slot.startTime.substring(11, 16)} - {slot.endTime.substring(11, 16)}
                             </span>

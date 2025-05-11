@@ -56,6 +56,21 @@ h2 {
     pointer-events: none;
 }
 
+.lowDemandBadge {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    background-color: #e0f7fa;
+    color: #00695c;
+    font-size: 0.55rem;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 6px;
+    border: 1px solid #80deea;
+    z-index: 1;
+    pointer-events: none;
+}
+
 .probabilityLabel {
     font-size: 0.7rem;
     color: $ash-gray;

@@ -119,16 +119,15 @@ function PaymentModal({
     // ham xu ly chinh cho booking by balance
     const balancePaymentForBooking = async () => {
         try {
-            // gọi api đặt sân bước 1 ko thành công thì out luôn
+            // 1. gọi api đặt sân bước 1 (ko thành công thì out luôn)
             const bookingResponse = await onSubmit(); // booking || recurringBooking
-            // console.log(bookingResponse);
             if (!bookingResponse) return;
 
-            // đặt sân bước 1 thành công -> thanh toán (BE da tao hoa don)
+            // 2. đặt sân bước 1 thành công -> gọi hàm thanh toán bằng số dư (BE da tao hoa don)
             const balancePaymentResponse = await makePaymentByBalance(price, TransactionType.BOOKING);
             if (!balancePaymentResponse) return;
 
-            // thanh toán thành công -> gọi api đặt sân bước 2
+            // 3. thanh toán thành công -> gọi api đặt sân bước 2
             const bookingId = bookingResponse.id;
             const confirmResponse = await confirmBooking(bookingId);
             if (!confirmResponse) return;
@@ -171,8 +170,9 @@ function PaymentModal({
         }
     };
 
-    // ham xu ly thanh toan lon xon
+    // thanh toán lộn xộn -> chuyển dữ liệu qua trang Payment xử lý
     const handleRemainingPaymentAndSubmit = async (remainingAmount) => {
+        // lưu formData vào context để qua trang Payment dùng
         const paymentData = {
             amount: price,
             onSubmit: onSubmit,
@@ -187,6 +187,7 @@ function PaymentModal({
         navigate('/payments');
     };
 
+    // thanh toán bằng vnpay -> chuyển dữ liệu qua trang Payment xử lý
     const handlePaymentByCard = async () => {
         const paymentData = {
             amount: price,

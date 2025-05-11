@@ -33,4 +33,6 @@ public class RecurringBookingRequest extends BaseRequestDTO {
     @NotNull(message = "Package duration is required.")
     @Positive(message = "Package duration must be a positive number.")
     private Integer packageDurationMonths;     // Số tháng của gói (1, 3, 6, ...)
+
+    private Double price = 0.0;
 }

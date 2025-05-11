@@ -113,6 +113,32 @@ function Booking() {
         }
     };
 
+    // tìm những slot có tỉ lệ <=20% đánh dấu nó là lowDemand để hàm getPrice giảm giá
+    const markLowDemandTimeSlots = (timeSlots, bookingProbabilities) => {
+        return timeSlots.map((slot, index) => {
+            const probability = bookingProbabilities[index];
+            const isLowDemand = probability <= 0.2; // Nếu tỉ lệ <= 20%, đánh dấu là low demand
+            return {
+                ...slot,
+                isLowDemand, // Thêm thuộc tính isLowDemand vào từng timeslot
+            };
+        });
+    };
+
+    useEffect(() => {
+        if (bookingProbabilities.length > 0 && timeSlots.length > 0) {
+            const updatedTimeSlots = markLowDemandTimeSlots(timeSlots, bookingProbabilities);
+            // check nếu có thay đổi mới cập nhật, tránh vòng lặp vô tận
+            const isChanged = timeSlots.some((slot, index) => {
+                return slot.isLowDemand !== updatedTimeSlots[index]?.isLowDemand;
+            });
+
+            if (isChanged) {
+                setTimeSlots(updatedTimeSlots);
+            }
+        }
+    }, [bookingProbabilities, timeSlots]);
+
     const getPriceForDate = (field, dayOfWeek) => {
         if (!field.pricePolicies || !selectedDate) return null;
         const matchingPolicy = field.pricePolicies.find((policy) => policy.daysOfWeek.includes(dayOfWeek));
@@ -159,7 +185,15 @@ function Booking() {
                 ? await bookingApi.getRecurringBookingPrice(request)
                 : await bookingApi.getBookingPrice(request);
 
-            isRecurring ? setRecurringBookingPrice(priceResponse.data) : setBookingPrice(priceResponse.data);
+            let price = priceResponse.data;
+
+            // Kiểm tra nếu là slot low demand thì giảm giá
+            const matchedSlot = timeSlots.find((slot) => slot.startTime.includes(`${date}T${startTime}`));
+            if (matchedSlot?.isLowDemand) {
+                price *= 0.5;
+            }
+
+            isRecurring ? setRecurringBookingPrice(price) : setBookingPrice(price);
         } catch (err) {
             //console.error(err);
         } finally {
@@ -190,6 +224,7 @@ function Booking() {
                 fieldId: field.id,
                 startTime: startTimeUTC,
                 numberOfHours: numberOfHours,
+                price: isRecurring ? recurringBookingPrice : bookingPrice,
                 ...(isRecurring && {
                     startDate: startTimeUTC,
                     interval: interval,

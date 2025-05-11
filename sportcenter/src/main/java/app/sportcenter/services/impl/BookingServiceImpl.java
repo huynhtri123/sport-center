@@ -34,6 +34,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -105,7 +107,7 @@ public class BookingServiceImpl implements BookingService {
             booking.setRecurring(false);        // single booking
             booking.setIsActive(true);
             booking.setProcessing(true);        // wait thanh toan
-            booking.setTotalPrice(getBookingPrice(bookingRequest));
+            //booking.setTotalPrice(getBookingPrice(bookingRequest));
             Booking savedBooking = bookingRepository.save(booking);
 
             BookingResponse response = bookingMapper.convertToResponse(savedBooking);
@@ -221,7 +223,7 @@ public class BookingServiceImpl implements BookingService {
         User owner = userRepository.findById(booking.getUser().getId())
                 .orElseThrow(() -> new NotFoundException("Owner of this booking not found."));
         if (!booking.isRecurring()) {
-            Double refundAmount = booking.getPrice();
+            Double refundAmount = booking.getTotalPrice();
             userService.refund(owner, refundAmount);
 
             // Tạo hóa đơn hoàn tiền
@@ -274,7 +276,7 @@ public class BookingServiceImpl implements BookingService {
         // Process time slots synchronously
         processTimeSlots(recurringTimeSlots, field, currentUser, recurringBooking);
 
-        recurringBooking.setTotalPrice(getRecurringBookingPrice(recurringBookingRequest));
+        //recurringBooking.setTotalPrice(getRecurringBookingPrice(recurringBookingRequest));
         recurringBooking.setTimeSlots(recurringTimeSlots);
         recurringBooking.setIsActive(true);
         recurringBooking.setProcessing(true);
@@ -334,6 +336,14 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookingsToSave = Collections.synchronizedList(new ArrayList<>());
         List<FieldStatusByDate> fieldStatusByDatesToSave = Collections.synchronizedList(new ArrayList<>());
 
+        // tính số tiền của mỗi booking lẻ
+        double total = recurringBooking.getTotalPrice();
+        int numberOfBookings = timeSlots.size();
+        if (numberOfBookings == 0) {
+            throw new CustomException("No time slots provided!", HttpStatus.BAD_REQUEST.value());
+        }
+        double pricePerBooking = total / numberOfBookings;
+
         timeSlots.parallelStream().forEach(timeSlot -> {
             ZonedDateTime startTime = timeSlot.getStartTime();
             ZonedDateTime endTime = timeSlot.getEndTime();
@@ -350,7 +360,8 @@ public class BookingServiceImpl implements BookingService {
             }
             fieldStatusByDatesToSave.add(fieldStatusByDate);
 
-            BookingRequest bookingRequest = new BookingRequest(field.getId(), startTime, recurringBooking.getNumberOfHours());
+            BookingRequest bookingRequest = new BookingRequest(
+                    field.getId(), startTime, recurringBooking.getNumberOfHours(), pricePerBooking);
             Booking booking = bookingMapper.convertToEntity(bookingRequest, field, currentUser);
             booking.setRecurring(true);
             booking.setIsActive(true);
@@ -440,7 +451,7 @@ public class BookingServiceImpl implements BookingService {
 
         relevantBooking.parallelStream().forEach(booking -> {
             if (booking.getIsActive() && !booking.getIsDeleted()) {
-                remainingAmount.updateAndGet(v -> v + booking.getPrice());
+                remainingAmount.updateAndGet(v -> v + booking.getTotalPrice());
             }
 
             ZonedDateTime startTime = booking.getStartTime();
