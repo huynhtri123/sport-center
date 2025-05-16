@@ -38,4 +38,10 @@ public class AppConfig {
 
     @Value("${default.icon}")
     private String defaultIcon;
+
+    @Value("${ai.add-data.url}")
+    private String aiAddDataUrl;
+
+    @Value("${ai.retrain.url}")
+    private String aiRetrainUrl;
 }

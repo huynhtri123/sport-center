@@ -106,3 +106,41 @@ def create_features_for_day(field_id, sport_id, day_of_week, month, price):
             'price': price
         })
     return pd.DataFrame(rows)
+
+
+def validate_input(data):
+    errors = []
+
+    # Kiểm tra day_of_week: phải là số nguyên trong 1-7
+    try:
+        dow = int(data['day_of_week'])
+        if dow not in range(1, 8):
+            errors.append("day_of_week phải là số nguyên từ 1 đến 7")
+    except:
+        errors.append("day_of_week phải là số nguyên")
+
+    # Kiểm tra hour: số nguyên trong 0-23
+    try:
+        hr = int(data['hour'])
+        if hr not in range(0, 24):
+            errors.append("hour phải là số nguyên từ 0 đến 23")
+    except:
+        errors.append("hour phải là số nguyên")
+
+    # Kiểm tra month: số nguyên trong 1-12
+    try:
+        mth = int(data['month'])
+        if mth not in range(1, 13):
+            errors.append("month phải là số nguyên từ 1 đến 12")
+    except:
+        errors.append("month phải là số nguyên")
+
+    # Kiểm tra price: phải là float và khớp giá trị trong dữ liệu gốc (hoặc bạn có thể chỉ check kiểu)
+    try:
+        price_val = float(data['price'])
+        if not (0 < price_val <= 1_000_000):
+            errors.append("price phải là số thực trong khoảng từ 0 đến 1,000,000")
+    except:
+        errors.append("price phải là số thực (float)")
+
+    return errors

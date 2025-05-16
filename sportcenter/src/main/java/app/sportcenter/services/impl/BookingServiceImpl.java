@@ -1,6 +1,7 @@
 package app.sportcenter.services.impl;
 
 import app.sportcenter.commons.*;
+import app.sportcenter.configs.AppConfig;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
 import app.sportcenter.models.dto.request.BookingRequest;
@@ -10,6 +11,7 @@ import app.sportcenter.models.dto.response.*;
 import app.sportcenter.models.entities.*;
 import app.sportcenter.repositories.*;
 import app.sportcenter.services.*;
+import app.sportcenter.utils.ai.AIUtil;
 import app.sportcenter.utils.kafkaUsage.MessageWrapper;
 import app.sportcenter.utils.mappers.BookingMapper;
 import app.sportcenter.utils.mappers.FieldMapper;
@@ -21,8 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
@@ -30,6 +31,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 
 import java.io.FileWriter;
@@ -62,6 +64,7 @@ public class BookingServiceImpl implements BookingService {
     private final FieldStatusByDateRepository fieldStatusByDateRepository;
     private final MailService mailService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final AIUtil aiUtil;
 
     // đặt lẻ bước 1
     @Transactional
@@ -165,6 +168,9 @@ public class BookingServiceImpl implements BookingService {
                 .build();
         //kafkaTemplate.send("booking-notification-delivery", messageWrapper);
         mailService.sendMailBooking(currUser.getEmail(), currUser.getFullName(), response);
+
+        // goi AI add data
+        aiUtil.addOneRow(booking);
 
         return response;
     }
@@ -417,6 +423,9 @@ public class BookingServiceImpl implements BookingService {
                 .build();
         //kafkaTemplate.send("recurring-notification-delivery", messageWrapper);
         mailService.sendMailRecurringBooking(currUser.getEmail(), currUser.getFullName(), response);
+
+        // nap du lieu cho AI
+        aiUtil.addRows(relatedBookings);
 
         log.info("Đặt sân (recurring) bước 2 thành công,{}", recurringId);
         return response;
