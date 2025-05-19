@@ -1,10 +1,7 @@
-import styles from '../../assets/css/Auth/auth.module.scss';
-import clsx from 'clsx';
+import styles from '../../assets/css/Auth/forgotPw.module.scss';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import Input from '../../components/Input/Input';
-import Button from '../../components/Button/Button';
 import RenewPasswordModal from '../../components/Modal/RenewPasswordModal';
 import authApi from '../../services/api/auth/authApi';
 import { Loading } from '../../components/Loading/Loading';
@@ -65,42 +62,40 @@ function ForgotPassword() {
     };
 
     return (
-        <div className={clsx(styles.authContainer)}>
-            {isLoading && <Loading></Loading>}
+        <div className={styles.authContainer}>
+            {isLoading && <Loading />}
 
-            <div className={clsx(styles.forgotPasswordBox, 'flex-column')}>
-                <div className='font-size-26px mb-3 d-flex flex-column'>
-                    <span className='font-cera-round-pro-black font-size-24px mt-3'>
-                        <h3>Forgot Your Password?</h3>
-                    </span>
+            <div className={styles.forgotPasswordBox}>
+                <div className={styles.titleGroup}>
+                    <h3 className={styles.titleMain}>Forgot Your Password?</h3>
                 </div>
 
-                <div className={`input-box d-flex flex-column mt-3 ${styles.inputGroup}`}>
+                <div className={styles.inputGroup}>
                     <div className={styles.inputBox}>
-                        <label htmlFor='email' className='font-cera-round-pro-bold ms-2'>
+                        <label htmlFor='email' className={styles.label}>
                             Email Address
                         </label>
-                        <Input
-                            className={clsx('mb-3', { 'error-box': errors })}
-                            type={'email'}
-                            placeholder={'e.g. user001@gmail.com'}
+                        <input
+                            id='email'
+                            type='email'
+                            placeholder='e.g. user001@gmail.com'
                             name='email'
                             value={email}
-                            onChange={(e) => handleChangeInput(e)}
+                            onChange={handleChangeInput}
                             required
+                            className={`${styles.input} ${errors ? styles.failed : ''}`}
                         />
-                        {errors && <div className={clsx('errors-input font-size-10px')}>{errors}</div>}
+                        {errors && <div className={styles.errorText}>{errors}</div>}
                     </div>
                 </div>
 
-                <Button className='font-size-20px mt-2' type='submit' onClick={(e) => handleSubmit(e)}>
-                    Send verify code
-                    <i className='fa-regular fa-paper-plane ms-2'></i>
-                </Button>
+                <button className={styles.submitBtn} type='submit' onClick={(e) => handleSubmit(e)}>
+                    Send verify code <i className='fa-regular fa-paper-plane'></i>
+                </button>
 
-                <div className='font-size-14px font-cera-round-pro-regular mt-2'>
+                <div className={styles.registerText}>
                     New here?
-                    <Link to={'/sign-up'} className='text-underline ms-2'>
+                    <Link to='/sign-up' className={styles.link}>
                         Create your account now
                     </Link>
                 </div>
@@ -111,7 +106,7 @@ function ForgotPassword() {
                         onClose={toggleOpenModal}
                         email={email}
                         getVerifyResponse={getVerifyResponse}
-                    ></RenewPasswordModal>
+                    />
                 )}
             </div>
         </div>

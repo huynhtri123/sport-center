@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import notificationApi from '../../../services/api/notification/notificationApi';
 import styles from '../../../assets/css/Notification/Notification.module.scss';
 import { useUser } from '../../../customs/hooks';
@@ -16,6 +16,24 @@ function Notification() {
 
     const [selectedImage, setSelectedImage] = useState(null);
 
+    // Fetch API theo user + page + searchTerm
+    const fetchNotifications = useCallback(async () => {
+        if (!user.id) return;
+        try {
+            const response = await notificationApi.searchByTitle(searchTerm, currentPage, pageSize);
+            setNotifications(response.data.content);
+            setTotalPages(response.data.totalPages);
+        } catch (error) {
+            console.error('Error fetching notifications:', error);
+        }
+    }, [user.id, searchTerm, currentPage, pageSize]);
+
+    // Gọi API khi searchTerm hoặc currentPage thay đổi
+    useEffect(() => {
+        fetchNotifications();
+    }, [fetchNotifications]);
+
+    // WebSocket: khi có notification mới thì reload lại
     useEffect(() => {
         connectWebSocket(
             (updatedBooking) => {
@@ -23,58 +41,19 @@ function Notification() {
             },
             (updatedNotification) => {
                 console.log('🔔 Cập nhật notification mới:', updatedNotification);
-                if (user.id) {
-                    fetchNotifications(currentPage);
-                }
+                fetchNotifications();
             }
         );
         return () => {
             disconnectWebSocket();
         };
-    }, []);
-
-    useEffect(() => {
-        if (user.id) {
-            fetchNotifications(currentPage);
-        }
-    }, [user, currentPage]);
-
-    useEffect(() => {
-        if (user.id) {
-            fetchNotifications(currentPage);
-        }
-    }, [searchTerm]);
-
-    const fetchNotifications = async (page) => {
-        try {
-            const response = await notificationApi.getNotificationsForUser(
-                user.id,
-                page,
-                pageSize,
-                'createdAt',
-                'desc'
-            );
-
-            const filtered = response.data.content.filter((notification) =>
-                notification.title.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-
-            setNotifications(filtered);
-            setTotalPages(response.data.totalPages);
-        } catch (error) {
-            console.error('Error fetching notifications:', error);
-        }
-    };
+    }, [fetchNotifications]);
 
     const handlePageChange = (newPage) => {
         if (newPage >= 0 && newPage < totalPages) {
             setCurrentPage(newPage);
         }
     };
-
-    const filteredNotifications = notifications.filter((notification) =>
-        notification.title.toLowerCase().includes(searchTerm.toLowerCase())
-    );
 
     const closeModal = () => setSelectedImage(null);
 
@@ -93,16 +72,19 @@ function Notification() {
                     type='text'
                     placeholder='Search by title...'
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setCurrentPage(0);
+                    }}
                     className={styles.searchInput}
                 />
             </div>
 
-            {filteredNotifications.length === 0 ? (
+            {notifications.length === 0 ? (
                 <p className={styles.noNotification}>No notifications available.</p>
             ) : (
                 <div className={styles.gridContainer}>
-                    {filteredNotifications.map((notification) => (
+                    {notifications.map((notification) => (
                         <div key={notification.id} className={styles.notificationCard}>
                             {notification.imageUrl && (
                                 <img

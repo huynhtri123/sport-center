@@ -34,6 +34,9 @@ const notificationApi = {
         const url = `/notification/soft-delete/${notificationId}`;
         return axiosClient.patch(url);
     },
+    searchByTitle(title, page = 0, size = 5) {
+        return axiosClient.get('/notification/search-by-title', { params: { title, page, size } });
+    },
 };
 
 export default notificationApi;

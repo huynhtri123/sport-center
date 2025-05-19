@@ -1,11 +1,8 @@
-import clsx from 'clsx';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 
-import Button from '../../components/Button/Button';
-import styles from '../../assets/css/Auth/auth.module.scss';
-import Input from '../../components/Input/Input';
+import styles from '../../assets/css/Auth/signin.module.scss';
 import authApi from '../../services/api/auth/authApi';
 import { handleLocalStorage } from '../../utils/handleLocalStorage';
 import { useCheckSignedIn } from '../../customs/hooks';
@@ -69,34 +66,34 @@ function Signin() {
     };
 
     return (
-        <div className={clsx(styles.authContainer)}>
-            <form onSubmit={handleSubmit} className={clsx(styles.signinBox, 'flex-column')}>
-                <div className='font-size-24px mb-3 d-flex flex-column'>
-                    <span className='font-cera-round-pro-yellow'>
-                        Welcome Back
-                        <i className='fa-solid fa-face-laugh ms-2'></i>
+        <div className={styles.authContainer}>
+            <form onSubmit={handleSubmit} className={styles.signinBox}>
+                <div className={styles.titleGroup}>
+                    <span className={styles.titleWelcome}>
+                        Welcome Back <i className='fa-solid fa-face-laugh'></i>
                     </span>
-                    <span className='font-cera-round-pro-black font-size-32px'>Sign In to Your Account</span>
+                    <span className={styles.titleMain}>Sign In to Your Account</span>
                 </div>
 
-                <div className={`input-box d-flex flex-column ${styles.inputGroup}`}>
-                    <div className={styles.inputBox}>
-                        <label htmlFor='email' className='font-cera-round-pro-bold ms-2'>
+                <div className={`${styles.inputGroup}`}>
+                    <div className={`${styles.inputBox} ${failed ? styles.failed : ''}`}>
+                        <label htmlFor='email' className={styles.label}>
                             Email Address
                         </label>
-                        <Input
-                            className={clsx('mb-3', { [styles.failed]: failed })}
-                            type={'email'}
-                            placeholder={'e.g. user001@gmail.com'}
+                        <input
+                            id='email'
+                            type='email'
+                            placeholder='e.g. user001@gmail.com'
                             name='email'
                             value={signinRequest.email}
-                            onChange={(e) => handleChangeInput(e)}
+                            onChange={handleChangeInput}
                             required
+                            className={styles.input}
                         />
                     </div>
 
-                    <div className={styles.inputBox}>
-                        <label htmlFor='password' className='font-cera-round-pro-bold ms-2'>
+                    <div className={`${styles.inputBox} ${failed ? styles.failed : ''}`}>
+                        <label htmlFor='password' className={styles.label}>
                             Password{' '}
                             <span onClick={togglePasswordVisibility} className={styles.iconShowHide}>
                                 {showPassword ? (
@@ -106,30 +103,30 @@ function Signin() {
                                 )}
                             </span>
                         </label>
-                        <Input
-                            className={clsx('mb-3', { [styles.failed]: failed })}
+                        <input
+                            id='password'
                             type={showPassword ? 'text' : 'password'}
-                            placeholder={'Enter your password...'}
+                            placeholder='Enter your password...'
                             name='password'
                             value={signinRequest.password}
-                            onChange={(e) => handleChangeInput(e)}
+                            onChange={handleChangeInput}
                             required
+                            className={styles.input}
                         />
                     </div>
 
-                    <div className='mb-2'>
-                        <Link to={'/forgot-password'}>Forgot your password?</Link>
+                    <div className={styles.forgotPassword}>
+                        <Link to='/forgot-password'>Forgot your password?</Link>
                     </div>
                 </div>
 
-                <Button className='font-size-20px' type='submit'>
-                    Sign in
-                    <i className='fas fa-sign-in-alt ms-2'></i>
-                </Button>
+                <button type='submit' className={styles.submitBtn}>
+                    Sign in <i className='fas fa-sign-in-alt'></i>
+                </button>
 
-                <div className='font-cera-round-pro-regular'>
+                <div className={styles.registerText}>
                     New here?
-                    <Link to={'/sign-up'} className='text-underline ms-2'>
+                    <Link to='/sign-up' className={styles.link}>
                         Create your account now
                     </Link>
                 </div>

@@ -117,4 +117,12 @@ public class NotificationController {
         return notificationService.forceDelete(notificationId);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
+    @GetMapping("/search-by-title")
+    public ResponseEntity<BaseResponse> searchByTitle(@RequestParam("title") String title,
+                                                      @RequestParam(defaultValue = "0") int page,
+                                                      @RequestParam(defaultValue = "5") int size) {
+        return notificationService.searchByTitle(title, page, size);
+    }
+
 }

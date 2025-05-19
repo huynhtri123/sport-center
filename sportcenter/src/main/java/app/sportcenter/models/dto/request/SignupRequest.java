@@ -25,7 +25,7 @@ public class SignupRequest {
     @Pattern(
             regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()\\-+]).{8,20}$",
             message = "Password must contain at least 1 digit, 1 lowercase letter, " +
-                    "1 uppercase letter, 1 special character, and be 8-20 characters long.")
+                    "1 uppercase letter, 1 special character, and be 8 to 20 characters long.")
     private String password;
 
     @NotBlank(message = "Please confirm your password.")

@@ -2,13 +2,10 @@ import styles from './RenewPasswordModal.module.scss';
 import clsx from 'clsx';
 import { useRef, useState } from 'react';
 import { toast } from 'react-toastify';
-
-import Input from '../Input/Input';
 import { RenewPasswordSchema } from '../../utils/rules/RenewPassWordSchema';
 import authApi from '../../services/api/auth/authApi';
 import { Loading } from '../Loading/Loading';
 import { useNavigate } from 'react-router-dom';
-import Button from '../Button/Button';
 
 function RenewPasswordModal({ isModalOpen, onClose, email, getVerifyResponse }) {
     const [formData, setFormData] = useState({
@@ -143,31 +140,30 @@ function RenewPasswordModal({ isModalOpen, onClose, email, getVerifyResponse }) 
 
     return (
         <div className={clsx(styles.modalOverlay)}>
-            {isLoading && <Loading></Loading>}
-
+            {isLoading && <Loading />}
             <div className={clsx(styles.modalContent)}>
-                <h2 className='font-cera-round-pro-bold font-size-24px'>
-                    Please check your email and Enter Verification Code
-                </h2>
+                <h2 className='font-cera-round-pro-bold font-size-24px'>Please check your email to get code</h2>
                 <p style={{ color: '#ff9966' }}>
                     (expires in 5 minutes)
                     <span onClick={handleSendAgain} className={clsx('font-size-14px ms-2', styles.sendAgainBtn)}>
                         Send again?
                     </span>
                 </p>
-                <form onSubmit={(e) => handleSubmit(e)} className={styles.verifyForm}>
+                <form onSubmit={handleSubmit} className={styles.verifyForm}>
                     <div className={styles.inputBox}>
                         <label htmlFor='resetPasswordCode' className='font-cera-round-pro-bold ms-2'>
                             Verify code
                         </label>
-                        <Input
+                        <input
+                            id='resetPasswordCode'
                             className={clsx('mb-3', styles.inputCode)}
-                            name={'resetPasswordCode'}
+                            name='resetPasswordCode'
                             value={formData.resetPasswordCode}
-                            onChange={(e) => handleChange(e)}
+                            onChange={handleChange}
                             type='text'
                             placeholder='6-digit code...'
                             ref={inputCodeRef}
+                            maxLength={6}
                         />
                         {errors.resetPasswordCode && (
                             <div className={clsx('errors-input font-size-10px')}>{errors.resetPasswordCode}</div>
@@ -185,11 +181,12 @@ function RenewPasswordModal({ isModalOpen, onClose, email, getVerifyResponse }) 
                                 )}
                             </span>
                         </label>
-                        <Input
+                        <input
+                            id='password'
                             className={clsx('mb-3', styles.inputCode)}
-                            name={'password'}
+                            name='password'
                             value={formData.password}
-                            onChange={(e) => handleChange(e)}
+                            onChange={handleChange}
                             type={showPassword ? 'text' : 'password'}
                             placeholder='New password...'
                         />
@@ -199,7 +196,7 @@ function RenewPasswordModal({ isModalOpen, onClose, email, getVerifyResponse }) 
                     </div>
 
                     <div className={styles.inputBox}>
-                        <label htmlFor='confirmPassword' className='font-cera-round-pro-bold ms-2'>
+                        <label htmlFor='comfirmPassword' className='font-cera-round-pro-bold ms-2'>
                             Confirm Password{' '}
                             <span onClick={toggleConfirmPasswordVisibility} className={styles.iconShowHide}>
                                 {showConfirmPassword ? (
@@ -209,11 +206,12 @@ function RenewPasswordModal({ isModalOpen, onClose, email, getVerifyResponse }) 
                                 )}
                             </span>
                         </label>
-                        <Input
+                        <input
+                            id='comfirmPassword'
                             className={clsx('mb-3', styles.inputCode)}
-                            name={'comfirmPassword'}
+                            name='comfirmPassword'
                             value={formData.comfirmPassword}
-                            onChange={(e) => handleChange(e)}
+                            onChange={handleChange}
                             type={showConfirmPassword ? 'text' : 'password'}
                             placeholder='Confirm new password...'
                         />
@@ -222,13 +220,13 @@ function RenewPasswordModal({ isModalOpen, onClose, email, getVerifyResponse }) 
                         )}
                     </div>
 
-                    <Button type='submit' className={styles.btnSubmit}>
+                    <button type='submit' className={styles.btnSubmit}>
                         Change password
-                    </Button>
+                    </button>
                 </form>
-                <Button onClick={onClose} className={styles.btnClose}>
+                <button onClick={onClose} className={styles.btnClose}>
                     Close
-                </Button>
+                </button>
             </div>
         </div>
     );

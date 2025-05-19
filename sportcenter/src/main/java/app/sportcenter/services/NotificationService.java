@@ -29,4 +29,6 @@ public interface NotificationService {
     ResponseEntity<BaseResponse> forceDelete(String notificationId);
 
     Page<NotificationResponse> getNotificationsForUser(String userId, Pageable pageable);
+
+    public ResponseEntity<BaseResponse> searchByTitle(String title, int page, int size);
 }

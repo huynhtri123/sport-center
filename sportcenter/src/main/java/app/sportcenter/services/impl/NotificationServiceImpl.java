@@ -1,6 +1,7 @@
 package app.sportcenter.services.impl;
 
 import app.sportcenter.commons.BaseResponse;
+import app.sportcenter.commons.PaginatedResponse;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.exceptions.NotFoundException;
 import app.sportcenter.models.dto.request.NotificationRequest;
@@ -193,6 +194,26 @@ public class NotificationServiceImpl implements NotificationService {
 
         return notificationRepo.findByIdInAndIsActiveTrueAndIsDeletedFalse(notificationIds, pageable)
                 .map(mapper::convertToDTO);
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse> searchByTitle(String title, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createdAt")));
+
+        Page<Notification> notificationPage = notificationRepo.searchByTitleContainingIgnoreCase(title, pageable);
+
+        List<NotificationResponse> responseList = notificationPage.getContent()
+                .stream()
+                .map(mapper::convertToDTO).toList();
+        PaginatedResponse<NotificationResponse> response = new PaginatedResponse<>(
+                responseList,
+                notificationPage.getTotalPages(),
+                notificationPage.getTotalElements()
+        );
+        return ResponseEntity.ok(
+                new BaseResponse("Search notification by title successfully.",
+                        HttpStatus.OK.value(), response)
+        );
     }
 
 }
