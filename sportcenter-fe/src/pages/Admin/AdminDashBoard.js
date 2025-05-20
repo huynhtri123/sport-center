@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styles from '../../assets/css/Admin/manage/admin.module.scss';
 import { Pie, Bar } from 'react-chartjs-2';
 import ManageFields from './field/ManageFields';
-import ManageTeams from './team/ManageTeams';
+// import ManageTeams from './team/ManageTeams';
 import ManageInvoices from './invoice/ManageInvoice';
 import ManageSports from './sport/ManageSports';
 import Signout from '../Auth/Signout';
@@ -68,7 +68,7 @@ function AdminDashboard() {
         { name: 'Manage Sports', icon: 'fa-solid fa-basketball-ball' },
         { name: 'Manage Bookings', icon: 'fa-solid fa-calendar-check' },
         { name: 'Manage Invoices', icon: 'fa-solid fa-money-bill' },
-        { name: 'Manage Teams', icon: 'fa-solid fa-people-group' },
+        // { name: 'Manage Teams', icon: 'fa-solid fa-people-group' },
         { name: 'Manage Tournaments', icon: 'fa-solid fa-trophy' },
         { name: 'Manage Users', icon: 'fa-solid fa-users' },
         { name: 'Manage Notifications', icon: 'fa-solid fa-bell' },
@@ -243,8 +243,8 @@ function AdminDashboard() {
                 return <ManageTournaments />;
             case 'Manage Bookings':
                 return <ManageBookings />;
-            case 'Manage Teams':
-                return <ManageTeams />;
+            // case 'Manage Teams':
+            //     return <ManageTeams />;
             case 'Manage Invoices':
                 return <ManageInvoices />;
             case 'Manage Users':

@@ -25,7 +25,7 @@ public interface UserRepository extends MongoRepository<User, String> {
 
     List<User> findAllByIsActiveTrueAndIsDeletedFalse();
 
-    @Query("{ 'fullName' : { $regex: ?0, $options: 'i' }, 'isActive': true, 'isDeleted': false }")
-    Page<User> findByFullNameRegexIgnoreCaseAndIsActiveTrueAndIsDeletedFalse(String regex, Pageable pageable);
+    @Query("{ 'fullName' : { $regex: ?0, $options: 'i' }}")
+    Page<User> findByFullNameRegexIgnoreCase(String regex, Pageable pageable);
 
 }

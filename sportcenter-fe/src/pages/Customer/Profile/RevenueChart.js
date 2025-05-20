@@ -11,8 +11,30 @@ import {
     Legend,
 } from 'chart.js';
 import userApi from '../../../services/api/user/userApi';
+import styles from '../../../assets/css/Profile/bookingRevenue.module.scss';
 
 ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
+
+const chartOptions = {
+    responsive: true,
+    plugins: {
+        legend: {
+            position: 'top',
+        },
+        title: {
+            display: false,
+        },
+    },
+    scales: {
+        y: {
+            beginAtZero: true,
+            ticks: {
+                stepSize: 1,
+                precision: 0,
+            },
+        },
+    },
+};
 
 const RevenueChart = () => {
     const [year, setYear] = useState(new Date().getFullYear());
@@ -23,58 +45,48 @@ const RevenueChart = () => {
             try {
                 const response = await userApi.myBookings(year);
                 setBookings(response.data);
-            } catch (err) {
-                console.error(err);
+            } catch (error) {
+                console.error('Failed to fetch bookings:', error);
             }
         };
+
         fetchBookings();
     }, [year]);
 
-    const monthlyBookings = Array(12).fill(0);
+    const monthlyCounts = Array(12).fill(0);
     bookings.forEach((booking) => {
         if (booking.startTime) {
             const month = new Date(booking.startTime).getMonth();
-            if (!isNaN(month) && month >= 0 && month < 12) {
-                monthlyBookings[month] += 1; // Đếm số lượng bookings thay vì cộng totalPrice
-            }
+            if (!isNaN(month)) monthlyCounts[month] += 1;
         }
     });
 
-    const months = [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December',
-    ];
+    const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
     const data = {
-        labels: months,
+        labels: monthLabels,
         datasets: [
             {
-                label: 'Number of Bookings',
-                data: monthlyBookings, // số lượng bookings
-                fill: false,
-                backgroundColor: 'rgba(75,192,192,0.4)',
-                borderColor: 'rgba(75,192,192,1)',
-                tension: 0.1,
+                label: 'Bookings',
+                data: monthlyCounts,
+                borderColor: '#4bc0c0',
+                backgroundColor: 'rgba(75,192,192,0.2)',
+                tension: 0.3,
+                pointBackgroundColor: '#4bc0c0',
             },
         ],
     };
 
     return (
-        <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '5px' }}>
-            <h2 style={{ textAlign: 'center' }}>Booking Statistics Chart</h2>
-            <div style={{ textAlign: 'center', marginBottom: '10px' }}>
-                <label>Select Year: </label>
-                <select value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
+        <div className={styles.container}>
+            <div className={styles.header}>
+                <h2>Booking Statistics</h2>
+                <p>Monthly booking count for the selected year.</p>
+            </div>
+
+            <div className={styles.controls}>
+                <label htmlFor='yearSelect'>Select Year:</label>
+                <select id='yearSelect' value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
                     {Array.from({ length: 7 }, (_, i) => new Date().getFullYear() - 3 + i).map((yr) => (
                         <option key={yr} value={yr}>
                             {yr}
@@ -82,7 +94,10 @@ const RevenueChart = () => {
                     ))}
                 </select>
             </div>
-            <Line data={data} />
+
+            <div className={styles.chartWrapper}>
+                <Line data={data} options={chartOptions} />
+            </div>
         </div>
     );
 };

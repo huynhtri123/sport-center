@@ -49,6 +49,14 @@ public class UserController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
     @GetMapping("/user/all-active")
+    public ResponseEntity<BaseResponse> getAllActive(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return userService.getAllActive(page, size);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")
+    @GetMapping("/user/all")
     public ResponseEntity<BaseResponse> getAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -56,9 +64,15 @@ public class UserController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @DeleteMapping("/user/soft-delete/{userId}")
+    @PatchMapping("/user/soft-delete/{userId}")
     public ResponseEntity<BaseResponse> softDelete(@PathVariable String userId) {
         return userService.softDelete(userId);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PatchMapping("/user/restore/{userId}")
+    public ResponseEntity<BaseResponse> restore(@PathVariable String userId) {
+        return userService.restore(userId);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUSTOMER')")

@@ -252,7 +252,7 @@ function Home() {
                 <div className={styles.servicesContainer}>
                     <div className={styles.serviceCard}>
                         <i className='fa-solid fa-futbol'></i>
-                        <h3>Book a Field</h3>
+                        <h3>Booking</h3>
                         <p>Quickly book a field with a variety of options.</p>
                     </div>
                     <div className={styles.serviceCard}>
@@ -266,9 +266,9 @@ function Home() {
                         <p>Join tournaments to challenge yourself and win valuable prizes.</p>
                     </div>
                     <div className={styles.serviceCard}>
-                        <i className='fa-solid fa-store'></i>
-                        <h3>Shop</h3>
-                        <p>A wide range of specialized products for sports.</p>
+                        <i className='fa-solid fa-user-cog'></i>
+                        <h3>Manage</h3>
+                        <p>Centralized control of bookings, teams, tournaments, invoices, and more.</p>
                     </div>
                 </div>
             </section>
