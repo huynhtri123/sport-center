@@ -7,6 +7,7 @@ import styles from '../../../assets/css/Profile/myInvoice.module.scss';
 import userApi from '../../../services/api/user/userApi';
 import { Loading } from '../../../components/Loading/Loading';
 import formatCurrency from '../../../utils/formatCurrency';
+import InvoiceChart from './InvoiceChart';
 
 const { confirm } = Modal;
 
@@ -22,6 +23,7 @@ function MyInvoice() {
         try {
             setIsLoading(true);
             const response = await userApi.getMyInvoices();
+            console.log(response);
             setInvoices(response.data.length > 0 ? response.data : []);
         } catch (err) {
             console.error(err);
@@ -128,6 +130,7 @@ function MyInvoice() {
                 dataSource={invoices.map((invoice) => ({ ...invoice, key: invoice.id }))}
                 pagination={{ pageSize: 5, showSizeChanger: false }}
             />
+            {!isLoading && invoices.length > 0 && <InvoiceChart invoices={invoices} />}
         </div>
     );
 }

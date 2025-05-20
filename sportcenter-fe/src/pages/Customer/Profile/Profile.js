@@ -324,7 +324,7 @@ function Profile() {
                     <i className='fa-solid fa-chart-simple'></i>
                     <span className='ms-3'>Statistic</span>
                 </h3>
-                <p></p>
+                <p>Booking statistics by year.</p>
                 {showChart && <RevenueChart bookings={myBooking} />}
             </div>
 
