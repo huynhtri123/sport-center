@@ -26,6 +26,10 @@ public interface UserService {
 
     ResponseEntity<BaseResponse> softDelete(String id);
 
+    ResponseEntity<BaseResponse> restore(String id);
+
+    ResponseEntity<BaseResponse> getAllActive(int page, int size);
+
     ResponseEntity<BaseResponse> getAll(int page, int size);
 
     public ResponseEntity<BaseResponse> addPaymentInfoToUser(String userId, PaymentRequest paymentRequest);

@@ -214,11 +214,11 @@ public class UserServiceImpl implements UserService {
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
                 Sort.by(Sort.Order.desc("createdAt")));
 
-        return userRepository.findByFullNameRegexIgnoreCaseAndIsActiveTrueAndIsDeletedFalse(regex, sortedPageable);
+        return userRepository.findByFullNameRegexIgnoreCase(regex, sortedPageable);
     }
 
     @Override
-    public ResponseEntity<BaseResponse> getAll(int page, int size) {
+    public ResponseEntity<BaseResponse> getAllActive(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<User> userPage = userRepository.findByIsDeletedFalseAndIsActiveTrue(pageable);
 
@@ -241,7 +241,38 @@ public class UserServiceImpl implements UserService {
 
         return ResponseEntity.ok(
                 new BaseResponse(
-                        "User list retrieved successfully",
+                        "Get all active users successfully",
+                        HttpStatus.OK.value(),
+                        paginatedResponse
+                )
+        );
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse> getAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<User> userPage = userRepository.findAll(pageable);
+
+        if (userPage.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    new BaseResponse("No users found", HttpStatus.NOT_FOUND.value(), null)
+            );
+        }
+
+        List<UserResponse> userResponseList = userPage.getContent()
+                .stream()
+                .map(userMapper::convertToDTO)
+                .toList();
+
+        PaginatedResponse<UserResponse> paginatedResponse = new PaginatedResponse<>(
+                userResponseList,
+                userPage.getTotalPages(),
+                userPage.getTotalElements()
+        );
+
+        return ResponseEntity.ok(
+                new BaseResponse(
+                        "Get all users successfully",
                         HttpStatus.OK.value(),
                         paginatedResponse
                 )
@@ -263,7 +294,26 @@ public class UserServiceImpl implements UserService {
         UserResponse responseUser = userMapper.convertToDTO(user);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new BaseResponse("User deleted successfully", HttpStatus.OK.value(), responseUser)
+                new BaseResponse("User soft deleted successfully", HttpStatus.OK.value(), responseUser)
+        );
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse> restore(String id) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    new BaseResponse("No user found to delete", HttpStatus.NOT_FOUND.value(), null)
+            );
+        }
+
+        user.setIsDeleted(false);
+        userRepository.save(user);
+
+        UserResponse responseUser = userMapper.convertToDTO(user);
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new BaseResponse("Restore user successfully", HttpStatus.OK.value(), responseUser)
         );
     }
 

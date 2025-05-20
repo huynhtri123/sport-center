@@ -14,6 +14,9 @@ function ManageUsers() {
     const [loading, setLoading] = useState(false);
     const [deleteUserId, setDeleteUserId] = useState(null); // Lưu ID user cần xóa
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [restoreUserId, setRestoreUserId] = useState(null); // ID user cần unblock
+    const [isRestoreModalOpen, setIsRestoreModalOpen] = useState(false); // Modal unblock
+
     const pageSize = 5;
 
     useEffect(() => {
@@ -27,7 +30,7 @@ function ManageUsers() {
     async function fetchUsers(page) {
         setLoading(true);
         try {
-            const response = await userApi.getAllActive(page - 1, pageSize);
+            const response = await userApi.getAll(page - 1, pageSize);
             if (response.data) {
                 setUsers(response.data.content || []);
                 setFilteredUsers(response.data.content || []);
@@ -41,7 +44,7 @@ function ManageUsers() {
     }
 
     async function searchUsersByName(name, page) {
-        setLoading(true);
+        // setLoading(true);
         try {
             const response = await userApi.getUsersByName(name, page - 1, pageSize);
             if (response.data) {
@@ -89,6 +92,27 @@ function ManageUsers() {
         }
     };
 
+    const showRestoreConfirm = (userId) => {
+        setRestoreUserId(userId);
+        setIsRestoreModalOpen(true);
+    };
+
+    const handleRestoreUser = async () => {
+        if (!restoreUserId) return;
+        setLoading(true);
+        try {
+            await userApi.restore(restoreUserId);
+            fetchUsers(currentPage);
+            toast.success('User unblocked successfully!');
+        } catch (error) {
+            toast.error('Failed to unblock user. Please try again.');
+        } finally {
+            setLoading(false);
+            setIsRestoreModalOpen(false);
+            setRestoreUserId(null);
+        }
+    };
+
     return (
         <div className={styles.manageUsers}>
             <div className={styles.searchContainer}>
@@ -113,6 +137,7 @@ function ManageUsers() {
                                 <th>Email</th>
                                 <th>Phone Number</th>
                                 <th>Address</th>
+                                <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -125,12 +150,28 @@ function ManageUsers() {
                                     <td>{user.phoneNumber}</td>
                                     <td>{user.address}</td>
                                     <td>
-                                        <button
-                                            className={`btn ${styles.deleteButton}`}
-                                            onClick={() => showDeleteConfirm(user.id)}
-                                        >
-                                            Remove
-                                        </button>
+                                        {user.isDeleted ? (
+                                            <span className={styles.blocked}>Blocked</span>
+                                        ) : (
+                                            <span className={styles.active}>Active</span>
+                                        )}
+                                    </td>
+                                    <td>
+                                        {user.isDeleted ? (
+                                            <button
+                                                className={styles.restoreButton}
+                                                onClick={() => showRestoreConfirm(user.id)}
+                                            >
+                                                Unblock
+                                            </button>
+                                        ) : (
+                                            <button
+                                                className={styles.deleteButton}
+                                                onClick={() => showDeleteConfirm(user.id)}
+                                            >
+                                                Block
+                                            </button>
+                                        )}
                                     </td>
                                 </tr>
                             ))}
@@ -160,15 +201,27 @@ function ManageUsers() {
 
             {/* Modal xác nhận xóa */}
             <Modal
-                title='Confirm Deletion'
+                title='Confirm Block'
                 open={isModalOpen}
                 onOk={handleDeleteUser}
                 onCancel={() => setIsModalOpen(false)}
-                okText='Yes, Delete'
+                okText='Yes, Block'
                 cancelText='Cancel'
                 okButtonProps={{ danger: true }}
             >
-                <p>Are you sure you want to delete this user?</p>
+                <p>Are you sure you want to block this user?</p>
+            </Modal>
+            {/* Modal xác nhận khôi phục */}
+            <Modal
+                title='Confirm Unblock'
+                open={isRestoreModalOpen}
+                onOk={handleRestoreUser}
+                onCancel={() => setIsRestoreModalOpen(false)}
+                okText='Yes, Unblock'
+                cancelText='Cancel'
+                okButtonProps={{ style: { backgroundColor: '#28a745', borderColor: '#28a745' } }}
+            >
+                <p>Are you sure you want to unblock this user?</p>
             </Modal>
         </div>
     );

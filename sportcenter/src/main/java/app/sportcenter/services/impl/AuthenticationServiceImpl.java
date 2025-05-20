@@ -207,6 +207,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new BadCredentialsException("This account has not been verified. Please use the Forgot Password feature to verify.");
         }
 
+        // kiem tra tai khoan co dang bi block khong
+        if (user.getIsDeleted()) {
+            throw new CustomException("This account has been blocked! Please contact the administrator to resolve it.!", 400);
+        }
+
         var accessToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(new HashMap<>(), user);
 

@@ -1,31 +1,34 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { Modal } from 'antd';
 import notificationApi from '../../../services/api/notification/notificationApi';
 import styles from '../../../assets/css/Admin/notificationList.module.scss';
-import fileApi from '../../../services/api/file/fileApi';
 import { Loading } from '../../../components/Loading/Loading';
 import { defaultIcon } from '../../../utils/defaultIcon';
+import fileApi from '../../../services/api/file/fileApi';
 
 export default function NotificationList({ refresh }) {
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [page, setPage] = useState(0);
-    const [size] = useState(5);
+    const [size] = useState(3);
     const [totalPages, setTotalPages] = useState(1);
     const [editMode, setEditMode] = useState(null);
     const [editData, setEditData] = useState({ title: '', content: '' });
-
     const [sortCreatedAt, setSortCreatedAt] = useState('desc');
     const [sortUpdatedAt, setSortUpdatedAt] = useState('desc');
-
     const [imageFile, setImageFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
-        fetchNotifications();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page, refresh]);
+        if (searchTerm.trim() === '') {
+            fetchNotifications();
+        } else {
+            searchNotifications();
+        }
+    }, [page, refresh, searchTerm]);
 
     const fetchNotifications = async () => {
         setLoading(true);
@@ -37,6 +40,23 @@ export default function NotificationList({ refresh }) {
             console.error('Failed to fetch notifications:', error);
         }
         setLoading(false);
+    };
+
+    const searchNotifications = async () => {
+        // setLoading(true);
+        try {
+            const response = await notificationApi.searchByTitle(searchTerm, page, size);
+            setNotifications(response.data.content || []);
+            setTotalPages(response.totalPages || 1);
+        } catch (error) {
+            console.error('Search failed:', error);
+        }
+        // setLoading(false);
+    };
+
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
+        setPage(0); // Reset về trang đầu khi thực hiện tìm kiếm
     };
 
     const handleDelete = (id) => {
@@ -67,7 +87,7 @@ export default function NotificationList({ refresh }) {
         const file = e.target.files[0];
         if (file) {
             setImageFile(file);
-            setPreviewUrl(URL.createObjectURL(file)); // chỉ hiển thị trước
+            setPreviewUrl(URL.createObjectURL(file));
         }
     };
 
@@ -78,7 +98,6 @@ export default function NotificationList({ refresh }) {
 
             if (imageFile) {
                 const response = await fileApi.uploadImage(imageFile);
-                console.log(response);
                 updatedData.imageUrl = response.data.url;
             }
 
@@ -123,35 +142,61 @@ export default function NotificationList({ refresh }) {
         <div className={styles.container}>
             {isLoading && <Loading></Loading>}
             <h2 className={styles.title}>All Notifications</h2>
-
+            <div className={styles.searchWrapper}>
+                <input
+                    type='text'
+                    placeholder='Search by title...'
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    className={styles.searchInput}
+                />
+            </div>
             {loading ? (
-                <p className={styles.loading}>Loading...</p>
+                <Loading></Loading>
             ) : (
                 <>
-                    <div className={styles.headerRow}>
-                        <span>Title</span>
-                        <span>Content</span>
-                        <span>Image</span>
-                        <span onClick={handleSortCreatedAt} className={styles.sortable}>
-                            Created At{' '}
-                            {sortCreatedAt === 'asc' ? (
-                                <i className='fa-solid fa-arrow-up-short-wide ms-2'></i>
-                            ) : (
-                                <i className='fa-solid fa-arrow-down-short-wide ms-2'></i>
-                            )}
-                        </span>
-                        <span onClick={handleSortUpdatedAt} className={styles.sortable}>
-                            Updated At{' '}
-                            {sortUpdatedAt === 'asc' ? (
-                                <i className='fa-solid fa-arrow-up-short-wide ms-2'></i>
-                            ) : (
-                                <i className='fa-solid fa-arrow-down-short-wide ms-2'></i>
-                            )}
-                        </span>
-                        <span>Actions</span>
-                    </div>
-
                     <ul className={styles.list}>
+                        <div className={styles.listHeader}>
+                            <span className={styles.headerItem}>Title</span>
+                            <span className={styles.headerItem}>Content</span>
+                            <span className={styles.headerItem}>Image</span>
+                            <span
+                                className={styles.headerItem}
+                                onClick={handleSortCreatedAt}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                Created At{' '}
+                                <i
+                                    className={
+                                        sortCreatedAt === 'asc'
+                                            ? 'fa-solid fa-sort-up'
+                                            : sortCreatedAt === 'desc'
+                                            ? 'fa-solid fa-sort-down'
+                                            : 'fa-solid fa-sort'
+                                    }
+                                ></i>
+                            </span>
+
+                            <span
+                                className={styles.headerItem}
+                                onClick={handleSortUpdatedAt}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                Updated At{' '}
+                                <i
+                                    className={
+                                        sortUpdatedAt === 'asc'
+                                            ? 'fa-solid fa-sort-up'
+                                            : sortUpdatedAt === 'desc'
+                                            ? 'fa-solid fa-sort-down'
+                                            : 'fa-solid fa-sort'
+                                    }
+                                ></i>
+                            </span>
+
+                            <span className={styles.headerItem}>Actions</span>
+                        </div>
+
                         {sortedNotifications.length > 0 ? (
                             sortedNotifications.map((noti) => (
                                 <li key={noti.id} className={styles.itemRow}>
@@ -235,7 +280,6 @@ export default function NotificationList({ refresh }) {
                             <p className={styles.noData}>No notifications available</p>
                         )}
                     </ul>
-
                     <div className={styles.pagination}>
                         <button onClick={() => setPage((prev) => Math.max(prev - 1, 0))} disabled={page === 0}>
                             Previous

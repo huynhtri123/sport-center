@@ -48,10 +48,16 @@ const userApi = {
     getAllActive(page, size) {
         return axiosClient.get(`/user/all-active?page=${page}&size=${size}`);
     },
+    getAll(page, size) {
+        return axiosClient.get(`/user/all?page=${page}&size=${size}`);
+    },
 
     // Soft delete a user by ID
     softDelete(userId) {
-        return axiosClient.delete(`/user/soft-delete/${userId}`);
+        return axiosClient.patch(`/user/soft-delete/${userId}`);
+    },
+    restore(userId) {
+        return axiosClient.patch(`/user/restore/${userId}`);
     },
     // Payment
     addPaymentInfo(newPayment, userId) {

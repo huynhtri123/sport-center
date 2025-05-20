@@ -119,6 +119,21 @@
     }
 }
 
+.listHeader {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr 1fr 1fr 1fr;
+    font-weight: bold;
+    color: $dark-blue-light;
+    padding: 10px 0;
+    border-bottom: 2px solid #ccc;
+    margin-bottom: 10px;
+}
+
+.headerItem {
+    padding: 5px;
+    text-align: left;
+}
+
 // Input & Textarea
 input[type='text'],
 textarea {
