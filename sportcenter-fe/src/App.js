@@ -22,7 +22,7 @@ import Payments from './pages/Customer/Payment/Payments';
 import PaymentSuccess from './pages/Customer/Payment/PaymentSuccess';
 import PaymentFailed from './pages/Customer/Payment/PaymentFailed';
 
-import AdminDashBoard from './pages/Admin/AdminDashBoard';
+import AdminDashboard from './pages/Admin/dashboard/AdminDashBoard';
 import { useCleanupStorage } from './customs/hooks';
 import TournamentHome from './pages/Customer/Tournament/TournamentHome';
 import TournamentDetail from './pages/Customer/Tournament/TournamentDetail';
@@ -50,7 +50,7 @@ function App() {
                                 path='/admin'
                                 element={
                                     <ProtectedRoute requiredRole={Role.ADMIN}>
-                                        <AdminDashBoard></AdminDashBoard>
+                                        <AdminDashboard></AdminDashboard>
                                     </ProtectedRoute>
                                 }
                             />

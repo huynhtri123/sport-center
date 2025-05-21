@@ -46,6 +46,8 @@ public interface BookingService {
 
     public ResponseEntity<BaseResponse> getBookingsByStartTime(ZonedDateTime startTime);
 
+    public ResponseEntity<BaseResponse> getAllActiveBookings(int page, int size);
+
     public ResponseEntity<BaseResponse> getAllBookings(int page, int size);
 
     public Double getBookingPrice(BookingRequest bookingRequest);

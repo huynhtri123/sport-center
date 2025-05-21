@@ -14,7 +14,8 @@ import MyAchievements from './MyAchievements';
 import MyTournaments from './MyTournaments';
 import formatCurrency from '../../../utils/formatCurrency';
 import { Link } from 'react-router-dom';
-import RevenueChart from './RevenueChart';
+import RevenueChart from './BookingChart';
+import BookingChart from './BookingChart';
 
 function Profile() {
     const [profile, setProfile] = useState({}); // để chứa data lấy từ api
@@ -322,10 +323,10 @@ function Profile() {
             <div className={styles.section}>
                 <h3 onClick={handleToggleChart}>
                     <i className='fa-solid fa-chart-simple'></i>
-                    <span className='ms-3'>Statistic</span>
+                    <span className='ms-3'>Booking Statistic</span>
                 </h3>
                 <p>Booking statistics by year.</p>
-                {showChart && <RevenueChart bookings={myBooking} />}
+                {showChart && <BookingChart bookings={myBooking} />}
             </div>
 
             <div className={styles.section}>

@@ -43,8 +43,12 @@ const bookingApi = {
         const url = '/recurring/timeSlots';
         return axiosClient.post(url, recurringBookingRequest);
     },
-    getAllActive(page = 0, size = 3) {
+    getAllActive(page = 0, size = 1000) {
         const url = `/booking/all-active?page=${page}&size=${size}`;
+        return axiosClient.get(url);
+    },
+    getAll(page = 0, size = 1000) {
+        const url = `/booking/all?page=${page}&size=${size}`;
         return axiosClient.get(url);
     },
     getRecurringByBookingId(bookingId) {

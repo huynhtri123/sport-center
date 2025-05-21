@@ -181,11 +181,19 @@ public class BookingController {
         return bookingService.getBookingsByStartTime(startTime);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/booking/all-active")
-    public ResponseEntity<BaseResponse> getBookingsByStartTime(
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    public ResponseEntity<BaseResponse> getAllActive(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size) {
+            @RequestParam(defaultValue = "" + Integer.MAX_VALUE) int size) {
+        return bookingService.getAllActiveBookings(page, size);
+    }
+
+    @GetMapping("/booking/all")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    public ResponseEntity<BaseResponse> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "" + Integer.MAX_VALUE) int size) {
         return bookingService.getAllBookings(page, size);
     }
 

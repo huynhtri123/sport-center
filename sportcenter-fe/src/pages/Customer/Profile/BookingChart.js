@@ -36,7 +36,7 @@ const chartOptions = {
     },
 };
 
-const RevenueChart = () => {
+const BookingChart = () => {
     const [year, setYear] = useState(new Date().getFullYear());
     const [bookings, setBookings] = useState([]);
 
@@ -80,7 +80,6 @@ const RevenueChart = () => {
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <h2>Booking Statistics</h2>
                 <p>Monthly booking count for the selected year.</p>
             </div>
 
@@ -102,4 +101,4 @@ const RevenueChart = () => {
     );
 };
 
-export default RevenueChart;
+export default BookingChart;

@@ -187,7 +187,7 @@ public Map<String, Map<String, Double>> getRevenueForYear(int year) {
                         invoice.getTransactionType() == TransactionType.REGISTRATION_FEE) {
                     currentRevenue += invoice.getAmount();
                 } else if (invoice.getTransactionType() == TransactionType.REFUND) {
-                    currentRevenue -= invoice.getAmount();
+                    //currentRevenue -= invoice.getAmount();
                     currentRefundFee += invoice.getAmount();
                 }
             }

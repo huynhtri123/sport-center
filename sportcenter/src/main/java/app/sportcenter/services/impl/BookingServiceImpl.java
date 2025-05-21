@@ -772,7 +772,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    public ResponseEntity<BaseResponse> getAllBookings(int page, int size) {
+    public ResponseEntity<BaseResponse> getAllActiveBookings(int page, int size) {
         Page<Booking> bookingPage = bookingRepository.findAllActive(PageRequest.of(page, size));
 
         if (bookingPage.isEmpty()) {
@@ -791,6 +791,29 @@ public class BookingServiceImpl implements BookingService {
 
         return ResponseEntity.ok(
                 new BaseResponse("Found the list of active bookings.", HttpStatus.OK.value(), paginatedResponse)
+        );
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse> getAllBookings(int page, int size) {
+        Page<Booking> bookingPage = bookingRepository.findAll(PageRequest.of(page, size));
+
+        if (bookingPage.isEmpty()) {
+            throw new CustomException("No bookings found!", HttpStatus.NOT_FOUND.value());
+        }
+
+        List<BookingResponse> responseList = bookingPage.getContent().stream()
+                .map(bookingMapper::convertToResponse)
+                .toList();
+
+        PaginatedResponse<BookingResponse> paginatedResponse = new PaginatedResponse<>(
+                responseList,
+                bookingPage.getTotalPages(),
+                bookingPage.getTotalElements()
+        );
+
+        return ResponseEntity.ok(
+                new BaseResponse("Find all bookings successfully.", HttpStatus.OK.value(), paginatedResponse)
         );
     }
 
