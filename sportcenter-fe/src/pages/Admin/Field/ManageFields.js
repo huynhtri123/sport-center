@@ -258,7 +258,7 @@ function ManageFields() {
                 {isEditing ? 'Cancel Edit' : 'Add New Field'}
             </button>
 
-            <div className={styles.searchContainer}>
+            {/* <div className={styles.searchContainer}>
                 <input
                     type='text'
                     name='searchQuery'
@@ -267,7 +267,7 @@ function ManageFields() {
                     onChange={handleChange}
                     className={styles.searchInput}
                 />
-            </div>
+            </div> */}
 
             {(showInputForm || isEditing) && (
                 <FieldInput

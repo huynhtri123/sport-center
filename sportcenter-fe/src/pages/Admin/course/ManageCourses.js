@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useState } from 'react';
-import { Table, Button, Modal, Form, Input, Select, Pagination, message } from 'antd';
+import { Table, Button, Modal, Form, Input, Select, Pagination, message, Space } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import courseApi from '../../../services/api/course/courseApi';
 import sportApi from '../../../services/api/sport/sportApi';
@@ -165,13 +165,13 @@ function ManageCourses() {
             key: 'description',
             className: styles.rowTable,
         },
-        {
-            title: 'Tuition',
-            dataIndex: 'tuition',
-            key: 'tuition',
-            className: styles.rowTable,
-            sorter: (a, b) => a.tuition - b.tuition,
-        },
+        // {
+        //     title: 'Tuition',
+        //     dataIndex: 'tuition',
+        //     key: 'tuition',
+        //     className: styles.rowTable,
+        //     sorter: (a, b) => a.tuition - b.tuition,
+        // },
         {
             title: 'Sport',
             dataIndex: 'sportId',
@@ -186,7 +186,7 @@ function ManageCourses() {
             key: 'actions',
             className: styles.rowTable,
             render: (_, record) => (
-                <>
+                <Space>
                     <Button className={styles.editButton} type='link' onClick={() => showEditModal(record)}>
                         Edit
                     </Button>
@@ -198,7 +198,7 @@ function ManageCourses() {
                     >
                         Delete
                     </Button>
-                </>
+                </Space>
             ),
         },
     ];

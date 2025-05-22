@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
 from model.model import BookingPredictor, preprocess_training_data, generate_negative_samples
 from app.utils import plot_booking_data_statistics, plot_feature_importance
@@ -35,6 +36,13 @@ def train_and_save_model():
     predictor = BookingPredictor()
     predictor.train(X_train, y_train)
     predictor.save_model(model_path)
+
+    print("[INFO] Thống kê nhãn dương theo ngày:")
+    print(df_raw['day_of_week'].value_counts().sort_index())
+
+    print("\n[INFO] Thống kê nhãn âm theo ngày:")
+    print(df_neg['day_of_week'].value_counts().sort_index())
+
 
     acc = predictor.model.score(X_test, y_test)
     print(f"[INFO] Model trained. Accuracy: {acc:.4f}")

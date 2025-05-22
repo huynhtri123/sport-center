@@ -5,9 +5,16 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 
 # class đại diện cho model RandomForest
+# RandomForest là tập hợp nhiều cây -> dự đoán của rừng là trung bình của các cây đó
 class BookingPredictor:
     def __init__(self):
-        self.model = RandomForestClassifier(random_state=42)
+        self.model = RandomForestClassifier(
+        n_estimators=100,    # dùng 100 cây trong rừng (càng nhiều càng chính xác và chậm)
+        max_depth=6,         # giới hạn độ sâu (ngăn cây học quá chi tiết - nó học đến khi mỗi lá chứa 1 mẫu -> overfit)
+        min_samples_leaf=5,  # tránh overfit vào điểm riêng lẻ (mỗi node lá phải có ít nhất 5 mẫu)
+        random_state=42      # đảm bảo cùng dữ liệu, model sẽ huấn luyện ra kết quả giống nhau
+    )
+
         self.feature_names = None
 
     def train(self, X_train, y_train):
@@ -29,34 +36,25 @@ class BookingPredictor:
 # Sinh dữ liệu âm từ dữ liệu dương
 def generate_negative_samples(df_positive, n_neg_per_pos=1):
     negative_samples = []
-    
-    # Tạo set chứa tất cả các tổ hợp của các trường để chút check không cho trùng với tập dương
-    # (trùng hết mơis bỏ)
     existing_set = set(
-        zip(df_positive['field_id'], df_positive['sport_id'], df_positive['day_of_week'], 
-            df_positive['hour'], df_positive['month'], df_positive['price'])
+        zip(df_positive['field_id'], df_positive['sport_id'],
+            df_positive['day_of_week'], df_positive['hour'],
+            df_positive['month'], df_positive['price'])
     )
 
-    field_ids = df_positive['field_id'].unique()    # lấy trong tập dương
-    sport_ids = df_positive['sport_id'].unique()
-    days_of_week = list(range(1, 8))  # full 7 ngày
-    hours = list(range(24))           # full 24 giờ
-    months = list(range(1, 13))       # full 12 tháng
-    prices = df_positive['price'].unique()
-
-    # Duyệt qua các mẫu dương và tạo mẫu âm
     for _, row in df_positive.iterrows():
         for _ in range(n_neg_per_pos):
-            field_id = np.random.choice(field_ids)
-            sport_id = np.random.choice(sport_ids)
-            day_of_week = np.random.choice(days_of_week)
-            hour = np.random.choice(hours)
-            month = np.random.choice(months)
-            price = np.random.choice(prices)
+            field_id = row['field_id']
+            sport_id = row['sport_id']
+            price = row['price']
+
+            # Thay day_of_week, hour, month
+            day_of_week = np.random.choice([d for d in range(1, 8) if d != row['day_of_week']])
+            hour = np.random.choice([h for h in range(24) if h != row['hour']])
+            month = np.random.choice([m for m in range(1, 13) if m != row['month']])
 
             key = (field_id, sport_id, day_of_week, hour, month, price)
-            
-            # Lựa chọn các mẫu không trùng với các tổ hợp đã có
+
             if key not in existing_set:
                 negative_samples.append({
                     'field_id': field_id,
@@ -67,6 +65,7 @@ def generate_negative_samples(df_positive, n_neg_per_pos=1):
                     'price': price,
                     'was_booked': 0
                 })
+                existing_set.add(key)
 
     return pd.DataFrame(negative_samples)
 

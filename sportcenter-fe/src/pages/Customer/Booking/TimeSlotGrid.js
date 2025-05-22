@@ -2,6 +2,7 @@
 import React from 'react';
 import clsx from 'clsx';
 import styles from './timeSlotGrid.module.scss';
+import { BookingDiscount } from '../../../utils/constants/BookingDiscount';
 
 export default function TimeSlotGrid({ timeSlots, setStartTime, bookingProbabilities }) {
     return (
@@ -29,9 +30,11 @@ export default function TimeSlotGrid({ timeSlots, setStartTime, bookingProbabili
                                     : undefined
                             }
                         >
-                            {probability !== undefined && probability >= 0.7 && (
-                                <div className={styles.hotCorner}>Hot 🔥</div>
-                            )}
+                            {probability !== undefined &&
+                                Math.round(probability * 100) >= BookingDiscount.HOT_RATE * 100 && (
+                                    <div className={styles.hotCorner}>Hot 🔥</div>
+                                )}
+
                             {slot.isLowDemand && <div className={styles.lowDemandBadge}>-50%</div>}
 
                             <span>

@@ -17,6 +17,7 @@ import { useSelectDateForBooking, useLoading } from '../../../customs/hooks';
 import RecurringTimeSlotsModal from '../../../components/Modal/RecurringTimeSlotsModal';
 import aiApi from '../../../services/api/ai/aiApi';
 import TimeSlotGrid from './TimeSlotGrid';
+import { BookingDiscount } from '../../../utils/constants/BookingDiscount';
 
 function Booking() {
     const [field, setField] = useGetField();
@@ -113,11 +114,11 @@ function Booking() {
         }
     };
 
-    // tìm những slot có tỉ lệ <=20% đánh dấu nó là lowDemand để hàm getPrice giảm giá
+    // tìm những slot có tỉ lệ <=5% đánh dấu nó là lowDemand để hàm getPrice giảm giá
     const markLowDemandTimeSlots = (timeSlots, bookingProbabilities) => {
         return timeSlots.map((slot, index) => {
             const probability = bookingProbabilities[index];
-            const isLowDemand = probability <= 0.2; // Nếu tỉ lệ <= 20%, đánh dấu là low demand
+            const isLowDemand = probability <= BookingDiscount.LOW_DEMAND_RATE; // Nếu tỉ lệ <= 5%, đánh dấu là low demand
             return {
                 ...slot,
                 isLowDemand, // Thêm thuộc tính isLowDemand vào từng timeslot
@@ -190,7 +191,7 @@ function Booking() {
             // Kiểm tra nếu là slot low demand thì giảm giá
             const matchedSlot = timeSlots.find((slot) => slot.startTime.includes(`${date}T${startTime}`));
             if (matchedSlot?.isLowDemand) {
-                price *= 0.5;
+                price *= BookingDiscount.DISCOUNT_RATE;
             }
 
             isRecurring ? setRecurringBookingPrice(price) : setBookingPrice(price);
