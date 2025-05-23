@@ -66,23 +66,25 @@ function TournamentRegister() {
     };
 
     const handleNumPlayersChange = (e) => {
-        const count = parseInt(e.target.value, 10) || 0;
+        const inputValue = e.target.value;
 
-        // Giới hạn số lượng thành viên tối đa là 16
-        if (count > 16) {
-            setNumPlayers(16);
-            return;
-        }
+        // Cho phép input rỗng để người dùng xoá rồi gõ lại
+        setNumPlayers(inputValue);
 
-        setNumPlayers(count);
-        const updatedPlayers = [...players];
-        while (updatedPlayers.length < count) {
-            updatedPlayers.push({ name: '', position: '', number: '' });
+        const count = parseInt(inputValue, 10);
+
+        if (!isNaN(count) && count >= 1 && count <= 16) {
+            const updatedPlayers = [...players];
+
+            while (updatedPlayers.length < count) {
+                updatedPlayers.push({ name: '', position: '', number: '' });
+            }
+            while (updatedPlayers.length > count) {
+                updatedPlayers.pop();
+            }
+
+            setPlayers(updatedPlayers);
         }
-        while (updatedPlayers.length > count) {
-            updatedPlayers.pop();
-        }
-        setPlayers(updatedPlayers);
     };
 
     const handlePlayerChange = (index, field, value) => {

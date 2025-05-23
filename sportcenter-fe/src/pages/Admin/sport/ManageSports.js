@@ -87,8 +87,8 @@ function ManageSports() {
 
     const handleAddSubmit = async (e) => {
         e.preventDefault();
-        if (!formData.sportName || !formData.description) {
-            toast.warn('Please fill in all fields.');
+        if (!formData.sportName || !formData.description || !selectedFile) {
+            toast.warn('Please fill in all fields including the image.');
             return;
         }
 
@@ -191,6 +191,7 @@ function ManageSports() {
         setIsEditing(true);
         setEditingSport(sport);
         setShowInputForm(true);
+        setPreviewUrl(sport.imageUrl || null);
     };
 
     const filteredSports = sports.filter((sport) => sport.sportName.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -294,7 +295,7 @@ function ManageSports() {
                                     </button>
                                     {isModalOpen && deleteSportId === sport.id && (
                                         <ConfirmModal
-                                            title='Are you sure?'
+                                            title='Are you sure to delete this sport?'
                                             isOpen={isModalOpen}
                                             onClose={() => toggleModalOpen(null)}
                                             onSubmit={handleSoftDelete}

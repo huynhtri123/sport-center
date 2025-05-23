@@ -38,12 +38,14 @@ function MyBookings({ bookings, setMyBookings, getMyProfile, userId }) {
     }, []);
 
     const showCancelConfirm = (booking) => {
+        console.log(booking);
         setSelectedBooking(booking);
         setIsRecurringCancel(false);
         setIsPDFModalVisible(true);
     };
 
     const showCancelRecurringConfirm = (booking) => {
+        console.log(booking);
         setSelectedBooking(booking);
         setIsRecurringCancel(true);
         setIsPDFModalVisible(true);

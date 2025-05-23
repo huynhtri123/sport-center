@@ -1,5 +1,6 @@
 package app.sportcenter.utils.file;
 
+import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.services.ExcelService;
 import app.sportcenter.services.impl.excel.BannerExcelReader;
 import app.sportcenter.services.impl.excel.GalleryExcelReader;
@@ -40,6 +41,8 @@ public class ExcelReaderUtil {
             } else {
                 throw new IllegalArgumentException("Invalid data!");
             }
+        } catch (Exception e) {
+            throw new CustomException("Invalid file format or mismatched data detected. Please upload the correct file.", 400);
         }
     }
 

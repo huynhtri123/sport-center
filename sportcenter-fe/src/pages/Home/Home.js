@@ -110,7 +110,6 @@ function Home() {
             }
         } catch (err) {
             console.error('Upload failed:', err);
-            toast.error('File upload failed!');
         } finally {
             setIsLoading(false);
         }
@@ -238,6 +237,9 @@ function Home() {
                                     className={styles.uploadInput}
                                 />
                             </label>
+                            <small>
+                                File must be Excel (.xlsx or .xls) with columns: ORDER (number), IMAGE URL (string)
+                            </small>
                             <button className={styles.uploadBannerButton} onClick={() => handleUpload('banner')}>
                                 Save changes
                             </button>
@@ -309,6 +311,9 @@ function Home() {
                                 className={styles.uploadInput}
                             />
                         </label>
+                        <small>
+                            File must be Excel (.xlsx or .xls) with columns: ORDER (number), IMAGE URL (string)
+                        </small>
                         <button className={styles.uploadButton} onClick={() => handleUpload('gallery')}>
                             Save changes
                         </button>
@@ -343,6 +348,10 @@ function Home() {
                                 className={styles.uploadInput}
                             />
                         </label>
+                        <small>
+                            File must be Excel (.xlsx or .xls) with columns: ORDER (number), COMMENT (string), AUTHOR
+                            (string)
+                        </small>
                         <button className={styles.uploadButton} onClick={() => handleUpload('testimonial')}>
                             Save changes
                         </button>

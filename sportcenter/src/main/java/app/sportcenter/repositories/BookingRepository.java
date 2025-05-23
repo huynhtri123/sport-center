@@ -75,7 +75,7 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
     @Query("{ 'user._id': ?0, 'isDeleted': false }")
     List<Booking> getAllBookingsByUserId(String userId);
 
-    @Query("{ 'user._id': ?0, 'startTime': { $gte: ?1, $lte: ?2 }, 'isActive': true, 'isDeleted': false }")
+    @Query("{ 'user._id': ?0, 'startTime': { $gte: ?1, $lte: ?2 }, 'isDeleted': false }")
     List<Booking> findBookingsByUserIdAndYear(String userId, ZonedDateTime startOfYear, ZonedDateTime endOfYear);
 
 }

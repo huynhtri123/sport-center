@@ -116,7 +116,7 @@ function RenewPasswordModal({ isModalOpen, onClose, email, getVerifyResponse }) 
                 resetPasswordCode: formData.resetPasswordCode,
             });
             toast.success(renewPasswordResponse.message);
-            navigate('/');
+            navigate('/sign-in');
         } catch (apiErr) {
             inputCodeRef.current.focus();
             setErrors(''); // Clear errors on failure

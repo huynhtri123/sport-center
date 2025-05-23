@@ -204,13 +204,27 @@ function Profile() {
     };
 
     const handleSave = () => {
-        // Kiểm tra số điện thoại có hợp lệ không
-        const phoneNumber = userInfo.phoneNumber;
-        const phoneRegex = /^\d{10}$/; // Biểu thức chính quy kiểm tra chỉ có 10 chữ số
+        const { phoneNumber, address, dateOfBirth } = userInfo;
+
+        // Kiểm tra số điện thoại
+        const phoneRegex = /^\d{10}$/;
         if (!phoneRegex.test(phoneNumber)) {
             toast.warn('Please enter a valid 10-digit phone number.');
-            return; // Dừng lại nếu số điện thoại không hợp lệ
+            return;
         }
+
+        // Kiểm tra địa chỉ
+        if (!address || address.trim() === '') {
+            toast.warn('Address is required.');
+            return;
+        }
+
+        // Kiểm tra ngày sinh
+        if (!dateOfBirth) {
+            toast.warn('Date of birth is required.');
+            return;
+        }
+
         updateProfile();
         setIsEditing(false);
     };

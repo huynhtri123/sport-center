@@ -250,6 +250,9 @@ public class TournamentServiceImpl implements TournamentService {
         Tournament existingTournament = tournamentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Tournament with this ID not found.y"));
 
+        // check date input
+        checkFutureDate(tournamentRequest.getStartDate(), tournamentRequest.getRegistrationDeadline());
+
         boolean isExistedSport = sportRepository.existsById(tournamentRequest.getSportId());
         if (!isExistedSport) {
             throw new NotFoundException("Sport does not exist.");

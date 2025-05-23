@@ -11,7 +11,7 @@ import app.sportcenter.commons.Role;
 import app.sportcenter.commons.SendMailType;
 import app.sportcenter.configs.AppConfig;
 import app.sportcenter.exceptions.CustomException;
-import app.sportcenter.models.entities.BackListToken;
+import app.sportcenter.models.entities.BlackListToken;
 import app.sportcenter.models.entities.User;
 import app.sportcenter.models.entities.Verify;
 import app.sportcenter.repositories.BackListTokenRepository;
@@ -283,7 +283,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         // Kiểm tra xem refreshToken có bị revoked (ở trong blacklist) không
-        Optional<BackListToken> backListTokenOpt = backListTokenRepository.getBackListTokenByToken(refreshToken);
+        Optional<BlackListToken> backListTokenOpt = backListTokenRepository.getBackListTokenByToken(refreshToken);
         if (backListTokenOpt.isPresent() && backListTokenOpt.get().isRevoked()) {
             // Nếu refreshToken đã bị revoked (trong blacklist)
             throw new CustomException("Refresh token has been revoked", HttpStatus.BAD_REQUEST.value());
@@ -434,10 +434,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         // Nếu refreshToken tồn tại, lưu vào blacklist
         // cải tiến sau này: check refreshToken hết hạn thì xoá ra khỏi db
         if (refreshToken != null) {
-            BackListToken backListToken = new BackListToken();
-            backListToken.setToken(refreshToken);
-            backListToken.setRevoked(true);
-            backListTokenRepository.save(backListToken);
+            BlackListToken blackListToken = new BlackListToken();
+            blackListToken.setToken(refreshToken);
+            blackListToken.setRevoked(true);
+            backListTokenRepository.save(blackListToken);
         }
 
         // Xóa refreshToken cookie

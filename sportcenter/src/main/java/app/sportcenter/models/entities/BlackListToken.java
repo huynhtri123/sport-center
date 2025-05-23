@@ -7,11 +7,11 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 
-@Document(collection = "back_list_tokens")
+@Document(collection = "black_list_tokens")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BackListToken {
+public class BlackListToken {
     @Id
     private String id;
 
