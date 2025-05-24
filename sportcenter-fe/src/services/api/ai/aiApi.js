@@ -1,7 +1,8 @@
 const aiApi = {
     async bookingPredicttion(request) {
         try {
-            const url = 'http://127.0.0.1:5000/predict';
+            // const url = 'http://127.0.0.1:5000/predict';
+            const url = `${process.env.REACT_APP_AI_URL}/predict`;
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
