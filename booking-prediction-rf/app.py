@@ -8,6 +8,7 @@ def create_app():
     app.register_blueprint(bp, url_prefix='/')
     return app
 
+app = create_app()
+
 if __name__ == '__main__':
-    app = create_app()
     app.run(debug=True)
