@@ -1,29 +1,29 @@
 {
   "files": {
-    "main.css": "http://localhost:3001/sport-center/static/css/main.b2a51332.css",
-    "main.js": "http://localhost:3001/sport-center/static/js/main.b5749310.js",
-    "static/js/453.522ca6c1.chunk.js": "http://localhost:3001/sport-center/static/js/453.522ca6c1.chunk.js",
-    "static/media/fa-solid-900.ttf": "http://localhost:3001/sport-center/static/media/fa-solid-900.07ed6d5fa32c1d54af0f.ttf",
-    "static/media/fa-brands-400.ttf": "http://localhost:3001/sport-center/static/media/fa-brands-400.0ff70dcbf135d859ebf3.ttf",
-    "static/media/fa-solid-900.woff2": "http://localhost:3001/sport-center/static/media/fa-solid-900.93f719f4d62bfa3e748c.woff2",
-    "static/media/fa-brands-400.woff2": "http://localhost:3001/sport-center/static/media/fa-brands-400.bb8d5a145e22822103fb.woff2",
-    "static/media/fa-regular-400.ttf": "http://localhost:3001/sport-center/static/media/fa-regular-400.17a6e1aebccdbaa39e78.ttf",
-    "static/media/Fontspring-DEMO-ceraroundpro-black.otf": "http://localhost:3001/sport-center/static/media/Fontspring-DEMO-ceraroundpro-black.a9cbb7a0387bdec5919d.otf",
-    "static/media/Fontspring-DEMO-ceraroundpro-bold.otf": "http://localhost:3001/sport-center/static/media/Fontspring-DEMO-ceraroundpro-bold.c4d1b72b63cadb10b8db.otf",
-    "static/media/Fontspring-DEMO-ceraroundpro-medium.otf": "http://localhost:3001/sport-center/static/media/Fontspring-DEMO-ceraroundpro-medium.071be06a88672a4c972e.otf",
-    "static/media/Fontspring-DEMO-ceraroundpro-light.otf": "http://localhost:3001/sport-center/static/media/Fontspring-DEMO-ceraroundpro-light.3677d2b81a7f3c1028f5.otf",
-    "static/media/Fontspring-DEMO-ceraroundpro-regular.otf": "http://localhost:3001/sport-center/static/media/Fontspring-DEMO-ceraroundpro-regular.5999e8fd115630c2229e.otf",
-    "static/media/Fontspring-DEMO-ceraroundpro-thin.otf": "http://localhost:3001/sport-center/static/media/Fontspring-DEMO-ceraroundpro-thin.df0aad02a24942f0b3fd.otf",
-    "static/media/fa-regular-400.woff2": "http://localhost:3001/sport-center/static/media/fa-regular-400.bc3722686635b5f86132.woff2",
-    "static/media/fa-v4compatibility.ttf": "http://localhost:3001/sport-center/static/media/fa-v4compatibility.0f6cb412603527bda691.ttf",
-    "static/media/fa-v4compatibility.woff2": "http://localhost:3001/sport-center/static/media/fa-v4compatibility.6cfec8414be20e2c3426.woff2",
-    "index.html": "http://localhost:3001/sport-center/index.html",
-    "main.b2a51332.css.map": "http://localhost:3001/sport-center/static/css/main.b2a51332.css.map",
-    "main.b5749310.js.map": "http://localhost:3001/sport-center/static/js/main.b5749310.js.map",
-    "453.522ca6c1.chunk.js.map": "http://localhost:3001/sport-center/static/js/453.522ca6c1.chunk.js.map"
+    "main.css": "/sport-center/static/css/main.854694c4.css",
+    "main.js": "/sport-center/static/js/main.602f4072.js",
+    "static/js/453.522ca6c1.chunk.js": "/sport-center/static/js/453.522ca6c1.chunk.js",
+    "static/media/fa-solid-900.ttf": "/sport-center/static/media/fa-solid-900.07ed6d5fa32c1d54af0f.ttf",
+    "static/media/fa-brands-400.ttf": "/sport-center/static/media/fa-brands-400.0ff70dcbf135d859ebf3.ttf",
+    "static/media/fa-solid-900.woff2": "/sport-center/static/media/fa-solid-900.93f719f4d62bfa3e748c.woff2",
+    "static/media/fa-brands-400.woff2": "/sport-center/static/media/fa-brands-400.bb8d5a145e22822103fb.woff2",
+    "static/media/fa-regular-400.ttf": "/sport-center/static/media/fa-regular-400.17a6e1aebccdbaa39e78.ttf",
+    "static/media/Fontspring-DEMO-ceraroundpro-black.otf": "/sport-center/static/media/Fontspring-DEMO-ceraroundpro-black.a9cbb7a0387bdec5919d.otf",
+    "static/media/Fontspring-DEMO-ceraroundpro-bold.otf": "/sport-center/static/media/Fontspring-DEMO-ceraroundpro-bold.c4d1b72b63cadb10b8db.otf",
+    "static/media/Fontspring-DEMO-ceraroundpro-medium.otf": "/sport-center/static/media/Fontspring-DEMO-ceraroundpro-medium.071be06a88672a4c972e.otf",
+    "static/media/Fontspring-DEMO-ceraroundpro-light.otf": "/sport-center/static/media/Fontspring-DEMO-ceraroundpro-light.3677d2b81a7f3c1028f5.otf",
+    "static/media/Fontspring-DEMO-ceraroundpro-regular.otf": "/sport-center/static/media/Fontspring-DEMO-ceraroundpro-regular.5999e8fd115630c2229e.otf",
+    "static/media/Fontspring-DEMO-ceraroundpro-thin.otf": "/sport-center/static/media/Fontspring-DEMO-ceraroundpro-thin.df0aad02a24942f0b3fd.otf",
+    "static/media/fa-regular-400.woff2": "/sport-center/static/media/fa-regular-400.bc3722686635b5f86132.woff2",
+    "static/media/fa-v4compatibility.ttf": "/sport-center/static/media/fa-v4compatibility.0f6cb412603527bda691.ttf",
+    "static/media/fa-v4compatibility.woff2": "/sport-center/static/media/fa-v4compatibility.6cfec8414be20e2c3426.woff2",
+    "index.html": "/sport-center/index.html",
+    "main.854694c4.css.map": "/sport-center/static/css/main.854694c4.css.map",
+    "main.602f4072.js.map": "/sport-center/static/js/main.602f4072.js.map",
+    "453.522ca6c1.chunk.js.map": "/sport-center/static/js/453.522ca6c1.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.b2a51332.css",
-    "static/js/main.b5749310.js"
+    "static/css/main.854694c4.css",
+    "static/js/main.602f4072.js"
   ]
 }
