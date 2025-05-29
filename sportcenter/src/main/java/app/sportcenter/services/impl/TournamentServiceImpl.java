@@ -396,6 +396,11 @@ public class TournamentServiceImpl implements TournamentService {
             Tournament tournament = tournamentRepository.findById(request.getTournamentId())
                     .orElseThrow(() -> new NotFoundException("Tournament with this ID not found."));
 
+            // kiem tra thoi gian (chi cho huy khi chua qua deadline)
+            if (tournament.getRegistrationDeadline().isBefore(ZonedDateTime.now())) {
+                throw new CustomException("The registration deadline has passed, you cannot cancel your participation.", 400);
+            }
+
             // kiểm tra xem đội có trong danh sách đã đăng ký không
             if (tournament.getRegisteredTeamIds() == null ||
                     !tournament.getRegisteredTeamIds().contains(request.getTeamId())) {

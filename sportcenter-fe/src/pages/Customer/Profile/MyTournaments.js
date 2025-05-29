@@ -66,7 +66,7 @@ function TournamentCard({ tournament, setLocalTournaments }) {
             setLocalTournaments((prevTournaments) => prevTournaments.filter((t) => t.id !== tournamentId));
         } catch (err) {
             console.error(err);
-            toast.error('Failed to unregister from the tournament!');
+            //toast.error('Failed to unregister from the tournament!');
         } finally {
             setIsLoading(false);
         }

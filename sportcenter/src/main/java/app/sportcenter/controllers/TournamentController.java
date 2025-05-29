@@ -64,13 +64,13 @@ public class TournamentController {
         return tournamentService.getRegistedTeams(tournamentId);
     }
 
-    @PreAuthorize("hasAuthority('CUSTOMER')")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
     @GetMapping("/tounament/my-tournaments")
     public ResponseEntity<BaseResponse> myTournaments() {
         return tournamentService.myRegistered();
     }
 
-    @PreAuthorize("hasAuthority('CUSTOMER')")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
     @GetMapping("/tounament/my-team/{tournamentId}")
     public ResponseEntity<BaseResponse> myTeamInTournament(@PathVariable("tournamentId") String tournamentId) {
         return tournamentService.getMyRegisteredTeamInTournament(tournamentId);

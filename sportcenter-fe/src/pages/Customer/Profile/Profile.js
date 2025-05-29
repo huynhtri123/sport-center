@@ -351,10 +351,14 @@ function Profile() {
                 <p>Check your current bookings.</p>
                 {showBookings && (
                     <MyBookings
-                        bookings={myBooking}
+                        bookings={myBooking.filter((b) => {
+                            const now = new Date();
+                            const end = new Date(b.endTime);
+                            return end > now;
+                        })}
                         setMyBookings={setMyBookings}
                         getMyProfile={getMyProfile}
-                    ></MyBookings>
+                    />
                 )}
             </div>
 
@@ -367,27 +371,23 @@ function Profile() {
                 {showInvoiceInfo && <MyInvoice />}
             </div>
 
-            {!isAdmin && (
-                <div className={styles.section}>
-                    <h3 onClick={handleToggleTournaments}>
-                        <i className='fa-regular fa-calendar-check'></i>
-                        <span className='ms-3'>Tournaments And Events</span>
-                    </h3>
-                    <p>Check your registered tournaments and sports events.</p>
-                    {showTournaments && <MyTournaments tournaments={tournaments}></MyTournaments>}
-                </div>
-            )}
+            <div className={styles.section}>
+                <h3 onClick={handleToggleTournaments}>
+                    <i className='fa-regular fa-calendar-check'></i>
+                    <span className='ms-3'>Tournaments And Events</span>
+                </h3>
+                <p>Check your registered tournaments and sports events.</p>
+                {showTournaments && <MyTournaments tournaments={tournaments}></MyTournaments>}
+            </div>
 
-            {!isAdmin && (
-                <div className={styles.section}>
-                    <h3 onClick={handleToggleTeams}>
-                        <i className='fa-solid fa-trophy'></i>
-                        <span className='ms-3'>Achievements</span>
-                    </h3>
-                    <p>View your achievements and prizes.</p>
-                    {showTeams && <MyAchievements teams={teams} />}
-                </div>
-            )}
+            <div className={styles.section}>
+                <h3 onClick={handleToggleTeams}>
+                    <i className='fa-solid fa-trophy'></i>
+                    <span className='ms-3'>Achievements</span>
+                </h3>
+                <p>View your achievements and prizes.</p>
+                {showTeams && <MyAchievements teams={teams} />}
+            </div>
 
             {isAdmin && (
                 <Link className={styles.link} to={'/admin'}>

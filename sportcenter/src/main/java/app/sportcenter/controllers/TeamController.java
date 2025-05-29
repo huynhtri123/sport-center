@@ -47,7 +47,7 @@ public class TeamController {
     }
 
     // chỉ có chủ sở hữu team được dùng
-    @PreAuthorize("hasAnyAuthority('CUSTOMER')")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
     @GetMapping("/my-teams")
     public ResponseEntity<BaseResponse> myTeams() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
