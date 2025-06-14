@@ -170,11 +170,13 @@ function NavBar() {
 
                 {/* Right - Sign In, Sign Up, Sign Out */}
                 <div className={`d-flex align-items-center ${styles.iconContainer}`}>
-                    <div className={styles.signupButton}>
-                        <Link className={`nav-link font-cera-round-pro-medium`} to='/sign-up'>
-                            Sign up
-                        </Link>
-                    </div>
+                    {!isSignedIn && (
+                        <div className={styles.signupButton}>
+                            <Link className={`nav-link font-cera-round-pro-medium`} to='/sign-up'>
+                                Sign up
+                            </Link>
+                        </div>
+                    )}
                     {isSignedIn ? (
                         <Link className={'nav-link font-cera-round-pro-medium'} to='/profile'>
                             <i className='fa-solid fa-circle-user' style={{ fontSize: '32px' }}></i>

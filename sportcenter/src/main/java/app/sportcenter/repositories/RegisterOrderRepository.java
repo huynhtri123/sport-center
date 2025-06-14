@@ -11,6 +11,10 @@ import java.util.List;
 
 @Repository
 public interface RegisterOrderRepository extends MongoRepository<RegisterOrder, String> {
+
     @Query("{'orderStatus': ?0, 'createdAt': { $lt: ?1 }}")
     List<RegisterOrder> findByOrderStatusAndCreatedAtBefore(OrderStatus orderStatus, ZonedDateTime time);
+
+    @Query("{ 'tournamentId': ?0, 'isDeleted': false, 'isActive': true }")
+    List<RegisterOrder> findByTournamentId(String tournamentId);
 }

@@ -61,22 +61,18 @@ const TournamentDetail = () => {
                     </h2>
                     <div className={styles.sportName}>{tournament.sport?.sportName}</div>
                     <div className={styles.dateInfo}>
-                        <i className='fa-regular fa-clock'></i>
-                        <span>Start Date: </span>
-                        <time>
-                            {formatDate(tournament.startDate)}
-                            {', '}
-                            {new Date(tournament.startDate).toLocaleTimeString()}
-                        </time>
-                    </div>
-                    <div className={styles.dateInfo}>
                         <i className='fa-solid fa-hourglass-start'></i>
                         <span>Registration Deadline: </span>
                         <time>
-                            {formatDate(tournament.registrationDeadline)}
-                            {', '}
                             {new Date(tournament.registrationDeadline).toLocaleTimeString()}
+                            {', '}
+                            {formatDate(tournament.registrationDeadline)}
                         </time>
+                    </div>
+                    <div className={styles.dateInfo}>
+                        <i className='fa-regular fa-clock'></i>
+                        <span>Start Date: </span>
+                        <time>{formatDate(tournament.startDate)}</time>
                     </div>
 
                     <div>

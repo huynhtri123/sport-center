@@ -53,6 +53,11 @@ public class FieldServiceImpl implements FieldService {
             throw new CustomException("Failed due to overlapping dates in pricing policies!", HttpStatus.BAD_REQUEST.value());
         }
 
+        // kiem tra trung gia
+        if (hasDuplicatePrice(fieldRequest.getPricePolicies())) {
+            throw new CustomException("Failed due to overlapping prices in pricing policies!", HttpStatus.BAD_REQUEST.value());
+        }
+
         // set ảnh và video mặc định
         if (fieldRequest.getImageUrl() == null || fieldRequest.getImageUrl().isEmpty()) {
             fieldRequest.setImageUrl(appConfig.getDefaultIcon());
@@ -79,6 +84,16 @@ public class FieldServiceImpl implements FieldService {
                 if (!allDays.add(day)) {
                     return true;
                 }
+            }
+        }
+        return false;
+    }
+
+    private boolean hasDuplicatePrice(List<PricePolicyRequest> pricePolicies) {
+        Set<Double> allPrices = new HashSet<>();
+        for (PricePolicyRequest p : pricePolicies) {
+            if (!allPrices.add(p.getPrice())) {
+                return true;
             }
         }
         return false;
@@ -143,6 +158,11 @@ public class FieldServiceImpl implements FieldService {
         if (hasDuplicateDays(newField.getPricePolicies())) {
             throw new CustomException("Failed due to overlapping dates in pricing policies!", HttpStatus.BAD_REQUEST.value());
         }
+        // kiem tra trung gia
+        if (hasDuplicatePrice(newField.getPricePolicies())) {
+            throw new CustomException("Failed due to overlapping prices in pricing policies!", HttpStatus.BAD_REQUEST.value());
+        }
+
         Field field = fieldRepository.findById(fieldId).orElseThrow(() ->
                 new NotFoundException("Field not found!"));
 
@@ -182,13 +202,15 @@ public class FieldServiceImpl implements FieldService {
         // tìm coi có bất kỳ Booking nào đang chứa Field này thì không cho xoá luôn
         List<Booking> relevantBookings = bookingRepository.getBookingByFieldId(fieldId);
         if (!relevantBookings.isEmpty()) {
-            ZonedDateTime now = ZonedDateTime.now().plusHours(7); // vì khi tạo booking ta trừ 7
-            boolean hasActiveBookings = relevantBookings.stream()
-                    .anyMatch(booking -> booking.getIsActive() && booking.getEndTime().isAfter(now));
-            if (hasActiveBookings) {
-                throw new CustomException("There is an active booking associated with this field, you cannot delete it!",
-                        HttpStatus.BAD_REQUEST.value());
-            }
+//            ZonedDateTime now = ZonedDateTime.now().plusHours(7); // vì khi tạo booking ta trừ 7
+//            boolean hasActiveBookings = relevantBookings.stream()
+//                    .anyMatch(booking -> booking.getIsActive() && booking.getEndTime().isAfter(now));
+//            if (hasActiveBookings) {
+//                throw new CustomException("There is an active booking associated with this field, you cannot delete it!",
+//                        HttpStatus.BAD_REQUEST.value());
+//            }
+            throw new CustomException("There is an active booking associated with this field, you cannot delete it!",
+                    HttpStatus.BAD_REQUEST.value());
         }
 
         field.setIsDeleted(true);

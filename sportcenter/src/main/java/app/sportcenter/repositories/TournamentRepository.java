@@ -1,5 +1,6 @@
 package app.sportcenter.repositories;
 
+import app.sportcenter.models.entities.Field;
 import app.sportcenter.models.entities.StandingsEntry;
 import app.sportcenter.models.entities.Tournament;
 import org.springframework.data.domain.Page;
@@ -29,4 +30,6 @@ public interface TournamentRepository extends MongoRepository<Tournament, String
     @Query("{ 'tournamentName': { $regex: ?0, $options: 'i' }, 'isDeleted': false, 'isActive': true }")
     Page<Tournament> searchByTournamentNameContainingIgnoreCase(String tournamentName, Pageable pageable);
 
+    @Query("{ 'sportId': ?0, 'isDeleted': false, 'isActive': true }")
+    List<Tournament> findBySportIdAndIsActiveTrueAndIsDeletedFalse(String sportId);
 }

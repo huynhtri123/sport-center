@@ -7,7 +7,7 @@ function Footer() {
             <div className={clsx(styles.footerContentStyle)}>
                 <span className={clsx(styles.footerTitle)}>SPORT CENTER</span>
                 <div className={clsx(styles.copyright)}>
-                    <span>&copy; 2024 All rights reserved.</span>
+                    <span>&copy; 2025 All rights reserved.</span>
                 </div>
             </div>
         </footer>

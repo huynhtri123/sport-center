@@ -65,6 +65,7 @@ public class BookingServiceImpl implements BookingService {
     private final MailService mailService;
     private final SimpMessagingTemplate messagingTemplate;
     private final AIUtil aiUtil;
+    private final DiscountConfigRepository repository;
 
     // đặt lẻ bước 1
     @Transactional
@@ -205,7 +206,12 @@ public class BookingServiceImpl implements BookingService {
         }
 
         // 1. Xóa TimeSlot khỏi FieldStatusByDate
-        ZonedDateTime startOfDay = bookingStartTime.toLocalDate().atStartOfDay(ZoneOffset.UTC);
+        //ZonedDateTime startOfDay = bookingStartTime.toLocalDate().atStartOfDay(ZoneOffset.UTC);
+        ZonedDateTime startOfDay = bookingStartTime
+                .withZoneSameInstant(ZoneOffset.UTC) // Chuyển sang UTC đúng thời điểm
+                .toLocalDate()                       // Lấy ngày tính theo UTC
+                .atStartOfDay(ZoneOffset.UTC);
+
         FieldStatusByDate fieldStatusByDate = fieldStatusByDateRepository
                 .findByFieldIdAndDate(booking.getField().getId(), startOfDay)
                 .orElseThrow(() -> new NotFoundException("Field status data not found for this date."));
@@ -465,7 +471,11 @@ public class BookingServiceImpl implements BookingService {
 
             ZonedDateTime startTime = booking.getStartTime();
             ZonedDateTime endTime = booking.getEndTime();
-            ZonedDateTime startOfDayUTC = startTime.toLocalDate().atStartOfDay(ZoneOffset.UTC);
+            //ZonedDateTime startOfDayUTC = startTime.toLocalDate().atStartOfDay(ZoneOffset.UTC);
+            ZonedDateTime startOfDayUTC = startTime
+                    .withZoneSameInstant(ZoneOffset.UTC) // Chuyển sang UTC đúng thời điểm
+                    .toLocalDate()                       // Lấy ngày tính theo UTC
+                    .atStartOfDay(ZoneOffset.UTC);
 
             // Lấy trạng thái sân trong ngày đó
             FieldStatusByDate fieldStatusByDate = fieldStatusByDateRepository
@@ -538,14 +548,17 @@ public class BookingServiceImpl implements BookingService {
 
     // lay % giam gia theo goi
     private double discountRateByDurationMonths(int packageDurationMonths) {
-        return switch (packageDurationMonths) {
-            case 1 -> 0.95; //  5%
-            case 3 -> 0.85; //  15%
-            case 6 -> 0.75; //  25%
-            case 9 -> 0.65; //  35%
-            case 12 -> 0.55; // 45%
-            default -> 1;   //  0%
-        };
+        DiscountConfig config = repository.findByTypeAndIsActiveTrueAndIsDeletedFalse(DiscountType.BOOKING_DISCOUNT)
+                .orElse(null);
+        if (config == null || config.getMonthDiscountList() == null) {
+            return 1.0; // ko giảm giá
+        }
+
+        return config.getMonthDiscountList().stream()
+                .filter(md -> md.getMonth() == packageDurationMonths)
+                .findFirst()
+                .map(md -> (100.0 - md.getDiscount()) / 100.0) // ví dụ: 15% -> 0.85
+                .orElse(1.0);
     }
 
     // hoan tien cho cancel recurring
@@ -736,8 +749,10 @@ public class BookingServiceImpl implements BookingService {
         }
 
         List<BookingResponse> responseList = bookingList.stream()
+                .sorted(Comparator.comparing(Booking::getCreatedAt).reversed())
                 .map(bookingMapper::convertToResponse)
                 .collect(Collectors.toList());
+
 
         return ResponseEntity.ok(
                 new BaseResponse("Found bookings for the current user in " + targetYear, HttpStatus.OK.value(), responseList)

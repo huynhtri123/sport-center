@@ -106,20 +106,20 @@ function MyInvoice() {
             width: 260,
         },
 
-        {
-            title: 'Actions',
-            key: 'actions',
-            render: (_, invoice) => (
-                <Button
-                    type='default'
-                    style={{ background: '#9abacb ', color: '#fff' }}
-                    onClick={() => handleDeleteInvoice(invoice.id)}
-                >
-                    Delete
-                </Button>
-            ),
-            width: 120,
-        },
+        // {
+        //     title: 'Actions',
+        //     key: 'actions',
+        //     render: (_, invoice) => (
+        //         <Button
+        //             type='default'
+        //             style={{ background: '#9abacb ', color: '#fff' }}
+        //             onClick={() => handleDeleteInvoice(invoice.id)}
+        //         >
+        //             Delete
+        //         </Button>
+        //     ),
+        //     width: 120,
+        // },
     ];
 
     return (

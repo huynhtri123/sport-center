@@ -7,6 +7,7 @@ import clsx from 'clsx';
 
 function FieldInput({
     isEditing,
+    setShowInputForm,
     handleEditSubmit,
     handleAddSubmit,
     editFormData,
@@ -53,11 +54,10 @@ function FieldInput({
         return formIsValid;
     };
 
-    // Hàm submit form
+    // Hàm submit form (edit/create)
     const handleSubmit = (e) => {
         e.preventDefault();
         if (validateForm()) {
-            // Nếu form hợp lệ, gọi handleAddSubmit hoặc handleEditSubmit
             isEditing ? handleEditSubmit(e) : handleAddSubmit(e);
         }
     };

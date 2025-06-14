@@ -4,6 +4,8 @@ import revenueApi from '../../../services/api/revenue/revenueApi';
 
 function RevenueChart({ styles }) {
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+    const [yearTotalRevenue, setYearTotalRevenue] = useState(0);
+
     const [revenueData, setRevenueData] = useState({
         labels: [],
         datasets: [
@@ -46,6 +48,11 @@ function RevenueChart({ styles }) {
                     return monthName.substring(0, 3);
                 });
 
+                const netRevenues = revenues.map((rev, idx) => rev - refunds[idx]);
+                const totalNetRevenue = netRevenues.reduce((acc, cur) => acc + cur, 0);
+
+                setYearTotalRevenue(totalNetRevenue); // Gán tổng
+
                 setRevenueData({
                     labels: shortMonths,
                     datasets: [
@@ -55,7 +62,7 @@ function RevenueChart({ styles }) {
                             backgroundColor: 'rgba(75, 192, 192, 0.6)',
                             borderColor: 'rgba(75, 192, 192, 1)',
                             borderWidth: 1,
-                            hidden: true,
+                            hidden: false,
                         },
                         {
                             label: 'Refund',
@@ -63,7 +70,7 @@ function RevenueChart({ styles }) {
                             backgroundColor: 'rgba(255, 99, 132, 0.6)',
                             borderColor: 'rgba(255, 99, 132, 1)',
                             borderWidth: 1,
-                            hidden: true,
+                            hidden: false,
                         },
                         {
                             label: 'Net Revenue',
@@ -116,6 +123,10 @@ function RevenueChart({ styles }) {
                 </select>
             </div>
             <h4 className={styles.h4Title}>Monthly Revenue</h4>
+            <div className={styles.totalRevenue}>
+                <strong>Total Revenue ({selectedYear}):</strong> {yearTotalRevenue.toLocaleString('vi-VN')} VND
+            </div>
+
             <Bar data={revenueData} options={options} />
         </div>
     );

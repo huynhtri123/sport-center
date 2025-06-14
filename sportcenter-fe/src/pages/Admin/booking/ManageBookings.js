@@ -253,7 +253,12 @@ function ManageBookings() {
                         filteredBookings.map((booking, index) => (
                             <tr key={booking.id} className={booking.recurring ? styles.recurring : styles.single}>
                                 <td>{index + 1 + currentPage * pageSize}</td>
-                                <td>{booking.id}</td>
+                                <td>
+                                    <span className={styles.bookingIdCell} title={booking.id}>
+                                        {booking.id}
+                                    </span>
+                                </td>
+
                                 <td>{booking.fieldResponse?.fieldName || 'N/A'}</td>
                                 <td>
                                     <div className={styles.customerInfo}>

@@ -157,7 +157,7 @@ function ManageInvoices() {
                         </th>
                         <th>Payment Method</th>
                         <th>Transaction Type</th>
-                        <th>Actions</th>
+                        {/* <th>Actions</th> */}
                     </tr>
                 </thead>
                 <tbody>
@@ -170,11 +170,11 @@ function ManageInvoices() {
                             <td>{new Date(invoice.createdAt).toLocaleString('vi-VN', { hour12: false })}</td>
                             <td>{invoice.paymentMethod}</td>
                             <td>{invoice.transactionType}</td>
-                            <td>
+                            {/* <td>
                                 <button className={`btn ${styles.deleteButton}`} onClick={() => openModal(invoice)}>
                                     Remove
                                 </button>
-                            </td>
+                            </td> */}
                         </tr>
                     ))}
                 </tbody>

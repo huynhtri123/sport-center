@@ -67,43 +67,56 @@
         line-height: 1.6;
     }
 }
-
 .pricePoliciesSection {
     width: 100%;
     max-width: 1000px;
-    margin-bottom: 40px;
-    margin: 0 auto;
+    margin: 0 auto 40px auto;
+    padding: 0 20px;
 
     h2 {
         font-size: 2em;
-        margin-bottom: 20px;
-        color: #34495e;
-        font-weight: bold;
+        margin-bottom: 25px;
+        color: #2c3e50;
+        font-weight: 700;
         text-align: center;
     }
 
     .pricePolicyList {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px;
         list-style: none;
         padding: 0;
-        justify-content: center;
         margin-bottom: 36px;
     }
 
     .pricePolicyItem {
-        padding: 20px;
-        background-color: #ffffff;
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(104, 111, 118, 0.7);
-        text-align: left;
-        width: 100%;
-        max-width: 300px;
+        background-color: #f9f9f9;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        padding: 20px 24px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+        &:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
+        }
 
         .price {
             color: $price-color;
+            font-size: 1.1rem;
             font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        p {
+            margin: 4px 0;
+            color: #333;
+            font-size: 0.95rem;
+
+            strong {
+                color: #555;
+            }
         }
     }
 }

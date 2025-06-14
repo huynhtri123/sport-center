@@ -80,18 +80,28 @@ h4 {
 }
 
 .editButton {
-    background: #ccc;
-    color: #fff;
+    background: #e0e0e0;
+    color: #333;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    transition: background 0.2s;
+
     &:hover {
         background: #0056b3;
+        color: #fff;
     }
 }
 
 .cancelButton {
-    background: #ccc;
-    color: #fff;
+    background: #f0f0f0;
+    color: #333;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    transition: background 0.2s;
+
     &:hover {
         background: #b02a37;
+        color: #fff;
     }
 }
 

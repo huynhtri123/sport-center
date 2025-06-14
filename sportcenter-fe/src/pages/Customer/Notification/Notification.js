@@ -14,7 +14,7 @@ function Notification() {
     const [totalPages, setTotalPages] = useState(1);
     const pageSize = 4;
 
-    const [selectedImage, setSelectedImage] = useState(null);
+    const [selectedNotification, setSelectedNotification] = useState(null);
 
     // Fetch API theo user + page + searchTerm
     const fetchNotifications = useCallback(async () => {
@@ -55,7 +55,7 @@ function Notification() {
         }
     };
 
-    const closeModal = () => setSelectedImage(null);
+    const closeModal = () => setSelectedNotification(null);
 
     return (
         <div className={styles.notificationContainer}>
@@ -91,7 +91,7 @@ function Notification() {
                                     src={notification.imageUrl}
                                     alt={notification.title}
                                     className={styles.notificationImage}
-                                    onClick={() => setSelectedImage(notification.imageUrl)}
+                                    onClick={() => setSelectedNotification(notification)}
                                 />
                             )}
                             <div className={styles.notificationContent}>
@@ -118,10 +118,21 @@ function Notification() {
                 </button>
             </div>
 
-            {selectedImage && (
+            {selectedNotification && (
                 <div className={styles.modal} onClick={closeModal}>
                     <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-                        <img src={selectedImage} alt='Enlarged' className={styles.enlargedImage} />
+                        {selectedNotification.imageUrl && (
+                            <img
+                                src={selectedNotification.imageUrl}
+                                alt='Notification'
+                                className={styles.enlargedImage}
+                            />
+                        )}
+                        <h3 className={styles.modalTitle}>{selectedNotification.title}</h3>
+                        <p className={styles.modalContentText}>{selectedNotification.content}</p>
+                        <span className={styles.modalDate}>
+                            {new Date(selectedNotification.createdAt).toLocaleString('vi-VN', { hour12: false })}
+                        </span>
                         <button className={styles.closeButton} onClick={closeModal}>
                             Close
                         </button>

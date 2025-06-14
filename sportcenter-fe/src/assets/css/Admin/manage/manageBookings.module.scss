@@ -11,6 +11,15 @@
     table-layout: fixed;
     overflow-x: auto;
 
+    .bookingIdCell {
+        max-width: 42px; /* Hoặc chiều rộng phù hợp */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
     th,
     td {
         padding: 10px 15px;

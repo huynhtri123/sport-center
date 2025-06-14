@@ -5,8 +5,11 @@ import app.sportcenter.commons.PaginatedResponse;
 import app.sportcenter.exceptions.CustomException;
 import app.sportcenter.models.dto.request.SportRequest;
 import app.sportcenter.models.dto.response.SportResponse;
+import app.sportcenter.models.entities.Course;
 import app.sportcenter.models.entities.Field;
 import app.sportcenter.models.entities.Sport;
+import app.sportcenter.models.entities.Tournament;
+import app.sportcenter.repositories.CourseRepository;
 import app.sportcenter.repositories.FieldRepository;
 import app.sportcenter.repositories.SportRepository;
 import app.sportcenter.repositories.TournamentRepository;
@@ -31,6 +34,7 @@ public class SportServiceImpl implements SportService {
     private final SportMapper sportMapper;
     private final TournamentRepository tournamentRepository;
     private final FieldRepository fieldRepository;
+    private final CourseRepository courseRepository;
 
     @Override
     public ResponseEntity<BaseResponse> create(SportRequest sportRequest) {
@@ -96,6 +100,18 @@ public class SportServiceImpl implements SportService {
         List<Field> relevantFields = fieldRepository.findBySportIdAndIsActiveTrueAndIsDeletedFalse(id);
         if (!relevantFields.isEmpty()) {
             throw new CustomException("Cannot delete because there are sports fields currently being used for this sport!", HttpStatus.BAD_REQUEST.value());
+        }
+
+        // kiem tra co khoa hoc nao khong
+        List<Course> relevantCourses = courseRepository.findBySportIdAndIsActiveTrueAndIsDeletedFalse(id);
+        if (!relevantCourses.isEmpty()) {
+            throw new CustomException("Cannot delete because there are sports courses currently being used for this sport!", HttpStatus.BAD_REQUEST.value());
+        }
+
+        // kiem tra co giai dau nao khong
+        List<Tournament> relevantTournaments = tournamentRepository.findBySportIdAndIsActiveTrueAndIsDeletedFalse(id);
+        if (!relevantTournaments.isEmpty()) {
+            throw new CustomException("Cannot delete because there are sports tournaments currently being used for this sport!", HttpStatus.BAD_REQUEST.value());
         }
 
         // Check if any active, non-deleted tournaments are associated with this sport

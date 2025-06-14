@@ -18,6 +18,7 @@ import RecurringTimeSlotsModal from '../../../components/Modal/RecurringTimeSlot
 import aiApi from '../../../services/api/ai/aiApi';
 import TimeSlotGrid from './TimeSlotGrid';
 import { BookingDiscount } from '../../../utils/constants/BookingDiscount';
+import discountApi from '../../../services/api/discountConfig/discountApi';
 
 function Booking() {
     const [field, setField] = useGetField();
@@ -38,6 +39,7 @@ function Booking() {
     const [isShowTimeSlots, setIsShowTimeSlots] = useState(false);
     const [recurringTimeSlots, setRecurringTimeSlots] = useState([]);
     const [bookingProbabilities, setBookingProbabilities] = useState([]);
+    const [discountConfig, setDiscountConfig] = useState({});
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -65,6 +67,22 @@ function Booking() {
             disconnectWebSocket(); // Ngắt kết nối WebSocket khi component unmount
         };
     }, [selectedDate]); // Chỉ chạy 1 lần khi component mount
+
+    const fetchDiscountConfig = async () => {
+        try {
+            const response = await discountApi.getAll();
+            //console.log(response.data[0].amountDiscount);
+            if (response) {
+                setDiscountConfig(response.data[0]);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    useEffect(() => {
+        fetchDiscountConfig();
+    }, []);
 
     const fetchTimeSlots = useCallback(
         async (date) => {
@@ -114,14 +132,18 @@ function Booking() {
         }
     };
 
-    // tìm những slot có tỉ lệ <=5% đánh dấu nó là lowDemand để hàm getPrice giảm giá
+    // tìm những slot có tỉ lệ <=x% đánh dấu nó là lowDemand để hàm getPrice giảm giá
     const markLowDemandTimeSlots = (timeSlots, bookingProbabilities) => {
         return timeSlots.map((slot, index) => {
             const probability = bookingProbabilities[index];
-            const isLowDemand = probability <= BookingDiscount.LOW_DEMAND_RATE; // Nếu tỉ lệ <= 5%, đánh dấu là low demand
+            const discountThreshold = discountConfig ? discountConfig.amountDiscount.threshold / 100 : 0;
+            const discountAmount = discountConfig ? discountConfig.amountDiscount.discount : 0;
+            const isLowDemand = probability <= discountThreshold; // Nếu tỉ lệ <= x%, đánh dấu là low demand
+            console.log(discountAmount);
             return {
                 ...slot,
                 isLowDemand, // Thêm thuộc tính isLowDemand vào từng timeslot
+                discount: discountAmount,
             };
         });
     };
@@ -162,10 +184,14 @@ function Booking() {
     // }, [selectedDate]);
 
     const getPrice = async (isRecurring, date) => {
-        if (!startTimeRef.current.value) {
+        if (!startTimeRef.current?.value) {
             toast.warn('Please pick start time!');
             return;
         }
+
+        // Kiểm tra nếu discountConfig chưa load xong thì bỏ qua giảm giá
+        const hasDiscountConfig = discountConfig && discountConfig.amountDiscount;
+
         try {
             setIsLoading(true);
             const startDateTimeString = `${date}T${startTime}:00+00:00`;
@@ -188,15 +214,16 @@ function Booking() {
 
             let price = priceResponse.data;
 
-            // Kiểm tra nếu là slot low demand thì giảm giá
             const matchedSlot = timeSlots.find((slot) => slot.startTime.includes(`${date}T${startTime}`));
-            if (matchedSlot?.isLowDemand) {
-                price *= BookingDiscount.DISCOUNT_RATE;
+
+            // Chỉ giảm giá nếu có discountConfig hợp lệ
+            if (matchedSlot?.isLowDemand && hasDiscountConfig) {
+                price -= (price * discountConfig.amountDiscount.discount) / 100;
             }
 
             isRecurring ? setRecurringBookingPrice(price) : setBookingPrice(price);
         } catch (err) {
-            //console.error(err);
+            console.error('Failed to calculate price:', err);
         } finally {
             setIsLoading(false);
         }
@@ -342,7 +369,7 @@ function Booking() {
             </section>
 
             <section className={styles.bookingSection}>
-                <h2>Booking</h2>
+                <h2>Single Booking</h2>
                 <div className={styles.formGroup}>
                     <label htmlFor='datePicker'>Choose a date:</label>
                     <input
@@ -359,6 +386,7 @@ function Booking() {
                     timeSlots={timeSlots}
                     setStartTime={setStartTime}
                     bookingProbabilities={bookingProbabilities}
+                    startTimeRef={startTimeRef}
                 ></TimeSlotGrid>
 
                 <div className={styles.formGroup}>
@@ -367,7 +395,7 @@ function Booking() {
                 </div>
                 <form onSubmit={(e) => toggleModal(false, e)} className={styles.bookingForm}>
                     <div className={styles.formGroup}>
-                        <label htmlFor='numberOfHours'>Number of hours:</label>
+                        <label htmlFor='numberOfHours'>Duration (1-12h from start):</label>
                         <input
                             type='number'
                             id='numberOfHours'
@@ -396,23 +424,30 @@ function Booking() {
                     )}
                 </form>
 
-                <h2 className='mt-4'>Recurring Booking (Fixed Booking)</h2>
+                <h2 className='mt-4'>Fixed Schedule Booking</h2>
                 <form onSubmit={(e) => toggleModal(true, e)} className={styles.bookingForm}>
                     <div className={styles.formGroup}>
                         <label htmlFor='interval'>Select the cycle:</label>
                         <select id='interval' value={interval} onChange={(e) => setInterval(e.target.value)}>
-                            <option value={RecurringIntervalType.WEEKLY}>Weekly (1 tuần 1 lần)</option>
-                            <option value={RecurringIntervalType.BIWEEKLY}>Bi-Weekly (2 tuần 1 lần)</option>
+                            <option value={RecurringIntervalType.WEEKLY}>Weekly (once a week)</option>
+                            <option value={RecurringIntervalType.BIWEEKLY}>Bi-Weekly (once every 2 weeks)</option>
                         </select>
                     </div>
                     <div className={styles.formGroup}>
                         <label htmlFor='duration'>Package duration:</label>
-                        <select id='duration' value={duration} onChange={(e) => setDuration(e.target.value)}>
-                            <option value={1}>1 month (-5%)</option>
-                            <option value={3}>3 months (-15%)</option>
-                            <option value={6}>6 months (-25%)</option>
-                            <option value={9}>9 months (-35%)</option>
-                            <option value={12}>12 months (-45%)</option>
+                        <select
+                            id='duration'
+                            value={duration}
+                            onChange={(e) => setDuration(Number(e.target.value))} // ép kiểu vì e.target.value là string
+                        >
+                            {(discountConfig?.monthDiscountList?.length > 0
+                                ? discountConfig.monthDiscountList
+                                : [{ month: 1, discount: 0 }]
+                            ).map(({ month, discount }) => (
+                                <option key={month} value={month}>
+                                    {month} month{month > 1 ? 's' : ''} {discount > 0 ? `(-${discount}%)` : ''}
+                                </option>
+                            ))}
                         </select>
                     </div>
 

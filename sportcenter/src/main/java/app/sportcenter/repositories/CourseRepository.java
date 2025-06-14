@@ -1,6 +1,7 @@
 package app.sportcenter.repositories;
 
 import app.sportcenter.models.entities.Course;
+import app.sportcenter.models.entities.Field;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -31,4 +32,7 @@ public interface CourseRepository extends MongoRepository<Course, String> {
 
     @Query("{ 'courseName': { $regex: ?0, $options: 'i' }, 'isDeleted': false, 'isActive': true }")
     Page<Course> searchByNameContainingIgnoreCase(String courseName, Pageable pageable);
+
+    @Query("{ 'sport.id': ?0, 'isDeleted': false, 'isActive': true }")
+    List<Course> findBySportIdAndIsActiveTrueAndIsDeletedFalse(String sportId);
 }

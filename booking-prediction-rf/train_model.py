@@ -29,8 +29,8 @@ def train_and_save_model():
     # Tiền xử lý
     df_processed = preprocess_training_data(df_full)
 
-    X = df_processed.drop('was_booked', axis=1)
-    y = df_processed['was_booked']
+    X = df_processed.drop('was_booked', axis=1)     # xoá cột
+    y = df_processed['was_booked']                  # nhãn mục tiêu
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     predictor = BookingPredictor()

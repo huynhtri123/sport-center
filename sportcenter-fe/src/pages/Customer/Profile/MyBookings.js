@@ -146,20 +146,31 @@ function MyBookings({ bookings, setMyBookings, getMyProfile, userId }) {
             key: 'actions',
             render: (_, booking) => (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {/* Cancel single booking */}
                     <Button
                         type='default'
-                        style={{ background: '#d4dfea', color: '#fff' }}
+                        title={
+                            booking.recurring
+                                ? 'Cancel only this booking in the package'
+                                : 'Cancel this individual booking'
+                        }
+                        style={{ background: '#f0ad4e', color: '#fff' }}
                         onClick={() => showCancelConfirm(booking)}
                     >
-                        Cancel
+                        <i className='fa-solid fa-calendar-xmark me-2'></i>
+                        {booking.recurring ? 'Cancel One' : 'Cancel'}
                     </Button>
+
+                    {/* Cancel whole package */}
                     {booking.recurring && (
                         <Button
                             type='default'
-                            style={{ background: '#dcd7c8 ', color: '#fff' }}
+                            title='Cancel the entire package, including all individual bookings in it'
+                            style={{ background: '#6c757d', color: '#fff' }}
                             onClick={() => showCancelRecurringConfirm(booking)}
                         >
-                            Cancel Recurring
+                            <i className='fa-solid fa-layer-group me-2'></i>
+                            Cancel Package
                         </Button>
                     )}
                 </div>

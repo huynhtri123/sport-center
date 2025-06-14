@@ -8,6 +8,7 @@ import ManageInvoices from '../invoice/ManageInvoice';
 import ManageSports from '../sport/ManageSports';
 import Signout from '../../Auth/Signout';
 import ManageCourses from '../course/ManageCourses';
+import DiscountConfig from '../discountConfig/DiscountConfig';
 import ManageTournaments from '../tournament/ManageTournaments';
 import ManageBookings from '../booking/ManageBookings';
 import ManageUser from '../user/ManageUser';
@@ -33,6 +34,7 @@ function AdminDashboard() {
         { name: 'Manage Tournaments', icon: 'fa-solid fa-trophy' },
         { name: 'Manage Users', icon: 'fa-solid fa-users' },
         { name: 'Manage Notifications', icon: 'fa-solid fa-bell' },
+        { name: 'Discount Configuration', icon: 'fas fa-tag' },
     ];
 
     const renderContent = () => {
@@ -77,6 +79,8 @@ function AdminDashboard() {
                 return <ManageUser />;
             case 'Manage Notifications':
                 return <ManageNotifications />;
+            case 'Discount Configuration':
+                return <DiscountConfig />;
             default:
                 return <h2>Welcome to Admin Dashboard</h2>;
         }

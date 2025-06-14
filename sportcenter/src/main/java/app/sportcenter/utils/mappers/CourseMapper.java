@@ -9,6 +9,7 @@ import app.sportcenter.models.entities.Lesson;
 import app.sportcenter.models.entities.Sport;
 import app.sportcenter.repositories.SportRepository;
 import app.sportcenter.repositories.LessonRepository;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,17 +18,15 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Component
 public class CourseMapper {
 
-    @Autowired
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
-    @Autowired
-    private SportRepository sportRepository;
+    private final SportRepository sportRepository;
 
-    @Autowired
-    private LessonRepository lessonRepository;
+    private final LessonRepository lessonRepository;
 
     // Chuyển CourseRequest thành Course entity
     public Course convertToEntity(CourseRequest courseRequest) {

@@ -109,6 +109,7 @@ function ManageFields() {
                 videoUrl: defaultIcon,
                 pricePolicies: [{ price: 0, daysOfWeek: [] }],
             });
+            setShowInputForm(false);
         } catch (err) {
             console.error(err);
         } finally {
@@ -126,6 +127,7 @@ function ManageFields() {
             setIsEditing(false);
             setEditFieldId(null);
             setEditFormData(formData);
+            setShowInputForm(false);
         } catch (err) {
             console.error(err);
         } finally {
@@ -272,6 +274,7 @@ function ManageFields() {
             {(showInputForm || isEditing) && (
                 <FieldInput
                     isEditing={isEditing}
+                    setShowInputForm={setShowInputForm}
                     handleEditSubmit={handleEditSubmit}
                     handleAddSubmit={handleAddSubmit}
                     editFormData={editFormData}

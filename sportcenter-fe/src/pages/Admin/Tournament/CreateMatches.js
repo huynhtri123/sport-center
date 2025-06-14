@@ -204,7 +204,7 @@ export default function CreateMatches({ onCancel, tournament, getMatches, getAdv
 
             {/* Input cho số giờ của mỗi trận đấu*/}
             <div style={{ marginTop: '1rem' }}>
-                <label htmlFor='numberOfHours'>Duration per match (hours): </label>
+                <label htmlFor='numberOfHours'>Duration per match (1-24 hours): </label>
                 <input
                     type='number'
                     id='numberOfHours'
@@ -217,7 +217,7 @@ export default function CreateMatches({ onCancel, tournament, getMatches, getAdv
 
             {/* Input cho gap giữa các trận đấu */}
             <div style={{ marginTop: '1rem' }}>
-                <label htmlFor='gap'>Gap between matches (hours): </label>
+                <label htmlFor='gap'>Gap between matches (0-24 hours): </label>
                 <input
                     type='number'
                     id='gap'
