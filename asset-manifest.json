@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/sport-center/static/css/main.854694c4.css",
-    "main.js": "/sport-center/static/js/main.0d73f96d.js",
+    "main.css": "/sport-center/static/css/main.5997fd8c.css",
+    "main.js": "/sport-center/static/js/main.9d53bce2.js",
     "static/js/453.522ca6c1.chunk.js": "/sport-center/static/js/453.522ca6c1.chunk.js",
     "static/media/fa-solid-900.ttf": "/sport-center/static/media/fa-solid-900.07ed6d5fa32c1d54af0f.ttf",
     "static/media/fa-brands-400.ttf": "/sport-center/static/media/fa-brands-400.0ff70dcbf135d859ebf3.ttf",
@@ -18,12 +18,12 @@
     "static/media/fa-v4compatibility.ttf": "/sport-center/static/media/fa-v4compatibility.0f6cb412603527bda691.ttf",
     "static/media/fa-v4compatibility.woff2": "/sport-center/static/media/fa-v4compatibility.6cfec8414be20e2c3426.woff2",
     "index.html": "/sport-center/index.html",
-    "main.854694c4.css.map": "/sport-center/static/css/main.854694c4.css.map",
-    "main.0d73f96d.js.map": "/sport-center/static/js/main.0d73f96d.js.map",
+    "main.5997fd8c.css.map": "/sport-center/static/css/main.5997fd8c.css.map",
+    "main.9d53bce2.js.map": "/sport-center/static/js/main.9d53bce2.js.map",
     "453.522ca6c1.chunk.js.map": "/sport-center/static/js/453.522ca6c1.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.854694c4.css",
-    "static/js/main.0d73f96d.js"
+    "static/css/main.5997fd8c.css",
+    "static/js/main.9d53bce2.js"
   ]
 }
