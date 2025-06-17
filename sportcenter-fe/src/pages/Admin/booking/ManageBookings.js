@@ -39,7 +39,7 @@ function ManageBookings() {
     const [searchQueryUserFullName, setSearchQueryUserFullName] = useState('');
 
     const [currentPage, setCurrentPage] = useState(0);
-    const [pageSize, setPageSize] = useState(5); // Set page size to 5
+    const [pageSize, setPageSize] = useState(3); // Set page size to 5
     const [totalPages, setTotalPages] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
 

@@ -95,7 +95,7 @@ const FieldList = () => {
                         >
                             <img src={fieldMap.imageUrl} alt={fieldMap.name} />
                             <h3>{fieldMap.fieldName}</h3>
-                            <p>Mô tả: {fieldMap.description}</p>
+                            <p>{fieldMap.description}</p>
                         </Link>
                     );
                 })}

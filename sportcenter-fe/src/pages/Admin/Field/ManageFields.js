@@ -34,7 +34,7 @@ function ManageFields() {
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(0);
-    const [pageSize, setPageSize] = useState(5);
+    const [pageSize, setPageSize] = useState(4);
     const [totalPages, setTotalPages] = useState(0);
 
     const toggleModalOpen = (fieldId = null) => {

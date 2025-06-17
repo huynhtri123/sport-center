@@ -31,6 +31,7 @@ def train_and_save_model():
 
     X = df_processed.drop('was_booked', axis=1)     # xoá cột
     y = df_processed['was_booked']                  # nhãn mục tiêu
+    # chia 80% để train, 20% để test
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     predictor = BookingPredictor()
@@ -43,11 +44,10 @@ def train_and_save_model():
     print("\n[INFO] Thống kê nhãn âm theo ngày:")
     print(df_neg['day_of_week'].value_counts().sort_index())
 
-
-    acc = predictor.model.score(X_test, y_test)
+    acc = predictor.model.score(X_test, y_test) # dùng tập test để kiểm tra độ chính xác, hàm chuẩn của scikit-learn
     print(f"[INFO] Model trained. Accuracy: {acc:.4f}")
     # Vẽ biểu đồ thống kê dữ liệu
-    #plot_booking_data_statistics(df_processed, output_dir)
+    plot_booking_data_statistics(df_processed, output_dir)
     # Vẽ biểu đồ tầm quan trọng của các đặc trưng
     #plot_feature_importance(predictor.model, predictor.feature_names, top_n=20, output_dir="output_plots")
 

@@ -43,7 +43,7 @@ def generate_negative_samples(df_positive, n_neg_per_pos=1):
     )
 
     for _, row in df_positive.iterrows():
-        for _ in range(n_neg_per_pos):
+        for _ in range(n_neg_per_pos):  # ứng với 1 hàng trong tập dương thì tạo 1 hàng cho tập âm (nếu tỉ lệ 1:1)
             field_id = row['field_id']
             sport_id = row['sport_id']
             price = row['price']
