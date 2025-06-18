@@ -47,7 +47,7 @@ def train_and_save_model():
     acc = predictor.model.score(X_test, y_test) # dùng tập test để kiểm tra độ chính xác, hàm chuẩn của scikit-learn
     print(f"[INFO] Model trained. Accuracy: {acc:.4f}")
     # Vẽ biểu đồ thống kê dữ liệu
-    plot_booking_data_statistics(df_processed, output_dir)
+    #plot_booking_data_statistics(df_processed, output_dir)
     # Vẽ biểu đồ tầm quan trọng của các đặc trưng
     #plot_feature_importance(predictor.model, predictor.feature_names, top_n=20, output_dir="output_plots")
 

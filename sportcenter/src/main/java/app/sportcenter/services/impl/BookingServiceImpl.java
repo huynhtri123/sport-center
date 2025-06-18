@@ -312,6 +312,9 @@ public class BookingServiceImpl implements BookingService {
         return true;
     }
 
+    // nếu chỉ 1 request gọi hàm này thì synchronize ko làm j hết -> async chạy ngon
+    // nếu nhiều request cùng gọi thì mỗi request chạy ở luồng riêng (async), nhưng synchronize khoá lại chỉ cho
+    // 1 luồng đụng vào thôi -> lúc này async mới bị mất sức mạnh
     @Async
     public synchronized void processTimeSlots(List<TimeSlot> timeSlots, Field field, User currentUser, RecurringBooking recurringBooking) {
         // lấy danh sách ngày cần kiểm tra (chỉ lấy ngày, ko lấy giờ
@@ -321,7 +324,7 @@ public class BookingServiceImpl implements BookingService {
 
         // tìm tất cả FieldStatus trong khoảng ngày đó
         List<FieldStatusByDate> fieldStatusByDates = fieldStatusByDateRepository.findByFieldIdAndDateIn(field.getId(), new ArrayList<>(dates));
-        // dùng map để xử lý nhanh hơn
+        // chuyển thành dùng map để xử lý nhanh hơn (key: ngày, value: chính nó)
         Map<ZonedDateTime, FieldStatusByDate> fieldStatusByDateMap = fieldStatusByDates.stream()
                 .collect(Collectors.toMap(fs -> fs.getDate().withZoneSameInstant(ZoneOffset.UTC), fs -> fs));
 
@@ -356,6 +359,7 @@ public class BookingServiceImpl implements BookingService {
         }
         double pricePerBooking = total / numberOfBookings;
 
+        // cho phép các phần tử được xử lý song song trên nhiều luồng
         timeSlots.parallelStream().forEach(timeSlot -> {
             ZonedDateTime startTime = timeSlot.getStartTime();
             ZonedDateTime endTime = timeSlot.getEndTime();
@@ -367,6 +371,8 @@ public class BookingServiceImpl implements BookingService {
                 fieldStatusByDateMap.put(startOfDay, fieldStatusByDate);
             }
 
+            // đảm bảo chỉ 1 luồng đụng vào fieldStatusByDate
+            // nếu có nhiều luồng song song cùng đụng fieldStatusByDate thì chờ cũng lâu ko đáng kể, mấy khác vẫn chạy bth
             synchronized (fieldStatusByDate) {
                 fieldStatusByDate.getTimeSlots().add(new TimeSlot(startTime, endTime, FieldStatus.IN_USE));
             }
