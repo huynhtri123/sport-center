@@ -1,13 +1,13 @@
-import AuthProvider from './Auth/AuthProvider';
-import SportProvider from './Sport/SportProvider';
-import CourseProvider from './Course/CourseProvider';
-import TournamentProvider from './Tournament/TournamentProvider';
-import GetFieldsProvider from './Field/GetFieldsProvider';
-import UserProvider from './UserContext/UserProvider';
-import BookingPaymentProvider from './Booking/BookingPaymentProvider';
-import PaymentProvider from './Payment/PaymentProvider';
-import SelectDateProvider from './Booking/SelectDateProvider';
-import LoadingProvider from './Loading/LoadingProvider';
+import AuthProvider from './auth/AuthProvider';
+import SportProvider from './sport/SportProvider';
+import CourseProvider from './course/CourseProvider';
+import TournamentProvider from './tournament/TournamentProvider';
+import GetFieldsProvider from './field/GetFieldsProvider';
+import UserProvider from './user/UserProvider';
+import BookingPaymentProvider from './booking/BookingPaymentProvider';
+import PaymentProvider from './payment/PaymentProvider';
+import SelectDateProvider from './booking/SelectDateProvider';
+import LoadingProvider from './loading/LoadingProvider';
 
 function AllProviders({ children }) {
     return (

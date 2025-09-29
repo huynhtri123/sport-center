@@ -1,0 +1,218 @@
+@import '../../variables';
+
+:global(.ant-message) {
+    font-size: 18px !important;
+}
+
+.container {
+    padding: 20px !important;
+    background: white !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+}
+
+.header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 16px !important;
+    flex-wrap: wrap;
+}
+
+.searchBar {
+    width: 100% !important;
+    border-radius: 8px !important;
+    font-size: 16px !important;
+    padding: 8px !important;
+    margin-top: 8px;
+    margin-right: 20px !important;
+}
+
+.addButton,
+.removeButton {
+    font-size: 16px !important;
+    font-weight: 500;
+    height: 42px !important;
+    padding: 0 10px !important;
+    border-radius: 6px !important;
+    transition: opacity 0.3s ease-in-out !important;
+
+    &:hover {
+        background-color: $sky-blue-hover !important;
+    }
+}
+
+.addButton {
+    background: $sky-blue !important;
+    color: white !important;
+}
+
+.removeButton {
+    background: $remove-color !important;
+    color: white !important;
+}
+
+.lessonCard {
+    background: $blue-sky-white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.lessonHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 8px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.lessonContent {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Hiển thị 2 cột */
+    gap: 12px;
+}
+
+.pagination {
+    margin-top: 20px !important;
+    text-align: right !important;
+    font-size: 18px !important;
+}
+
+/* Table */
+.courseTable {
+    width: 100%;
+    overflow-x: auto; /* Bảng có thể cuộn ngang trên màn hình nhỏ */
+
+    .rowTable {
+        font-size: 16px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .editButton {
+        background-color: $blue-prime;
+        color: white;
+        padding: 8px 14px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 16px;
+
+        &:hover {
+            background-color: darken(darken($blue-prime, 3%), 3%) !important;
+            color: white !important;
+        }
+    }
+
+    .deleteButton {
+        background-color: #dc3545;
+        color: white;
+        padding: 8px 14px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 16px;
+
+        &:hover {
+            background-color: darken(#dc3545, 10%) !important;
+            color: white !important;
+        }
+    }
+
+    .ant-table-cell {
+        font-size: 20px !important;
+        padding: 14px !important;
+        word-break: break-word; /* Ngăn chữ bị tràn khỏi ô */
+    }
+}
+
+/* 🌟 Responsive Design */
+@media (max-width: 1024px) {
+    .container {
+        padding: 15px !important;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .searchBar {
+        max-width: 100% !important;
+        margin-right: 0 !important;
+    }
+
+    .lessonContent {
+        grid-template-columns: 1fr; /* Chuyển về 1 cột trên màn hình nhỏ */
+    }
+}
+
+@media (max-width: 768px) {
+    .searchBar {
+        margin-right: 0 !important;
+    }
+
+    .lessonHeader {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .pagination {
+        text-align: center !important;
+    }
+
+    .courseTable {
+        .editButton,
+        .deleteButton {
+            width: 100%;
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 10px !important;
+    }
+
+    .searchBar {
+        font-size: 14px !important;
+        padding: 6px !important;
+    }
+
+    .addButton,
+    .removeButton {
+        width: 100% !important;
+        text-align: center;
+    }
+
+    .lessonCard {
+        padding: 12px;
+    }
+
+    .lessonContent {
+        grid-template-columns: 1fr;
+    }
+
+    .courseTable {
+        overflow-x: auto; /* Đảm bảo bảng có thể cuộn trên mobile */
+
+        .rowTable {
+            font-size: 12px;
+        }
+
+        .editButton,
+        .deleteButton {
+            font-size: 14px !important;
+            width: 100%;
+        }
+    }
+}

@@ -1,0 +1,237 @@
+@import '../../variables';
+
+.fieldsTable {
+    width: 100%;
+    border-collapse: collapse;
+
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: left;
+    table-layout: fixed; // Đảm bảo chiều rộng của các cột được cố định
+
+    thead {
+        background-color: $blue-prime;
+        color: white;
+    }
+
+    th,
+    td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        text-align: center;
+    }
+
+    th:nth-child(1),  // Đảm bảo header của cột STT cũng có quy tắc riêng
+        td:nth-child(1) {
+        // Cột STT
+        width: 80px; // Giảm chiều rộng cột STT
+        padding: 4px; // Giảm padding để cột nhỏ lại
+    }
+
+    td:nth-child(5) {
+        /* Cột Price Policies */
+        white-space: normal; /* Cho phép nội dung xuống dòng */
+        word-wrap: break-word; /* Xuống dòng khi từ quá dài */
+        overflow-wrap: break-word; /* Tương tự word-wrap nhưng hỗ trợ nhiều trình duyệt */
+        max-width: 250px; /* Đặt giới hạn chiều rộng */
+        margin: 0 8px; /* Giữ khoảng cách từ nội dung đến viền cột */
+        text-align: center; /* Căn trái nội dung để dễ đọc */
+    }
+
+    td {
+        vertical-align: middle;
+
+        &:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        &:nth-child(odd) {
+            background-color: #ffffff;
+        }
+
+        &:nth-child(4) {
+            max-width: 200px; // Giảm chiều rộng của cột này
+            width: 200px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .fieldImage {
+            width: 120px; // Giảm kích thước hình ảnh
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 2px solid $blue-prime;
+        }
+
+        .policyContainer {
+            background: #eef5ff;
+            padding: 8px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            border: 1px solid #d0e0ff;
+        }
+
+        .policyContainer span {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+        }
+    }
+
+    .sortButton {
+        color: red;
+        background-color: $blue-prime;
+        color: white;
+        border: none;
+        font-weight: 700;
+    }
+
+    .actionButtons {
+        align-items: center;
+        gap: 8px;
+        button {
+            margin: 0 4px;
+        }
+    }
+}
+
+.editButton {
+    background-color: $blue-prime;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 700;
+
+    &:hover {
+        background-color: darken(darken($blue-prime, 3%), 3%);
+        color: white;
+    }
+}
+
+.deleteButton {
+    background-color: #dc3545;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 700;
+
+    &:hover {
+        background-color: darken(#dc3545, 10%);
+        color: white;
+    }
+}
+
+@media screen and (max-width: 1024px) {
+    .fieldsTable {
+        font-size: 14px;
+    }
+
+    .fieldsTable th,
+    .fieldsTable td {
+        padding: 6px; /* Giảm padding khi màn hình nhỏ */
+    }
+
+    .fieldsTable td:nth-child(4) {
+        max-width: 150px;
+        width: 150px;
+    }
+
+    .fieldImage {
+        width: 100px;
+        height: 70px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .fieldsTable {
+        display: block;
+        overflow-x: auto; /* Cho phép cuộn ngang nếu cần */
+        white-space: nowrap; /* Giữ nội dung trên cùng một dòng */
+    }
+
+    .fieldsTable th,
+    .fieldsTable td {
+        padding: 5px;
+        font-size: 12px;
+    }
+
+    .fieldsTable th:nth-child(1),
+    .fieldsTable td:nth-child(1) {
+        width: 60px; /* Giảm chiều rộng cột STT */
+    }
+
+    .fieldImage {
+        width: 80px;
+        height: 60px;
+    }
+
+    .actionButtons {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .editButton,
+    .deleteButton {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .fieldsTable {
+        font-size: 12px;
+    }
+
+    .fieldsTable thead {
+        display: none; /* Ẩn tiêu đề bảng trên màn hình nhỏ */
+    }
+
+    .fieldsTable tbody,
+    .fieldsTable tr,
+    .fieldsTable td {
+        display: block;
+        width: 100%;
+    }
+
+    .fieldsTable tr {
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        padding: 5px;
+    }
+
+    .fieldsTable td {
+        text-align: right;
+        position: relative;
+        padding-left: 50%;
+    }
+
+    .fieldsTable td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 10px;
+        font-weight: bold;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .fieldImage {
+        width: 70px;
+        height: 50px;
+    }
+
+    .editButton,
+    .deleteButton {
+        padding: 4px 8px;
+        font-size: 10px;
+    }
+}

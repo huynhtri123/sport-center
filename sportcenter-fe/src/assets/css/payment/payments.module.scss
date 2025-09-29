@@ -1,0 +1,130 @@
+.paymentContainer {
+    margin: 24px auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    max-width: 1200px;
+    background-color: #f8faff; /* Nền nhẹ màu xanh nhạt */
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.userDetails,
+.paymentSection {
+    flex: 1;
+    min-width: 500px;
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.userDetails h1,
+.paymentSection h2 {
+    margin-bottom: 1.2rem;
+    font-size: 1.6rem;
+    color: #34495e; /* Màu đậm hơn cho tiêu đề */
+    font-weight: bold;
+    border-bottom: 2px solid #007bff; /* Viền nhấn màu xanh */
+    padding-bottom: 0.5rem;
+}
+
+.userDetails p,
+.paymentDetails p {
+    font-size: 1rem;
+    margin: 0.8rem 0;
+    color: #555;
+    line-height: 1.5;
+}
+
+.paymentDetails {
+    background-color: #f9f9f9;
+    padding: 1rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: #555;
+    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem; /* Khoảng cách giữa các dòng */
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+.paymentDetails p {
+    display: flex; /* Đặt nội dung theo hàng ngang */
+    justify-content: space-between; /* Giãn cách giữa tiêu đề và nội dung */
+    font-size: 1rem;
+}
+
+.paymentDetails p strong {
+    color: #007bff; /* Màu xanh cho tiêu đề */
+    font-weight: 600;
+}
+
+.paymentForm {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+
+    .formGroup {
+        display: flex;
+        flex-direction: column;
+
+        label {
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: #444;
+        }
+
+        select {
+            padding: 0.8rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+
+            &:focus {
+                border-color: #007bff;
+                box-shadow: 0 0 6px rgba(0, 123, 255, 0.4);
+                outline: none;
+            }
+        }
+    }
+}
+
+.payButton {
+    padding: 0.9rem 1rem;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+    background-color: #1c157c; /* Màu xanh lá */
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+
+    &:hover {
+        background-color: #150f60;
+        transform: translateY(-2px);
+    }
+
+    &:active {
+        background-color: #150f60;
+        transform: translateY(0);
+    }
+}
+
+.vnpayLogo {
+    width: 150px; // Điều chỉnh kích thước logo
+    margin-bottom: 1rem; // Khoảng cách dưới logo
+}
+
+.paymentImage {
+    width: 100%; // Đảm bảo hình ảnh chiếm toàn bộ chiều rộng
+    max-width: 400px; // Giới hạn chiều rộng tối đa
+    margin-bottom: 1rem; // Khoảng cách trên hình ảnh
+    border-radius: 10px; // Bo tròn các góc
+}

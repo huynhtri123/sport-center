@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import styles from '../assets/css/Layouts/footer.module.scss';
+import styles from '../assets/css/layouts/footer.module.scss';
 
 function Footer() {
     return (

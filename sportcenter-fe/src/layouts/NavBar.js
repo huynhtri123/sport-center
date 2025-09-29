@@ -2,7 +2,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
-import styles from '../assets/css/Layouts/navBar.module.scss';
+import styles from '../assets/css/layouts/navBar.module.scss';
 import { useCheckSignedIn } from '../customs/hooks';
 import { useGetSports } from '../customs/hooks';
 import sportApi from '../services/api/sport/sportApi';

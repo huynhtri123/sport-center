@@ -1,0 +1,137 @@
+@import '../variables';
+
+.authContainer {
+    background-color: #f0f1f3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    min-width: 350px;
+    min-height: 100vh; /* Đổi từ height thành min-height */
+    margin: 0;
+    padding: 16px;
+}
+
+// sign up
+.signupBox {
+    width: 500px;
+    max-width: 80%;
+    height: 780px;
+    background-color: white;
+    text-align: center;
+    margin: 16px;
+    border-radius: 5px;
+    padding: 24px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    align-items: center;
+}
+
+// sign in
+.signinBox {
+    width: 500px;
+    max-width: 80%;
+    height: 580px;
+    background-color: white;
+    text-align: center;
+    border-radius: 5px;
+    padding: 24px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    align-items: center;
+}
+
+// fotgot-password
+.forgotPasswordBox {
+    width: 500px;
+    max-width: 80%;
+    height: 400px;
+    background-color: white;
+    text-align: center;
+    border-radius: 5px;
+    padding: 24px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.inputGroup .inputBox {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+}
+
+.inputGroup .inputBox label {
+    font-family: 'Cera Round Pro Bold';
+}
+
+// login failed
+.failed {
+    border: red solid 1px;
+}
+
+.logoutButton {
+    background-color: #dc3545; // Màu đỏ cho nút đăng xuất
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px; // Khoảng cách từ phần profile
+    transition: background-color 0.3s ease;
+
+    &:hover {
+        background-color: #c82333; // Màu khi hover
+        color: white;
+    }
+}
+
+.iconShowHide {
+    cursor: pointer;
+    margin-left: 8px;
+    font-size: 16px;
+    color: $dark-min;
+}
+
+/* Responsive cho tablet (từ 768px trở xuống) */
+@media (max-width: 768px) {
+    .signupBox,
+    .signinBox,
+    .forgotPasswordBox {
+        width: 90%;
+        max-width: 400px;
+        height: auto;
+        padding: 20px;
+    }
+
+    .authContainer {
+        padding: 12px;
+    }
+
+    .logoutButton {
+        padding: 10px;
+        font-size: 14px;
+    }
+}
+
+/* Responsive cho điện thoại (từ 480px trở xuống) */
+@media (max-width: 480px) {
+    .signupBox,
+    .signinBox,
+    .forgotPasswordBox {
+        width: 95%;
+        max-width: 350px;
+        padding: 16px;
+    }
+
+    .authContainer {
+        padding: 8px;
+    }
+
+    .logoutButton {
+        padding: 8px;
+        font-size: 12px;
+    }
+}

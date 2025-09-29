@@ -4,34 +4,34 @@ import styles from './assets/css/app.module.scss';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import Signup from './pages/Auth/Signup';
-import Signin from './pages/Auth/Signin';
-import GlobalStyle from './components/GlobalStyle/GlobalStyle';
+import Signup from './pages/auth/Signup';
+import Signin from './pages/auth/Signin';
+import GlobalStyle from './components/globalStyle/GlobalStyle';
 import NavBar from './layouts/NavBar';
 import Footer from './layouts/Footer';
-import Home from './pages/Home/Home';
-import ForgotPassword from './pages/Auth/ForgotPassword';
+import Home from './pages/home/Home';
+import ForgotPassword from './pages/auth/ForgotPassword';
 
-import CourseList from './pages/Customer/Course/CourseList';
-import CourseLesson from './pages/Customer/Course/CourseLesson';
-import Booking from './pages/Customer/Booking/Booking';
-import FieldList from './pages/Customer/Field/FieldList';
-import SportList from './pages/Customer/Sport/SportList';
-import Profile from './pages/Customer/Profile/Profile';
-import Payments from './pages/Customer/Payment/Payments';
-import PaymentSuccess from './pages/Customer/Payment/PaymentSuccess';
-import PaymentFailed from './pages/Customer/Payment/PaymentFailed';
+import CourseList from './pages/customer/course/CourseList';
+import CourseLesson from './pages/customer/course/CourseLesson';
+import Booking from './pages/customer/booking/Booking';
+import FieldList from './pages/customer/field/FieldList';
+import SportList from './pages/customer/sport/SportList';
+import Profile from './pages/customer/profile/Profile';
+import Payments from './pages/customer/payment/Payments';
+import PaymentSuccess from './pages/customer/payment/PaymentSuccess';
+import PaymentFailed from './pages/customer/payment/PaymentFailed';
 
-import AdminDashboard from './pages/Admin/dashboard/AdminDashBoard';
+import AdminDashboard from './pages/admin/dashboard/AdminDashBoard';
 import { useCleanupStorage } from './customs/hooks';
-import TournamentHome from './pages/Customer/Tournament/TournamentHome';
-import TournamentDetail from './pages/Customer/Tournament/TournamentDetail';
-import TournamentRegister from './pages/Customer/Tournament/TournamentRegister';
-import Notification from './pages/Customer/Notification/Notification';
-import TournamentDetailManage from './pages/Admin/tournament/TournamentDetailManage';
+import TournamentHome from './pages/customer/tournament/TournamentHome';
+import TournamentDetail from './pages/customer/tournament/TournamentDetail';
+import TournamentRegister from './pages/customer/tournament/TournamentRegister';
+import Notification from './pages/customer/notification/Notification';
+import TournamentDetailManage from './pages/admin/tournament/TournamentDetailManage';
 
 import AllProviders from './contexts/AllProviders';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './components/protectedRoutes/ProtectedRoute';
 import { Role } from './utils/enums/Role';
 
 function App() {

@@ -1,0 +1,133 @@
+@import '../variables';
+
+.courseContainer {
+    display: grid;
+    grid-template-columns: 300px 1fr; // Sidebar 300px, nội dung chiếm phần còn lại
+    gap: 20px; // Khoảng cách giữa sidebar và nội dung
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr; // Chuyển về một cột trên màn hình nhỏ
+    }
+}
+
+.sidebar {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    height: fit-content;
+
+    h2 {
+        font-size: 1.4em;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    .lessonLevel {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        background-color: #f0f4f8;
+        transition: background-color 0.2s, transform 0.2s;
+        cursor: pointer;
+
+        span {
+            margin-left: 12px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #00796b;
+        }
+
+        &:hover {
+            background-color: #e0f7fa;
+            transform: translateX(5px);
+        }
+    }
+
+    .courseHeader {
+        text-align: center;
+        margin-bottom: 20px;
+
+        .courseImage {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        h2 {
+            font-size: 1.6em;
+            color: $blue-prime;
+        }
+
+        p {
+            font-size: 1em;
+            color: #555;
+        }
+    }
+}
+
+.lessonSection {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    .sectionHeader {
+        font-size: 1.6em;
+        color: #00796b;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+
+        span {
+            margin-right: 10px;
+        }
+    }
+
+    .lessonGrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .lessonCard {
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        padding: 16px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+        &:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        h4 {
+            font-size: 1.2em;
+            color: #004d40;
+            margin: 10px 0;
+        }
+
+        p {
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        iframe {
+            width: 100%;
+            height: 200px;
+            border-radius: 8px;
+        }
+    }
+}
+
+.loading,
+.error {
+    font-size: 1.5em;
+    text-align: center;
+    margin-top: 50px;
+}

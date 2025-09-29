@@ -1,0 +1,197 @@
+@import '../variables';
+
+.navbarContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    width: 100%;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+// Logo & App Name
+.appNameBox {
+    display: flex;
+    align-items: center;
+}
+
+.appName {
+    font-size: 24px;
+    margin: 8px;
+    color: $blue-prime;
+    font-weight: 700;
+}
+
+// Left Items
+.leftBox {
+    display: flex;
+    gap: 15px;
+    margin-left: 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.leftNavBarItems {
+    font-size: 18px;
+    text-decoration: none;
+    color: $blue-prime;
+}
+
+.leftNavBarItems:hover {
+    color: $blue-prime-hover;
+}
+
+// Center Navbar (Search)
+.comboBox {
+    background-image: none;
+}
+
+.middleInput {
+    width: 300px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.searchIcon {
+    cursor: pointer;
+    padding: 5px;
+}
+
+.searchIcon:hover {
+    background-color: #f0f0f0;
+}
+
+// Right Navbar (Icons & Buttons)
+.iconContainer {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 1.25em;
+}
+
+.notificationBadge {
+    position: absolute;
+    top: 0;
+    right: 10px;
+    background-color: red;
+    font-family: Arial, sans-serif;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.signupButton {
+    border: 0.5px solid $blue-prime;
+    font-size: 16px;
+    border-radius: 10px;
+    padding: 2px 8px;
+    color: white;
+    background-color: $blue-prime;
+}
+
+.signupButton:hover {
+    background-color: darken($blue-prime, 10%);
+    color: $yellow-prime;
+}
+
+.iconLogin {
+    font-size: 32px;
+    padding: 2px 0px;
+}
+
+.iconLogin:hover {
+    font-weight: 700;
+    color: $blue-prime;
+}
+
+.leftItemsBox {
+    text-decoration: none;
+}
+
+// Active Link
+.active {
+    font-weight: 700;
+    color: $blue-prime;
+    text-decoration: underline;
+}
+
+// Responsive Design
+@media (max-width: 1024px) {
+    .navbarContainer {
+        padding: 0 15px;
+    }
+
+    .middleInput {
+        width: 200px;
+    }
+
+    .leftBox {
+        gap: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbarContainer {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px;
+    }
+
+    .appName {
+        font-size: 20px;
+    }
+
+    .leftBox {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .middleInput {
+        width: 100%;
+    }
+
+    .iconContainer {
+        gap: 10px;
+        font-size: 1em;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbarContainer {
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    .leftBox {
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        margin: 10px 0;
+    }
+
+    .middleInput {
+        width: 100%;
+        padding: 8px;
+    }
+
+    .iconContainer {
+        gap: 5px;
+        font-size: 1em;
+    }
+
+    .signupButton {
+        font-size: 14px;
+        padding: 4px 6px;
+    }
+}

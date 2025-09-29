@@ -1,15 +1,15 @@
 import { useContext, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import AuthContext from '../contexts/Auth/AuthContext';
-import GetFieldsContext from '../contexts/Field/GetFieldsContext';
-import SportContext from '../contexts/Sport/SportContext';
-import CourseContext from '../contexts/Course/CourseContext';
-import TournamentContext from '../contexts/Tournament/TournamentContext';
-import UserContext from '../contexts/UserContext/UserContext';
-import BookingPaymentContext from '../contexts/Booking/BookingPaymentContext';
-import PaymentContext from '../contexts/Payment/PaymentContext';
-import SelectDateContext from '../contexts/Booking/SelectDateContext';
-import LoadingContext from '../contexts/Loading/LoadingContext';
+import AuthContext from '../contexts/auth/AuthContext';
+import GetFieldsContext from '../contexts/field/GetFieldsContext';
+import SportContext from '../contexts/sport/SportContext';
+import CourseContext from '../contexts/course/CourseContext';
+import TournamentContext from '../contexts/tournament/TournamentContext';
+import UserContext from '../contexts/user/UserContext';
+import BookingPaymentContext from '../contexts/booking/BookingPaymentContext';
+import PaymentContext from '../contexts/payment/PaymentContext';
+import SelectDateContext from '../contexts/booking/SelectDateContext';
+import LoadingContext from '../contexts/loading/LoadingContext';
 
 export const useCheckSignedIn = () => {
     const [isSignedIn, setIsSignedIn] = useContext(AuthContext);

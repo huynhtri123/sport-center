@@ -1,5 +1,5 @@
 import { FieldType } from '../utils/enums/FieldType';
-import styles from '../assets/css/Sport/sportHome.module.scss';
+import styles from '../assets/css/sport/sportHome.module.scss';
 
 const sportData = [
     {
