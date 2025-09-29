@@ -1,0 +1,333 @@
+@import '../variables';
+
+.tournamentDetailContainer {
+    max-width: 1200px; /* Giới hạn chiều rộng tối đa */
+    margin: 24px auto; /* Căn giữa container với margin tự động */
+    padding: 20px 30px; /* Tăng padding ngang cho dễ nhìn hơn */
+    font-family: 'Lato', sans-serif;
+    color: #333; /* Màu chữ tối hơn để dễ đọc */
+    background-color: #fff; /* Nền sáng cho dễ nhìn */
+    border-radius: 10px; /* Bo góc nhẹ */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); /* Tăng độ rõ của đổ bóng */
+}
+
+.infoSection {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+    margin-bottom: 40px;
+    padding: 20px;
+    background-color: $blue-prime;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+
+    .sportName {
+        color: $orange-dark;
+    }
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+.tournamentInfo {
+    flex: 1;
+    color: #fff;
+
+    h1 {
+        font-size: 2rem;
+        color: $yellow-hover;
+        margin-bottom: 20px;
+    }
+
+    .infoList {
+        list-style: none;
+        padding: 0;
+
+        li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+
+            i {
+                color: #ffc107;
+                margin-right: 10px;
+                font-size: 1.2rem;
+            }
+
+            span {
+                font-weight: bold;
+                margin-right: 8px;
+            }
+        }
+    }
+
+    .registrationFee {
+        color: rgb(255, 24, 24);
+        font-weight: bold;
+    }
+
+    .registerButton {
+        margin-top: 20px;
+        padding: 12px 24px;
+        background-color: $yellow-prime;
+        color: #333;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+
+        &:hover {
+            background-color: $yellow-hover;
+        }
+    }
+}
+
+.thumbnailContainer {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 3px solid #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    object-fit: cover;
+    max-width: 500px;
+
+    .thumbnail {
+        width: 100%;
+        max-width: 500px;
+        height: auto;
+        border-radius: 8px;
+        object-fit: cover;
+    }
+}
+
+.tournamentInfo {
+    flex: 1; /* Tự động chiếm không gian còn lại */
+    padding-right: 20px;
+    color: #fff;
+
+    h2 {
+        font-size: 2rem;
+        color: $xanh-nhat;
+        margin-bottom: 15px; /* Tăng khoảng cách giữa tiêu đề và nội dung */
+        display: flex;
+        align-items: center; /* Căn biểu tượng với text */
+    }
+
+    i {
+        margin-right: 10px; /* Khoảng cách giữa biểu tượng và chữ */
+    }
+
+    div {
+        margin-bottom: 10px; /* Tăng khoảng cách giữa các dòng thông tin */
+    }
+
+    span {
+        font-weight: bold; /* Làm nổi bật nhãn thông tin */
+    }
+
+    button.registerButton {
+        margin-top: 20px; /* Khoảng cách trên nút rõ hơn */
+        padding: 12px 24px; /* Tăng kích thước nút */
+        background-color: $yellow-prime; /* Màu nền nút nổi bật */
+        color: #333; /* Màu chữ tối hơn */
+        font-weight: bold;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+            background-color: $yellow-hover;
+        }
+    }
+
+    .dateInfo {
+        color: white;
+    }
+
+    .registrationFee {
+        color: rgb(255, 24, 24); /* Màu đỏ nổi bật */
+        font-weight: bold; /* Làm chữ đậm */
+        margin-left: 5px; /* Khoảng cách giữa nhãn và giá */
+    }
+}
+
+.rulesSection {
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #edf6ff; /* Nền sáng hơn để phân biệt */
+    border-radius: 10px; /* Bo góc nhẹ */
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+    color: #333; /* Màu chữ chính */
+}
+
+.rulesSection h2 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: $yellow-hover; /* Màu tiêu đề nổi bật */
+    border-bottom: 2px solid $blue-prime; /* Đường viền dưới tiêu đề */
+    padding-bottom: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.rulesSection h2 i {
+    margin-right: 10px; /* Khoảng cách giữa biểu tượng và chữ */
+}
+
+.rulesList {
+    list-style-type: none; /* Loại bỏ ký hiệu mặc định */
+    padding: 0; /* Loại bỏ padding mặc định */
+    margin: 0; /* Loại bỏ margin mặc định */
+}
+
+.ruleItem {
+    display: flex; /* Căn ngang biểu tượng và nội dung */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    background-color: #fff; /* Màu nền trắng */
+    padding: 10px 15px; /* Khoảng cách bên trong */
+    border-radius: 8px; /* Bo góc nhẹ */
+    margin-bottom: 10px; /* Khoảng cách giữa các mục */
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+    transition: background-color 0.2s ease, transform 0.2s ease; /* Hiệu ứng hover */
+}
+
+.ruleItem i {
+    color: #28a745; /* Màu biểu tượng xanh lá nổi bật */
+    font-size: 1.2rem; /* Kích thước biểu tượng lớn hơn */
+    margin-right: 10px; /* Khoảng cách giữa biểu tượng và chữ */
+}
+
+.ruleItem span {
+    font-size: 1rem; /* Kích thước chữ dễ đọc */
+    color: #333; /* Màu chữ chính */
+}
+
+.ruleItem:hover {
+    background-color: #d9e8f7; /* Đổi nền khi hover */
+    color: #fff; /* Đổi màu chữ khi hover */
+    transform: scale(1.02); /* Phóng to nhẹ */
+}
+
+.noRules {
+    color: #888; /* Màu chữ xám nhẹ */
+    font-style: italic; /* In nghiêng để nhấn mạnh */
+    text-align: center; /* Căn giữa nội dung */
+}
+
+.thumbnailContainer {
+    flex: 1; /* Để phần thumbnail chiếm đều không gian */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 3px solid #fff;
+    border-radius: 10px; /* Bo góc lớn hơn cho hình ảnh */
+    overflow: hidden; /* Ẩn các phần vượt khỏi container */
+}
+
+.thumbnail {
+    width: 100%; /* Đảm bảo hình ảnh co dãn theo container */
+    max-width: 500px; /* Giới hạn kích thước tối đa */
+    height: 100%;
+    max-height: 500px; /* Giới hạn chiều cao tối đa */
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.prizes {
+    margin-bottom: 30px; /* Khoảng cách phía dưới giữa các section */
+    padding: 20px; /* Tăng padding bên trong để thoáng hơn */
+    background-color: #f8f9fa; /* Nền xám nhạt để phân biệt */
+    border-radius: 10px; /* Bo góc nhẹ */
+    box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1); /* Đổ bóng mềm mại */
+}
+
+.prizes h2 i {
+    margin-right: 10px; /* Khoảng cách giữa biểu tượng và chữ */
+    color: $blue-prime; /* Màu biểu tượng phù hợp với viền */
+}
+
+.prizes ul {
+    list-style: none; /* Loại bỏ ký hiệu mặc định */
+    padding: 0; /* Loại bỏ padding mặc định */
+    margin: 0; /* Loại bỏ margin mặc định */
+}
+
+.prizes ul li {
+    display: flex; /* Căn ngang nội dung */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    padding: 12px 15px; /* Khoảng cách bên trong cho từng mục */
+    background-color: #fff; /* Nền trắng cho mục */
+    border-radius: 8px; /* Bo góc nhẹ */
+    margin-bottom: 10px; /* Khoảng cách giữa các mục */
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.08); /* Đổ bóng nhẹ */
+    transition: transform 0.2s ease, background-color 0.2s ease; /* Hiệu ứng hover */
+}
+
+.prizes ul li:hover {
+    background-color: #f5f7ff; /* Nền vàng nhạt khi hover */
+    transform: scale(1.02); /* Phóng to nhẹ */
+}
+
+.prizes ul li strong {
+    font-size: 1rem; /* Làm nổi bật vị trí */
+    color: $blue-prime; /* Màu vàng cam nổi bật */
+    margin-right: 8px; /* Khoảng cách với phần mô tả */
+}
+
+.prizes ul li span {
+    color: #555; /* Màu chữ trung tính cho phần mô tả */
+}
+
+.prizes p {
+    color: #888; /* Màu xám nhạt cho thông báo */
+    font-style: italic; /* In nghiêng để tạo sự nhấn mạnh */
+    text-align: center; /* Căn giữa thông báo */
+    margin-top: 10px;
+}
+
+.prizes,
+.registeredTeams {
+    margin-bottom: 30px;
+
+    h2 i {
+        color: $yellow-hover;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: $yellow-hover;
+        border-bottom: 2px solid $blue-prime;
+        padding-bottom: 5px;
+    }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+
+        li {
+            margin-bottom: 5px;
+        }
+    }
+
+    p {
+        color: #888;
+    }
+}
+
+.teamItem {
+    display: flex;
+    align-items: center;
+    margin: 16px;
+
+    img.teamLogo {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        margin-right: 15px;
+    }
+}

@@ -5,11 +5,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.ZonedDateTime;
+import java.util.List;
 
-@Document(collection = "Course")
+@Document(collection = "courses")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,14 +18,13 @@ import java.time.ZonedDateTime;
 public class Course extends BaseEntity {
     @Id
     private String id;
-    private Sport sport;                    // môn thể thao được dạy
-    private User coach;                     // huấn luyện viên đảm nhiệm lớp
-    private String className;
-    private Double tuitition;               // học phí
+    @DBRef
+    private Sport sport;
+    private String courseName;
+    private Double tuition;               // học phí
     private String description;
-    private Integer maxParticipants;
-    private Integer currentParticipants;
-    private String schedule;                // lịch học
-    private ZonedDateTime startDate;
-    private ZonedDateTime endDate;
+    private String imageUrl;
+
+    private List<Lesson> lessons;
+
 }

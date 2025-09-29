@@ -6,7 +6,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -16,16 +16,16 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
+@RequiredArgsConstructor
 public class JWTServiceImpl implements JWTService {
-    @Autowired
-    private AppConfig appConfig;
+    private final AppConfig appConfig;
 
     @Override
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder()
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000L *60 * 30)) // hết hạn sau 30 phút
+                .expiration(new Date(System.currentTimeMillis() + 1000L *60 * 30)) // hết hạn sau 30 phút: 1000L *60 * 30
                 .signWith(getSigninKey(), Jwts.SIG.HS256)
                 .compact();
     }
@@ -36,7 +36,7 @@ public class JWTServiceImpl implements JWTService {
                 .claims(extraClaims)
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 7)) // hết hạn sau 7 ngày
+                .expiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 7)) // hết hạn sau 7 ngày: 1000L * 60 * 60 * 24 * 7
                 .signWith(getSigninKey(), Jwts.SIG.HS256)
                 .compact();
     }
@@ -48,11 +48,19 @@ public class JWTServiceImpl implements JWTService {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(getSigninKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        try {
+            return Jwts.parser()
+                    .verifyWith(getSigninKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            // Trả về Claims ngay cả khi token hết hạn
+            return e.getClaims();
+        } catch (Exception e) {
+            // Các lỗi khác
+            throw new IllegalArgumentException("Invalid token", e);
+        }
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolvers) {
@@ -64,14 +72,29 @@ public class JWTServiceImpl implements JWTService {
         return extractClaim(token, Claims::getSubject);
     }
 
-    private boolean isExpiredToken(String token) {
-        return extractClaim(token, Claims::getExpiration).before(new Date());
+    @Override
+    public boolean isExpiredToken(String token) {
+        try {
+            Date expiration = extractClaim(token, Claims::getExpiration);
+            return expiration.before(new Date());
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            return true; // token đã hết hạn
+        }
     }
 
     @Override
     public boolean isValidToken(String token, UserDetails userDetails) {
-        final String username = extractUserName(token);
-        return (username.equals(userDetails.getUsername()) && !isExpiredToken(token));
+        try {
+            final String username = extractUserName(token);
+            return (username.equals(userDetails.getUsername()) && !isExpiredToken(token));
+        } catch (Exception e) {
+            return false; // Token không hợp lệ
+        }
+    }
+
+    @Override
+    public Date extractIssuedAt(String token) {
+        return extractClaim(token, Claims::getIssuedAt);
     }
 
 }

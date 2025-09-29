@@ -25,23 +25,20 @@ import java.util.Map;
 @Slf4j
 public class RestExceptionHandler {
 
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<BaseResponse> handleCustomException(CustomException e) {
+        log.warn("Custom Exception: {}", e.getMessage());
+        BaseResponse response = new BaseResponse();
+        response.setStatus(e.getStatusCode());
+        response.setMessage(e.getMessage());
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<BaseResponse>handleIllegalArgumentException(IllegalArgumentException exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 new BaseResponse(exception.getMessage(), HttpStatus.BAD_REQUEST.value(), null)
         );
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
@@ -61,7 +58,7 @@ public class RestExceptionHandler {
     @ExceptionHandler({ AuthenticationException.class, JwtException.class })
     public ResponseEntity<BaseResponse> handleAuthenticationException(AuthenticationException exception) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                new BaseResponse("Thông tin xác thực không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập và thử lại.",
+                new BaseResponse("Invalid or expired credentials. Please log in and try again!",
                         HttpStatus.UNAUTHORIZED.value(), ErrorCode.TOKEN_EXPIRED.name())
         );
     }
@@ -74,21 +71,52 @@ public class RestExceptionHandler {
         );
     }
 
-    @ExceptionHandler(CustomException.class)
-    public ResponseEntity<BaseResponse> handleCustomException(CustomException e) {
-        log.warn("Custom Exception: " + e.getMessage());
-        BaseResponse response = new BaseResponse();
-        response.setStatus(e.getStatusCode());
-        response.setMessage(e.getMessage());
-        return ResponseEntity.status(response.getStatus()).body(response);
-    }
-
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<BaseResponse> handleAccessDeniedException(AccessDeniedException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(new BaseResponse("(tự custom): " + ex.getMessage(),
+                .body(new BaseResponse(ex.getMessage(),
                         HttpStatus.FORBIDDEN.value(), null));
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<BaseResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+        // Tạo Map để lưu các lỗi theo định dạng field -> message
+        Map<String, String> errors = new HashMap<>();
+        String specificErrorMessage = ""; // Biến để lưu thông báo lỗi cụ thể
+
+        // Lặp qua các lỗi của BindingResult
+        for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
+            String fieldName = fieldError.getField(); // Lấy tên trường lỗi
+            String errorMessage = fieldError.getDefaultMessage(); // Lấy thông báo lỗi mặc định
+
+            // Kiểm tra nếu lỗi liên quan đến @Future (Ngày phải trong tương lai)
+            if (fieldError.getCode() != null && fieldError.getCode().contains("Future")) {
+                // Nếu là lỗi về ngày không phải trong tương lai, tạo thông báo chi tiết cho lỗi này
+                errorMessage = "Field '" + fieldName + "' must be a date in the future.";
+                specificErrorMessage = "The start date must be a date in the future."; // Thông báo lỗi cụ thể cho trường hợp này
+            }
+
+            // Thêm lỗi vào Map (field -> message)
+            errors.put(fieldName, errorMessage);
+        }
+
+        // Nếu có lỗi specific (lỗi Future), gán message là thông báo lỗi cụ thể
+        if (!specificErrorMessage.isEmpty()) {
+            // Nếu có lỗi về ngày trong tương lai, gán message cụ thể vào response
+            BaseResponse response = new BaseResponse();
+            response.setMessage(specificErrorMessage); // Lỗi cụ thể cho ngày
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
+            response.setData(errors); // Gán lỗi vào data
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+        // Trường hợp còn lại, lỗi không phải Future
+        BaseResponse response = new BaseResponse();
+        response.setMessage("Invalid input");
+        response.setStatus(HttpStatus.NOT_FOUND.value());
+        response.setData(errors); // Gán lỗi vào data
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
 
 }

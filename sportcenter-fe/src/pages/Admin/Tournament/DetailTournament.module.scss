@@ -1,0 +1,98 @@
+@import '../../../assets/css/variables';
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.2);
+    z-index: 999; /* Đảm bảo modal nằm trên các thành phần khác */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Container chính của modal */
+.modalContent {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 800px;
+    padding: 20px;
+    animation: slideDown 0.3s ease-out;
+    position: relative;
+}
+
+/* Hiệu ứng xuất hiện của modal */
+@keyframes slideDown {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Tiêu đề modal */
+.modalContent h4 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: $blue-prime;
+    margin-bottom: 20px;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+}
+
+/* Danh sách đội */
+.teamList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.teamInfo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+}
+
+.teamDetails {
+    flex-grow: 1;
+}
+
+.teamName {
+    font-size: 1rem;
+    color: #444444;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.teamLogo img {
+    border-radius: 50%;
+    border: 2px solid #ddd;
+}
+
+/* Nút đóng */
+.modalContent button {
+    background-color: #ff9966;
+    border: none;
+    color: white;
+    font-size: 0.9rem;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: block;
+    margin: 20px auto 0;
+    transition: background-color 0.3s;
+}
+
+.modalContent button:hover {
+    background-color: #ff7844;
+}

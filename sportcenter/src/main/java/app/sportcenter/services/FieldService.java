@@ -1,0 +1,28 @@
+package app.sportcenter.services;
+
+import app.sportcenter.commons.BaseResponse;
+import app.sportcenter.models.dto.request.FieldRequest;
+import org.springframework.http.ResponseEntity;
+
+public interface FieldService {
+    public ResponseEntity<BaseResponse> create(FieldRequest fieldRequest);
+
+    public ResponseEntity<BaseResponse> getAllActive(int page, int size);
+    public ResponseEntity<BaseResponse> getById(String fieldId);
+    public ResponseEntity<BaseResponse> getAllSoftDeleted();
+
+    public ResponseEntity<BaseResponse> updateById(String fieldId, FieldRequest newField);
+    public ResponseEntity<BaseResponse> toggleActiveStatus(String fieldId);
+
+    public ResponseEntity<BaseResponse> softDeleted(String fieldId);
+    public ResponseEntity<BaseResponse> restore(String fieldId);
+    public ResponseEntity<BaseResponse> forceDelete(String fieldId);
+
+    public ResponseEntity<BaseResponse> searchByNameContainingIgnoreCase(String fieldName);
+
+    public ResponseEntity<BaseResponse> findBySportId(String sportId);
+
+    ResponseEntity<BaseResponse> searchByNameAndPaginate(String fieldName, int page, int size);
+
+    ResponseEntity<BaseResponse> filterBySportIdAndPaginate(String sportId, int page, int size);
+}

@@ -1,0 +1,432 @@
+@import './variables';
+
+.homeContainer {
+    margin: 24px;
+}
+
+.btnToggleEditMode {
+    margin-bottom: 8px;
+    padding: 8px 16px;
+    font-size: 12px;
+
+    background: white;
+    color: $blue-prime;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    font-weight: bold;
+
+    &:hover {
+        background: $blue-prime;
+        color: $yellow-hover;
+    }
+}
+
+// Khi ở chế độ Edit Mode
+.btnToggleEditModeActive {
+    @extend .btnToggleEditMode;
+    background: $blue-prime;
+    color: $yellow-hover;
+}
+
+.heroSection {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Đẩy nội dung về hai phía */
+    padding: 60px;
+    background: $blue-prime;
+    color: white;
+    overflow: hidden;
+}
+
+/* Hero Content (Text) */
+.heroContent {
+    flex: 1.2; /* Tăng diện tích phần chữ */
+    max-width: 600px;
+    z-index: 1;
+
+    h1 {
+        font-size: 2.5em;
+        margin-bottom: 20px;
+        color: white;
+    }
+
+    p {
+        font-size: 1.2em;
+        margin-bottom: 30px;
+    }
+}
+
+.heroButton {
+    background-color: $yellow-prime;
+    color: $blue-prime;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-bottom: 16px;
+
+    &:hover {
+        color: $blue-prime;
+        background-color: $yellow-hover;
+    }
+}
+
+/* Right Side: Banner + Upload */
+.rightContainer {
+    flex: 1; /* Chiếm ít diện tích hơn phần chữ */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* Đưa sát mép phải */
+}
+
+/* Slider */
+.sliderContainer {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+    border: 5px solid white;
+    border-radius: 15px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.slider {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    height: 100%;
+}
+
+.slider img {
+    flex-shrink: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 15px;
+}
+
+/* Upload Banner Section */
+.uploadBannerSection {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+
+    .uploadBannerButton {
+        padding: 6px 12px;
+        font-size: 0.9em;
+        border: 1px solid #ccc;
+        background: #f9f9f9;
+        color: #333;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.2s ease-in-out;
+
+        &:hover {
+            background: #e0e0e0;
+        }
+    }
+}
+
+.featuredServices {
+    padding: 40px 20px;
+    background-color: #f8f9fa;
+    text-align: center;
+
+    .servicesContainer {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 30px;
+
+        .serviceCard {
+            background: white;
+            border-radius: 10px;
+
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 250px;
+
+            i {
+                font-size: 2em;
+                color: #004085;
+                margin-bottom: 15px;
+            }
+
+            h3 {
+                margin-bottom: 10px;
+            }
+        }
+    }
+}
+
+// Why choose us section
+.whyChooseUs {
+    padding: 60px 20px;
+    background: linear-gradient(135deg, $blue-prime 0%, $dark-blue-strong 100%);
+    color: white;
+    text-align: center;
+
+    h2 {
+        font-size: 2.2em;
+        color: white;
+        margin-bottom: 30px;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); // Tự động căn chỉnh theo độ rộng màn hình
+        gap: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    li {
+        font-size: 1.1em;
+        text-align: left;
+        color: $blue-prime;
+        background: white;
+        padding: 18px 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        position: relative;
+        transition: transform 0.2s ease-in-out, box-shadow 0.3s ease-in-out;
+
+        &:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        &:before {
+            content: '✔';
+            font-size: 1.5em;
+            color: $blue-gray;
+            font-weight: bold;
+        }
+    }
+
+    @media (max-width: 768px) {
+        ul {
+            grid-template-columns: repeat(1, 1fr); // Chuyển về 1 cột trên màn hình nhỏ
+        }
+    }
+}
+
+// Gallery section
+.gallerySection {
+    padding: 40px 20px;
+    text-align: center;
+
+    h2 {
+        margin-bottom: 24px;
+    }
+
+    .galleryContainer {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap; // Đảm bảo ảnh xuống dòng khi màn hình nhỏ
+
+        img {
+            width: 250px;
+            height: 150px;
+            border-radius: 10px;
+            object-fit: cover; // Giữ tỉ lệ ảnh đẹp
+            transition: transform 0.3s ease-in-out;
+
+            &:hover {
+                transform: scale(1.05);
+            }
+        }
+    }
+}
+
+.testimonials {
+    padding: 60px 20px;
+    background: #f9f9f9;
+    color: #333;
+    text-align: center;
+
+    h2 {
+        font-size: 2em;
+        margin-bottom: 30px;
+        color: $blue-prime;
+    }
+
+    .testimonialContainer {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        justify-content: center;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .testimonialCard {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+
+        &:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        p {
+            font-style: italic;
+            font-size: 1em;
+            margin-bottom: 10px;
+            color: #36454f;
+        }
+
+        span {
+            font-weight: bold;
+            color: $dark-teal;
+            font-size: 1em;
+        }
+    }
+
+    // Responsive
+    @media (max-width: 768px) {
+        .testimonialContainer {
+            grid-template-columns: repeat(1, 1fr);
+        }
+    }
+}
+
+/* Upload Section */
+.uploadSection {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+
+    .uploadLabel {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #f3f3f3;
+        padding: 10px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+    .uploadSpan {
+        font-weight: bold;
+        color: white;
+    }
+
+    .uploadButton {
+        background-color: $blue-gray;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.3s ease, transform 0.2s ease;
+
+        &:hover {
+            transform: scale(1.05);
+        }
+    }
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+    .heroSection {
+        flex-direction: column;
+        text-align: center;
+        padding: 40px;
+    }
+
+    .sliderContainer {
+        width: 80%;
+        height: 300px;
+    }
+}
+
+@media (max-width: 768px) {
+    .homeContainer {
+        margin: 16px;
+    }
+
+    .heroSection {
+        padding: 30px;
+    }
+
+    .heroContent {
+        max-width: 100%;
+        padding: 0 20px;
+    }
+
+    .sliderContainer {
+        width: 90%;
+        height: 250px;
+    }
+
+    .featuredServices .servicesContainer {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .whyChooseUs ul {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .whyChooseUs li {
+        width: 90%;
+    }
+
+    .galleryContainer {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .galleryContainer img {
+        width: 100%;
+        max-width: 300px;
+        height: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .heroSection {
+        padding: 20px;
+    }
+
+    .heroContent h1 {
+        font-size: 2em;
+    }
+
+    .heroContent p {
+        font-size: 1em;
+    }
+
+    .heroButton {
+        padding: 8px 16px;
+    }
+
+    .sliderContainer {
+        height: 200px;
+    }
+
+    .testimonialContainer {
+        grid-template-columns: 1fr;
+    }
+}

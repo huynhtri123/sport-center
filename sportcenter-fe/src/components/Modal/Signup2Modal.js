@@ -2,9 +2,8 @@ import { useRef, useState } from 'react';
 import clsx from 'clsx';
 import { toast } from 'react-toastify';
 
-import styles from './Modal.module.scss';
-import Input from '../Input/Input';
-import authApi from '../../services/api/authApi';
+import styles from './signup2.module.scss';
+import authApi from '../../services/api/auth/authApi';
 import { Loading } from '../Loading/Loading';
 
 function Signup2Modal({ isOpen, onClose, onSubmit, signupEmail, isError }) {
@@ -18,7 +17,7 @@ function Signup2Modal({ isOpen, onClose, onSubmit, signupEmail, isError }) {
         if (code.length === 6) {
             onSubmit(code);
         } else {
-            toast.error('Code phải chứa đúng 6 số!');
+            toast.error('The code must contain exactly 6 digits!');
         }
     };
 
@@ -47,32 +46,38 @@ function Signup2Modal({ isOpen, onClose, onSubmit, signupEmail, isError }) {
     return (
         <div className={clsx(styles.modalOverlay)}>
             <div className={clsx(styles.modalContent)}>
-                {isLoading && <Loading></Loading>}
+                {isLoading && <Loading />}
 
-                <h2 className='font-cera-round-pro-bold font-size-24px'>
-                    Please check your email and Enter Verification Code
-                </h2>
+                <h2 className='font-cera-round-pro-bold font-size-24px'>Please check your email to get code</h2>
+
                 <p style={{ color: '#ff9966' }}>
                     (expires in 5 minutes)
                     <span onClick={handleSendAgain} className={clsx('font-size-14px ms-2', styles.sendAgainBtn)}>
                         Send again
                     </span>
                 </p>
-                <form onSubmit={handleSubmit}>
-                    <Input
-                        className={clsx('mb-3', { [styles.error]: isError })}
-                        type='text'
-                        placeholder='Enter the 6-digit code...'
-                        width='300px'
-                        value={code}
-                        onChange={handleChange}
-                        ref={inputRef}
-                    />
-                    <button type='submit' className='btn btn-primary'>
+
+                <form onSubmit={handleSubmit} className={styles.verifyForm}>
+                    <div className={styles.inputBox}>
+                        <label htmlFor='code'>Verification Code</label>
+                        <input
+                            id='code'
+                            ref={inputRef}
+                            type='text'
+                            placeholder='Enter the 6-digit code...'
+                            className={clsx(styles.inputCode, { [styles['errors-input']]: isError })}
+                            value={code}
+                            onChange={handleChange}
+                        />
+                        {isError && <span className={styles['errors-input']}>Code is invalid or expired.</span>}
+                    </div>
+
+                    <button type='submit' className={styles.btnSubmit}>
                         Verify
                     </button>
                 </form>
-                <button onClick={onClose} className='btn btn-secondary mt-3'>
+
+                <button onClick={onClose} className={styles.btnClose}>
                     Close
                 </button>
             </div>

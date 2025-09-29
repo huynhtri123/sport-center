@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "Notification")
+@Document(collection = "notifications")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,7 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Notification extends BaseEntity {
     @Id
     private String id;
-    private User user;          // người nhận thông báo
     private String title;       // tiêu đề thông báo
     private String content;     // nội dung thông báo
+    private String imageUrl;    // đường dẫn hình ảnh thông báo
 }

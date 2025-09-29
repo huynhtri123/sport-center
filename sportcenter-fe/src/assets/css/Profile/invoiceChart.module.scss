@@ -1,0 +1,53 @@
+.invoiceChartContainer {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 1200px;
+    margin: 0 auto;
+
+    .chartWrapper {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+        justify-content: center;
+    }
+
+    .chartItem {
+        flex: 1 1 45%;
+        background: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+
+        h4 {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            color: #555;
+        }
+    }
+
+    // Responsive: nhỏ hơn 768px thì chartItem chiếm full width
+    @media (max-width: 768px) {
+        .chartItem {
+            flex: 1 1 100%;
+        }
+    }
+
+    // Responsive: rất nhỏ (mobile nhỏ) thêm padding giảm để vừa màn hình nhỏ
+    @media (max-width: 400px) {
+        padding: 10px;
+
+        .chartItem {
+            padding: 15px;
+
+            h4 {
+                font-size: 1.2rem;
+                margin-bottom: 10px;
+            }
+        }
+    }
+}

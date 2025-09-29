@@ -1,0 +1,42 @@
+.confirmationContainer {
+    border-radius: 10px;
+    margin: 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh; // Ensures the page content is centered vertically
+    padding: 20px;
+    text-align: center;
+    width: 80%;
+    background-color: #f9f9f9;
+
+    h1 {
+        font-size: 2.5rem;
+        color: #28a745; // A green color indicating success
+        margin-bottom: 20px;
+    }
+
+    p {
+        font-size: 1.25rem;
+        color: #333;
+        margin-bottom: 40px;
+        max-width: 600px;
+        line-height: 1.6;
+    }
+
+    .backButton {
+        font-size: 1.125rem;
+        padding: 10px 20px;
+        background-color: #007bff; // Bootstrap primary blue
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+            background-color: #0056b3; // Darker blue on hover
+        }
+    }
+}

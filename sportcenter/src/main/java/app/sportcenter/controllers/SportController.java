@@ -1,51 +1,52 @@
 package app.sportcenter.controllers;
 
 import app.sportcenter.commons.BaseResponse;
-import app.sportcenter.models.dto.SportRequest;
+import app.sportcenter.models.dto.request.SportRequest;
 import app.sportcenter.services.SportService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/sport")
+@RequestMapping("/api")
+@RequiredArgsConstructor
 public class SportController {
-    @Autowired
-    private SportService sportService;
+    private final SportService sportService;
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping("/create")
+    @PostMapping("/sport/create")
     public ResponseEntity<BaseResponse> create(@Valid @RequestBody SportRequest sportRequest) {
         return sportService.create(sportRequest);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/getById/{sportId}")
+    @GetMapping("/public/sport/{sportId}")
     public ResponseEntity<BaseResponse> getById(@PathVariable String sportId) {
         return sportService.getById(sportId);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PutMapping("/update/{sportId}")
+    @PutMapping("/sport/update/{sportId}")
     public ResponseEntity<BaseResponse> update(@PathVariable String sportId,@Valid @RequestBody SportRequest sportRequest) {
         return sportService.update(sportId, sportRequest);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PatchMapping("/softDelete/{sportId}")
+    @PatchMapping("/sport/soft-delete/{sportId}")
     public ResponseEntity<BaseResponse> softDelete(@PathVariable String sportId) {
-        return sportService.delete(sportId);
+        return sportService.softDelete(sportId);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/getAll")
-    public ResponseEntity<BaseResponse> getAll() {
-        return sportService.getAll();
+    // api này public được nên ko cần xác thực
+    @GetMapping("/public/sport/all-active")
+    public ResponseEntity<BaseResponse> getAllActive(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        return sportService.getAllActive(page, size);
     }
 
-    @PatchMapping("/restore/{sportId}")
+    @PatchMapping("/sport/restore/{sportId}")
     public ResponseEntity<BaseResponse> restore(@PathVariable String sportId) {
         return sportService.restore(sportId);
     }

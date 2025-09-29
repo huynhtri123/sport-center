@@ -1,16 +1,14 @@
 package app.sportcenter.models.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.ZonedDateTime;
 
-@Document(collection = "PaymentInfo")
+@Document(collection = "payment_info")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
@@ -21,4 +19,6 @@ public class PaymentInfo extends BaseEntity {
     private String cardNumber;
     private String cardHolderName;
     private ZonedDateTime issueDate;
+
+    private String userId;
 }

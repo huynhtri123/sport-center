@@ -2,14 +2,30 @@ package app.sportcenter.repositories;
 
 import app.sportcenter.commons.Role;
 import app.sportcenter.models.entities.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface UserRepository extends MongoRepository<User, String> {
+
     public Optional<User> getUserByEmail(String email);
+
     public boolean existsByEmail(String email);
+
     public boolean existsByRole(Role role);
+
+    List<User> findByIsDeletedFalseAndIsActiveTrue();
+    Page<User> findByIsDeletedFalseAndIsActiveTrue(Pageable pageable);
+
+    List<User> findAllByIsActiveTrueAndIsDeletedFalse();
+
+    @Query("{ 'fullName' : { $regex: ?0, $options: 'i' }}")
+    Page<User> findByFullNameRegexIgnoreCase(String regex, Pageable pageable);
+
 }

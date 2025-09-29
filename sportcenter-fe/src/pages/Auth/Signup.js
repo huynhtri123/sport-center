@@ -1,15 +1,11 @@
-import clsx from 'clsx';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-
-import Button from '../../components/Button/Button';
-import styles from '../../assets/css/Auth/auth.module.scss';
-import Input from '../../components/Input/Input';
+import styles from '../../assets/css/Auth/signup.module.scss';
 import Signup2Modal from '../../components/Modal/Signup2Modal';
-import { SignupSchema } from '../../utils/Rules/SignupSchema';
-import authApi from '../../services/api/authApi';
+import { SignupSchema } from '../../utils/rules/SignupSchema';
+import authApi from '../../services/api/auth/authApi';
 import { Loading } from '../../components/Loading/Loading';
 
 function Signup() {
@@ -26,6 +22,15 @@ function Signup() {
         expiredAt: null,
     });
 
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const togglePasswordVisibility = () => {
+        setShowPassword((prevState) => !prevState);
+    };
+    const toggleConfirmPasswordVisibility = () => {
+        setShowConfirmPassword((prevState) => !prevState);
+    };
+
     // lưu lỗi input
     const [errors, setErrors] = useState({});
 
@@ -41,9 +46,22 @@ function Signup() {
     const navigate = useNavigate();
 
     const handleChangeInput = (e) => {
+        const { name, value } = e.target;
+
+        // Clear specific password errors when modifying the fields
+        if (name === 'password' || name === 'passwordConfirm') {
+            setErrors((prevErrors) => {
+                const newErrors = { ...prevErrors };
+                // Remove errors related to password and confirm password
+                delete newErrors.password;
+                delete newErrors.passwordConfirm;
+                return newErrors;
+            });
+        }
+
         setFormData({
             ...formData,
-            [e.target.name]: e.target.value,
+            [name]: value,
         });
     };
 
@@ -67,9 +85,41 @@ function Signup() {
         });
     };
 
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
     // submit đăng ký bước 1
     const handleSubmit = async (e) => {
         e.preventDefault();
+        // Clear previous errors before validation
+        setErrors({});
+
+        // Kiểm tra email hợp lệ
+        if (!isValidEmail(formData.email)) {
+            setErrors({
+                ...errors,
+                email: 'Invalid email!',
+            });
+            return;
+        }
+
+        // Kiểm tra nếu mật khẩu chứa khoảng trắng
+        if (formData.password.includes(' ')) {
+            setErrors({
+                password: 'Password must not contain spaces!',
+            });
+            return;
+        }
+        // Kiểm tra nếu mật khẩu chứa khoảng trắng
+        if (formData.passwordConfirm.includes(' ')) {
+            setErrors({
+                passwordConfirm: 'Password must not contain spaces!',
+            });
+            return;
+        }
+
         // reset lỗi input về rỗng
         setErrors({});
         setIsLoading(true); // bắt đầu hiệu ứng loading
@@ -135,98 +185,118 @@ function Signup() {
     };
 
     return (
-        <div className={clsx(styles.authContainer)}>
-            {isLoading && <Loading></Loading>}
+        <div className={styles.authContainer}>
+            {isLoading && <Loading />}
 
-            <form onSubmit={handleSubmit} className={clsx(styles.signupBox, 'flex-column')}>
-                <div className='font-size-24px mb-3 d-flex flex-column'>
-                    <span className='font-cera-round-pro-yellow'>
-                        Get Started
-                        <i className='far fa-laugh ms-2'></i>
+            <form onSubmit={handleSubmit} className={styles.signupBox}>
+                <div className={styles.titleGroup}>
+                    <span className={styles.titleWelcome}>
+                        Get Started <i className='far fa-laugh'></i>
                     </span>
-                    <span className='font-cera-round-pro-black font-size-32px'>Create Your Account</span>
+                    <span className={styles.titleMain}>Create Your Account</span>
                 </div>
 
-                <div className={`input-box d-flex flex-column mt-4 ${styles.inputGroup}`}>
+                <div className={styles.inputGroup}>
                     <div className={styles.inputBox}>
-                        <label htmlFor='fullname' className='font-cera-round-pro-bold ms-2'>
+                        <label htmlFor='fullname' className={styles.label}>
                             Full Name
                         </label>
-                        <Input
-                            className='mb-3'
-                            type={'text'}
-                            placeholder={'e.g. Nguyen Van A'}
+                        <input
+                            id='fullname'
+                            type='text'
+                            placeholder='e.g. Nguyen Van A'
                             name='fullName'
                             value={formData.fullName}
-                            onChange={(e) => handleChangeInput(e)}
+                            onChange={handleChangeInput}
                             required
+                            className={`${styles.input} ${errors.fullName ? styles.failed : ''}`}
                         />
-                        {errors.fullName && <div className={'errors-input'}>{errors.fullName}</div>}
+                        {errors.fullName && <div className={styles.errorText}>{errors.fullName}</div>}
                     </div>
 
                     <div className={styles.inputBox}>
-                        <label htmlFor='email' className='font-cera-round-pro-bold ms-2'>
+                        <label htmlFor='email' className={styles.label}>
                             Email Address
                         </label>
-                        <Input
-                            className='mb-3'
-                            type={'email'}
-                            placeholder={'e.g. user001@gmail.com'}
+                        <input
+                            id='email'
+                            type='email'
+                            placeholder='e.g. user001@gmail.com'
                             name='email'
                             value={formData.email}
-                            onChange={(e) => handleChangeInput(e)}
+                            onChange={handleChangeInput}
                             required
+                            className={`${styles.input} ${errors.email ? styles.failed : ''}`}
                         />
-                        {errors.email && <div className={styles.errorsInput}>{errors.email}</div>}
+                        {errors.email && <div className={styles.errorText}>{errors.email}</div>}
                     </div>
 
                     <div className={styles.inputBox}>
-                        <label htmlFor='password' className='font-cera-round-pro-bold ms-2'>
-                            Password
+                        <label htmlFor='password' className={styles.label}>
+                            Password{' '}
+                            <span onClick={togglePasswordVisibility} className={styles.iconShowHide}>
+                                {showPassword ? (
+                                    <i className='fa-regular fa-eye' title='Hide password?'></i>
+                                ) : (
+                                    <i className='fa-regular fa-eye-slash' title='Show password?'></i>
+                                )}
+                            </span>
                         </label>
-                        <Input
-                            className={clsx('mb-3')}
-                            type={'password'}
-                            placeholder={'Enter strong password...'}
+                        <input
+                            id='password'
+                            type={showPassword ? 'text' : 'password'}
+                            placeholder='Enter strong password...'
                             name='password'
                             value={formData.password}
-                            onChange={(e) => handleChangeInput(e)}
+                            onChange={handleChangeInput}
                             required
+                            className={`${styles.input} ${errors.password ? styles.failed : ''}`}
                         />
-                        {errors.password && <div className={styles.errorsInput}>{errors.password}</div>}
+                        {errors.password && <div className={styles.errorText}>{errors.password}</div>}
                     </div>
 
                     <div className={styles.inputBox}>
-                        <label htmlFor='confirmPassword' className='font-cera-round-pro-bold ms-2'>
-                            Confirm Password
+                        <label htmlFor='confirmPassword' className={styles.label}>
+                            Confirm Password{' '}
+                            <span onClick={toggleConfirmPasswordVisibility} className={styles.iconShowHide}>
+                                {showConfirmPassword ? (
+                                    <i className='fa-regular fa-eye' title='Hide password?'></i>
+                                ) : (
+                                    <i className='fa-regular fa-eye-slash' title='Show password?'></i>
+                                )}
+                            </span>
                         </label>
-                        <Input
-                            className={clsx('mb-3')}
-                            type={'password'}
-                            placeholder={'Confirm your password...'}
+                        <input
+                            id='confirmPassword'
+                            type={showConfirmPassword ? 'text' : 'password'}
+                            placeholder='Confirm your password...'
                             name='passwordConfirm'
                             value={formData.passwordConfirm}
-                            onChange={(e) => handleChangeInput(e)}
+                            onChange={handleChangeInput}
                             required
+                            className={`${styles.input} ${errors.passwordConfirm ? styles.failed : ''}`}
                         />
-                        {errors.passwordConfirm && <div className={styles.errorsInput}>{errors.passwordConfirm}</div>}
+                        {errors.passwordConfirm && <div className={styles.errorText}>{errors.passwordConfirm}</div>}
+                    </div>
+
+                    <div className={styles.verifyLink}>
+                        <Link to='/forgot-password'>Verify your account?</Link>
                     </div>
                 </div>
 
-                <Button className={clsx('font-size-20px mt-3')} type='submit'>
+                <button type='submit' className={styles.submitBtn}>
                     {isLoading ? (
                         'Signing up...'
                     ) : (
-                        <span>
-                            Sign up
-                            <i className='fas fa-sign-in-alt ms-2'></i>
-                        </span>
+                        <>
+                            Sign up <i className='fas fa-sign-in-alt'></i>
+                        </>
                     )}
-                </Button>
+                </button>
 
-                <div className='font-cera-round-pro-regular mt-2'>
+                <div className={styles.registerText}>
                     Already have an account?
-                    <Link to={'/sign-in'} className='text-underline ms-2'>
+                    <Link to='/sign-in' className={styles.link}>
                         Log in here
                     </Link>
                 </div>

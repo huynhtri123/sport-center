@@ -1,11 +1,9 @@
-import styles from './Modal.module.scss';
+import styles from './RenewPasswordModal.module.scss';
 import clsx from 'clsx';
 import { useRef, useState } from 'react';
 import { toast } from 'react-toastify';
-
-import Input from '../Input/Input';
-import { RenewPasswordSchema } from '../../utils/Rules/RenewPassWordSchema';
-import authApi from '../../services/api/authApi';
+import { RenewPasswordSchema } from '../../utils/rules/RenewPassWordSchema';
+import authApi from '../../services/api/auth/authApi';
 import { Loading } from '../Loading/Loading';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,6 +15,15 @@ function RenewPasswordModal({ isModalOpen, onClose, email, getVerifyResponse }) 
     });
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState({});
+
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const togglePasswordVisibility = () => {
+        setShowPassword((prevState) => !prevState);
+    };
+    const toggleConfirmPasswordVisibility = () => {
+        setShowConfirmPassword((prevState) => !prevState);
+    };
 
     const navigate = useNavigate();
     const inputCodeRef = useRef();
@@ -40,14 +47,55 @@ function RenewPasswordModal({ isModalOpen, onClose, email, getVerifyResponse }) 
         }
     };
 
+    const isValidEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // console.log(formData);
 
+        // Reset previous errors
+        setErrors({});
+
+        // Validate email
+        if (!isValidEmail(email)) {
+            setErrors((prevErrors) => ({
+                ...prevErrors,
+                email: 'Invalid email format!',
+            }));
+            return;
+        }
+
+        // Validate password and confirm password
+        if (formData.password.includes(' ')) {
+            setErrors((prevErrors) => ({
+                ...prevErrors,
+                password: 'Password must not contain spaces!',
+            }));
+            return;
+        }
+
+        if (formData.comfirmPassword.includes(' ')) {
+            setErrors((prevErrors) => ({
+                ...prevErrors,
+                comfirmPassword: 'Confirm password must not contain spaces!',
+            }));
+            return;
+        }
+
+        if (formData.password !== formData.comfirmPassword) {
+            setErrors((prevErrors) => ({
+                ...prevErrors,
+                comfirmPassword: 'Passwords do not match!',
+            }));
+            return;
+        }
+
+        // Validate using the schema
         try {
             await RenewPasswordSchema.validate(formData, { abortEarly: false });
         } catch (validationErrors) {
-            // nếu validate có lỗi thì nó nằm trong validationErrors.inner
             if (validationErrors && validationErrors.inner) {
                 const formErrors = {};
                 validationErrors.inner.forEach((error) => {
@@ -61,7 +109,6 @@ function RenewPasswordModal({ isModalOpen, onClose, email, getVerifyResponse }) 
         }
 
         const userId = getVerifyResponse.data.id;
-        // console.log(userId);
         try {
             const renewPasswordResponse = await authApi.renewPassword(userId, {
                 password: formData.password,
@@ -69,10 +116,10 @@ function RenewPasswordModal({ isModalOpen, onClose, email, getVerifyResponse }) 
                 resetPasswordCode: formData.resetPasswordCode,
             });
             toast.success(renewPasswordResponse.message);
-            navigate('/');
+            navigate('/sign-in');
         } catch (apiErr) {
             inputCodeRef.current.focus();
-            setErrors('');
+            setErrors(''); // Clear errors on failure
             console.error(apiErr);
         }
     };
@@ -93,59 +140,91 @@ function RenewPasswordModal({ isModalOpen, onClose, email, getVerifyResponse }) 
 
     return (
         <div className={clsx(styles.modalOverlay)}>
-            {isLoading && <Loading></Loading>}
-
+            {isLoading && <Loading />}
             <div className={clsx(styles.modalContent)}>
-                <h2 className='font-cera-round-pro-bold font-size-24px'>
-                    Please check your email and Enter Verification Code
-                </h2>
+                <h2 className='font-cera-round-pro-bold font-size-24px'>Please check your email to get code</h2>
                 <p style={{ color: '#ff9966' }}>
                     (expires in 5 minutes)
                     <span onClick={handleSendAgain} className={clsx('font-size-14px ms-2', styles.sendAgainBtn)}>
-                        Send again
+                        Send again?
                     </span>
                 </p>
-                <form onSubmit={(e) => handleSubmit(e)}>
-                    <Input
-                        className={clsx('mb-3')}
-                        name={'resetPasswordCode'}
-                        value={formData.resetPasswordCode}
-                        onChange={(e) => handleChange(e)}
-                        type='text'
-                        placeholder='6-digit code...'
-                        width='300px'
-                        ref={inputCodeRef}
-                    />
-                    {errors.resetPasswordCode && (
-                        <div className={clsx('errors-input font-size-10px')}>{errors.resetPasswordCode}</div>
-                    )}
-                    <Input
-                        className={clsx('mb-3')}
-                        name={'password'}
-                        value={formData.password}
-                        onChange={(e) => handleChange(e)}
-                        type='password'
-                        placeholder='New password...'
-                        width='300px'
-                    />
-                    {errors.password && <div className={clsx('errors-input font-size-10px')}>{errors.password}</div>}
-                    <Input
-                        className={clsx('mb-3')}
-                        name={'comfirmPassword'}
-                        value={formData.comfirmPassword}
-                        onChange={(e) => handleChange(e)}
-                        type='password'
-                        placeholder='Confirm new password...'
-                        width='300px'
-                    />
-                    {errors.comfirmPassword && (
-                        <div className={clsx('errors-input font-size-10px')}>{errors.comfirmPassword}</div>
-                    )}
-                    <button type='submit' className='btn btn-primary mt-4'>
+                <form onSubmit={handleSubmit} className={styles.verifyForm}>
+                    <div className={styles.inputBox}>
+                        <label htmlFor='resetPasswordCode' className='font-cera-round-pro-bold ms-2'>
+                            Verify code
+                        </label>
+                        <input
+                            id='resetPasswordCode'
+                            className={clsx('mb-3', styles.inputCode)}
+                            name='resetPasswordCode'
+                            value={formData.resetPasswordCode}
+                            onChange={handleChange}
+                            type='text'
+                            placeholder='6-digit code...'
+                            ref={inputCodeRef}
+                            maxLength={6}
+                        />
+                        {errors.resetPasswordCode && (
+                            <div className={clsx('errors-input font-size-10px')}>{errors.resetPasswordCode}</div>
+                        )}
+                    </div>
+
+                    <div className={styles.inputBox}>
+                        <label htmlFor='password' className='font-cera-round-pro-bold ms-2'>
+                            Password{' '}
+                            <span onClick={togglePasswordVisibility} className={styles.iconShowHide}>
+                                {showPassword ? (
+                                    <i className='fa-regular fa-eye' title='Hide password?'></i>
+                                ) : (
+                                    <i className='fa-regular fa-eye-slash' title='Show password?'></i>
+                                )}
+                            </span>
+                        </label>
+                        <input
+                            id='password'
+                            className={clsx('mb-3', styles.inputCode)}
+                            name='password'
+                            value={formData.password}
+                            onChange={handleChange}
+                            type={showPassword ? 'text' : 'password'}
+                            placeholder='New password...'
+                        />
+                        {errors.password && (
+                            <div className={clsx('errors-input font-size-10px')}>{errors.password}</div>
+                        )}
+                    </div>
+
+                    <div className={styles.inputBox}>
+                        <label htmlFor='comfirmPassword' className='font-cera-round-pro-bold ms-2'>
+                            Confirm Password{' '}
+                            <span onClick={toggleConfirmPasswordVisibility} className={styles.iconShowHide}>
+                                {showConfirmPassword ? (
+                                    <i className='fa-regular fa-eye' title='Hide password?'></i>
+                                ) : (
+                                    <i className='fa-regular fa-eye-slash' title='Show password?'></i>
+                                )}
+                            </span>
+                        </label>
+                        <input
+                            id='comfirmPassword'
+                            className={clsx('mb-3', styles.inputCode)}
+                            name='comfirmPassword'
+                            value={formData.comfirmPassword}
+                            onChange={handleChange}
+                            type={showConfirmPassword ? 'text' : 'password'}
+                            placeholder='Confirm new password...'
+                        />
+                        {errors.comfirmPassword && (
+                            <div className={clsx('errors-input font-size-10px')}>{errors.comfirmPassword}</div>
+                        )}
+                    </div>
+
+                    <button type='submit' className={styles.btnSubmit}>
                         Change password
                     </button>
                 </form>
-                <button onClick={onClose} className='btn btn-secondary mt-3'>
+                <button onClick={onClose} className={styles.btnClose}>
                     Close
                 </button>
             </div>

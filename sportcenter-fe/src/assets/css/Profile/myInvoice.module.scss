@@ -1,0 +1,61 @@
+@import '../variables';
+
+.myInvoiceContainer {
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    color: #000;
+    overflow-x: auto; // Hỗ trợ cuộn ngang khi cần
+
+    @media (max-width: 768px) {
+        padding: 10px;
+    }
+}
+
+.ant-table {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.ant-table-thead > tr > th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+    text-align: center;
+}
+
+.ant-table-tbody > tr > td {
+    text-align: center;
+}
+
+.ant-btn-danger {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+}
+
+.ant-btn-danger:hover {
+    background-color: #c82333;
+}
+
+/* Responsive Table */
+@media (max-width: 1024px) {
+    .ant-table-thead > tr > th:nth-child(3),  // Ẩn cột Status
+    .ant-table-thead > tr > th:nth-child(6),  // Ẩn cột Created At
+    .ant-table-tbody > tr > td:nth-child(3),
+    .ant-table-tbody > tr > td:nth-child(6) {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .ant-table-thead > tr > th:nth-child(5),  // Ẩn cột Amount
+    .ant-table-tbody > tr > td:nth-child(5) {
+        display: none;
+    }
+
+    .ant-btn {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
+}

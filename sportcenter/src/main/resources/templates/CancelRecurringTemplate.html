@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recurring Booking Cancellation Confirmation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            padding: 30px;
+            color: #343a40;
+        }
+        .container {
+            max-width: 650px;
+            background-color: #ffffff;
+            padding: 25px;
+            margin: 0 auto;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid #dc3545;
+        }
+        h2 {
+            color: #dc3545;
+            font-size: 24px;
+            margin-top: 0;
+            text-align: center;
+        }
+        .details {
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+        .details p {
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        .details strong {
+            display: inline-block;
+            min-width: 170px;
+            color: #495057;
+            font-weight: bold;
+        }
+        .details span {
+            color: #212529;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 0.85em;
+            text-align: center;
+            color: #6c757d;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>⚠️ Recurring Booking Cancellation Confirmation</h2>
+    <p>Dear <strong th:text="${fullName}">[User's Name]</strong>,</p>
+    <p>
+        Your recurring booking for <strong th:text="${fieldName}">[Field Name]</strong> has been successfully
+        canceled.
+    </p>
+
+    <div class="details">
+        <p><strong>📆 Start Date:</strong> <span th:text="${startDate}">[Start Date]</span></p>
+        <p><strong>⏰ Start Time:</strong> <span th:text="${startTime}">[Start Time]</span></p>
+        <p><strong>📅 End Date:</strong> <span th:text="${endDate}">[End Date]</span></p>
+        <p><strong>⏳ End Time:</strong> <span th:text="${endTime}">[End Time]</span></p>
+        <p><strong>🔄 Interval:</strong> <span th:text="${interval}">[Interval]</span></p>
+        <p>
+            <strong>📦 Package Duration (Months):</strong> <span th:text="${duration}">[Package Duration]</span>
+        </p>
+        <p><strong>⏱️ Number of Hours:</strong> <span th:text="${numberOfHours}">[Number of Hours]</span></p>
+        <p><strong>💰 Booking Price:</strong> <span th:text="${price}">[Total Price]</span></p>
+        <p><strong>💸 Refunded to balance:</strong> <span th:text="${refund}">[Refund Amount]</span></p>
+    </div>
+
+    <p>If you have any questions or need further assistance, please contact us.</p>
+
+    <div class="footer">
+        <p><strong>Sport Center</strong></p>
+        <p>📍 123 Sport Avenue, City, Country</p>
+        <p>📞 Phone: +123 456 7890 | ✉️ Email: sportcenter209@gmail.com</p>
+    </div>
+</div>
+</body>
+</html>

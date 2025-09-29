@@ -11,18 +11,37 @@ public class AppConfig {
     private String uri;
     @Value("${spring.data.mongodb.database}")
     private String database;
+
     @Value("${jwt.secret-key}")
     private String jwtSecretKey;
+
     @Value("${admin.email}")
     private String adminEmail;
     @Value("${admin.password}")
     private String adminPassword;
+
+    // cloudinary
+    @Value("${cloud_name}")
+    private String cloudName;
+    @Value("${cloud_api_key}")
+    private String cloudApiKey;
+    @Value("${cloud_api_secret}")
+    private String cloudApiSecret;
 
     @Value("5")     // 5 phút
     private Integer verifyExpireTime;
     @Value("10")
     private Integer logRounds;
 
-    @Value(("http://localhost:3001"))
+    @Value("${client.url}")
     private String clientUrl;
+
+    @Value("${default.icon}")
+    private String defaultIcon;
+
+    @Value("${ai.add-data.url}")
+    private String aiAddDataUrl;
+
+    @Value("${ai.retrain.url}")
+    private String aiRetrainUrl;
 }

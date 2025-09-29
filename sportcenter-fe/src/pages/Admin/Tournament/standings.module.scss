@@ -1,0 +1,68 @@
+@import '../../../assets/css/variables';
+$primary-color: #4a90e2;
+$secondary-color: #f5f5f5;
+$text-color: #333;
+$border-radius: 8px;
+$box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+.standings {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    .standingsTitle {
+        font-size: 1.5rem;
+        color: $primary-color;
+        margin-bottom: 20px;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        font-size: 1rem;
+
+        th,
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+            color: #555;
+        }
+
+        td {
+            color: #666;
+        }
+
+        tr:hover {
+            background-color: #f9f9f9;
+            transition: background-color 0.3s ease;
+        }
+
+        tr:nth-child(odd) {
+            background-color: #fafafa;
+        }
+
+        tr:nth-child(even) {
+            background-color: #ffffff;
+        }
+
+        td {
+            font-size: 0.95rem;
+        }
+
+        th {
+            font-size: 1rem;
+            color: #444;
+        }
+    }
+}

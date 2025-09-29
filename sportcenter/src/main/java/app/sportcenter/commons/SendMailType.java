@@ -1,0 +1,11 @@
+package app.sportcenter.commons;
+
+public enum SendMailType {
+    CONFIRM_BOOKING,
+    CONFIRM_RECURRING,
+    OTP_VERIFY,
+    CANCEL_RECURRING,
+    CANCEL_BOOKING,
+    REGISTER_TOURNAMENT,
+    CANCEL_REGISTER_TOURNAMENT
+}

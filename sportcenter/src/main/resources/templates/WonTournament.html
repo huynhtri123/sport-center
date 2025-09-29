@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Congratulations!</title>
+    <style>
+        body {
+            background-color: #f4f4f4;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 30px auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: #1e90ff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 26px;
+        }
+
+        .content {
+            padding: 30px;
+            color: #333333;
+        }
+
+        .content h2 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+
+        .team-logo {
+            max-width: 120px;
+            margin: 20px auto;
+            display: block;
+            border-radius: 10px;
+        }
+
+        .prize {
+            color: #e67e22;
+            font-weight: bold;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        .footer {
+            font-size: 12px;
+            color: #888888;
+            text-align: center;
+            padding: 15px;
+            background-color: #fafafa;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                margin: 10px;
+                padding: 10px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <div class="header">
+        <h1>🏆 Sport Center Notification</h1>
+    </div>
+    <div class="content">
+        <h2>Congratulations, Team <span th:text="${teamName}"></span>!</h2>
+        <img th:if="${teamLogo != null}" th:src="${teamLogo}" alt="Team Logo" class="team-logo"/>
+
+        <p>Your team has emerged victorious in the <strong th:text="${tournamentName}"></strong> tournament, which started on <strong th:text="${startDate}"></strong>.</p>
+
+        <p>🎖️ Prize awarded:
+            <span class="prize"
+                  th:text="'Position: ' + ${prize.position} + ' - ' + ${prize.description} + ' (' + ${prize.reward} + 'VNĐ)'">
+            </span>
+        </p>
+
+
+        <h3>Team Members:</h3>
+        <ul>
+            <li th:each="player : ${players}">
+                <span th:text="${player.name}"></span>
+                <span th:if="${player.number != null}"> (#<span th:text="${player.number}"></span>)</span>
+                <span th:if="${player.position != null}"> – <span th:text="${player.position}"></span></span>
+            </li>
+        </ul>
+
+        <p>We appreciate your participation and hope to see your team again in our upcoming tournaments!</p>
+    </div>
+    <div class="footer">
+        This is an automated message from Sport Center. Please do not reply to this email.
+    </div>
+</div>
+</body>
+</html>

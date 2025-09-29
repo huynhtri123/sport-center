@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import clsx from 'clsx';
 import styles from './assets/css/app.module.scss';
 import { ToastContainer } from 'react-toastify';
@@ -12,36 +12,89 @@ import Footer from './layouts/Footer';
 import Home from './pages/Home/Home';
 import ForgotPassword from './pages/Auth/ForgotPassword';
 
+import CourseList from './pages/Customer/Course/CourseList';
+import CourseLesson from './pages/Customer/Course/CourseLesson';
+import Booking from './pages/Customer/Booking/Booking';
+import FieldList from './pages/Customer/Field/FieldList';
+import SportList from './pages/Customer/Sport/SportList';
+import Profile from './pages/Customer/Profile/Profile';
+import Payments from './pages/Customer/Payment/Payments';
+import PaymentSuccess from './pages/Customer/Payment/PaymentSuccess';
+import PaymentFailed from './pages/Customer/Payment/PaymentFailed';
+
+import AdminDashboard from './pages/Admin/dashboard/AdminDashBoard';
+import { useCleanupStorage } from './customs/hooks';
+import TournamentHome from './pages/Customer/Tournament/TournamentHome';
+import TournamentDetail from './pages/Customer/Tournament/TournamentDetail';
+import TournamentRegister from './pages/Customer/Tournament/TournamentRegister';
+import Notification from './pages/Customer/Notification/Notification';
+import TournamentDetailManage from './pages/Admin/tournament/TournamentDetailManage';
+
+import AllProviders from './contexts/AllProviders';
+import ProtectedRoute from './components/ProtectedRoute';
+import { Role } from './utils/enums/Role';
+
 function App() {
+    useCleanupStorage();
+    const location = useLocation();
+
     return (
         <GlobalStyle>
-            <div className={clsx(styles.app)}>
-                <NavBar />
-                <div className={clsx(styles.appContent)}>
-                    <Routes>
-                        <Route path='/' element={<Home />} />
-                        <Route path='/sign-up' element={<Signup />} />
-                        <Route path='/sign-in' element={<Signin />} />
-                        <Route path='/forgot-password' element={<ForgotPassword />} />
-                    </Routes>
-                </div>
-                <Footer />
+            <AllProviders>
+                <div className={clsx(styles.app)}>
+                    {/* Chỉ hiển thị NavBar nếu đường dẫn không phải là /admin */}
+                    {!location.pathname.startsWith('/admin') && <NavBar />}
+                    <div className={clsx(styles.appContent)}>
+                        <Routes>
+                            <Route
+                                path='/admin'
+                                element={
+                                    <ProtectedRoute requiredRole={Role.ADMIN}>
+                                        <AdminDashboard></AdminDashboard>
+                                    </ProtectedRoute>
+                                }
+                            />
+                            <Route path='/tournament-details/:id' element={<TournamentDetailManage />} />
+                            <Route path='/' element={<Home />} />
+                            <Route path='/profile' element={<Profile />} />
+                            <Route path='/sign-up' element={<Signup />} />
+                            <Route path='/sign-in' element={<Signin />} />
+                            <Route path='/forgot-password' element={<ForgotPassword />} />
+                            <Route path='/notifications' element={<Notification />} />
 
-                <ToastContainer
-                    position='top-right'
-                    autoClose={3000}
-                    hideProgressBar={false}
-                    newestOnTop={false}
-                    closeOnClick
-                    rtl={false}
-                    pauseOnFocusLoss
-                    draggable
-                    pauseOnHover
-                    theme='light'
-                />
-                {/* Same as */}
-                <ToastContainer />
-            </div>
+                            {/* <Route path='/sport/:sportId' element={<DynamicSportHome />} /> */}
+                            <Route path='/sport/fields' element={<FieldList />} />
+                            <Route path='/bookings' element={<SportList />} />
+
+                            <Route path='/booking' element={<Booking />} />
+                            <Route path='/tournaments' element={<TournamentHome />} />
+                            <Route path='/tournament/detail' element={<TournamentDetail />} />
+                            <Route path='/tournament/register' element={<TournamentRegister />} />
+
+                            <Route path='/courses' element={<CourseList />} />
+                            <Route path='/courses/:courseId' element={<CourseLesson />} />
+
+                            <Route path='/payments' element={<Payments />} />
+                            <Route path='/payment-success' element={<PaymentSuccess />} />
+                            <Route path='/payment-failed' element={<PaymentFailed />} />
+                        </Routes>
+                    </div>
+
+                    <Footer />
+                    <ToastContainer
+                        position='top-right'
+                        autoClose={1000}
+                        hideProgressBar={false}
+                        newestOnTop={false}
+                        closeOnClick
+                        rtl={false}
+                        pauseOnFocusLoss
+                        draggable
+                        pauseOnHover
+                        theme='colored'
+                    />
+                </div>
+            </AllProviders>
         </GlobalStyle>
     );
 }

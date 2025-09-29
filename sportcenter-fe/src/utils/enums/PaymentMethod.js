@@ -1,0 +1,5 @@
+export const PaymentMethod = {
+    CARD: 'CARD',
+    ACCOUNT_BALANCE: 'ACCOUNT_BALANCE',
+    // CARD_AND_ACCOUNT_BALANCE: 'CARD_AND_ACCOUNT_BALANCE',
+};

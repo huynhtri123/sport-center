@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Booking Cancellation Notification</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            padding: 30px;
+            color: #343a40;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 25px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid #dc3545;
+        }
+        h2 {
+            color: #dc3545;
+            text-align: center;
+        }
+        .details {
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+        .details p {
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        .details strong {
+            display: inline-block;
+            min-width: 160px;
+            color: #495057;
+            font-weight: bold;
+        }
+        .details span {
+            color: #212529;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 0.9em;
+            text-align: center;
+            color: #6c757d;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>🚨 Booking Cancellation Notice</h2>
+    <p>Dear <strong th:text="${fullName}">[User Name]</strong>,</p>
+    <p>
+        We regret to inform you that your booking scheduled for
+        <strong th:text="${bookingDate}">[Booking Date]</strong> has been canceled.
+    </p>
+
+    <div class="details">
+        <h3>📌 Booking Details:</h3>
+        <p><strong>📅 Booking Date:</strong> <span th:text="${bookingDate}">[Booking Date]</span></p>
+        <p><strong>⏰ Start Time:</strong> <span th:text="${startTime}">[Start Time]</span></p>
+        <p><strong>⏳ End Time:</strong> <span th:text="${endTime}">[End Time]</span></p>
+        <p>
+            <strong>💰 Refunded to balance:</strong>
+            <span th:text="${price}">[Refund Amount]</span>
+        </p>
+    </div>
+
+    <div class="footer">
+        <p>
+            Thanks for use our services. If you have any questions or need further assistance, please feel free
+            to contact us.
+        </p>
+        <p><strong>Sport Center</strong></p>
+        <p>📍 123 Sport Avenue, City, Country</p>
+        <p>📞 Phone: +123 456 7890 | ✉️ Email: sportcenter209@gmail.com</p>
+    </div>
+</div>
+</body>
+</html>
