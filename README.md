@@ -10,16 +10,16 @@ Built with **Spring Boot (backend)**, **React (frontend)**, and **MongoDB (datab
 
 ## 🚀 Demo / Screenshot
 <p float="left">
-  <img src="https://github.com/user-attachments/assets/0a7a6a62-2562-496f-a795-719b1a2702de" width="500" />
-  <img src="https://github.com/user-attachments/assets/e1aefd36-85da-4fed-a352-c2c39e019716" width="500" />
+  <img src="https://github.com/user-attachments/assets/0a7a6a62-2562-496f-a795-719b1a2702de" width="400" />
+  <img src="https://github.com/user-attachments/assets/e1aefd36-85da-4fed-a352-c2c39e019716" width="400" />
 </p>
 <p float="left">
-  <img src="https://github.com/user-attachments/assets/2808d819-ae95-4368-a869-cb864b00d5ed" width="500" />
-  <img src="https://github.com/user-attachments/assets/e4612d16-1992-486c-837f-b9debc23383f" width="500" />
+  <img src="https://github.com/user-attachments/assets/2808d819-ae95-4368-a869-cb864b00d5ed" width="400" />
+  <img src="https://github.com/user-attachments/assets/e4612d16-1992-486c-837f-b9debc23383f" width="400" />
 </p>
 <p float="left">
-  <img src="https://github.com/user-attachments/assets/76530dad-8041-45c6-9554-09a9d83e62ca" width="500" />
-  <img src="https://github.com/user-attachments/assets/767b24b1-9323-4a67-bba4-79ca888a720f" width="500" />
+  <img src="https://github.com/user-attachments/assets/76530dad-8041-45c6-9554-09a9d83e62ca" width="400" />
+  <img src="https://github.com/user-attachments/assets/767b24b1-9323-4a67-bba4-79ca888a720f" width="400" />
 </p>
 
 
